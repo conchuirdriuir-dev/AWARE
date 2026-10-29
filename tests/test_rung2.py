@@ -154,3 +154,25 @@ def test_views_stay_in_budget_on_a_long_story(tmp_path):
     q = {"id": "q", "type": 1, "after": 6, "question": "Where did Mara walk?"}
     for arm in "ABCD":
         assert count(arms.view(arm, q)) <= VIEW, arm
+
+
+def test_dry_run_split_and_show(tmp_path, capsys):
+    from rung2.model import strip_thinking
+    assert strip_thinking("<think>\nhmm\n</think>\n\nMara hid it.") == "Mara hid it."
+    para = "Mara walked on. " * 120
+    book = ("The Project Gutenberg eBook\n*** START OF THE PROJECT GUTENBERG EBOOK X ***\n"
+            "CONTENTS\nCHAPTER I. The Shop\nCHAPTER II. The Key\n\n"
+            f"CHAPTER I. The Shop\n\n{para}\n\nCHAPTER II. The Key\n\n{para}\n\nCHAPTER III. Ness\n\n{para}\n"
+            "*** END OF THE PROJECT GUTENBERG EBOOK X ***\nlicence text")
+    (tmp_path / "book.txt").write_text(book)
+    main(["split", "--text", str(tmp_path / "book.txt"), "--out", str(tmp_path / "story"), "--chapters", "2"])
+    assert sorted(p.name for p in (tmp_path / "story").iterdir()) == ["ch01.md", "ch02.md"]
+    assert "licence" not in (tmp_path / "story" / "ch02.md").read_text()
+
+    run = tmp_path / "run"
+    main(["build", "--story", str(STORY), "--run", str(run), "--fake", "--only", "keeper"])
+    assert not (run / "summaries.json").exists() and not (run / "vectors.npy").exists()
+    capsys.readouterr()
+    main(["show", "--run", str(run)])
+    out = capsys.readouterr().out
+    assert "KEEPER: 3 calls" in out and "ENTITIES" in out and "CHAPTER LINES" in out

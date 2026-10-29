@@ -30,4 +30,14 @@ python -m rung2.run score --run runs/8b --key ../outside/key.jsonl --settled set
 ```
 
 `--fake` in place of `--url` runs the whole pipeline with canned replies: it tests the plumbing, never the result.
+
+**The keeper's dry run**, before trusting the store: a few chapters of any plain-text book, the keeper alone, and
+what it recorded printed for reading against the text.
+
+```sh
+llama-server -m MODEL.gguf -c 8192 -ngl 99 --jinja --port 8080          # --jinja lets the client turn thinking off
+python -m rung2.run split --text book.txt --out dry/story --chapters 3
+python -m rung2.run build --story dry/story --run runs/dry --url http://127.0.0.1:8080 --only keeper
+python -m rung2.run show  --run runs/dry > runs/dry/show.txt
+```
 The file formats are in `rung2/run.py` and `rung2/score.py`. Run the tests with `python -m pytest`.

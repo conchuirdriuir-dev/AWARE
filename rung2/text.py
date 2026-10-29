@@ -25,6 +25,21 @@ def load_chapters(story_dir: Path) -> list[tuple[int, str]]:
     return chapters
 
 
+HEADING = re.compile(r"^\s*(chapter|CHAPTER|Chapter)\s+([0-9IVXLC]+|[A-Za-z-]+)\b.*$", re.M)
+
+
+def split_book(text: str, limit: int | None = None) -> list[str]:
+    """A plain-text book (Project Gutenberg's header and footer removed) cut at its CHAPTER headings."""
+    start = re.search(r"\*\*\* ?START OF.*?\*\*\*", text)
+    end = re.search(r"\*\*\* ?END OF", text)
+    body = text[start.end() if start else 0:end.start() if end else None]
+    heads = list(HEADING.finditer(body))
+    chapters = [body[h.end():(heads[i + 1].start() if i + 1 < len(heads) else None)].strip()
+                for i, h in enumerate(heads)]
+    chapters = [c for c in chapters if len(c.split()) > 200]          # a table of contents is not a chapter
+    return chapters[:limit] if limit else chapters
+
+
 def _sentences(paragraph: str) -> list[str]:
     return [s for s in re.split(r"(?<=[.!?])\s+", paragraph) if s]
 

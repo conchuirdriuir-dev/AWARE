@@ -3,6 +3,10 @@
     python -m rung2.run build --story DIR --run DIR (--url http://127.0.0.1:8080 [--embed-url URL] | --fake)
     python -m rung2.run ask   --run DIR --questions FILE [--evidence FILE] [--arms 0ABCDE]
     python -m rung2.run score --run DIR --key FILE [--settled FILE]
+    python -m rung2.run show  --run DIR [--upto N]               what the store holds, and what the keeper lost
+    python -m rung2.run split --text BOOK.txt --out DIR [--chapters N]   a Gutenberg book into ch01.md, ch02.md, ...
+
+`build --only keeper` runs just the keeper and the chapter lines: the dry run (SPEC.md, "Before trusting the store").
 
 `build` reads the chapters in order, as if the story were being written: it splits them into passages, runs the
 keeper and the chapter lines (arm D), embeds the passages (arm B), and updates the running summary (arm C).
@@ -25,7 +29,8 @@ from .arms import ARMS, Arms
 from .model import Fake, Server
 from .record import Recorder
 from .score import read_jsonl, report, score
-from .text import chunk, load_chapters
+from .show import show
+from .text import chunk, load_chapters, split_book
 
 SUMMARY_WORDS = 1700
 SUMMARY = ("Here is the running summary of a novel so far, and its next chapter. Rewrite the summary so it also covers "
@@ -59,12 +64,17 @@ def build(args) -> None:
             previous = p["text"]
         keeper.keep_chapter_line(conn, rec, n, text)
         t_store = time.time() - t0
+        print(f"chapter {n}: {len(ps)} passages, keeper {t_store:.0f} s", file=sys.stderr)
+        if args.only == "keeper":
+            rec.event("chapter_built", chapter=n, passages=len(ps), store_seconds=round(t_store, 2))
+            continue
         summary = rec.chat("summary", SUMMARY.format(words=SUMMARY_WORDS, old=summary or "(none yet)", n=n, text=text),
                            ref=f"c{n:02d}", max_tokens=2400).strip()
         summaries[str(n)] = summary
         rec.event("chapter_built", chapter=n, passages=len(ps), store_seconds=round(t_store, 2),
                   summary_seconds=round(time.time() - t0 - t_store, 2))
-        print(f"chapter {n}: {len(ps)} passages", file=sys.stderr)
+    if args.only == "keeper":
+        return
     (run / "summaries.json").write_text(json.dumps(summaries, indent=2, ensure_ascii=False))
     t0 = time.time()
     retrieval.build(store.passages(conn), model.embed).save(run)
@@ -130,6 +140,14 @@ def main(argv=None) -> None:
     b.add_argument("--fake", action="store_true", help="canned replies: tests the plumbing, never the result")
     b.add_argument("--window", type=int, default=8192)
     b.add_argument("--seed", type=int, default=0)
+    b.add_argument("--only", choices=["keeper"], help="keeper: the keeper and chapter lines only (the dry run)")
+    sh = sub.add_parser("show")
+    sh.add_argument("--run", required=True)
+    sh.add_argument("--upto", type=int)
+    sp = sub.add_parser("split")
+    sp.add_argument("--text", required=True)
+    sp.add_argument("--out", required=True)
+    sp.add_argument("--chapters", type=int)
     a = sub.add_parser("ask")
     a.add_argument("--run", required=True)
     a.add_argument("--questions", required=True)
@@ -142,7 +160,21 @@ def main(argv=None) -> None:
     args = p.parse_args(argv)
     if args.cmd == "build" and not (args.fake or args.url):
         p.error("build needs --url or --fake")
-    {"build": build, "ask": ask, "score": score_cmd}[args.cmd](args)
+    {"build": build, "ask": ask, "score": score_cmd, "show": show_cmd, "split": split_cmd}[args.cmd](args)
+
+
+def show_cmd(args) -> None:
+    print(show(Path(args.run), args.upto), end="")
+
+
+def split_cmd(args) -> None:
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=False)
+    chapters = split_book(Path(args.text).read_text(encoding="utf-8", errors="replace"), args.chapters)
+    for i, c in enumerate(chapters, 1):
+        (out / f"ch{i:02d}.md").write_text(c + "\n", encoding="utf-8")
+    words = [len(c.split()) for c in chapters]
+    print(f"{len(chapters)} chapters written to {out}: {min(words, default=0)} to {max(words, default=0)} words each")
 
 
 if __name__ == "__main__":

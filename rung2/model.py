@@ -35,10 +35,11 @@ class Server:
     def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
         body = {"messages": [{"role": "user", "content": prompt}], "max_tokens": max_tokens,
-                "temperature": temperature, "seed": seed}
+                "temperature": temperature, "seed": seed,
+                "chat_template_kwargs": {"enable_thinking": False}}    # Qwen3 and the like: no thinking (needs --jinja)
         if schema is not None:
             body["response_format"] = {"type": "json_schema", "json_schema": {"name": "reply", "schema": schema}}
-        return self._post(self.url, "/v1/chat/completions", body)["choices"][0]["message"]["content"]
+        return strip_thinking(self._post(self.url, "/v1/chat/completions", body)["choices"][0]["message"]["content"])
 
     def tokens(self, text: str) -> int:
         return len(self._post(self.url, "/tokenize", {"content": text})["tokens"])
@@ -46,6 +47,11 @@ class Server:
     def embed(self, texts: list[str]) -> list[list[float]]:
         data = self._post(self.embed_url, "/v1/embeddings", {"input": texts})["data"]
         return [d["embedding"] for d in sorted(data, key=lambda d: d["index"])]
+
+
+def strip_thinking(reply: str | None) -> str:
+    """Drop a <think>...</think> block a reasoning model emits before its answer, if one still comes through."""
+    return re.sub(r"^\s*<think>.*?</think>\s*", "", reply or "", flags=re.S)
 
 
 # -- the fake --------------------------------------------------------------------------------------------------------
