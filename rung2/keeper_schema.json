@@ -65,7 +65,14 @@
             "type": "string"
           },
           "attribute": {
-            "type": "string"
+            "enum": [
+              "location",
+              "held_by",
+              "appearance",
+              "condition",
+              "role",
+              "relationship"
+            ]
           },
           "value": {
             "type": "string"
@@ -75,7 +82,7 @@
           }
         }
       },
-      "maxItems": 10
+      "maxItems": 8
     },
     "knowledge": {
       "type": "array",
@@ -159,7 +166,7 @@
           }
         }
       },
-      "maxItems": 8
+      "maxItems": 6
     },
     "rules": {
       "type": "array",
@@ -179,7 +186,7 @@
           }
         }
       },
-      "maxItems": 3
+      "maxItems": 2
     },
     "loops_opened": {
       "type": "array",

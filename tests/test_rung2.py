@@ -250,3 +250,23 @@ def test_lenient_parse_names_from_the_passage_and_loop_merge(conn):
     r = store.apply(conn, empty(loops_opened=[{"description": "Who took the jam", "entities": [],
                                                "quote": "Who had taken the jam?"}]), p)
     assert r["written"]["loops_opened"] == 0 and r["written"]["loops_touched"] == 1
+
+
+def test_second_dry_run_fixes(conn):
+    from rung2.keeper import SCHEMA
+    assert store.quoted("he had a very good time", "and he had a really good time of it")    # 1 word of 6 differs
+    assert not store.quoted("had a bad time", "and he had a really good time of it")        # under 5 words: exact only
+    assert store.proper_name("Aunt Polly", "aunt polly") and store.proper_name("Ben", "Then Ben came by.")
+    assert not store.proper_name("the shade", "They sat in the shade.") and not store.proper_name("Ben", "Ben came.")
+    assert SCHEMA["properties"]["states"]["items"]["properties"]["attribute"]["enum"][0] == "location"
+    p = passage(conn, 1, 1, "Tom and the new boy fought. The boy cried. Tom laughed, and Tom laughed again.")
+    r = store.apply(conn, empty(
+        new_entities=[{"name": "Tom", "kind": "character", "aliases": ["Tom", "the boy"], "quote": "Tom and the new boy"},
+                      {"name": "the new boy", "kind": "character", "aliases": ["the boy"], "quote": "the new boy"}],
+        knowledge=[{"character": "Tom", "proposition": "the new boy cried", "about": None, "stance": "knows",
+                    "true_in_story": None, "quote": "The boy cried"}] * 2,
+        events=[{"summary": "the boy cries", "place": None, "participants": ["the boy"], "happened": True,
+                 "quote": "The boy cried"}]), p)
+    assert json.loads(conn.execute("SELECT aliases FROM entity WHERE id = 'tom'").fetchone()[0]) == ["the boy"]
+    assert r["written"]["knowledge"] == 1
+    assert [d["why"] for d in r["dropped"]] == ["ambiguous entity 'the boy': tom, the-new-boy"]

@@ -28,13 +28,15 @@ def show(run: Path, upto: int | None = None) -> str:
             applied.append(e)
         elif e["kind"] == "keeper_unparsed":
             unparsed.append(e)
-    written, why, made = Counter(), Counter(), 0
+    written, why, made, names = Counter(), Counter(), 0, Counter()
     per = {}
     for e in applied:
         written.update(e["written"])
         why.update(f"{d['kind']}: {d['why'].split(' ')[0] if d['why'].startswith('unresolved') else d['why']}"
                    for d in e["dropped"])
         made += len(e.get("created", []))
+        names.update(d["why"].split(" ", 2)[2].split(":")[0] for d in e["dropped"]
+                     if d["why"].startswith(("unresolved entity", "ambiguous entity")))
         c = per.setdefault(int(e["ref"][1:3]), Counter())
         c["passages"] += 1
         c["written"] += sum(e["written"].values())
@@ -51,6 +53,10 @@ def show(run: Path, upto: int | None = None) -> str:
             f"entities created from names in the passage: {made}",
             "  written by kind: " + ", ".join(f"{k} {v}" for k, v in written.items() if v)]
     out += [f"  dropped: {k} x{v}" for k, v in why.most_common()]
+    out += ["  (event_participant and event_place: the event is kept, only its link to that entity is lost)"]
+    if names:
+        out += ["  names that matched no entity, most common first: "
+                + ", ".join(f"{n} x{c}" for n, c in names.most_common(15))]
     out += ["", "  by chapter:  passages  not JSON  written  dropped"]
     out += [f"  ch. {ch:<9} {c['passages']:>8}  {c['unparsed']:>8}  {c['written']:>7}  {c['dropped']:>7}"
             for ch, c in sorted(per.items())]

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from difflib import SequenceMatcher
 from pathlib import Path
 
 SCHEMA = Path(__file__).with_name("schema.sql")
@@ -54,9 +55,38 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text.translate(QUOTES)).strip().lower()
 
 
+WORDS = re.compile(r"[a-z0-9']+")
+
+
 def quoted(quote: str, passage: str) -> bool:
+    """The quote stands in the passage: exactly, or, for 5 words or more, with about one word in five different."""
     q = norm(quote).strip("\"' ")
-    return bool(q) and q in norm(passage)
+    if not q:
+        return False
+    if q in norm(passage):
+        return True
+    qw, pw = WORDS.findall(q), WORDS.findall(norm(passage))
+    if len(qw) < 5:
+        return False
+    need = len(qw) - max(1, len(qw) // 5)
+    for i in range(len(pw)):
+        window = pw[i:i + len(qw) + 1]
+        if sum(b.size for b in SequenceMatcher(None, qw, window, autojunk=False).get_matching_blocks()) >= need:
+            return True
+    return False
+
+
+def proper_name(name: str, passage: str) -> bool:
+    """A name capitalized in the passage mid-sentence, or with two capitalized words: "Aunt Polly", not "the shade"."""
+    words = name.strip().split()
+    if sum(w[:1].isupper() for w in words if w.lower() not in ("the", "a", "an")) >= 2:
+        return True
+    for m in re.finditer(r"\b" + re.escape(name.strip()) + r"\b", passage, flags=re.I):
+        found = [w for w in m.group(0).split() if w.lower() not in ("the", "a", "an")]
+        before = passage[:m.start()].rstrip()
+        if found and found[0][:1].isupper() and before and before[-1] not in '.!?"\u201c\u201d':
+            return True
+    return False
 
 
 def slug(name: str) -> str:
@@ -73,10 +103,18 @@ def resolve(conn: sqlite3.Connection, ref: str | None, new: dict[str, str]) -> s
     low = ref.lower()
     if low in new:
         return new[low]
-    for r in conn.execute("SELECT id, name, aliases FROM entity").fetchall():
-        if low in [r["name"].lower()] + [a.lower() for a in json.loads(r["aliases"])]:
-            return r["id"]
-    return None
+    rows = conn.execute("SELECT id, name, aliases FROM entity").fetchall()
+    by_name = [r["id"] for r in rows if r["name"].lower() == low]
+    if by_name:
+        return by_name[0]
+    by_alias = [r["id"] for r in rows if low in [a.lower() for a in json.loads(r["aliases"])]]
+    return by_alias[0] if len(by_alias) == 1 else None     # an alias two entities share names neither
+
+
+def ambiguous(conn: sqlite3.Connection, ref: str) -> list[str]:
+    low = ref.strip().lower()
+    return [r["id"] for r in conn.execute("SELECT id, aliases FROM entity").fetchall()
+            if low in [a.lower() for a in json.loads(r["aliases"])]]
 
 
 def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
@@ -96,6 +134,7 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
         eid, i = slug(name), 2
         while conn.execute("SELECT 1 FROM entity WHERE id = ?", (eid,)).fetchone():
             eid, i = f"{slug(name)}-{i}", i + 1
+        aliases = [a.strip() for a in aliases if a.strip() and a.strip().lower() != name.strip().lower()]
         conn.execute("INSERT INTO entity (id, name, kind, aliases, first_passage) VALUES (?, ?, ?, ?, ?)",
                      (eid, name.strip(), kind, json.dumps(aliases), pid))
         new[name.strip().lower()] = eid
@@ -107,7 +146,11 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
         fixes its kind (an event's participant, an event's place), the name is its own quote: it becomes an entity,
         and the reply says so in `created`."""
         got = resolve(conn, value, new)
-        if got is None and value and role and re.search(r"\b" + re.escape(norm(value)) + r"\b", norm(text)):
+        if got is None and value and len(ambiguous(conn, value)) > 1:
+            dropped.append({"kind": kind, "why": f"ambiguous entity {value!r}: {', '.join(ambiguous(conn, value))}",
+                            "record": rec})
+            return None
+        if got is None and value and role and proper_name(value, text):
             got = create(value, role, [])
             created.append({"name": value.strip(), "kind": role, "from": kind})
         if got is None and (required or value):
@@ -142,6 +185,9 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
             continue
         about = ref("knowledge", k, k.get("about"), required=False)
         truth = None if k["true_in_story"] is None else int(k["true_in_story"])
+        if any(norm(r["proposition"]) == norm(k["proposition"]) and r["stance"] == k["stance"]
+               for r in conn.execute("SELECT proposition, stance FROM knowledge WHERE character_id = ?", (cid,))):
+            continue                                   # already held: the same character, stance and proposition
         cur = conn.execute("INSERT INTO knowledge (character_id, proposition, about_id, stance, true_in_story, "
                            "from_chapter, passage_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
                            (cid, k["proposition"].strip(), about, k["stance"], truth, ch, pid))
@@ -154,11 +200,11 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
     for ev in reply.get("events", []):
         if not keep("events", ev):
             continue
-        place = ref("events", ev, ev.get("place"), required=False, role="place")
+        place = ref("event_place", ev, ev.get("place"), required=False, role="place")
         cur = conn.execute("INSERT INTO event (chapter, summary, place_id, happened, passage_id) VALUES (?, ?, ?, ?, ?)",
                            (ch, ev["summary"].strip(), place, int(ev["happened"]), pid))
         for p in ev.get("participants", []):
-            if (eid := ref("events", ev, p, role="character")) is not None:
+            if (eid := ref("event_participant", ev, p, role="character")) is not None:
                 conn.execute("INSERT OR IGNORE INTO event_entity VALUES (?, ?)", (cur.lastrowid, eid))
         written["events"] += 1
 
