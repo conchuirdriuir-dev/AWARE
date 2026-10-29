@@ -14,7 +14,24 @@ written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are re
 ## Status
 
 Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
-on a real model or on the owner's story.
+on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) is built and
+tested with a fake model; it awaits a real one.
+
+## Running the toy world
+
+The store world from the owner's experiments, moved in as the Build Map's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)).
+It needs one `llama-server` and nothing else.
+
+```sh
+llama-server -m MODEL.gguf -c 8192 -ngl 99 --jinja --port 8080
+python -m toyworld.run estimate --gen-tps 8                                    # what a run will cost, at your speed
+python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b      # four arms, 3 runs, 5 days
+python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure
+python -m toyworld.compare runs/toy-8b runs/toy-8b-p
+```
+
+`--fake` in place of `--url` runs it with canned replies, testing the plumbing, never the result. `--settle ask` puts
+the reviewer's offers to you at the terminal; the default, `auto`, is a stand-in labelled as such in the record.
 
 ## Running rung 2
 
