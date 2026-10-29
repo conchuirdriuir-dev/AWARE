@@ -42,7 +42,8 @@ def entity_lines(conn, eid: str, n: int, cited: Counter) -> list[str]:
     for ev in conn.execute("SELECT e.* FROM event e JOIN event_entity x ON x.event_id = e.id "
                            "WHERE x.entity_id = ? AND e.chapter <= ? ORDER BY e.chapter, e.id", (eid, n)):
         planned = "" if ev["happened"] else " (planned or cancelled; did not happen)"
-        lines.append(f"- ch. {ev['chapter']}: {ev['summary']}{planned}")
+        where = f" ({ev['place_text']})" if ev["place_text"] else ""
+        lines.append(f"- ch. {ev['chapter']}: {ev['summary']}{where}{planned}")
         cited[ev["passage_id"]] += 1
     return lines
 

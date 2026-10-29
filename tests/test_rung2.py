@@ -270,3 +270,28 @@ def test_second_dry_run_fixes(conn):
     assert json.loads(conn.execute("SELECT aliases FROM entity WHERE id = 'tom'").fetchone()[0]) == ["the boy"]
     assert r["written"]["knowledge"] == 1
     assert [d["why"] for d in r["dropped"]] == ["ambiguous entity 'the boy': tom, the-new-boy"]
+
+
+def test_third_dry_run_fixes(conn):
+    p = passage(conn, 1, 1, "Aunt Polly caught the new boy near the fence. She knew Tom had whitewashed it. "
+                            "Later she believed Tom could work when he wanted to. Tom kept the stone.")
+    r = store.apply(conn, empty(
+        new_entities=[{"name": "the stone", "kind": "object", "aliases": [], "quote": "Tom kept the stone"},
+                      {"name": "Tom", "kind": "character", "aliases": [], "quote": "Tom kept the stone"}],
+        events=[{"summary": "Polly catches the boy", "place": "near the fence", "participants": ["Aunt Polly",
+                 "the new boy"], "happened": True, "quote": "Aunt Polly caught the new boy"},
+                {"summary": "nothing", "place": "unknown", "participants": [], "happened": True,
+                 "quote": "Tom kept the stone"}],
+        knowledge=[{"character": "Aunt Polly", "proposition": "Tom whitewashed the fence", "about": "Tom",
+                    "stance": "knows", "true_in_story": True, "quote": "She knew Tom had whitewashed it"},
+                   {"character": "Aunt Polly", "proposition": "Tom can work when he wants to", "about": "Tom",
+                    "stance": "believes", "true_in_story": None, "quote": "believed Tom could work"}],
+        states=[{"entity": "Aunt Polly", "attribute": "held_by", "value": "cat", "quote": "Aunt Polly caught"},
+                {"entity": "the stone", "attribute": "held_by", "value": "Tom", "quote": "Tom kept the stone"}]), p)
+    assert {c["name"] for c in r["created"]} == {"Aunt Polly", "the new boy"}
+    assert [d["why"] for d in r["dropped"]] == ["held_by on something not an object"]
+    places = conn.execute("SELECT place_id, place_text FROM event ORDER BY id").fetchall()
+    assert [tuple(x) for x in places] == [(None, "near the fence"), (None, None)]
+    rows = conn.execute("SELECT about_id, corrected_by FROM knowledge").fetchall()
+    assert [r["about_id"] for r in rows] == ["tom", "tom"] and all(r["corrected_by"] is None for r in rows)
+    assert any("(near the fence)" in x for x in builder.entity_lines(conn, "the-new-boy", 1, builder.Counter()))

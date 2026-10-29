@@ -122,14 +122,16 @@ What code does with each reply, in order:
 1. **Check every quote** against the passage (whitespace and quote marks normalized): exactly, or for a quote of 5
    words or more with about one word in five different. Drop and log any record whose quote is missing.
 2. **Resolve entity references:** a known id; else the exact name of a new entity in this reply; else an alias of a
-   known entity. An alias two entities share resolves to neither, and is logged as ambiguous. A proper name that
-   resolves to nothing but stands in the passage, in a field that fixes its kind (an event's participant, an
-   event's place), becomes an entity and is reported as created. Any other unresolved reference is dropped and
-   logged; for a participant or place only the link is lost, not the event.
+   known entity. An alias two entities share resolves to neither, and is logged as ambiguous. A person named by an
+   event or a knowledge row, standing in the passage, becomes a character before the other records are applied;
+   a place becomes an entity only as a proper name. An event's place is kept as text (`place_text`) and linked
+   when it is a known place. Any other unresolved reference is dropped and logged; for a participant only the
+   link is lost, not the event.
 3. **Skip repeated states and knowledge.** A state's attribute is one of six (location, held_by, appearance,
    condition, role, relationship), fixed by the schema. A different value becomes a new row, with `supersedes` set to the old one.
-4. **Link knowledge.** A new row for the same character and `about` entity with a different stance or truth sets
-   `corrected_by` on the earlier row.
+4. **Link knowledge.** A new row for the same character and `about` entity, with a different stance or truth and
+   at least half the content words of an earlier row's proposition, sets `corrected_by` on that row. `held_by`
+   is accepted only on objects.
 5. **Update loops:** a `loop_touch` row for every opened, touched or closed loop; `closed_chapter` and
    `closed_passage` for closed ids. Unknown ids are dropped and logged.
 6. **Every row carries its passage id.** The store belongs to one run directory, whose log records the model and seed.

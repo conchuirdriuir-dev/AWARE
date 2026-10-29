@@ -76,6 +76,15 @@ def quoted(quote: str, passage: str) -> bool:
     return False
 
 
+STOP = {"the", "a", "an", "of", "to", "that", "is", "was", "had", "has", "he", "she", "it", "his", "her", "in", "and"}
+
+
+def overlap(a: str, b: str) -> float:
+    """Share of the content words of the shorter proposition that the other one also has."""
+    x, y = set(WORDS.findall(norm(a))) - STOP, set(WORDS.findall(norm(b))) - STOP
+    return len(x & y) / max(1, min(len(x), len(y)))
+
+
 def proper_name(name: str, passage: str) -> bool:
     """A name capitalized in the passage mid-sentence, or with two capitalized words: "Aunt Polly", not "the shade"."""
     words = name.strip().split()
@@ -150,7 +159,8 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
             dropped.append({"kind": kind, "why": f"ambiguous entity {value!r}: {', '.join(ambiguous(conn, value))}",
                             "record": rec})
             return None
-        if got is None and value and role and proper_name(value, text):
+        if got is None and value and role and (proper_name(value, text) if role == "place" else
+                                               re.search(r"\b" + re.escape(norm(value)) + r"\b", norm(text))):
             got = create(value, role, [])
             created.append({"name": value.strip(), "kind": role, "from": kind})
         if got is None and (required or value):
@@ -168,10 +178,22 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
             continue
         create(e["name"], e["kind"], e.get("aliases", []))
 
+    # the people events and knowledge name, introduced before any record refers to them (a state may come first)
+    people = [p for ev in reply.get("events", []) if quoted(ev.get("quote", ""), text) for p in ev.get("participants", [])]
+    people += [k["character"] for k in reply.get("knowledge", []) if quoted(k.get("quote", ""), text)]
+    for name in people:
+        if name and resolve(conn, name, new) is None and len(ambiguous(conn, name)) < 2 \
+                and re.search(r"\b" + re.escape(norm(name)) + r"\b", norm(text)):
+            create(name, "character", [])
+            created.append({"name": name.strip(), "kind": "character", "from": "named by an event or knowledge"})
+
     for s in reply.get("states", []):
         if not keep("states", s) or (eid := ref("states", s, s["entity"])) is None:
             continue
         attr = s["attribute"].strip().lower()
+        if attr == "held_by" and conn.execute("SELECT kind FROM entity WHERE id = ?", (eid,)).fetchone()[0] != "object":
+            dropped.append({"kind": "states", "why": "held_by on something not an object", "record": s})
+            continue
         cur = conn.execute("SELECT id, value FROM state WHERE entity_id = ? AND attribute = ? ORDER BY id DESC LIMIT 1",
                            (eid, attr)).fetchone()
         if cur and norm(cur["value"]) == norm(s["value"]):
@@ -181,7 +203,7 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
         written["states"] += 1
 
     for k in reply.get("knowledge", []):
-        if not keep("knowledge", k) or (cid := ref("knowledge", k, k["character"])) is None:
+        if not keep("knowledge", k) or (cid := ref("knowledge", k, k["character"], role="character")) is None:
             continue
         about = ref("knowledge", k, k.get("about"), required=False)
         truth = None if k["true_in_story"] is None else int(k["true_in_story"])
@@ -192,17 +214,25 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
                            "from_chapter, passage_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
                            (cid, k["proposition"].strip(), about, k["stance"], truth, ch, pid))
         if about is not None:
-            conn.execute("UPDATE knowledge SET corrected_by = ? WHERE character_id = ? AND about_id = ? "
-                         "AND corrected_by IS NULL AND id != ? AND (stance != ? OR true_in_story IS NOT ?)",
-                         (cur.lastrowid, cid, about, cur.lastrowid, k["stance"], truth))
+            for old in conn.execute("SELECT id, proposition FROM knowledge WHERE character_id = ? AND about_id = ? "
+                                    "AND corrected_by IS NULL AND id != ? AND (stance != ? OR true_in_story IS NOT ?)",
+                                    (cid, about, cur.lastrowid, k["stance"], truth)).fetchall():
+                if overlap(old["proposition"], k["proposition"]) >= 0.5:
+                    conn.execute("UPDATE knowledge SET corrected_by = ? WHERE id = ?", (cur.lastrowid, old["id"]))
         written["knowledge"] += 1
 
     for ev in reply.get("events", []):
         if not keep("events", ev):
             continue
-        place = ref("event_place", ev, ev.get("place"), required=False, role="place")
-        cur = conn.execute("INSERT INTO event (chapter, summary, place_id, happened, passage_id) VALUES (?, ?, ?, ?, ?)",
-                           (ch, ev["summary"].strip(), place, int(ev["happened"]), pid))
+        where = (ev.get("place") or "").strip()
+        where = "" if norm(where) in ("unknown", "none", "n/a", "unspecified") else where
+        place = resolve(conn, where, new) if where else None
+        if place is None and where and proper_name(where, text):
+            place = create(where, "place", [])
+            created.append({"name": where, "kind": "place", "from": "event_place"})
+        cur = conn.execute("INSERT INTO event (chapter, summary, place_id, place_text, happened, passage_id) "
+                           "VALUES (?, ?, ?, ?, ?, ?)",
+                           (ch, ev["summary"].strip(), place, where or None, int(ev["happened"]), pid))
         for p in ev.get("participants", []):
             if (eid := ref("event_participant", ev, p, role="character")) is not None:
                 conn.execute("INSERT OR IGNORE INTO event_entity VALUES (?, ?)", (cur.lastrowid, eid))

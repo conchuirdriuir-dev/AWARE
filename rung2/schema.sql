@@ -42,7 +42,8 @@ CREATE TABLE event (
   id          INTEGER PRIMARY KEY,
   chapter     INTEGER NOT NULL,
   summary     TEXT NOT NULL,           -- one line
-  place_id    TEXT REFERENCES entity(id),
+  place_id    TEXT REFERENCES entity(id),  -- when the place is a known entity
+  place_text  TEXT,                        -- where, as the keeper said it: 'near the fence'
   happened    INTEGER NOT NULL DEFAULT 1, -- 0: planned, threatened or cancelled
   passage_id  TEXT NOT NULL REFERENCES passage(id)
 );
