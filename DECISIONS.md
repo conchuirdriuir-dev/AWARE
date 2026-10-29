@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: Toy world stage 0 (PR #1): `--settle auto` is the default. A stand-in accepts every offer, labelled
+  "auto stand-in for the owner" in the record, so runs can go unattended; its results show what the checks can do, not
+  that following them was right. `--settle ask` puts offers to the owner.
+- 2026-10-29: Toy world stage 0 (PR #1): which action touches which anomaly is given by hand (`world.action_anomaly`)
+  until stage 1 learns it from the record.
 - 2026-10-29: **What AWARE is.** AWARE is a metacognitive layer around a language model. The model does the
   object-level cognition (reasoning, answering, proposing); AWARE's code is the meta level, whose subject is that
   cognition: it keeps the record of what the model did, finds where it fails, controls what it sees, and learns,
