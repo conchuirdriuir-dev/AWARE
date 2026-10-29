@@ -65,9 +65,15 @@ CREATE TABLE loop (
   description TEXT NOT NULL,           -- 'the locket Mara hid'
   opened_chapter INTEGER NOT NULL,
   opened_passage TEXT NOT NULL REFERENCES passage(id),
-  last_touched INTEGER NOT NULL,
   closed_chapter INTEGER,              -- NULL while open
   closed_passage TEXT REFERENCES passage(id)
+);
+
+CREATE TABLE loop_touch (              -- every passage that opens, mentions or closes a loop: "as of chapter N" needs them
+  loop_id     INTEGER NOT NULL REFERENCES loop(id),
+  chapter     INTEGER NOT NULL,
+  passage_id  TEXT NOT NULL REFERENCES passage(id),
+  PRIMARY KEY (loop_id, passage_id)
 );
 
 CREATE TABLE loop_entity (

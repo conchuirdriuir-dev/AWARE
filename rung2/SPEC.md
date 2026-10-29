@@ -20,7 +20,8 @@ discuss it; this file is the version the code is built against.
 ## Arms
 
 All arms use the same model, prompt template and temperature 0. Each sees at most 6k tokens, out of an 8k window
-capped on purpose, counted with the model's own tokenizer.
+capped on purpose, counted with the model's own tokenizer. Continuations (type 6) run three times at temperature 0.7
+with seeds s, s+1, s+2, since three runs at temperature 0 would be one run.
 
 | Arm | What the model sees | What it tests |
 |---|---|---|
@@ -93,7 +94,7 @@ Eight tables and two link tables ([schema.sql](schema.sql)). Every row but the c
 | `knowledge` | who learned or believed what, from which chapter | 2 |
 | `event` | what happened, where, with whom; `happened = 0` for planned or cancelled | 5, 6 |
 | `rule` | rules of the world or household | 6 |
-| `loop` | setups: opened, last touched, closed or open | 4 |
+| `loop`, `loop_touch` | setups: opened, closed or open, and every passage that touches one | 4 |
 | `chapter_line` | one sentence per chapter, from its raw text | the map of the whole |
 
 **The builder** answers "as of chapter N" and fills the view in this order, each part stopping at its budget:
@@ -105,7 +106,7 @@ Eight tables and two link tables ([schema.sql](schema.sql)). Every row but the c
 | Entities named in the question | 2,500 | aliases matched in code; latest state per attribute, knowledge rows, events up to N |
 | Open loops | 600 | open as of N, least recently touched first |
 | Cited passages | 1,350 | passages the selected rows cite, most-cited first |
-| Recent text | 1,000 | the last passages before N |
+| Recent text | 900 | the last passages before N (100 tokens are left for the section headings) |
 
 Left out on purpose: abstractions about the story, the author's plans and acts, rule dependencies (rung 3 and real
 use).
@@ -125,9 +126,9 @@ What code does with each reply, in order:
 3. **Skip repeated states.** A different value becomes a new row, with `supersedes` set to the old one.
 4. **Link knowledge.** A new row for the same character and `about` entity with a different stance or truth sets
    `corrected_by` on the earlier row.
-5. **Update loops:** `last_touched` for touched ids; `closed_chapter` and `closed_passage` for closed ids. Unknown ids
-   are dropped and logged.
-6. **Stamp every row** with the chapter, passage id, model file and run id.
+5. **Update loops:** a `loop_touch` row for every opened, touched or closed loop; `closed_chapter` and
+   `closed_passage` for closed ids. Unknown ids are dropped and logged.
+6. **Every row carries its passage id.** The store belongs to one run directory, whose log records the model and seed.
 
 At each chapter's end a second call reads the whole chapter: *"In one sentence of 30 words or fewer, say what happens
 in this chapter that matters to the story. Use the characters' names. Reply with the sentence only."* Its reply is the

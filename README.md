@@ -11,9 +11,23 @@ written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are re
 
 ## Status
 
-Rung 2's test is specified ([rung2/SPEC.md](rung2/SPEC.md)); nothing is built yet.
+Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
+on a real model or on the owner's story.
 
-## Running
+## Running rung 2
 
-Nothing to run yet. The planned stack: Python 3.11+ with the standard library, `llama.cpp`'s `llama-server` with
-local open-weights models, SQLite, and numpy for retrieval.
+Python 3.11+ with numpy (`pip install -r requirements.txt`), and `llama.cpp`'s `llama-server`.
+
+```sh
+# the test model, its window capped at 8k; and a small embedding model for arm B
+llama-server -m MODEL.gguf -c 8192 --port 8080
+llama-server -m EMBEDDING.gguf --embeddings --port 8081
+
+# chapters as story/ch01.md ... ch18.md; one run directory per model
+python -m rung2.run build --story story --run runs/8b --url http://127.0.0.1:8080 --embed-url http://127.0.0.1:8081
+python -m rung2.run ask   --run runs/8b --questions questions.jsonl --evidence evidence.jsonl
+python -m rung2.run score --run runs/8b --key ../outside/key.jsonl --settled settled.jsonl   # writes runs/8b/report.md
+```
+
+`--fake` in place of `--url` runs the whole pipeline with canned replies: it tests the plumbing, never the result.
+The file formats are in `rung2/run.py` and `rung2/score.py`. Run the tests with `python -m pytest`.

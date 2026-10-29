@@ -2,6 +2,7 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: Rung 2's harness: continuations run at temperature 0.7 over three seeds; loops keep every touch (`loop_touch`) so views can be built as of any chapter.
 - 2026-10-29: The repository is AWARE, separate from DARA and DARA-PALS, which are references, not dependencies.
 - 2026-10-29: Governance is light: README, PLAN, DECISIONS, CLAUDE.md; each rung is a test written before building.
 - 2026-10-28: Rung 2 runs on one Python script, `llama-server`, SQLite and numpy; no agent harness, MCP or DARA core
