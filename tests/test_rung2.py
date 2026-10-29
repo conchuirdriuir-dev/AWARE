@@ -197,10 +197,12 @@ def test_server_errors_carry_the_reason_and_schema_falls_back():
             self.wfile.write(data)
 
         def do_GET(self):
-            self.reply(200, {"data": [{"id": "stand-in"}]})
+            self.reply(200, {"data": [{"id": "tiny-0.8b"}, {"id": "stand-in"}]})
 
         def do_POST(self):
             body = json.loads(self.rfile.read(int(self.headers["content-length"])))
+            if body.get("model") not in ("tiny-0.8b", "stand-in"):
+                return self.reply(400, {"error": {"message": "model name is missing from the request"}})
             if self.path == "/tokenize":
                 return self.reply(200, {"tokens": body["content"].split()})
             if self.path == "/v1/embeddings":
@@ -214,12 +216,15 @@ def test_server_errors_carry_the_reason_and_schema_falls_back():
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{httpd.server_port}"
     try:
-        s = Server(url)
+        with pytest.raises(ServerError, match="several models.*tiny-0.8b, stand-in"):
+            Server(url)
+        s = Server(url, model="stand-in")
         assert s.name == "stand-in" and s.chat("hi") == "hello there friend"
         assert s.chat("hi", schema=SCHEMA) == '{"new_entities": []}' and s.schema_style == "json_schema"
         with pytest.raises(ServerError, match="HTTP 501.*does not support embeddings"):
             s.embed(["x"])
-        results = {name: ok for name, ok, _ in check(url, None, SCHEMA)}
+        assert check(url, None, SCHEMA)[0][1] is False
+        results = {name: ok for name, ok, _ in check(url, None, SCHEMA, model="stand-in")}
         assert results["schema: response_format"] is False and results["schema: json_schema field"] is True
         assert results["token count (POST /tokenize)"] and results["plain chat, thinking off"]
     finally:

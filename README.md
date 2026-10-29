@@ -37,7 +37,8 @@ what it recorded printed for reading against the text.
 ```sh
 llama-server -m MODEL.gguf -c 8192 -ngl 99 --jinja --port 8080          # --jinja lets the client turn thinking off
 python -m rung2.run split --text book.txt --out dry/story --chapters 3
-python -m rung2.run build --story dry/story --run runs/dry --url http://127.0.0.1:8080 --only keeper
+python -m rung2.run check --url http://127.0.0.1:8080                   # lists the models; add --model NAME if several
+python -m rung2.run build --story dry/story --run runs/dry --url http://127.0.0.1:8080 --only keeper  # [--model NAME]
 python -m rung2.run show  --run runs/dry > runs/dry/show.txt
 ```
 The file formats are in `rung2/run.py` and `rung2/score.py`. Run the tests with `python -m pytest`.

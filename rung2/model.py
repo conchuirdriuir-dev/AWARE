@@ -18,12 +18,20 @@ class ServerError(Exception):
 class Server:
     """llama-server (llama.cpp) for chat and tokens; a second server, or the same one, for embeddings."""
 
-    def __init__(self, url: str, embed_url: str | None = None, timeout: float = 900):
+    def __init__(self, url: str, embed_url: str | None = None, timeout: float = 900, model: str | None = None,
+                 embed_model: str | None = None):
         self.url = url.rstrip("/")
         self.embed_url = (embed_url or url).rstrip("/")
         self.timeout = timeout
         self.schema_style = "response_format"     # falls back to llama.cpp's own "json_schema" field if refused
-        self.name = self._model_name()
+        self.models = self._models(self.url)
+        if model is None and len(self.models) > 1:
+            raise ServerError("the server offers several models; choose one with --model: " + ", ".join(self.models))
+        self.name = model or (self.models[0] if self.models else "unknown")
+        if embed_model is None and self.embed_url != self.url:
+            found = self._models(self.embed_url)
+            embed_model = found[0] if len(found) == 1 else None
+        self.embed_model = embed_model or self.name
 
     def _post(self, base: str, path: str, body: dict) -> dict:
         req = urllib.request.Request(base + path, data=json.dumps(body).encode(),
@@ -35,12 +43,12 @@ class Server:
             detail = e.read().decode("utf-8", "replace")[:2000]
             raise ServerError(f"{path} returned HTTP {e.code}: {detail}") from None
 
-    def _model_name(self) -> str:
+    def _models(self, base: str) -> list[str]:
         try:
-            with urllib.request.urlopen(self.url + "/v1/models", timeout=30) as r:
-                return json.loads(r.read())["data"][0]["id"]
+            with urllib.request.urlopen(base + "/v1/models", timeout=30) as r:
+                return [m["id"] for m in json.loads(r.read())["data"]]
         except Exception:
-            return "unknown"
+            return []
 
     def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
@@ -51,24 +59,31 @@ class Server:
             try:
                 return self._chat({**body, "response_format": {"type": "json_schema",
                                                                "json_schema": {"name": "reply", "schema": schema}}})
-            except ServerError:
+            except ServerError as first:
+                try:
+                    reply = self._chat({**body, "json_schema": schema})
+                except ServerError:
+                    raise first from None            # refused either way: the first refusal is the one to read
                 self.schema_style = "json_schema"
+                return reply
         if schema is not None:
             body["json_schema"] = schema
         return self._chat(body)
 
     def _chat(self, body: dict) -> str:
+        body = {"model": self.name, **body}
         return strip_thinking(self._post(self.url, "/v1/chat/completions", body)["choices"][0]["message"]["content"])
 
     def tokens(self, text: str) -> int:
-        return len(self._post(self.url, "/tokenize", {"content": text})["tokens"])
+        return len(self._post(self.url, "/tokenize", {"model": self.name, "content": text})["tokens"])
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        data = self._post(self.embed_url, "/v1/embeddings", {"input": texts})["data"]
+        data = self._post(self.embed_url, "/v1/embeddings", {"model": self.embed_model, "input": texts})["data"]
         return [d["embedding"] for d in sorted(data, key=lambda d: d["index"])]
 
 
-def check(url: str, embed_url: str | None, schema: dict) -> list[tuple[str, bool, str]]:
+def check(url: str, embed_url: str | None, schema: dict, model: str | None = None,
+          embed_model: str | None = None) -> list[tuple[str, bool, str]]:
     """Each kind of request the harness makes, on its own: which one a server refuses, and what it says."""
     results = []
 
@@ -78,8 +93,12 @@ def check(url: str, embed_url: str | None, schema: dict) -> list[tuple[str, bool
         except Exception as e:
             results.append((name, False, str(e)))
 
-    s = Server(url, embed_url)
-    step("model name (GET /v1/models)", lambda: s.name)
+    try:
+        s = Server(url, embed_url, model=model, embed_model=embed_model)
+    except ServerError as e:
+        return [("choosing the model", False, str(e))]
+    step("models the server offers (GET /v1/models)", lambda: ", ".join(s.models) or "(none listed)")
+    step("model used", lambda: s.name)
     step("token count (POST /tokenize)", lambda: s.tokens("Mara hid the silver locket under the board."))
     step("plain chat", lambda: s._chat({"messages": [{"role": "user", "content": "Say hello in three words."}],
                                         "max_tokens": 20, "temperature": 0, "seed": 0}))

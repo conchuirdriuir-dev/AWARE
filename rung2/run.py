@@ -40,14 +40,22 @@ SUMMARY = ("Here is the running summary of a novel so far, and its next chapter.
            "SUMMARY SO FAR:\n{old}\n\nCHAPTER {n} TEXT:\n{text}")
 
 
+def pinned(cfg: dict) -> str | None:
+    """The model a run was built with, once build has recorded it; until then, the one chosen with --model."""
+    recorded = cfg.get("model")
+    return recorded if recorded and recorded != "unknown" else cfg.get("model_choice")
+
+
 def connect(cfg: dict):
-    return Fake() if cfg.get("fake") else Server(cfg["url"], cfg.get("embed_url"))
+    return Fake() if cfg.get("fake") else Server(cfg["url"], cfg.get("embed_url"), model=pinned(cfg),
+                                                 embed_model=cfg.get("embed_model"))
 
 
 def build(args) -> None:
     run = Path(args.run)
     run.mkdir(parents=True, exist_ok=False)
-    cfg = {"fake": args.fake, "url": args.url, "embed_url": args.embed_url, "window": args.window, "seed": args.seed,
+    cfg = {"fake": args.fake, "url": args.url, "embed_url": args.embed_url, "model_choice": args.model,
+           "embed_model": args.embed_model, "window": args.window, "seed": args.seed,
            "story": str(Path(args.story).resolve()), "started": time.strftime("%Y-%m-%d %H:%M:%S")}
     model = connect(cfg)
     cfg["model"] = model.name
@@ -138,6 +146,8 @@ def main(argv=None) -> None:
     b.add_argument("--run", required=True)
     b.add_argument("--url")
     b.add_argument("--embed-url")
+    b.add_argument("--model", help="which model, when the server offers several")
+    b.add_argument("--embed-model", help="which embedding model, when that server offers several")
     b.add_argument("--fake", action="store_true", help="canned replies: tests the plumbing, never the result")
     b.add_argument("--window", type=int, default=8192)
     b.add_argument("--seed", type=int, default=0)
@@ -152,6 +162,8 @@ def main(argv=None) -> None:
     ck = sub.add_parser("check")
     ck.add_argument("--url", required=True)
     ck.add_argument("--embed-url")
+    ck.add_argument("--model")
+    ck.add_argument("--embed-model")
     a = sub.add_parser("ask")
     a.add_argument("--run", required=True)
     a.add_argument("--questions", required=True)
@@ -169,7 +181,7 @@ def main(argv=None) -> None:
 
 
 def check_cmd(args) -> None:
-    for name, ok, detail in check(args.url, args.embed_url, keeper.SCHEMA):
+    for name, ok, detail in check(args.url, args.embed_url, keeper.SCHEMA, args.model, args.embed_model):
         print(f"{'ok  ' if ok else 'FAIL'} {name}\n     {detail}")
 
 
