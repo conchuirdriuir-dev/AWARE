@@ -2,6 +2,21 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: **What AWARE is.** AWARE is a metacognitive layer around a language model. The model does the
+  object-level cognition (reasoning, answering, proposing); AWARE's code is the meta level, whose subject is that
+  cognition: it keeps the record of what the model did, finds where it fails, controls what it sees, and learns,
+  admitted on MDL gain, which failures recur and which interventions fix them. The person is the grounding channel.
+  Metacognition comes first. Supersedes 2026-10-28's "the model as the hands" wording, and the other session's
+  reading under DARA's rules that the model only proposes (DARA Build Map, 2026-10-29).
+- 2026-10-29: **Two layers of state.** Records (what the text, the world or the model's work shows) may be proposed
+  by the model, checked by code (a quote, a source) and labelled as the model's. Learned structure (kinds, rules,
+  abstractions, patterns about the cognition) is admitted only on MDL gain over the record. Supersedes 2026-10-28's
+  line on working beliefs.
+- 2026-10-29: **One repository.** AWARE is where both sessions build. The other session's harness and `compare.py`
+  move in; DARA's MDL kernel is copied in when a stage needs it, with a note of where it came from. The DARA Build Map
+  becomes AWARE's architecture note, read at the meta level; the rungs fold into its stages.
+- 2026-10-29: **Open: which testbed first.** The Build Map's stages in the toy worlds (the model reasoning, AWARE
+  learning about its failures) or rung 2's story memory to its result. The owner decides.
 - 2026-10-29: The owner's consistency audit of the rung-2 outline is fixed before writing, and its findings, kept outside the repository, become rung 3's material and key.
 - 2026-10-29: Loops move from the passage keeper to a loop pass over each whole chapter (owner, after the fourth dry run: drops at 14%, one vague loop in three chapters).
 - 2026-10-29: After the third dry run (1 reply lost; 102 drops from places treated as entities): places kept as text, people named by events or knowledge introduced first, revisions only of the same proposition, held_by only on objects.
@@ -14,6 +29,6 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   until a rung needs one (rung2/SPEC.md, "Tech stack").
 - 2026-10-28: The rung-2 story is written by hand from a model-generated outline, so no model has seen its text.
 - 2026-10-28: A language model may hold the system's working beliefs (the store, the reviewer's notes), labelled as
-  its own; DARA's rule against it is not carried over.
+  its own; DARA's rule against it is not carried over. (Refined 2026-10-29: two layers of state.)
 - 2026-10-28: Start from the general structure (the model as the hands, a reviewer over the record, the person
-  settling), not from the project-partner use case.
+  settling), not from the project-partner use case. (Superseded 2026-10-29: what AWARE is.)

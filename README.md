@@ -1,9 +1,11 @@
 # AWARE
 
-A local language model with a structure that supports metacognition, built on one machine and run without cloud
-services. The model does the talking and the work. Around it, code keeps a record of everything, a store of the whole
-(a story, a project, a long conversation) and a reviewer that sees only the record. The reviewer offers questions to
-the person, never to the model, and the person settles them.
+A metacognitive layer around a local language model, built on one machine and run without cloud services. The model
+does the object-level cognition: it reasons, answers and proposes. AWARE's code is the meta level, and its subject is
+that cognition: it keeps the record of what the model did, finds where it fails, controls what it sees, and learns,
+admitted on MDL gain, which failures recur and which interventions fix them. It offers questions to the person, never
+to the model, and the person settles them. The question it tests: how much does a metacognitive layer add to a fixed
+local model's reasoning?
 
 AWARE starts from a finding of the owner's layered-metacognition experiments: with a structure that routes what each
 part sees, much of metacognition is reachable with an ordinary model. Each capability is added as a rung whose test is

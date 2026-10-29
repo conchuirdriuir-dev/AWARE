@@ -1,5 +1,8 @@
 # Plan
 
+The architecture is the DARA Build Map (a Claude Doc, 2026-10-29), read at the meta level (DECISIONS.md, "What AWARE
+is"); these rungs fold into its stages once the other session's harness moves in.
+
 Each rung is a test that can fail. Write the test and its pass criteria first, then build the smallest thing that
 answers it. A rung is done when its test passes, not when its code exists.
 
