@@ -15,8 +15,8 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-10-29: **One repository.** AWARE is where both sessions build. The other session's harness and `compare.py`
   move in; DARA's MDL kernel is copied in when a stage needs it, with a note of where it came from. The DARA Build Map
   becomes AWARE's architecture note, read at the meta level; the rungs fold into its stages.
-- 2026-10-29: **Open: which testbed first.** The Build Map's stages in the toy worlds (the model reasoning, AWARE
-  learning about its failures) or rung 2's story memory to its result. The owner decides.
+- 2026-10-29: **Toy worlds first.** The Build Map's stages run first in the toy worlds (the model reasoning, AWARE
+  learning about its failures); rung 2 runs when the owner's story is written.
 - 2026-10-29: The owner's consistency audit of the rung-2 outline is fixed before writing, and its findings, kept outside the repository, become rung 3's material and key.
 - 2026-10-29: Loops move from the passage keeper to a loop pass over each whole chapter (owner, after the fourth dry run: drops at 14%, one vague loop in three chapters).
 - 2026-10-29: After the third dry run (1 reply lost; 102 drops from places treated as entities): places kept as text, people named by events or knowledge introduced first, revisions only of the same proposition, held_by only on objects.
