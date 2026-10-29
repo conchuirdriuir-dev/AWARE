@@ -6,10 +6,7 @@
     "states",
     "knowledge",
     "events",
-    "rules",
-    "loops_opened",
-    "loops_touched",
-    "loops_closed"
+    "rules"
   ],
   "properties": {
     "new_entities": {
@@ -187,61 +184,6 @@
         }
       },
       "maxItems": 2
-    },
-    "loops_opened": {
-      "type": "array",
-      "maxItems": 2,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "description",
-          "entities",
-          "quote"
-        ],
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "entities": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 4
-          },
-          "quote": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "loops_touched": {
-      "type": "array",
-      "items": {
-        "type": "integer"
-      },
-      "maxItems": 10
-    },
-    "loops_closed": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "loop_id",
-          "quote"
-        ],
-        "properties": {
-          "loop_id": {
-            "type": "integer"
-          },
-          "quote": {
-            "type": "string"
-          }
-        }
-      },
-      "maxItems": 4
     }
   }
 }

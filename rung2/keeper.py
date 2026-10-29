@@ -1,4 +1,5 @@
-"""The keeper: one call per passage (keeper_prompt.txt, constrained by keeper_schema.json), and one line per chapter."""
+"""The keeper: one call per passage (keeper_prompt.txt, constrained by keeper_schema.json); at each chapter's end, one
+line (CHAPTER_LINE) and one loop pass (loops_prompt.txt, constrained by loops_schema.json) over the whole chapter."""
 from __future__ import annotations
 
 import json
@@ -10,6 +11,8 @@ from .record import Recorder
 HERE = Path(__file__).parent
 PROMPT = (HERE / "keeper_prompt.txt").read_text()
 SCHEMA = json.loads((HERE / "keeper_schema.json").read_text())
+LOOPS_PROMPT = (HERE / "loops_prompt.txt").read_text()
+LOOPS_SCHEMA = json.loads((HERE / "loops_schema.json").read_text())
 CHAPTER_LINE = ("In one sentence of 30 words or fewer, say what happens in this chapter that matters to the story. "
                 "Use the characters' names. Reply with the sentence only.\n\nCHAPTER {n}:\n{text}")
 
@@ -33,7 +36,7 @@ def parse(reply: str) -> dict:
 
 def keep_passage(conn, rec: Recorder, passage: dict, previous: str) -> dict:
     prompt = PROMPT.format(chapter=passage["chapter"], passage_id=passage["id"], entities=store.entities_block(conn),
-                           loops=store.loops_block(conn), previous_tail=" ".join(previous.split()[-150:]) or "(none)",
+                           previous_tail=" ".join(previous.split()[-150:]) or "(none)",
                            passage=passage["text"])
     reply = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=1500)
     try:
@@ -52,3 +55,18 @@ def keep_chapter_line(conn, rec: Recorder, n: int, text: str) -> str:
     conn.execute("INSERT OR REPLACE INTO chapter_line VALUES (?, ?)", (n, line))
     conn.commit()
     return line
+
+
+def keep_chapter_loops(conn, rec: Recorder, n: int, text: str, passages: list[dict]) -> dict:
+    """The threads chapter n opens, advances and resolves, read from the whole chapter."""
+    prompt = LOOPS_PROMPT.format(chapter=n, loops=store.loops_block(conn), text=text)
+    reply = rec.chat("loops", prompt, ref=f"c{n:02d}", schema=LOOPS_SCHEMA, max_tokens=800)
+    try:
+        data = parse(reply)
+    except ValueError as e:
+        rec.event("loops_unparsed", ref=f"c{n:02d}", error=str(e), finish=getattr(rec.model, "last_finish", None),
+                  length=len(reply), head=reply[:300], tail=reply[-300:])
+        return {"written": {}, "dropped": [{"kind": "reply", "why": "not JSON"}]}
+    result = store.apply_loops(conn, data, n, passages)
+    rec.event("loops_applied", ref=f"c{n:02d}", **result)
+    return result

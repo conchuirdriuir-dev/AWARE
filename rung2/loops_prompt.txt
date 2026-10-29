@@ -1,0 +1,21 @@
+You are keeping track of the unresolved threads of a novel: setups a reader expects to
+matter later. You have just read chapter {chapter}.
+
+OPEN THREADS FROM EARLIER CHAPTERS (id | opened in | description):
+{loops}
+
+THE CHAPTER:
+{text}
+
+What to record (empty lists are fine):
+- opened: at most 4. Threads this chapter starts and leaves unresolved at its end: a hidden
+  or lost object, an unanswered question, a mystery, a stranger not yet explained, a
+  promise, threat or plan not yet carried out. Name each concretely ("who the girl in the
+  garden is", "whether the stolen key is found"), never as a theme ("the family's
+  troubles"). Not a thread this same chapter resolves, and not one already open above.
+- advanced: open threads above that this chapter mentions or moves forward without
+  settling, by id.
+- resolved: open threads above that this chapter settles, by id.
+Every item needs "quote": an exact phrase copied from the chapter, 15 words or fewer, that
+shows it. An item whose quote is not in the chapter is discarded.
+Reply with the JSON object only, written compactly: no indentation, no line breaks.

@@ -25,8 +25,7 @@ def conn(tmp_path):
 
 
 def empty(**kw):
-    reply = {k: [] for k in ("new_entities", "states", "knowledge", "events", "rules", "loops_opened",
-                             "loops_touched", "loops_closed")}
+    reply = {k: [] for k in ("new_entities", "states", "knowledge", "events", "rules")}
     reply.update(kw)
     return reply
 
@@ -98,11 +97,16 @@ def test_loops_as_of_chapter(conn):
     p1 = passage(conn, 1, 1, "Who had Teodor locked out of the archive?")
     p2 = passage(conn, 2, 1, "The archive stayed locked all spring.")
     p3 = passage(conn, 3, 1, "Mara found the archive door open at last.")
-    store.apply(conn, empty(loops_opened=[{"description": "who Teodor locked out", "entities": [],
-                                           "quote": "Who had Teodor locked out"}]), p1)
-    store.apply(conn, empty(loops_touched=[1, 99]), p2)
-    r = store.apply(conn, empty(loops_closed=[{"loop_id": 1, "quote": "found the archive door open"}]), p3)
-    assert r["dropped"] == [] and r["written"]["loops_closed"] == 1
+    def chapter(n, p, **kw):
+        return store.apply_loops(conn, {"opened": [], "advanced": [], "resolved": [], **kw}, n, [p])
+    chapter(1, p1, opened=[{"description": "who Teodor locked out", "entities": [], "quote": "Who had Teodor locked out"}])
+    r = chapter(2, p2, advanced=[{"loop_id": 1, "quote": "The archive stayed locked"},
+                                 {"loop_id": 99, "quote": "The archive stayed locked"},
+                                 {"loop_id": 1, "quote": "a line from another chapter"}])
+    assert sorted(d["why"] for d in r["dropped"]) == ["no open loop 99", "quote not in chapter"]
+    r = chapter(3, p3, resolved=[{"loop_id": 1, "quote": "found the archive door open"}])
+    assert r["dropped"] == [] and r["written"]["resolved"] == 1
+    assert conn.execute("SELECT closed_passage FROM loop").fetchone()[0] == "c03-p001"
     assert [x["touched"] for x in builder.open_loops(conn, 1)] == [1]
     assert [x["touched"] for x in builder.open_loops(conn, 2)] == [2]
     assert builder.open_loops(conn, 3) == []
@@ -241,15 +245,18 @@ def test_lenient_parse_names_from_the_passage_and_loop_merge(conn):
         events=[{"summary": "Polly sends Tom to the fence", "place": "Main Street", "participants": ["Aunt Polly", "Tom"],
                  "happened": True, "quote": "Aunt Polly sent Tom to the fence"},
                 {"summary": "Ben arrives", "place": None, "participants": ["Ben"], "happened": True,
-                 "quote": "sent Tom to the fence"}],
-        loops_opened=[{"description": "who took the jam", "entities": [], "quote": "Who had taken the jam?"}]), p)
+                 "quote": "sent Tom to the fence"}]), p)
     assert sorted(c["name"] for c in r["created"]) == ["Aunt Polly", "Main Street", "Tom"]
     assert [d["why"] for d in r["dropped"]] == ["unresolved entity 'Ben'"]   # not in the passage: never created
     kinds = dict(conn.execute("SELECT name, kind FROM entity").fetchall())
     assert kinds == {"Aunt Polly": "character", "Tom": "character", "Main Street": "place"}
-    r = store.apply(conn, empty(loops_opened=[{"description": "Who took the jam", "entities": [],
-                                               "quote": "Who had taken the jam?"}]), p)
-    assert r["written"]["loops_opened"] == 0 and r["written"]["loops_touched"] == 1
+    opened = {"opened": [{"description": "who took the jam", "entities": ["Tom"], "quote": "Who had taken the jam?"}],
+              "advanced": [], "resolved": []}
+    assert store.apply_loops(conn, opened, 2, [p])["written"]["opened"] == 1
+    assert conn.execute("SELECT entity_id FROM loop_entity").fetchone()[0] == "tom"
+    opened["opened"][0]["description"] = "Who took the jam"
+    r = store.apply_loops(conn, opened, 2, [p])
+    assert r["written"]["opened"] == 0 and r["written"]["advanced"] == 1
 
 
 def test_second_dry_run_fixes(conn):

@@ -8,9 +8,6 @@ CHAPTER {chapter}, PASSAGE {passage_id}
 KNOWN ENTITIES (refer to them by id):
 {entities}
 
-OPEN LOOPS (refer to them by id):
-{loops}
-
 END OF THE PREVIOUS PASSAGE (context only; record nothing from it):
 {previous_tail}
 
@@ -41,11 +38,5 @@ What to record (record fewer things rather than vaguer ones; empty lists are fin
 - rules: standing rules that hold in the story's world or household ("no one may enter
   the archive", "a map once drawn cannot be burned"). Not a character's beliefs, habits
   or plans. Usually there are none.
-- loops_opened: at most 2. A specific unresolved thing a reader expects to matter later:
-  a hidden object, an unanswered question, a promise, a threat. Name it concretely
-  ("who broke the window"), never as a theme ("the family's troubles").
-  If an open loop above already covers it, put its id in loops_touched instead.
-- loops_touched: ids of open loops this passage mentions or advances.
-- loops_closed: ids of open loops this passage resolves.
 Refer to entities by known id, or by the exact name you gave in new_entities.
 Reply with the JSON object only, written compactly: no indentation, no line breaks.

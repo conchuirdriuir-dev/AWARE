@@ -15,7 +15,7 @@ def show(run: Path, upto: int | None = None) -> str:
     n = upto or conn.execute("SELECT MAX(chapter) FROM passage").fetchone()[0] or 0
     out = []
 
-    calls, applied, unparsed, seconds = 0, [], [], 0.0
+    calls, applied, unparsed, seconds, loop_events = 0, [], [], 0.0, []
     finishes = Counter()
     log = run / "log.jsonl"
     for line in log.read_text(encoding="utf-8").splitlines() if log.exists() else []:
@@ -28,6 +28,8 @@ def show(run: Path, upto: int | None = None) -> str:
             applied.append(e)
         elif e["kind"] == "keeper_unparsed":
             unparsed.append(e)
+        elif e["kind"] in ("loops_applied", "loops_unparsed"):
+            loop_events.append(e)
     written, why, made, names = Counter(), Counter(), 0, Counter()
     per = {}
     for e in applied:
@@ -60,6 +62,17 @@ def show(run: Path, upto: int | None = None) -> str:
     out += ["", "  by chapter:  passages  not JSON  written  dropped"]
     out += [f"  ch. {ch:<9} {c['passages']:>8}  {c['unparsed']:>8}  {c['written']:>7}  {c['dropped']:>7}"
             for ch, c in sorted(per.items())]
+    lw, ld = Counter(), Counter()
+    for e in loop_events:
+        if e["kind"] == "loops_unparsed":
+            ld[f"not JSON (ended: {e.get('finish')})"] += 1
+            continue
+        lw.update(e["written"])
+        ld.update(d["why"].split(" ")[0] + " entity" if d["why"].startswith("unresolved") else
+                  "no such open loop" if d["why"].startswith("no open loop") else d["why"] for d in e["dropped"])
+    if loop_events:
+        out += ["", f"LOOP PASS: {len(loop_events)} chapters; opened {lw['opened']}, advanced {lw['advanced']}, "
+                    f"resolved {lw['resolved']}"] + [f"  dropped: {k} x{v}" for k, v in ld.most_common()]
     for e in unparsed[:3]:
         out += ["", f"  NOT JSON: {e['ref']} ({e.get('error', '')}; ended: {e.get('finish')}; {e.get('length')} chars)",
                 "    starts: " + (e.get("head") or "").replace("\n", " ")[:200],

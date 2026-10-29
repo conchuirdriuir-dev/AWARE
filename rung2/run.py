@@ -72,6 +72,7 @@ def build(args) -> None:
             keeper.keep_passage(conn, rec, p, previous)
             previous = p["text"]
         keeper.keep_chapter_line(conn, rec, n, text)
+        keeper.keep_chapter_loops(conn, rec, n, text, ps)
         t_store = time.time() - t0
         print(f"chapter {n}: {len(ps)} passages, keeper {t_store:.0f} s", file=sys.stderr)
         if args.only == "keeper":

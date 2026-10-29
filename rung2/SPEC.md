@@ -113,9 +113,10 @@ use).
 
 ## The keeper
 
-One call per passage at temperature 0, at most 1,500 tokens of reply, every list capped in the schema: the prompt in [keeper_prompt.txt](keeper_prompt.txt), output constrained by
-[keeper_schema.json](keeper_schema.json). About 3.5k tokens per call: instructions 700, known entities 900, open loops
-300, the previous passage's end 200, the passage 400, output at most 1,000.
+One call per passage at temperature 0, at most 1,500 tokens of reply, every list capped in the schema: the prompt in
+[keeper_prompt.txt](keeper_prompt.txt), output constrained by [keeper_schema.json](keeper_schema.json). About 3.7k
+tokens per call: instructions 700, known entities 900, the previous passage's end 200, the passage 400, output at
+most 1,500.
 
 What code does with each reply, in order:
 
@@ -136,9 +137,16 @@ What code does with each reply, in order:
    `closed_passage` for closed ids. Unknown ids are dropped and logged.
 6. **Every row carries its passage id.** The store belongs to one run directory, whose log records the model and seed.
 
-At each chapter's end a second call reads the whole chapter: *"In one sentence of 30 words or fewer, say what happens
-in this chapter that matters to the story. Use the characters' names. Reply with the sentence only."* Its reply is the
-`chapter_line` row.
+At each chapter's end, two calls read the whole chapter:
+
+- **The chapter line:** *"In one sentence of 30 words or fewer, say what happens in this chapter that matters to the
+  story. Use the characters' names. Reply with the sentence only."* Its reply is the `chapter_line` row.
+- **The loop pass** ([loops_prompt.txt](loops_prompt.txt), constrained by [loops_schema.json](loops_schema.json)):
+  given the open loops, it names the threads the chapter opens (at most 4), advances and resolves, each with a quote.
+  Code finds each quote among the chapter's passages, and that passage is the one the loop cites; a quote found in
+  none drops the item. A thread opened with the words of an open loop counts as advancing it. Loops moved here from
+  the passage keeper after the fourth dry run (one vague loop in three chapters): an unresolved setup shows only
+  across a chapter, not in 400 tokens.
 
 **Before trusting the store:** after chapter 6, compare the knowledge rows and the lookalike entities with the ledger
 by hand. If the 8B keeper misses more than a third of the ledger's items, run the keeper on the 14B model and report

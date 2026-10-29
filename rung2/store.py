@@ -42,8 +42,8 @@ def entities_block(conn: sqlite3.Connection) -> str:
 
 
 def loops_block(conn: sqlite3.Connection) -> str:
-    rows = conn.execute("SELECT id, description FROM loop WHERE closed_chapter IS NULL ORDER BY id").fetchall()
-    return "\n".join(f"{r['id']} | {r['description']}" for r in rows) or "(none yet)"
+    rows = conn.execute("SELECT id, description, opened_chapter FROM loop WHERE closed_chapter IS NULL ORDER BY id").fetchall()
+    return "\n".join(f"{r['id']} | ch. {r['opened_chapter']} | {r['description']}" for r in rows) or "(none yet)"
 
 
 # -- applying a reply -------------------------------------------------------------------------------------------------
@@ -129,8 +129,7 @@ def ambiguous(conn: sqlite3.Connection, ref: str) -> list[str]:
 def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
     """Write one keeper reply into the store. Returns the counts written and every record dropped, with why."""
     ch, pid, text = passage["chapter"], passage["id"], passage["text"]
-    written = {k: 0 for k in ("entities", "states", "knowledge", "events", "rules", "loops_opened",
-                              "loops_touched", "loops_closed")}
+    written = {k: 0 for k in ("entities", "states", "knowledge", "events", "rules")}
     dropped = []
 
     def keep(kind: str, rec: dict) -> bool:
@@ -244,39 +243,58 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
                          (r["statement"].strip(), ch, pid))
             written["rules"] += 1
 
-    for lp in reply.get("loops_opened", [])[:2]:
-        if not keep("loops_opened", lp):
+    conn.commit()
+    return {"written": written, "dropped": dropped, "created": created}
+
+
+def apply_loops(conn: sqlite3.Connection, reply: dict, chapter: int, passages: list[dict]) -> dict:
+    """Write one chapter's loop reply. Each quote is found in the chapter's passages; that passage is the one the loop
+    cites. Returns the counts written and every item dropped, with why."""
+    written = {"opened": 0, "advanced": 0, "resolved": 0}
+    dropped = []
+
+    def where(kind: str, item: dict) -> str | None:
+        for p in passages:
+            if quoted(item.get("quote", ""), p["text"]):
+                return p["id"]
+        dropped.append({"kind": kind, "why": "quote not in chapter", "record": item})
+        return None
+
+    def is_open(kind: str, item: dict) -> bool:
+        if conn.execute("SELECT 1 FROM loop WHERE id = ? AND closed_chapter IS NULL", (item["loop_id"],)).fetchone():
+            return True
+        dropped.append({"kind": kind, "why": f"no open loop {item['loop_id']!r}", "record": item})
+        return False
+
+    for lp in reply.get("opened", []):
+        if (pid := where("opened", lp)) is None:
             continue
         same = conn.execute("SELECT id FROM loop WHERE closed_chapter IS NULL AND lower(trim(description)) = ?",
                             (norm(lp["description"]),)).fetchone()
-        if same:                                       # an open loop by the same words: a touch, not a new loop
-            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (same["id"], ch, pid))
-            written["loops_touched"] += 1
+        if same:                                       # an open loop by the same words: advanced, not opened again
+            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (same["id"], chapter, pid))
+            written["advanced"] += 1
             continue
         cur = conn.execute("INSERT INTO loop (description, opened_chapter, opened_passage) VALUES (?, ?, ?)",
-                           (lp["description"].strip(), ch, pid))
-        conn.execute("INSERT INTO loop_touch VALUES (?, ?, ?)", (cur.lastrowid, ch, pid))
+                           (lp["description"].strip(), chapter, pid))
+        conn.execute("INSERT INTO loop_touch VALUES (?, ?, ?)", (cur.lastrowid, chapter, pid))
         for e in lp.get("entities", []):
-            if (eid := ref("loops_opened", lp, e)) is not None:
+            if (eid := resolve(conn, e, {})) is not None:
                 conn.execute("INSERT OR IGNORE INTO loop_entity VALUES (?, ?)", (cur.lastrowid, eid))
-        written["loops_opened"] += 1
+            else:
+                dropped.append({"kind": "opened_entity", "why": f"unresolved entity {e!r}", "record": lp})
+        written["opened"] += 1
 
-    def open_loop(kind: str, lid, rec) -> bool:
-        if conn.execute("SELECT 1 FROM loop WHERE id = ? AND closed_chapter IS NULL", (lid,)).fetchone():
-            return True
-        dropped.append({"kind": kind, "why": f"no open loop {lid!r}", "record": rec})
-        return False
+    for a in reply.get("advanced", []):
+        if is_open("advanced", a) and (pid := where("advanced", a)) is not None:
+            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (a["loop_id"], chapter, pid))
+            written["advanced"] += 1
 
-    for lid in reply.get("loops_touched", []):
-        if open_loop("loops_touched", lid, lid):
-            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (lid, ch, pid))
-            written["loops_touched"] += 1
-
-    for c in reply.get("loops_closed", []):
-        if keep("loops_closed", c) and open_loop("loops_closed", c["loop_id"], c):
-            conn.execute("UPDATE loop SET closed_chapter = ?, closed_passage = ? WHERE id = ?", (ch, pid, c["loop_id"]))
-            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (c["loop_id"], ch, pid))
-            written["loops_closed"] += 1
+    for r in reply.get("resolved", []):
+        if is_open("resolved", r) and (pid := where("resolved", r)) is not None:
+            conn.execute("UPDATE loop SET closed_chapter = ?, closed_passage = ? WHERE id = ?", (chapter, pid, r["loop_id"]))
+            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (r["loop_id"], chapter, pid))
+            written["resolved"] += 1
 
     conn.commit()
-    return {"written": written, "dropped": dropped, "created": created}
+    return {"written": written, "dropped": dropped}

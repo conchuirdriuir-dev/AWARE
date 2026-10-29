@@ -157,6 +157,8 @@ class Fake:
 
     def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
+        if schema is not None and "opened" in schema.get("properties", {}):
+            return json.dumps(self._loops(prompt))
         if schema is not None:
             return json.dumps(self._keeper(prompt))
         if prompt.startswith("In one sentence"):
@@ -196,10 +198,15 @@ class Fake:
         refs = [known.get(n, n) for n in names]
         reply = {"new_entities": new, "states": [], "knowledge": [], "rules": [],
                  "events": [{"summary": _short(first, 20), "place": None, "participants": refs[:3],
-                             "happened": True, "quote": _short(first)}] if first else [],
-                 "loops_opened": [], "loops_touched": [], "loops_closed": []}
-        question = re.search(r"[^.!?]*\?", passage)
-        if question:
-            q = question.group(0).strip()
-            reply["loops_opened"].append({"description": _short(q, 15), "entities": refs[:1], "quote": _short(q)})
+                             "happened": True, "quote": _short(first)}] if first else []}
         return reply
+
+    def _loops(self, prompt: str) -> dict:
+        """Opens a thread at each question the chapter asks; advances every open thread with the chapter's first words."""
+        text = _between(prompt, "THE CHAPTER:\n", "\n\nWhat to record")
+        open_ids = [int(line.split("|")[0]) for line in _between(prompt, "(id | opened in | description):\n", "\n\n")
+                    .splitlines() if line.split("|")[0].strip().isdigit()]
+        first = _short(_first_sentence(text))
+        return {"opened": [{"description": _short(q.strip(), 15), "entities": [], "quote": _short(q.strip())}
+                           for q in re.findall(r"[^.!?]*\?", text)][:4],
+                "advanced": [{"loop_id": i, "quote": first} for i in open_ids][:8], "resolved": []}
