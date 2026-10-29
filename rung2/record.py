@@ -37,5 +37,6 @@ class Recorder:
         t0 = time.time()
         reply = self.model.chat(prompt, schema=schema, max_tokens=max_tokens, temperature=temperature, seed=seed)
         self.event("call", role=role, ref=ref, model=self.model.name, seed=seed, temperature=temperature,
-                   prompt_tokens=n, seconds=round(time.time() - t0, 3), prompt=prompt, reply=reply)
+                   prompt_tokens=n, seconds=round(time.time() - t0, 3), finish=getattr(self.model, "last_finish", None),
+                   prompt=prompt, reply=reply)
         return reply

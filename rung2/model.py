@@ -72,7 +72,9 @@ class Server:
 
     def _chat(self, body: dict) -> str:
         body = {"model": self.name, **body}
-        return strip_thinking(self._post(self.url, "/v1/chat/completions", body)["choices"][0]["message"]["content"])
+        choice = self._post(self.url, "/v1/chat/completions", body)["choices"][0]
+        self.last_finish = choice.get("finish_reason")      # "length": the reply was cut off at max_tokens
+        return strip_thinking(choice["message"]["content"])
 
     def tokens(self, text: str) -> int:
         return len(self._post(self.url, "/tokenize", {"model": self.name, "content": text})["tokens"])
@@ -151,6 +153,7 @@ class Fake:
     """Deterministic replies shaped like the real ones: enough to exercise every code path."""
 
     name = "fake"
+    last_finish = "stop"
 
     def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
@@ -178,7 +181,7 @@ class Fake:
         return out
 
     def _keeper(self, prompt: str) -> dict:
-        passage = _between(prompt, "THIS PASSAGE:\n", "\n\nWhat to record:")
+        passage = _between(prompt, "THIS PASSAGE:\n", "\n\nWhat to record")
         known = {}
         for line in _between(prompt, "(refer to them by id):\n", "\n\n").splitlines():
             parts = [p.strip() for p in line.split("|")]

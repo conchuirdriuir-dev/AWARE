@@ -92,13 +92,30 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
         dropped.append({"kind": kind, "why": "quote not in passage", "record": rec})
         return False
 
-    def ref(kind: str, rec: dict, value: str | None, required: bool = True) -> str | None:
+    def create(name: str, kind: str, aliases: list[str]) -> str:
+        eid, i = slug(name), 2
+        while conn.execute("SELECT 1 FROM entity WHERE id = ?", (eid,)).fetchone():
+            eid, i = f"{slug(name)}-{i}", i + 1
+        conn.execute("INSERT INTO entity (id, name, kind, aliases, first_passage) VALUES (?, ?, ?, ?, ?)",
+                     (eid, name.strip(), kind, json.dumps(aliases), pid))
+        new[name.strip().lower()] = eid
+        written["entities"] += 1
+        return eid
+
+    def ref(kind: str, rec: dict, value: str | None, required: bool = True, role: str | None = None) -> str | None:
+        """An entity reference. When it resolves to nothing but the name stands in the passage itself, and the field
+        fixes its kind (an event's participant, an event's place), the name is its own quote: it becomes an entity,
+        and the reply says so in `created`."""
         got = resolve(conn, value, new)
+        if got is None and value and role and re.search(r"\b" + re.escape(norm(value)) + r"\b", norm(text)):
+            got = create(value, role, [])
+            created.append({"name": value.strip(), "kind": role, "from": kind})
         if got is None and (required or value):
             dropped.append({"kind": kind, "why": f"unresolved entity {value!r}", "record": rec})
         return got
 
     new: dict[str, str] = {}
+    created: list[dict] = []
     for e in reply.get("new_entities", []):
         if not keep("new_entities", e):
             continue
@@ -106,13 +123,7 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
         if existing:                                   # the model called a known entity new: use the known one
             new[e["name"].strip().lower()] = existing
             continue
-        eid, i = slug(e["name"]), 2
-        while conn.execute("SELECT 1 FROM entity WHERE id = ?", (eid,)).fetchone():
-            eid, i = f"{slug(e['name'])}-{i}", i + 1
-        conn.execute("INSERT INTO entity (id, name, kind, aliases, first_passage) VALUES (?, ?, ?, ?, ?)",
-                     (eid, e["name"].strip(), e["kind"], json.dumps(e.get("aliases", [])), pid))
-        new[e["name"].strip().lower()] = eid
-        written["entities"] += 1
+        create(e["name"], e["kind"], e.get("aliases", []))
 
     for s in reply.get("states", []):
         if not keep("states", s) or (eid := ref("states", s, s["entity"])) is None:
@@ -143,11 +154,11 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
     for ev in reply.get("events", []):
         if not keep("events", ev):
             continue
-        place = ref("events", ev, ev.get("place"), required=False)
+        place = ref("events", ev, ev.get("place"), required=False, role="place")
         cur = conn.execute("INSERT INTO event (chapter, summary, place_id, happened, passage_id) VALUES (?, ?, ?, ?, ?)",
                            (ch, ev["summary"].strip(), place, int(ev["happened"]), pid))
         for p in ev.get("participants", []):
-            if (eid := ref("events", ev, p)) is not None:
+            if (eid := ref("events", ev, p, role="character")) is not None:
                 conn.execute("INSERT OR IGNORE INTO event_entity VALUES (?, ?)", (cur.lastrowid, eid))
         written["events"] += 1
 
@@ -159,6 +170,12 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
 
     for lp in reply.get("loops_opened", [])[:2]:
         if not keep("loops_opened", lp):
+            continue
+        same = conn.execute("SELECT id FROM loop WHERE closed_chapter IS NULL AND lower(trim(description)) = ?",
+                            (norm(lp["description"]),)).fetchone()
+        if same:                                       # an open loop by the same words: a touch, not a new loop
+            conn.execute("INSERT OR IGNORE INTO loop_touch VALUES (?, ?, ?)", (same["id"], ch, pid))
+            written["loops_touched"] += 1
             continue
         cur = conn.execute("INSERT INTO loop (description, opened_chapter, opened_passage) VALUES (?, ?, ?)",
                            (lp["description"].strip(), ch, pid))
@@ -186,4 +203,4 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
             written["loops_closed"] += 1
 
     conn.commit()
-    return {"written": written, "dropped": dropped}
+    return {"written": written, "dropped": dropped, "created": created}

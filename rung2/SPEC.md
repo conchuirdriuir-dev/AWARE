@@ -113,7 +113,7 @@ use).
 
 ## The keeper
 
-One call per passage at temperature 0: the prompt in [keeper_prompt.txt](keeper_prompt.txt), output constrained by
+One call per passage at temperature 0, at most 1,500 tokens of reply, every list capped in the schema: the prompt in [keeper_prompt.txt](keeper_prompt.txt), output constrained by
 [keeper_schema.json](keeper_schema.json). About 3.5k tokens per call: instructions 700, known entities 900, open loops
 300, the previous passage's end 200, the passage 400, output at most 1,000.
 
@@ -122,7 +122,9 @@ What code does with each reply, in order:
 1. **Check every quote** against the passage (whitespace and quote marks normalized). Drop and log any record whose
    quote is missing.
 2. **Resolve entity references:** a known id; else the exact name of a new entity in this reply; else an alias of a
-   known entity. Unresolved references are dropped and logged, never created silently.
+   known entity. A name that resolves to nothing but stands in the passage, in a field that fixes its kind (an
+   event's participant, an event's place), becomes an entity and is reported as created. Any other unresolved
+   reference is dropped and logged.
 3. **Skip repeated states.** A different value becomes a new row, with `supersedes` set to the old one.
 4. **Link knowledge.** A new row for the same character and `about` entity with a different stance or truth sets
    `corrected_by` on the earlier row.

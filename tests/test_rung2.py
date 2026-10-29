@@ -229,3 +229,24 @@ def test_server_errors_carry_the_reason_and_schema_falls_back():
         assert results["token count (POST /tokenize)"] and results["plain chat, thinking off"]
     finally:
         httpd.shutdown()
+
+
+def test_lenient_parse_names_from_the_passage_and_loop_merge(conn):
+    from rung2.keeper import parse
+    assert parse('```json\n{"states": []}\n```') == {"states": []}
+    with pytest.raises(ValueError):
+        parse('{"states": [')                                  # cut off at the token limit
+    p = passage(conn, 2, 1, "Aunt Polly sent Tom to the fence on Main Street. Who had taken the jam?")
+    r = store.apply(conn, empty(
+        events=[{"summary": "Polly sends Tom to the fence", "place": "Main Street", "participants": ["Aunt Polly", "Tom"],
+                 "happened": True, "quote": "Aunt Polly sent Tom to the fence"},
+                {"summary": "Ben arrives", "place": None, "participants": ["Ben"], "happened": True,
+                 "quote": "sent Tom to the fence"}],
+        loops_opened=[{"description": "who took the jam", "entities": [], "quote": "Who had taken the jam?"}]), p)
+    assert sorted(c["name"] for c in r["created"]) == ["Aunt Polly", "Main Street", "Tom"]
+    assert [d["why"] for d in r["dropped"]] == ["unresolved entity 'Ben'"]   # not in the passage: never created
+    kinds = dict(conn.execute("SELECT name, kind FROM entity").fetchall())
+    assert kinds == {"Aunt Polly": "character", "Tom": "character", "Main Street": "place"}
+    r = store.apply(conn, empty(loops_opened=[{"description": "Who took the jam", "entities": [],
+                                               "quote": "Who had taken the jam?"}]), p)
+    assert r["written"]["loops_opened"] == 0 and r["written"]["loops_touched"] == 1

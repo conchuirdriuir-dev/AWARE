@@ -15,28 +15,49 @@ def show(run: Path, upto: int | None = None) -> str:
     n = upto or conn.execute("SELECT MAX(chapter) FROM passage").fetchone()[0] or 0
     out = []
 
-    calls, applied, unparsed, seconds = 0, [], 0, 0.0
+    calls, applied, unparsed, seconds = 0, [], [], 0.0
+    finishes = Counter()
     log = run / "log.jsonl"
     for line in log.read_text(encoding="utf-8").splitlines() if log.exists() else []:
         e = json.loads(line)
         if e["kind"] == "call" and e["role"] == "keeper":
             calls += 1
             seconds += e["seconds"]
+            finishes[e.get("finish") or "not recorded"] += 1
         elif e["kind"] == "keeper_applied":
             applied.append(e)
         elif e["kind"] == "keeper_unparsed":
-            unparsed += 1
-    written = Counter()
-    why = Counter()
+            unparsed.append(e)
+    written, why, made = Counter(), Counter(), 0
+    per = {}
     for e in applied:
         written.update(e["written"])
         why.update(f"{d['kind']}: {d['why'].split(' ')[0] if d['why'].startswith('unresolved') else d['why']}"
                    for d in e["dropped"])
+        made += len(e.get("created", []))
+        c = per.setdefault(int(e["ref"][1:3]), Counter())
+        c["passages"] += 1
+        c["written"] += sum(e["written"].values())
+        c["dropped"] += len(e["dropped"])
+    for e in unparsed:
+        c = per.setdefault(int(e["ref"][1:3]), Counter())
+        c["passages"] += 1
+        c["unparsed"] += 1
     kept, lost = sum(written.values()), sum(why.values())
-    out += [f"KEEPER: {calls} calls, {seconds / max(calls, 1):.1f} s each, {unparsed} replies not JSON",
-            f"  records written: {kept}; dropped: {lost} ({100 * lost / max(kept + lost, 1):.0f}%)",
+    out += [f"KEEPER: {calls} calls, {seconds / max(calls, 1):.1f} s each, {len(unparsed)} replies not JSON",
+            "  how replies ended: " + ", ".join(f"{k} {v}" for k, v in finishes.most_common())
+            + ("   ('length' = cut off at the token limit)" if finishes.get("length") else ""),
+            f"  records written: {kept}; dropped: {lost} ({100 * lost / max(kept + lost, 1):.0f}%); "
+            f"entities created from names in the passage: {made}",
             "  written by kind: " + ", ".join(f"{k} {v}" for k, v in written.items() if v)]
     out += [f"  dropped: {k} x{v}" for k, v in why.most_common()]
+    out += ["", "  by chapter:  passages  not JSON  written  dropped"]
+    out += [f"  ch. {ch:<9} {c['passages']:>8}  {c['unparsed']:>8}  {c['written']:>7}  {c['dropped']:>7}"
+            for ch, c in sorted(per.items())]
+    for e in unparsed[:3]:
+        out += ["", f"  NOT JSON: {e['ref']} ({e.get('error', '')}; ended: {e.get('finish')}; {e.get('length')} chars)",
+                "    starts: " + (e.get("head") or "").replace("\n", " ")[:200],
+                "    ends:   " + (e.get("tail") or "").replace("\n", " ")[-200:]]
 
     out += ["", f"ENTITIES ({conn.execute('SELECT COUNT(*) FROM entity').fetchone()[0]})"]
     for r in conn.execute("SELECT * FROM entity ORDER BY kind, name"):
