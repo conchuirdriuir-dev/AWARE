@@ -176,3 +176,51 @@ def test_dry_run_split_and_show(tmp_path, capsys):
     main(["show", "--run", str(run)])
     out = capsys.readouterr().out
     assert "KEEPER: 3 calls" in out and "ENTITIES" in out and "CHAPTER LINES" in out
+
+
+def test_server_errors_carry_the_reason_and_schema_falls_back():
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from rung2.keeper import SCHEMA
+    from rung2.model import Server, ServerError, check
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def reply(self, code, body):
+            data = json.dumps(body).encode()
+            self.send_response(code)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def do_GET(self):
+            self.reply(200, {"data": [{"id": "stand-in"}]})
+
+        def do_POST(self):
+            body = json.loads(self.rfile.read(int(self.headers["content-length"])))
+            if self.path == "/tokenize":
+                return self.reply(200, {"tokens": body["content"].split()})
+            if self.path == "/v1/embeddings":
+                return self.reply(501, {"error": {"message": "This server does not support embeddings"}})
+            if "response_format" in body:
+                return self.reply(400, {"error": {"message": "unsupported response_format"}})
+            content = '{"new_entities": []}' if "json_schema" in body else "<think>x</think>hello there friend"
+            self.reply(200, {"choices": [{"message": {"content": content}}]})
+
+    httpd = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{httpd.server_port}"
+    try:
+        s = Server(url)
+        assert s.name == "stand-in" and s.chat("hi") == "hello there friend"
+        assert s.chat("hi", schema=SCHEMA) == '{"new_entities": []}' and s.schema_style == "json_schema"
+        with pytest.raises(ServerError, match="HTTP 501.*does not support embeddings"):
+            s.embed(["x"])
+        results = {name: ok for name, ok, _ in check(url, None, SCHEMA)}
+        assert results["schema: response_format"] is False and results["schema: json_schema field"] is True
+        assert results["token count (POST /tokenize)"] and results["plain chat, thinking off"]
+    finally:
+        httpd.shutdown()

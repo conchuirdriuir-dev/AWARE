@@ -5,6 +5,7 @@
     python -m rung2.run score --run DIR --key FILE [--settled FILE]
     python -m rung2.run show  --run DIR [--upto N]               what the store holds, and what the keeper lost
     python -m rung2.run split --text BOOK.txt --out DIR [--chapters N]   a Gutenberg book into ch01.md, ch02.md, ...
+    python -m rung2.run check --url URL [--embed-url URL]        each kind of request, alone: which one a server refuses
 
 `build --only keeper` runs just the keeper and the chapter lines: the dry run (SPEC.md, "Before trusting the store").
 
@@ -26,7 +27,7 @@ from pathlib import Path
 
 from . import keeper, retrieval, store
 from .arms import ARMS, Arms
-from .model import Fake, Server
+from .model import Fake, Server, check
 from .record import Recorder
 from .score import read_jsonl, report, score
 from .show import show
@@ -148,6 +149,9 @@ def main(argv=None) -> None:
     sp.add_argument("--text", required=True)
     sp.add_argument("--out", required=True)
     sp.add_argument("--chapters", type=int)
+    ck = sub.add_parser("check")
+    ck.add_argument("--url", required=True)
+    ck.add_argument("--embed-url")
     a = sub.add_parser("ask")
     a.add_argument("--run", required=True)
     a.add_argument("--questions", required=True)
@@ -160,7 +164,13 @@ def main(argv=None) -> None:
     args = p.parse_args(argv)
     if args.cmd == "build" and not (args.fake or args.url):
         p.error("build needs --url or --fake")
-    {"build": build, "ask": ask, "score": score_cmd, "show": show_cmd, "split": split_cmd}[args.cmd](args)
+    {"build": build, "ask": ask, "score": score_cmd, "show": show_cmd, "split": split_cmd,
+     "check": check_cmd}[args.cmd](args)
+
+
+def check_cmd(args) -> None:
+    for name, ok, detail in check(args.url, args.embed_url, keeper.SCHEMA):
+        print(f"{'ok  ' if ok else 'FAIL'} {name}\n     {detail}")
 
 
 def show_cmd(args) -> None:

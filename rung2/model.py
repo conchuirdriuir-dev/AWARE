@@ -7,7 +7,12 @@ import hashlib
 import json
 import math
 import re
+import urllib.error
 import urllib.request
+
+
+class ServerError(Exception):
+    """A request llama-server refused, with the server's own explanation."""
 
 
 class Server:
@@ -17,13 +22,18 @@ class Server:
         self.url = url.rstrip("/")
         self.embed_url = (embed_url or url).rstrip("/")
         self.timeout = timeout
+        self.schema_style = "response_format"     # falls back to llama.cpp's own "json_schema" field if refused
         self.name = self._model_name()
 
     def _post(self, base: str, path: str, body: dict) -> dict:
         req = urllib.request.Request(base + path, data=json.dumps(body).encode(),
                                      headers={"content-type": "application/json"})
-        with urllib.request.urlopen(req, timeout=self.timeout) as r:
-            return json.loads(r.read())
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                return json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:2000]
+            raise ServerError(f"{path} returned HTTP {e.code}: {detail}") from None
 
     def _model_name(self) -> str:
         try:
@@ -37,8 +47,17 @@ class Server:
         body = {"messages": [{"role": "user", "content": prompt}], "max_tokens": max_tokens,
                 "temperature": temperature, "seed": seed,
                 "chat_template_kwargs": {"enable_thinking": False}}    # Qwen3 and the like: no thinking (needs --jinja)
+        if schema is not None and self.schema_style == "response_format":
+            try:
+                return self._chat({**body, "response_format": {"type": "json_schema",
+                                                               "json_schema": {"name": "reply", "schema": schema}}})
+            except ServerError:
+                self.schema_style = "json_schema"
         if schema is not None:
-            body["response_format"] = {"type": "json_schema", "json_schema": {"name": "reply", "schema": schema}}
+            body["json_schema"] = schema
+        return self._chat(body)
+
+    def _chat(self, body: dict) -> str:
         return strip_thinking(self._post(self.url, "/v1/chat/completions", body)["choices"][0]["message"]["content"])
 
     def tokens(self, text: str) -> int:
@@ -47,6 +66,35 @@ class Server:
     def embed(self, texts: list[str]) -> list[list[float]]:
         data = self._post(self.embed_url, "/v1/embeddings", {"input": texts})["data"]
         return [d["embedding"] for d in sorted(data, key=lambda d: d["index"])]
+
+
+def check(url: str, embed_url: str | None, schema: dict) -> list[tuple[str, bool, str]]:
+    """Each kind of request the harness makes, on its own: which one a server refuses, and what it says."""
+    results = []
+
+    def step(name, fn):
+        try:
+            results.append((name, True, str(fn())[:300]))
+        except Exception as e:
+            results.append((name, False, str(e)))
+
+    s = Server(url, embed_url)
+    step("model name (GET /v1/models)", lambda: s.name)
+    step("token count (POST /tokenize)", lambda: s.tokens("Mara hid the silver locket under the board."))
+    step("plain chat", lambda: s._chat({"messages": [{"role": "user", "content": "Say hello in three words."}],
+                                        "max_tokens": 20, "temperature": 0, "seed": 0}))
+    step("plain chat, thinking off", lambda: s.chat("Say hello in three words.", max_tokens=20))
+    prompt = ("Record facts from this passage as JSON. Every record needs a quote from the passage.\n\n"
+              "PASSAGE:\nMara hid the silver locket under the loose board by the stove.")
+    step("schema: response_format", lambda: s._chat({"messages": [{"role": "user", "content": prompt}],
+                                                     "max_tokens": 400, "temperature": 0, "seed": 0,
+                                                     "response_format": {"type": "json_schema", "json_schema":
+                                                                         {"name": "reply", "schema": schema}}}))
+    step("schema: json_schema field", lambda: s._chat({"messages": [{"role": "user", "content": prompt}],
+                                                       "max_tokens": 400, "temperature": 0, "seed": 0,
+                                                       "json_schema": schema}))
+    step("embeddings (arm B only; not needed for the dry run)", lambda: len(s.embed(["a test sentence"])[0]))
+    return results
 
 
 def strip_thinking(reply: str | None) -> str:
