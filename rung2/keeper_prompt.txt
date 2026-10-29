@@ -1,0 +1,39 @@
+You are recording facts from one passage of a novel, so they can be looked up later.
+Record only what THIS passage states or shows. Do not guess, explain or interpret.
+Every record must include "quote": an exact phrase from this passage, 15 words or
+fewer, that shows it. A record without such a quote is discarded.
+
+CHAPTER {chapter}, PASSAGE {passage_id}
+
+KNOWN ENTITIES (refer to them by id):
+{entities}
+
+OPEN LOOPS (refer to them by id):
+{loops}
+
+END OF THE PREVIOUS PASSAGE (context only; record nothing from it):
+{previous_tail}
+
+THIS PASSAGE:
+{passage}
+
+What to record:
+- new_entities: characters, objects, places or groups not in the known list.
+  Two similar things are different entities unless the text says they are the same:
+  use the detail that tells them apart in the name ("the silver locket").
+- states: a property of an entity as this passage shows it. Use a short attribute:
+  location, holder, appearance, condition, role, or "relationship to <id>".
+  Record a property every time the passage shows it; repeats are removed later.
+- knowledge: a character learning, being told, discovering, or stating a belief.
+  stance "knows" if the passage presents it as fact, "believes" if it may be wrong.
+  true_in_story: true or false only if the passage makes it clear; otherwise null.
+- events: things that happen in this passage, one line each.
+  happened = false for anything planned, threatened, cancelled or imagined.
+- rules: general rules of the world or the household, stated in this passage.
+- loops_opened: at most 2. Something raised that a reader expects to matter later and
+  that this passage leaves unresolved: a hidden object, an unanswered question,
+  a promise, a threat, a mystery.
+- loops_touched: ids of open loops this passage mentions or advances.
+- loops_closed: ids of open loops this passage resolves.
+Refer to entities by known id, or by the exact name you gave in new_entities.
+Empty lists are fine. Reply with the JSON object only.

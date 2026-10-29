@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["new_entities", "states", "knowledge", "events", "rules",
+               "loops_opened", "loops_touched", "loops_closed"],
+  "properties": {
+    "new_entities": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "kind", "aliases", "quote"],
+      "properties": {
+        "name":    {"type": "string"},
+        "kind":    {"enum": ["character", "object", "place", "group"]},
+        "aliases": {"type": "array", "items": {"type": "string"}},
+        "quote":   {"type": "string"}}}},
+    "states": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity", "attribute", "value", "quote"],
+      "properties": {
+        "entity":    {"type": "string"},
+        "attribute": {"type": "string"},
+        "value":     {"type": "string"},
+        "quote":     {"type": "string"}}}},
+    "knowledge": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["character", "proposition", "about", "stance", "true_in_story", "quote"],
+      "properties": {
+        "character":     {"type": "string"},
+        "proposition":   {"type": "string"},
+        "about":         {"type": ["string", "null"]},
+        "stance":        {"enum": ["knows", "believes"]},
+        "true_in_story": {"type": ["boolean", "null"]},
+        "quote":         {"type": "string"}}}},
+    "events": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["summary", "place", "participants", "happened", "quote"],
+      "properties": {
+        "summary":      {"type": "string"},
+        "place":        {"type": ["string", "null"]},
+        "participants": {"type": "array", "items": {"type": "string"}},
+        "happened":     {"type": "boolean"},
+        "quote":        {"type": "string"}}}},
+    "rules": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["statement", "quote"],
+      "properties": {
+        "statement": {"type": "string"},
+        "quote":     {"type": "string"}}}},
+    "loops_opened": {"type": "array", "maxItems": 2, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["description", "entities", "quote"],
+      "properties": {
+        "description": {"type": "string"},
+        "entities":    {"type": "array", "items": {"type": "string"}},
+        "quote":       {"type": "string"}}}},
+    "loops_touched": {"type": "array", "items": {"type": "integer"}},
+    "loops_closed": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["loop_id", "quote"],
+      "properties": {
+        "loop_id": {"type": "integer"},
+        "quote":   {"type": "string"}}}}
+  }
+}
