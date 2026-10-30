@@ -416,3 +416,41 @@ def test_told_hives_dry_run_fixes(conn, tmp_path):
     assert model.calls == [(0.0, 0), (0.0, 0), (0.7, 1)]
     last = [json.loads(x) for x in (tmp_path / "log2.jsonl").read_text().splitlines() if '"keeper_empty"' in x]
     assert last[-1]["used_retry"] is False and last[-1]["why_not"] == "empty again"
+
+
+def test_keeper_retries_a_reply_cut_off_at_the_limit(conn, tmp_path):
+    """The negation test's second dry run: passage 2's reply, indented despite the prompt, ran past 1,500 tokens and
+    was lost whole. A reply cut off at the limit is asked once more with twice the room; any other bad JSON is not."""
+    from rung2.keeper import CUT_OFF_TOKENS, REPLY_TOKENS, keep_passage
+    from rung2.record import Recorder
+    full = json.dumps(empty(rules=[{"statement": "No wagon crossed the yard", "quote": "No wagon crossed the yard"}]))
+
+    class Scripted(Fake):
+        def __init__(self, replies):
+            self.replies, self.calls = list(replies), []
+
+        def chat(self, prompt, schema=None, max_tokens=1024, temperature=0.0, seed=0):
+            self.calls.append((max_tokens, temperature))
+            reply, self.last_finish = self.replies.pop(0)
+            return reply
+
+    p = passage(conn, 1, 1, "No wagon crossed the yard, and none ever had.")
+    model = Scripted([(full[:30], "length"), (full, "stop")])
+    out = keep_passage(conn, Recorder(model, tmp_path / "a.jsonl"), p, "")
+    assert model.calls == [(REPLY_TOKENS, 0.0), (CUT_OFF_TOKENS, 0.0)] and out["written"]["rules"] == 1
+    kinds = [json.loads(x)["kind"] for x in (tmp_path / "a.jsonl").read_text().splitlines()]
+    assert kinds == ["call", "keeper_unparsed", "call", "keeper_cut_off", "keeper_applied"]
+
+    model = Scripted([(full[:30], "length"), (full[:60], "length")])
+    out = keep_passage(conn, Recorder(model, tmp_path / "b.jsonl"), p, "")
+    assert out["dropped"] == [{"kind": "reply", "why": "not JSON, cut off twice"}]
+    cut = [json.loads(x) for x in (tmp_path / "b.jsonl").read_text().splitlines() if '"keeper_cut_off"' in x][0]
+    assert cut["used_retry"] is False and "finish: length" in cut["why_not"]
+
+    model = Scripted([("not json at all", "stop")])
+    out = keep_passage(conn, Recorder(model, tmp_path / "c.jsonl"), p, "")
+    assert len(model.calls) == 1 and out["dropped"] == [{"kind": "reply", "why": "not JSON"}]
+
+    model = Scripted([(full[:30], "length")])                  # no room for twice the reply: recorded, not asked
+    out = keep_passage(conn, Recorder(model, tmp_path / "d.jsonl", window=CUT_OFF_TOKENS), p, "")
+    assert len(model.calls) == 1 and out["dropped"] == [{"kind": "reply", "why": "not JSON"}]
