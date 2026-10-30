@@ -2,6 +2,7 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Stage 2 failed its first run** (stockout 0/3; RESULTS.md). Mover notes now show the model its own action's parameters beside the levels and no longer call the action the one that moved the anomaly; the kernel still sees no numbers. Rerun (owner).
 - 2026-10-30: **Stage 2's design** (owner, from the design note): kinds as rules over residue rows (tier 1) and latent
   classes over kinds of action (tier 2, expected silent in this world), each against a shuffled control; residue rows
   in the record's terms, never an action's numbers. The fixed anomaly ids stay for this stage. Tier 2 was built with

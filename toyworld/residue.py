@@ -16,6 +16,7 @@ and every admission is checked against the same rows with their targets shuffled
 """
 from __future__ import annotations
 
+import json
 import random
 
 from kernel import latent as lt
@@ -64,7 +65,9 @@ def rows(states: list[dict], cmap: dict) -> list[dict]:
                 xs = ctl.series(s, a)
                 if d in did and xs[t - 1] > ctl.OPEN[a] and t + k - 1 < len(xs):
                     after = xs[t + k - 1]
+                    used = [y for y in act["actions"] if action_symbol(y) == d]
                     out.append({**base, "type": "mover", "anomaly": a, "action": d, "lag": k,
+                                "params": params(used[0]) if used else "",
                                 "fell": after < ctl.FALL * xs[t - 1], "goal": _goal(s, t, a),
                                 "target": after > ctl.OPEN[a], "before": xs[t - 1], "after": after})
             for a, ds in sorted(by_anomaly.items()):
@@ -184,14 +187,23 @@ def note(kind: dict, rs: list[dict], fixes: list[str] = ()) -> str:
     days = ", ".join(str(r["day"]) for r in rs)
     if kind["type"] == "mover":
         a, d = rs[0]["anomaly"], rs[0]["action"]
-        levels = "; ".join(f"day {r['day']}: {r['before']} -> {r['after']}" for r in rs)
-        return (f"on day(s) {days}, {readable(d)} was applied for {a}, the action that moved it in exploration, and "
-                f"{a} was still present ({LABEL[a]}: {levels})")
+        levels = "; ".join(f"day {r['day']}: {r.get('params') or readable(d)}, {LABEL[a]} {r['before']} -> {r['after']}"
+                           for r in rs)
+        return f"{a} was still present after {readable(d)} on day(s) {days} ({levels})"
     a = rs[0]["anomaly"]
     levels = "; ".join(f"day {r['day']}: {r['after']}" for r in rs)
     moved = " or ".join(readable(f) for f in fixes) or "the actions that move it"
     return (f"{a} was present on day(s) {days} and {moved}, which moved it in exploration, was not applied "
             f"({LABEL[a]}: {levels})")
+
+
+FIELDS = {"set_order_qty": ("qty",), "send_memo": ("text",), "change_till_setting": ("key", "value"),
+          "set_log_filter": ("rule",), "report_to_head_office": ("problem", "status", "cause")}
+
+
+def params(a: dict) -> str:
+    """The model's own action as it wrote it, for a note: its type's fields only (stage 2's rerun, RESULTS.md)."""
+    return ", ".join(f"{k} {json.dumps(a[k])}" for k in FIELDS.get(a.get("type"), ()) if a.get(k) not in (None, ""))
 
 
 def describe(learned: dict) -> str:
