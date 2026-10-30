@@ -44,15 +44,26 @@ def _sentences(paragraph: str) -> list[str]:
     return [s for s in re.split(r"(?<=[.!?])\s+", paragraph) if s]
 
 
+SCENE_BREAK = re.compile(r"^\s*(?:-{3,}|\*(?:\s*\*){2,}|#)\s*$")     # ---, * * *, #: a scene ends here
+
+
 def chunk(chapter: int, text: str, count: Count, target: int = 400) -> list[dict]:
-    """Passages of about `target` tokens, split at paragraphs, or at sentences inside a long paragraph."""
+    """Passages of about `target` tokens, split at paragraphs, or at sentences inside a long paragraph. A scene break
+    always ends a passage, so no passage spans two scenes; the break itself is not text."""
     units = []
     for para in re.split(r"\n\s*\n", text):
         para = para.strip()
-        if para:
+        if SCENE_BREAK.match(para):
+            units.append(None)
+        elif para:
             units.extend(_sentences(para) if count(para) > target else [para])
     groups, current, size = [], [], 0
     for u in units:
+        if u is None:
+            if current:
+                groups.append(current)
+            current, size = [], 0
+            continue
         n = count(u) + 1
         if current and size + n > target:
             groups.append(current)

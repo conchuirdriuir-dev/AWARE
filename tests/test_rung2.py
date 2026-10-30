@@ -355,3 +355,64 @@ def test_negation_test_reading_follows_the_pass_criteria():
     assert "goes into store.apply" in reading({**base, "inverted": 1}, True)
     assert "ERG returns" in reading({**base, "inverted": 1, "uncaught": 1, "uncaught_erg_kept": 1}, True)
     assert "read it before deciding" in reading({**base, "inverted": 1, "uncaught": 1}, True)
+
+
+def test_told_hives_dry_run_fixes(conn, tmp_path):
+    """The negation test's dry run (DECISIONS.md): a state about an entity the keeper named but never listed lost the
+    whole passage; a passage spanning a scene break came back empty."""
+    p = passage(conn, 1, 1, "The yard was a square of cobbles. No wagon crossed the yard, and none ever had. "
+                            "Old Brindle was the oldest horse there. She slept.")
+    r = store.apply(conn, empty(states=[
+        {"entity": "the-yard", "attribute": "condition", "value": "No wagon crossed the yard",
+         "quote": "No wagon crossed the yard"},
+        {"entity": "the yard", "attribute": "appearance", "value": "a square of cobbles", "quote": "a square of cobbles"},
+        {"entity": "Old Brindle", "attribute": "appearance", "value": "the oldest horse", "quote": "the oldest horse"},
+        {"entity": "she", "attribute": "condition", "value": "asleep", "quote": "She slept."},
+        {"entity": "the-barn", "attribute": "condition", "value": "empty", "quote": "a square of cobbles"}]), p)
+    assert r["written"]["states"] == 3
+    assert r["created"] == [{"name": "the yard", "kind": "object", "from": "states", "kind_inferred_from": "condition"},
+                            {"name": "Old Brindle", "kind": "object", "from": "states",
+                             "kind_inferred_from": "appearance"}]
+    assert sorted(d["why"] for d in r["dropped"]) == ["unresolved entity 'she'", "unresolved entity 'the-barn'"]
+    assert conn.execute("SELECT value FROM state WHERE entity_id = 'the-yard' AND attribute = 'condition'"
+                        ).fetchone()[0] == "No wagon crossed the yard"
+
+    text = "Supper was quiet.\n\nNo one spoke.\n\n---\n\nLater the yard was dark.\n\n* * *\n\nMorning came."
+    ps = chunk(1, text, count, target=400)
+    assert [x["text"] for x in ps] == ["Supper was quiet.\n\nNo one spoke.", "Later the yard was dark.", "Morning came."]
+
+    from rung2.keeper import EMPTY_MIN_TOKENS, keep_passage
+    from rung2.record import Recorder
+
+    class EmptyFirst(Fake):
+        def __init__(self):
+            self.calls = []
+
+        def chat(self, prompt, schema=None, max_tokens=1024, temperature=0.0, seed=0):
+            self.calls.append((temperature, seed))
+            if len(self.calls) == 1:
+                return json.dumps(empty())
+            return json.dumps(empty(rules=[{"statement": "No one spoke at supper", "quote": "No one spoke"}]))
+
+    long_text = "Supper was quiet. No one spoke. " * (EMPTY_MIN_TOKENS // 4)
+    q = passage(conn, 1, 2, long_text)
+    model = EmptyFirst()
+    rec = Recorder(model, tmp_path / "log.jsonl")
+    out = keep_passage(conn, rec, q, "")
+    assert model.calls == [(0.0, 0), (0.7, 1)] and out["written"]["rules"] == 1
+    events = [json.loads(x) for x in (tmp_path / "log.jsonl").read_text().splitlines()]
+    assert [e["kind"] for e in events] == ["call", "call", "keeper_empty", "keeper_applied"]
+    assert events[2]["used_retry"] is True
+    class AlwaysEmpty(EmptyFirst):
+        def chat(self, prompt, schema=None, max_tokens=1024, temperature=0.0, seed=0):
+            self.calls.append((temperature, seed))
+            return json.dumps(empty())
+
+    model = AlwaysEmpty()
+    rec = Recorder(model, tmp_path / "log2.jsonl")
+    keep_passage(conn, rec, passage(conn, 1, 3, "She slept."), "")         # short: an empty reply is believed
+    assert model.calls == [(0.0, 0)]
+    keep_passage(conn, rec, passage(conn, 1, 4, long_text), "")            # long, empty twice: recorded, not retried again
+    assert model.calls == [(0.0, 0), (0.0, 0), (0.7, 1)]
+    last = [json.loads(x) for x in (tmp_path / "log2.jsonl").read_text().splitlines() if '"keeper_empty"' in x]
+    assert last[-1]["used_retry"] is False and last[-1]["why_not"] == "empty again"

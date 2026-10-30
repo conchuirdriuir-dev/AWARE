@@ -102,6 +102,23 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "entity"
 
 
+PRONOUNS = {"he", "she", "it", "they", "him", "her", "them", "his", "its", "their", "i", "me", "we", "us", "you"}
+STATE_KIND = {"role": "character", "relationship": "character", "held_by": "object"}   # else object (inferred)
+
+
+def named_in(ref: str, passage: str) -> str | None:
+    """The passage's own words for a reference the keeper wrote as a name or an id ("the-garth" for "the garth"):
+    the span of the passage that spells it, hyphens and spaces alike, or None. Never a pronoun."""
+    words = [w for w in re.split(r"[\s_-]+", norm(ref)) if w]
+    if not words or norm(ref) in PRONOUNS or max(len(w) for w in words) < 3:
+        return None
+    m = re.search(r"\b" + r"[\s-]+".join(map(re.escape, words)) + r"\b", passage, flags=re.I)
+    if not m:
+        return None
+    name = m.group(0)
+    return name[0].lower() + name[1:] if name.split()[0].lower() in ("the", "a", "an") else name
+
+
 def resolve(conn: sqlite3.Connection, ref: str | None, new: dict[str, str]) -> str | None:
     """A known id; else a new entity's exact name from this reply; else a known name or alias. Never created here."""
     if not ref:
@@ -187,9 +204,19 @@ def apply(conn: sqlite3.Connection, reply: dict, passage: dict) -> dict:
             created.append({"name": name.strip(), "kind": "character", "from": "named by an event or knowledge"})
 
     for s in reply.get("states", []):
-        if not keep("states", s) or (eid := ref("states", s, s["entity"])) is None:
+        if not keep("states", s):
             continue
         attr = s["attribute"].strip().lower()
+        eid = resolve(conn, s["entity"], new)
+        if eid is None and s["entity"] and len(ambiguous(conn, s["entity"])) < 2 \
+                and (name := named_in(s["entity"], text)):
+            eid = resolve(conn, name, new)
+            if eid is None:                            # the keeper named it but did not list it: its kind is inferred
+                kind = STATE_KIND.get(attr, "object")
+                eid = create(name, kind, [])
+                created.append({"name": name, "kind": kind, "from": "states", "kind_inferred_from": attr})
+        if eid is None and (eid := ref("states", s, s["entity"])) is None:
+            continue
         if attr == "held_by" and conn.execute("SELECT kind FROM entity WHERE id = ?", (eid,)).fetchone()[0] != "object":
             dropped.append({"kind": "states", "why": "held_by on something not an object", "record": s})
             continue

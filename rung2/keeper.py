@@ -34,6 +34,14 @@ def parse(reply: str) -> dict:
     return data
 
 
+EMPTY_MIN_TOKENS = 150      # a passage this long with nothing in it is suspect (the Told Hives dry run: one was)
+RETRY = (0.7, 1)            # temperature and seed of the one retry: at temperature 0 a new seed changes nothing
+
+
+def empty_reply(data: dict) -> bool:
+    return not any(data.get(k) for k in ("new_entities", "states", "knowledge", "events", "rules"))
+
+
 def keep_passage(conn, rec: Recorder, passage: dict, previous: str) -> dict:
     prompt = PROMPT.format(chapter=passage["chapter"], passage_id=passage["id"], entities=store.entities_block(conn),
                            previous_tail=" ".join(previous.split()[-150:]) or "(none)",
@@ -45,6 +53,21 @@ def keep_passage(conn, rec: Recorder, passage: dict, previous: str) -> dict:
         rec.event("keeper_unparsed", ref=passage["id"], error=str(e), finish=getattr(rec.model, "last_finish", None),
                   length=len(reply), head=reply[:300], tail=reply[-300:])
         return {"written": {}, "dropped": [{"kind": "reply", "why": "not JSON"}]}
+    if empty_reply(data) and passage["tokens"] >= EMPTY_MIN_TOKENS:
+        # Both replies stay in the record; the store takes the retry's only if it holds something.
+        temperature, seed = RETRY
+        again = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=1500,
+                         temperature=temperature, seed=seed)
+        try:
+            retried = parse(again)
+        except ValueError as e:
+            retried, why = {}, str(e)
+        else:
+            why = "empty again" if empty_reply(retried) else None
+        rec.event("keeper_empty", ref=passage["id"], said_by="code", tokens=passage["tokens"],
+                  retry={"temperature": temperature, "seed": seed}, used_retry=why is None, why_not=why)
+        if why is None:
+            data = retried
     result = store.apply(conn, data, passage)
     rec.event("keeper_applied", ref=passage["id"], **result)
     return result
