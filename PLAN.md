@@ -59,7 +59,7 @@ which the loop above avoids.
 2. **The toy worlds** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
    Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 passed on Qwen3 8B ([toyworld/RESULTS.md](toyworld/RESULTS.md)).
    Stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"), is built, with `latent.py`
-   ported; on the owner's stage-1 records it finds two kinds. Next: its run on Qwen3 8B under pressure.
+   ported; four runs on Qwen3 8B: a note naming a missing action is acted on, one describing a shortfall is not.
 3. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
 4. The run, on the owner's story, on Qwen3 8B.
