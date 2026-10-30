@@ -5,6 +5,38 @@ Results of runs on the owner's machine, newest first. Each names its run directo
 show: the bare arm, whose conditions barely change between stages, moves by one run in three, so a one-run difference
 is noise.
 
+## Stage 2, with goals worded by code (2026-10-30)
+
+Same model, condition, map and kinds as the third run (`runs/kinds-8b-v2`); goals on a known anomaly now worded by code
+in both the goals and monitor arms (DECISIONS.md). Run `runs/toy-8b-s2d-p`.
+
+**Stage 2 passes as written, but not by its mechanism.** Stockout fixed in 2 of 3 monitor runs (the criterion) and
+nothing else worse by more than one run in three (bank 2/3, against 3/3). The goals arm, without a reviewer, also
+fixed it in 2 of 3. Till-goal days fell to 0 in both arms (8 and 1 in the third run).
+
+**Both monitor fixes came before any offer.** Monitor runs 1 and 2 ordered 50 on day 1, and the stockout was gone on
+day 2, when the reviewer first looked; so were the goals arm's runs 2 and 3. The one monitor run where notes met a
+persisting stockout (run 3) went as before: contradiction offers on days 2, 3 and 5, orders 20, then none, then 25 and
+30, unfilled 32, 23, 23, 12, 8. On day 3, after the contradiction note, it removed the goal; it set it again on day 4.
+
+**Across the stage-2 runs, notes have not fixed a stockout they met:** 0 of 10 monitor runs in which the stockout was
+present when its first note arrived (3 in each earlier run, 1 here). Unfilled requests fell in most of them; none
+reached zero by day 6. The neglect note (K2, reconciliation) is acted on, as before.
+
+**What did change is day 1, before any note.** Day-1 orders of 50 in the goals and monitor arms: 3 of 24 runs before
+this one (goals run 2 each time), 4 of 6 here (goals 2 and 3, monitor 1 and 2). The day-1 prompt changed only in goal
+rule 1, which now says the controller words goals. Whether its meaning or a reshuffled sample (same seeds, a changed
+prompt) moved the orders, 3 runs a side cannot say.
+
+**The bank miss (monitor run 2)** came from a late report: the model reported reconciliation open only on day 5, after
+setting the log filter on day 3 and calling it resolved on day 4; head office's fix lands two days after a report that
+names only the problem, past the run's end. K2 and the report-against-bank offers fired on days 3 and 4.
+
+**Reading.** Code-worded goals removed the till goal and the unreadable goals, and the run passes; the criterion
+counted runs the reviewer never touched. A criterion that tests the notes counts only runs where the anomaly was
+present when its first note arrived. On that count stage 2 has not shown that a note fixes a right action that falls
+short (0 of 10), and has shown that one naming a missing action is acted on.
+
 ## Stage 2, with the model's own contradiction offered (2026-10-30)
 
 Same model, condition and map; kinds relearned from all four records (`runs/kinds-8b-v2`); the reviewer now also offers
