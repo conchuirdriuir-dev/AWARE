@@ -65,7 +65,10 @@ def test_a_kind_offer_shows_the_model_its_own_record_once_settled(cmap):
     world.observe(s, 2)
     offers = [o for o in monitor.offer(s, monitor.review(s)) if o["check"].startswith("kind")]
     assert offers and offers[0]["question"].endswith("?") and offers[0]["evidence"] and offers[0]["wrong_if"]
-    assert "unfilled requests" in offers[0]["change"]["note"] and "set_order_qty" in offers[0]["change"]["note"]
+    n = offers[0]["change"]["note"]
+    assert "unfilled requests" in n and "set_order_qty" in n and "qty 20" in n   # the model's own action, as written
+    assert "moved it in exploration" not in n                                    # and no endorsement of it
+    assert not any(c.isdigit() for r in residue.rows([s], cmap) for f in residue.facts(r) for c in f)  # kernel: none
     assert "Settled" not in world.proposer_prompt(s, 2)              # nothing reaches the model until settled
     monitor.settle(s, offers[0], accept=True, by="owner")
     world.apply_reply(s, 2, {"actions": [ORDER]})

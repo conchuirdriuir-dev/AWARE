@@ -5,15 +5,15 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-10-30: The negation test's pass criteria (owner): zero inversions; a polarity check on the keeper's quotes is
   tried before the ERG; at least 5 negated facts comparable, else no decision. A text that gives no decision gets more
   probes before another text, and never a decided one (rung2/SPEC.md, "The negation test").
-
 - 2026-10-30: *The Told Hives* is the rung-2 novella (owner). The chapter the DARA pilot used is a model-generated dry
   run; the final text is the owner's. The negation test runs on the dry run first and again on the owner's chapter 1.
-
+- 2026-10-30: **AWARE's general loop** (PLAN.md, "The general loop"): one model call per turn; the meta level chooses what goes into the model's context by retrieval (the embedding model ranks, the kernel admits), and quotes the record rather than generating feedback. Which intervention form works is to be learned, not tuned.
+- 2026-10-30: **Stage 2 failed its first run** (stockout 0/3; RESULTS.md). Mover notes now show the model its own action's parameters beside the levels and no longer call the action the one that moved the anomaly; the kernel still sees no numbers. Rerun (owner).
 - 2026-10-30: **Stage 2's design** (owner, from the design note): kinds as rules over residue rows (tier 1) and latent
   classes over kinds of action (tier 2, expected silent in this world), each against a shuffled control; residue rows
   in the record's terms, never an action's numbers. The fixed anomaly ids stay for this stage. Tier 2 was built with
-  the kernel's one-step test before the lookahead entry below was seen: its silence on the owner's record is
-  provisional until that question is settled.
+  the kernel's one-step test before the lookahead entry below was seen. The owner keeps it as built, marked
+  provisional: its silence on the owner's record is not evidence until the lookahead question is settled.
 - 2026-10-30: **The DARA Agent Architecture Spec and the negation note are mapped into AWARE** (PLAN.md, "From the DARA
   Agent Architecture Spec and the negation note"): what is in, superseded, planned and open, so nothing from them is
   dropped unnoticed.

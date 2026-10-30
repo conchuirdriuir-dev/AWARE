@@ -13,6 +13,45 @@ answers it. A rung is done when its test passes, not when its code exists.
 | 3. The big picture | Can it see what the whole lacks (open threads, the shape, contradictions) and ask about it at the right moment? | sketched below: known inconsistencies planted in a second version of the rung-2 story, on whichever memory wins rung 2 | **sketched; its material exists** |
 | 4. Learning the person | Can it learn which questions this person finds worth asking, and which threads they return to? Where DARA's mechanisms compete with the simple version | to write | open |
 
+## The general loop
+
+What every use of AWARE comes down to, whatever the world (owner, 2026-10-30). One model call per turn; everything
+else is code, the kernel, and the embedding model:
+
+1. **Record** what happened: what the model was shown, what it did, what came of it. Code.
+2. **Check it against what has been learned** (the map of what moves what, the kinds of failure) and find the
+   residue. Code and the kernel.
+3. **Retrieve what matters now.** The embedding model ranks earlier residue, kinds and record by how much they bear on
+   the present situation; rows are embedded once, as they are written. It ranks; it never admits a kind or decides a
+   finding, which stays with the kernel's margin. It embeds each item inside its sentence with a task instruction,
+   never as a bare word (DECISIONS.md, 2026-10-30, from the negation note).
+4. **Build the context:** record excerpts quoted verbatim under a small fixed framing per residue type ("this was done
+   and this stayed", "this persisted and nothing that fixes it was tried"), within a fixed token budget. Code; nothing
+   generated, so nothing to fact-check.
+5. **One call to the model.**
+
+**Two instances of step 4 exist:** the toy world's settled notes (toyworld/SPEC.md, "Stage 2") and rung 2's context
+builder (rung2/SPEC.md). Rung 2 already asks the question this loop depends on: whether a store and a builder beat
+plain retrieval, which says how much of steps 3 and 4 should be embeddings and how much structure.
+
+**What makes it general.** The channel back to the model is always its context, so no situation needs a channel of
+its own. The residue types are defined over the learned map (an action, what it should change, what was then
+observed), not over any world. What is still specific to the store and has a route out: the anomaly ids (learned,
+the Build Map's anomaly kinds), the action names (from a tool's schema: its type and enum fields), the labels (from the
+observation's own field names), and, where there is no schema, free-text actions and observations, which the embedding
+model groups into candidate kinds for the kernel to admit or refuse.
+
+**Planned, after stage 2's rerun: which intervention works is learned, not tuned.** The meta level's own moves (show
+the record, name the missing action, show the model its own numbers, ask it a question, block an action) are
+interventions on the model, and whether the residue clears after them is their effect. Randomising which form a kind's
+offer takes, as stage 1 randomised actions, lets the kernel learn under the same margin which form moves this model on
+this kind of failure. A different model relearns it.
+
+**Open, not planned:** notes the model writes itself, for situations no residue type covers. Allowed only as
+model-proposed records checked by code against the record, every number and claim quoted, as the rung-2 keeper's quotes
+are; a note that misstates the record would be the system deceiving its own cognition. It costs a second model call,
+which the loop above avoids.
+
 ## Next
 
 1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and

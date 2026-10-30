@@ -208,9 +208,12 @@ milk", "demand" or "order size" in any check's code).
 each admitted only when positing it shortens the record's code by the 2-bit margin, as any rule is. An admitted kind
 becomes a check: when a new day joins the kind, the reviewer makes an offer that cites the kind's earlier members and
 says what would make it wrong. Accepting a kind's offer adds a settled note to the model's view, in the record's
-terms, naming the action as the model knows actions (for example: "the record shows that reconciliation was present on
-day(s) 2, 3, 4 and report_to_head_office with problem "reconciliation" and status "open", which moved it in
-exploration, was not applied (bank shortfall: ...)"). A kind's note is offered again as new days join it, and only its
+terms, naming the action as the model knows actions. A neglect note names the fix the map learned ("the record shows
+that reconciliation was present on day(s) 2, 3, 4 and report_to_head_office with problem "reconciliation" and status
+"open", which moved it in exploration, was not applied (bank shortfall: ...)"). A mover note shows the model its own
+action as it wrote it beside the levels, and does not endorse the action ("stockout was still present after
+set_order_qty on day(s) 1, 2 (day 1: qty 20, unfilled requests 29 -> 21; ...)"): after the first run, which praised the
+action and saw the model keep its order size (RESULTS.md). The action's numbers reach the note only, never the kernel. A kind's note is offered again as new days join it, and only its
 latest form is shown. The model is told what its own record shows, and what it does next stays its own.
 
 **Running it** ([residue.py](residue.py)): `python -m toyworld.run kinds --from <run dirs> --control <control.json>
