@@ -144,6 +144,10 @@ What code does with each reply, in order:
 1, and the store takes the second reply only if it holds something. Both replies and the decision are in the record
 (`keeper_empty`).
 
+**A reply cut off at the limit** (`finish: length`, not JSON) is asked once more at temperature 0 with twice the
+room, 3,000 tokens; the store takes the second reply only if it parses. Both replies are in the record
+(`keeper_cut_off`). Any other reply that is not JSON is not asked again.
+
 At each chapter's end, two calls read the whole chapter:
 
 - **The chapter line:** *"In one sentence of 30 words or fewer, say what happens in this chapter that matters to the

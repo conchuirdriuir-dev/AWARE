@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from . import store
-from .record import Recorder
+from .record import Recorder, TooLong
 
 HERE = Path(__file__).parent
 PROMPT = (HERE / "keeper_prompt.txt").read_text()
@@ -36,6 +36,9 @@ def parse(reply: str) -> dict:
 
 EMPTY_MIN_TOKENS = 150      # a passage this long with nothing in it is suspect (the Told Hives dry run: one was)
 RETRY = (0.7, 1)            # temperature and seed of the one retry: at temperature 0 a new seed changes nothing
+REPLY_TOKENS = 1500
+CUT_OFF_TOKENS = 3000       # a reply cut off at the limit is asked once more with this much room (the Told Hives
+                            # dry run: passage 2, indented despite the prompt, ran past 1,500 with 25 records in it)
 
 
 def empty_reply(data: dict) -> bool:
@@ -46,17 +49,33 @@ def keep_passage(conn, rec: Recorder, passage: dict, previous: str) -> dict:
     prompt = PROMPT.format(chapter=passage["chapter"], passage_id=passage["id"], entities=store.entities_block(conn),
                            previous_tail=" ".join(previous.split()[-150:]) or "(none)",
                            passage=passage["text"])
-    reply = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=1500)
+    reply = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=REPLY_TOKENS)
     try:
         data = parse(reply)
     except ValueError as e:
+        cut_off = getattr(rec.model, "last_finish", None) == "length"
         rec.event("keeper_unparsed", ref=passage["id"], error=str(e), finish=getattr(rec.model, "last_finish", None),
                   length=len(reply), head=reply[:300], tail=reply[-300:])
-        return {"written": {}, "dropped": [{"kind": "reply", "why": "not JSON"}]}
+        if not cut_off:
+            return {"written": {}, "dropped": [{"kind": "reply", "why": "not JSON"}]}
+        # Cut off at the limit: the same call once more, at temperature 0, with twice the room. Both replies stay in
+        # the record; the store takes the second only if it parses.
+        try:
+            again = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=CUT_OFF_TOKENS)
+            data, why = parse(again), None
+        except TooLong as e:
+            why = str(e)
+        except ValueError as e:
+            why = f"{e} (finish: {getattr(rec.model, 'last_finish', None)})"
+        rec.event("keeper_cut_off", ref=passage["id"], said_by="code", retry={"max_tokens": CUT_OFF_TOKENS},
+                  used_retry=why is None, why_not=why)
+        if why is not None:
+            return {"written": {}, "dropped": [{"kind": "reply", "why": "not JSON, cut off twice" if "finish: length"
+                                                in why else "not JSON"}]}
     if empty_reply(data) and passage["tokens"] >= EMPTY_MIN_TOKENS:
         # Both replies stay in the record; the store takes the retry's only if it holds something.
         temperature, seed = RETRY
-        again = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=1500,
+        again = rec.chat("keeper", prompt, ref=passage["id"], schema=SCHEMA, max_tokens=REPLY_TOKENS,
                          temperature=temperature, seed=seed)
         try:
             retried = parse(again)

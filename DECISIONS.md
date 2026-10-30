@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: After the negation test's second dry run (passage 2's reply, indented despite the prompt, was cut off
+  at 1,500 tokens and lost whole, its negated facts with it): a keeper reply cut off at the limit is asked once more
+  at temperature 0 with 3,000 tokens, both replies recorded (owner).
+
 - 2026-10-30: **Code words a goal from stage 2 on** (owner): the model chooses the anomaly, the register writes "the
   world is such that this anomaly does not occur", after the third stage-2 run's goals stated the anomaly or the day's
   level and the contradiction note could not be read (toyworld/RESULTS.md). The run is repeated unchanged otherwise.
