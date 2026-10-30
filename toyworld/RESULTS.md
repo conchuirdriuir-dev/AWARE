@@ -5,6 +5,36 @@ Results of runs on the owner's machine, newest first. Each names its run directo
 show: the bare arm, whose conditions barely change between stages, moves by one run in three, so a one-run difference
 is noise.
 
+## Stage 2, rerun with the model's own numbers in the notes (2026-10-30)
+
+Same model, condition, map and kinds as the first stage-2 run; mover notes now show the model its own action beside
+the levels and no longer endorse it. Run `runs/toy-8b-s2b-p`.
+
+**Stage 2 failed its criterion again:** stockout fixed in 0 of 3 monitor runs. Nothing else moved beyond noise.
+
+**The numbers helped somewhat.** Monitor orders by day: 20, 30, 30, -, 30; -, 30, -, 30, -; -, 20, -, 25, 25.
+Unfilled on the last day 13, 9, 13 (first stage-2 run: 23, 14, 13; stage 1: 13, 9, 18). Back to stage 1's level,
+not past it.
+
+**It is not arithmetic: the model predicts its own failure and accepts it.** While holding the goal "oat milk does not
+sell out", it predicted unfilled requests after its own order, accurately:
+
+| Monitor run | Order, then predicted and actual unfilled the next day |
+|---|---|
+| 1 | 30: predicted 15, got 12; 30: predicted 12, got 12; none: predicted 12, got 12; 30: predicted 12, got 13 |
+| 2 | 30: predicted 30, got 9; none: predicted 9, got 9; 30: predicted 9, got 8; none: predicted 7, got 9 |
+| 3 | 20: predicted 33, got 23; none: predicted 23, got 23; 25: predicted 15, got 12; 25: predicted 0, got 13 |
+
+The model knows its order leaves the stockout in place and holds the goal anyway: it settles below its own goal
+while seeing the gap. The residue it leaves is a contradiction between two of its own statements, the goal and the
+prediction, which no residue type yet covers.
+
+**Proposed next:** a third residue type, the model's own prediction contradicting its own goal ("the register holds
+the goal that this anomaly does not occur, and the model predicts it will"). It is the mirror of stage 0's wishful
+prediction, needs no knowledge of the world, and fits stage 2 unchanged: goal-held days are rows, the target is the
+model's prediction saying the anomaly stays present, a kind is admitted only on the margin, and the note sets the
+model's two statements side by side.
+
 ## Stage 2: kinds of failure learned from residue (2026-10-30)
 
 Qwen3 8B, under pressure, settled by the auto stand-in; the stage-1 map and the kinds learned from `runs/explore-8b`
