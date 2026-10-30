@@ -214,8 +214,7 @@ store has.
 **Recommendation.** Two tiers, both in the stage:
 1. **Kinds as rules.** Each residue day is a structure: the anomaly, the action (`action_symbol`), whether it fell,
    and the target `still_present` (present at the lag the mover's rule cites). The kernel's `learn` forms rules for
-   `still_present`, admitted on the 2-bit margin. On stage 1's record the expected kind is
-   `still_present <- did:set_order_qty & fell`: reduced, not removed. This tier needs no new port.
+   `still_present`, admitted on the 2-bit margin. On stage 1's record it found `still_present <- anom:stockout` (measured below). This tier needs no new port.
 2. **Kinds as latent classes, over identities C** (kinds of action), with `latent.py` ported and its tests. Expected
    not to be admitted here, and that is part of the test: it must stay silent where a rule already says it all, and
    the shuffled control must admit nothing in either tier. It starts to matter when the anomaly ids are removed or the
@@ -229,9 +228,20 @@ before, as `action_symbol` names it; `fell` (below three quarters of the day bef
 action's numbers (an order's size), which only the world can judge: the settled note shows the model its own levels
 before and after, and judging size is left to the model.
 
-**What each option admits on the stage-1 record:** pending the record. `runs/explore-8b/log.jsonl` and
-`runs/toy-8b-s1-p/log.jsonl` from the owner's machine fill this in, by a probe that runs tiers 1 and 2 and the shuffled
-control on them and prints what each admits.
+**Measured on the stage-1 record** (`runs/explore-8b` and `runs/toy-8b-s1-p` from the owner's machine; both replay
+with no observation differing; a scratch probe, latent taken from DARA directly). Residue type 1, a learned mover applied
+while its anomaly was present: 55 days. Reconciliation's mover (an open head-office report) cleared it on all 12;
+stockout's (an order) left it present on 42 of 43.
+
+| | Admitted | Shuffled control (20 shuffles) |
+|---|---|---|
+| Tier 1, rules for `still_present` | one kind, 26 bits: `still_present <- anom:stockout` (equivalent here to the order, stockout's only mover) | none in 20 |
+| Tier 2, latent class over kinds of action | none, as predicted | none in 20 |
+
+The kind is broader than the note expected. Only 22 of the 43 orders reduced the stockout at all, and some were
+followed by more unfilled requests (8 to 29, 11 to 30): the record does not support "reduced, not removed", it
+supports "the mover was applied and the anomaly is still present". The kernel admitted the kind the evidence carries,
+not the one guessed. Both tiers are confirmed: tier 1 finds it, tier 2 stays silent, neither reads noise.
 
 **Pass criteria** (fixed before the run; Qwen3 8B, under pressure, 3 runs per arm, the stage-1 map):
 
