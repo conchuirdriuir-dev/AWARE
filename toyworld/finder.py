@@ -1,4 +1,5 @@
-"""The keeper: regularities in the reports, admitted under DARA's law (DARA CORE, "The law, precisely").
+"""The finder: regularities in the reports, admitted under DARA's law (DARA CORE, "The law, precisely"). It is code, not
+a model; rung 2's keeper is a different part, a model call.
 
 DARA's kernel reads relational structures of opaque symbols and never what a number means, so it cannot state
 "sold + unfilled stays at 40". What is taken from DARA is the law, not the kernel: a posit is admitted only when it
@@ -14,8 +15,8 @@ Codes, prequential (no fitted parameter is paid for, because each day is coded f
   day t:   the residual from the mean of y - s * x over days 1 .. t-1, rounded, signed Elias gamma
   S(h):    log2 of the target fields + log2 of the other fields + 1 bit for s
 
-The keeper reads only the reports, which the model also sees, never the key. What it holds is labelled inferred, by
-the keeper.
+The finder reads only the reports, which the model also sees, never the key. What it holds is labelled inferred, by
+the finder.
 """
 from __future__ import annotations
 
@@ -103,7 +104,7 @@ def update(s: dict) -> list[dict]:
     Posits are admitted largest saving first, at most one per target and never closing a loop (a field coded from a
     field coded from it); candidates within the margin of a held posit are its rivals. A held posit is retired when the reference codes its target better by more than
     the margin, or when a rival beats it by more than the margin."""
-    held = s.setdefault("keeper", {"held": [], "rivals": {}})
+    held = s.setdefault("finder", {"held": [], "rivals": {}})
     day = len(s["reports"])
     scored = {key(p): p for p in candidates(s)}
     changes = []
@@ -126,7 +127,7 @@ def update(s: dict) -> list[dict]:
             break
         if p["y"] in {h["y"] for h in held["held"]} or _cycle(held["held"], p):
             continue
-        h = {**p, "since_day": day, "said_by": "keeper"}
+        h = {**p, "since_day": day, "said_by": "finder"}
         held["held"].append(h)
         changes.append({"change": "admitted", "day": day, "posit": phrase(h), "gain": h["gain"],
                         "y": h["y"], "x": h["x"], "sign": h["sign"], "values": h["values"]})
@@ -140,12 +141,12 @@ def update(s: dict) -> list[dict]:
 
 
 def view_lines(s: dict) -> list[str]:
-    """What the keeper arm's model is shown: each held posit, its daily values, its saving, its rivals."""
-    k = s.get("keeper") or {}
+    """What the finder arm's model is shown: each held posit, its daily values, its saving, its rivals."""
+    k = s.get("finder") or {}
     out = []
     for h in k.get("held", []):
         vals = ", ".join(f"{v:g}" for v in h["values"])
-        line = (f"Keeper (code; inferred, not stated): {phrase(h)} (days 1-{len(h['values'])}: {vals}; "
+        line = (f"Finder (code; inferred, not stated): {phrase(h)} (days 1-{len(h['values'])}: {vals}; "
                 f"shortens the record by {h['gain']:g} bits)")
         rivals = k.get("rivals", {}).get(h["y"])
         if rivals:

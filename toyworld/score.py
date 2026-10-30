@@ -6,14 +6,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from . import keeper
+from . import finder
 from .world import CAUSE
 
 DEMAND_TERMS = {"oat_milk_sold", "oat_milk_ordered", "oat_milk_delivered"}
 
 
 def demand_found(log: list[dict], demand: float) -> int | None:
-    """The first day the keeper held 'unfilled + (sold | ordered | delivered) stays at about D' with D within 3 of the
+    """The first day the finder held 'unfilled + (sold | ordered | delivered) stays at about D' with D within 3 of the
     key's mean demand: the hidden invariant."""
     for c in log:
         if c["change"] == "admitted" and c["sign"] == -1 and {c["y"], c["x"]} & {"oat_milk_unfilled_requests"} \
@@ -24,12 +24,12 @@ def demand_found(log: list[dict], demand: float) -> int | None:
     return None
 
 
-def shadow_keeper(s: dict) -> list[dict]:
-    """What the keeper would have found on this run's reports, whether or not the arm was shown it."""
+def shadow_finder(s: dict) -> list[dict]:
+    """What the finder would have found on this run's reports, whether or not the arm was shown it."""
     t, log = {"reports": []}, []
     for r in s["reports"]:
         t["reports"].append(r)
-        log += keeper.update(t)
+        log += finder.update(t)
     return log
 
 
@@ -86,11 +86,11 @@ def score(s: dict, calls: list[dict]) -> dict:
 
 def invariant(s: dict, truth: list[dict]) -> dict:
     demand = sum(x["demand"] for x in truth) / len(truth)
-    log = s.get("keeper_log") if s["arm"] == "keeper" else shadow_keeper(s)
+    log = s.get("finder_log") if s["arm"] == "finder" else shadow_finder(s)
     found = demand_found(log, demand)
     orders = [(a["day"], x["qty"]) for a in s["actions"] for x in a["actions"] if x.get("type") == "set_order_qty"]
     enough = [d for d, q in orders if q >= demand - 3]
-    return {"demand": round(demand, 1), "invariant_shown": s["arm"] == "keeper",
+    return {"demand": round(demand, 1), "invariant_shown": s["arm"] == "finder",
             "invariant_found": found is not None, "invariant_found_day": found,
             "ordered_enough": bool(enough), "ordered_enough_day": min(enough, default=None),
             "ordered_enough_after_found": bool(found is not None and any(d >= found for d in enough)),

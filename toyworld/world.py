@@ -17,7 +17,7 @@ import json
 import random
 import re
 
-from . import keeper
+from . import finder
 
 DEMAND, SUB5, P_RAISE, REFUND = 40, 20, 0.45, 48.00
 CAUSE = re.compile(r"refund|duplicat|double|twice|R-1192|tape", re.I)   # the only text the world matches: a stated cause
@@ -25,7 +25,7 @@ FIX_AFTER = {"cause": 1, "problem": 2}                                     # day
 DATA_FIELDS = ["bank_settlement", "till_firmware_notes", "register_tape_detail", "customer_request_log"]
 ANOMALIES = ["stockout", "till_minimum", "reconciliation", "other", "none"]
 ARMS = ["bare", "belief", "goals", "monitor"]
-ACTING = ("goals", "monitor", "keeper")      # arms whose store actions need a goal (keeper: goals + the keeper's posits)
+ACTING = ("goals", "monitor", "finder")      # arms whose store actions need a goal (finder: goals + the finder's posits)
 
 
 def new_state(run: str, arm: str, seed: int, cfg: dict) -> dict:
@@ -123,7 +123,7 @@ ACTIONS_BELIEF = """
 Available actions (at most 2 per day):
 - {"type":"request_data","field":"bank_settlement" | "till_firmware_notes" | "register_tape_detail" | "customer_request_log"}   (result arrives with the next day's report)
 """
-KEEPER_NOTE = ("\nA keeper (code, not a model) finds regularities in the daily reports and lists them in the view. They "
+FINDER_NOTE = ("\nA finder (code, not a model) finds regularities in the daily reports and lists them in the view. They "
                "are inferred from the reports, not stated by anyone, and are kept only while they shorten the record.\n")
 SETTLED_NOTE = ("\nA reviewer checks the record each day and offers questions to the store's owner. Changes the owner "
                 "settles appear in the view, marked as the owner's.\n")
@@ -156,8 +156,8 @@ def static_prefix(s: dict) -> str:
         p += ACTIONS_BELIEF if arm == "belief" else ACTIONS_FULL
     if arm == "monitor":
         p += SETTLED_NOTE
-    if arm == "keeper":
-        p += KEEPER_NOTE
+    if arm == "finder":
+        p += FINDER_NOTE
     if s["cfg"].get("pressure"):
         p += PRESSURE
     return p + (OUT_BARE if arm == "bare" else OUT_DIFF % ("" if arm == "belief" else ' or "goal"'))
@@ -176,7 +176,7 @@ def full_view(s: dict) -> str:
         out += [f"  Actions after day {d}: " + json.dumps(a["actions"]) for a in s["actions"] if a["day"] == d]
         out += [f"  Not applied after day {d} (no goal for that anomaly): " + json.dumps(a["dropped"])
                 for a in s["actions"] if a["day"] == d and a.get("dropped")]
-    return "\n".join(out + _settled_lines(s) + keeper.view_lines(s))
+    return "\n".join(out + _settled_lines(s) + finder.view_lines(s))
 
 
 def trends(s: dict) -> dict:
@@ -197,7 +197,7 @@ def compact_view(s: dict) -> str:
         out.append(f"Actions after day {a['day']}: " + (json.dumps(a["actions"]) if a["day"] >= first_shown - 1 else brief))
         if a.get("dropped") and a["day"] >= first_shown - 1:
             out.append(f"Not applied after day {a['day']} (no goal for that anomaly): " + json.dumps(a["dropped"]))
-    return "\n".join(out + _settled_lines(s) + keeper.view_lines(s))
+    return "\n".join(out + _settled_lines(s) + finder.view_lines(s))
 
 
 def proposer_prompt(s: dict, t: int) -> str:
