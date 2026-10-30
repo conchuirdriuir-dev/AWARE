@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: After the negation test's dry run (Qwen3 8B, *The Told Hives* ch. 1: one passage lost whole to an
+  undeclared entity, `the-garth`; one passage spanning a scene break returned empty): a state about something the
+  passage names creates it, its kind inferred and logged, an exception for states to "only proper names created from
+  the passage" (second dry run); passages end at scene breaks; an empty reply on a passage of 150 tokens or more is
+  asked once more at temperature 0.7, both replies recorded (owner).
+
 - 2026-10-30: **Stage 2's third residue type** (owner): a held goal the model's own prediction contradicts. Each
   is offered as it occurs, without a learned kind, since one contradiction between two of the model's statements is
   evidence of itself (on the owner's records it was the default, 85% of goal-held days, so no rule could pick it out).

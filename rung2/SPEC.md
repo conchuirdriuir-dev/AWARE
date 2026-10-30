@@ -113,7 +113,8 @@ use).
 
 ## The keeper
 
-One call per passage at temperature 0, at most 1,500 tokens of reply, every list capped in the schema: the prompt in
+One call per passage at temperature 0 (a passage never spans a scene break: `---` or `* * *` ends one), at most
+1,500 tokens of reply, every list capped in the schema: the prompt in
 [keeper_prompt.txt](keeper_prompt.txt), output constrained by [keeper_schema.json](keeper_schema.json). About 3.7k
 tokens per call: instructions 700, known entities 900, the previous passage's end 200, the passage 400, output at
 most 1,500.
@@ -126,7 +127,9 @@ What code does with each reply, in order:
    known entity. An alias two entities share resolves to neither, and is logged as ambiguous. A person named by an
    event or a knowledge row, standing in the passage, becomes a character before the other records are applied;
    a place becomes an entity only as a proper name. An event's place is kept as text (`place_text`) and linked
-   when it is a known place. Any other unresolved reference is dropped and logged; for a participant only the
+   when it is a known place. A state about something the keeper named but did not list (`the-garth`) creates it when
+   the passage spells the name; its kind is inferred from the attribute (role or relationship: a character; else an
+   object) and logged as inferred. Any other unresolved reference is dropped and logged; for a participant only the
    link is lost, not the event.
 3. **Skip repeated states and knowledge.** A state's attribute is one of six (location, held_by, appearance,
    condition, role, relationship), fixed by the schema. A different value becomes a new row, with `supersedes` set to the old one.
@@ -136,6 +139,10 @@ What code does with each reply, in order:
 5. **Update loops:** a `loop_touch` row for every opened, touched or closed loop; `closed_chapter` and
    `closed_passage` for closed ids. Unknown ids are dropped and logged.
 6. **Every row carries its passage id.** The store belongs to one run directory, whose log records the model and seed.
+
+**An empty reply on a full passage** (150 tokens or more) is suspect: it is asked once more at temperature 0.7, seed
+1, and the store takes the second reply only if it holds something. Both replies and the decision are in the record
+(`keeper_empty`).
 
 At each chapter's end, two calls read the whole chapter:
 
