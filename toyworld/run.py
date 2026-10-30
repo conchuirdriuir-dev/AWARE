@@ -125,6 +125,8 @@ def run(args, explore: bool = False) -> list[dict]:
     rec = Recorder(model, out / "log.jsonl", window=args.window)
     cfg = {"pressure": args.pressure, "order_delay": args.order_delay, "delivery_failure": args.delivery_failure,
            "view": args.view, "stage": args.stage}
+    if not explore:
+        cfg["goal_wording"] = args.goal_wording or ("code" if args.stage >= 2 else "model")
     if explore:
         cfg["explore_withhold"] = EXPLORE_WITHHOLD
     elif args.stage >= 1:
@@ -332,6 +334,8 @@ def main(argv=None) -> None:
             r.add_argument("--stage", type=int, choices=[0, 1, 2], default=0)
             r.add_argument("--control", help="stage 1 and after: the control.json an exploration run wrote")
             r.add_argument("--kinds", help="stage 2: the kinds.json the kinds command wrote")
+            r.add_argument("--goal-wording", choices=["model", "code"],
+                           help="who words a goal: code from stage 2 on, the model before (world.GOAL_WORDING)")
 
     running(r)
     running(ex, explore=True)

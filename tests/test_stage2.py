@@ -117,3 +117,36 @@ def test_a_goal_its_own_prediction_contradicts_is_offered_with_both_statements(c
                                       "predictions": {**preds, "oat_milk_unfilled_requests": 0}})
     world.observe(consistent, 2)
     assert not [o for o in monitor.review(consistent) if o["check"] == "own_contradiction"]
+
+
+def test_code_words_the_goal_so_it_cannot_state_the_anomaly_or_the_days_level():
+    cfg = {"view": "compact", "stage": 2, "goal_wording": "code"}
+    s = world.new_state("goals-1", "goals", 7, cfg)
+    as_level = {"proposition": "The world is such that there are 28 unfilled oat milk requests.", "direction": "goal",
+                "anomaly": "stockout"}
+    world.apply_reply(s, 1, {"register_changes": {"add": [as_level, {**as_level, "proposition": "oat milk runs out"}]},
+                             "actions": [ORDER]})
+    goals = [e for e in s["register"] if e["direction"] == "goal"]
+    assert [(e["proposition"], e["worded_by"], e["said_by"]) for e in goals] == [
+        (world.GOAL_WORDING["stockout"], "code", "model")]             # one goal, as code words it; the model chose it
+    world.apply_reply(s, 2, {"register_changes": {"update": [{**as_level, "id": "E1", "proposition": "19 unfilled"}]}})
+    assert s["register"][0]["proposition"] == world.GOAL_WORDING["stockout"]
+    world.apply_reply(s, 3, {"register_changes": {"update": [{"id": "E1", "proposition": "demand is about 40",
+                                                              "direction": "belief", "anomaly": "stockout"}]}})
+    assert s["register"][0]["proposition"] == "demand is about 40" and "worded_by" not in s["register"][0]
+    assert "the proposition you write for it is not kept" in world.static_prefix(s)
+    old = world.new_state("goals-2", "goals", 7, {"view": "compact", "stage": 2})   # an older record: the model's words
+    world.apply_reply(old, 1, {"register_changes": {"add": [as_level]}})
+    assert old["register"][0]["proposition"] == as_level["proposition"]
+    assert "not kept" not in world.static_prefix(old)
+
+
+def test_a_code_worded_goal_settled_as_a_belief_says_the_anomaly(cmap):
+    s = world.new_state("monitor-1", "monitor", 8, {"view": "compact", "stage": 2, "control": cmap,
+                                                   "goal_wording": "code", "kinds": {"kinds": []}})
+    world.apply_reply(s, 1, {"register_changes": {"add": [{"proposition": "x", "direction": "goal",
+                                                           "anomaly": "till_minimum"}]}})
+    monitor.settle(s, {"id": "O1", "day": 1, "check": "uncontrollable_goal", "target": "E1",
+                       "change": {"to_belief": "E1"}}, True, "owner")
+    e = s["register"][0]
+    assert (e["direction"], e["proposition"]) == ("belief", world.ANOMALY_WORDING["till_minimum"])

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from . import control as ctl
 from . import residue
-from .world import action_symbol
+from .world import ANOMALY_WORDING, action_symbol
 
 PATIENCE = 2   # days of evidence after acting before a goal is questioned
 
@@ -219,6 +219,8 @@ def settle(s: dict, o: dict, accept: bool, by: str) -> dict:
                         text = f"goal {rid} retired"
                     else:
                         e["direction"], e["said_by"] = "belief", "owner"
+                        if e.pop("worded_by", None) == "code":       # the goal's wording would be false as a belief
+                            e["proposition"] = ANOMALY_WORDING[e["anomaly"]]
                         text = f"goal {rid} is now a belief"
                     applied = True
         elif "note" in change:

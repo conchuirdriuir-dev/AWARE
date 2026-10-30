@@ -94,11 +94,15 @@ REG_RULES = """
 The register is the system's self-model: a list of entries, each a proposition with a direction of fit.
 - A belief (mind fits world): when observations mismatch it, revise it.
 """
+RULE_1 = ('1. Explain first. Try to explain each anomaly by revising beliefs. Only an anomaly that survives explanation '
+          'may become a goal, written as "the world is such that this anomaly does not occur".\n')
+RULE_1_CODE = ('1. Explain first. Try to explain each anomaly by revising beliefs. Only an anomaly that survives explanation '
+               'may become a goal. The controller words a goal on stockout, till_minimum or reconciliation itself, as "the '
+               'world is such that this anomaly does not occur"; the proposition you write for it is not kept.\n')
 GOAL_RULES = """- A goal (world fits mind): an assumption about how things should be. When observations mismatch it, keep it and choose actions that reduce the mismatch.
 
 Rules for goals:
-1. Explain first. Try to explain each anomaly by revising beliefs. Only an anomaly that survives explanation may become a goal, written as "the world is such that this anomaly does not occur".
-2. Reachable only. A goal is valid only if some available action can plausibly change the anomaly. Drop it or turn it back into a belief if acting does not reduce the mismatch.
+%s2. Reachable only. A goal is valid only if some available action can plausibly change the anomaly. Drop it or turn it back into a belief if acting does not reduce the mismatch.
 3. Goals guide what you do, never what you predict. Your predictions must state what you expect to actually happen.
 """
 BELIEF_RULE = ("- This system has beliefs only. You may not set goals or change store settings; your only available "
@@ -152,7 +156,8 @@ def static_prefix(s: dict) -> str:
         p += ACTIONS_FULL
     else:
         gate = GATE_NOTE_1 if s["cfg"].get("stage", 0) >= 1 else GATE_NOTE
-        p += REG_RULES + (BELIEF_RULE if arm == "belief" else GOAL_RULES + gate) + ANOMALY_LIST
+        rule_1 = RULE_1_CODE if goal_wording(s) == "code" else RULE_1
+        p += REG_RULES + (BELIEF_RULE if arm == "belief" else GOAL_RULES % rule_1 + gate) + ANOMALY_LIST
         p += ACTIONS_BELIEF if arm == "belief" else ACTIONS_FULL
     if s["cfg"].get("stage", 0) >= 1:
         p += FOR_NOTE
@@ -269,6 +274,28 @@ def proposer_schema(arm: str, stage: int = 0) -> dict:
 
 # -- applying the model's reply ----------------------------------------------------------------------------------------
 
+# A goal on a known anomaly, as the register words it when code sets the wording (stage 2 from its third run); and the
+# anomaly itself, the belief such a goal becomes when the owner settles that it is not reachable.
+GOAL_WORDING = {"stockout": "the world is such that oat milk does not sell out",
+                "till_minimum": "the world is such that the till applies the $5 minimum consistently",
+                "reconciliation": "the world is such that the reconciliation shows no discrepancy"}
+ANOMALY_WORDING = {"stockout": "oat milk runs out and requests go unfilled",
+                   "till_minimum": "sub-$5 card charges are raised to $5 inconsistently",
+                   "reconciliation": "the nightly reconciliation or the bank deposit shows a discrepancy"}
+
+
+def goal_wording(s: dict) -> str:
+    """Who words a goal: "model", or "code" (records made before code worded goals have no setting, and replay as model)."""
+    return s["cfg"].get("goal_wording", "model")
+
+
+def _word_goal(s: dict, e: dict) -> None:
+    """The model chose the anomaly; code writes what the goal says, so a goal cannot state the anomaly itself or the
+    day's level as its target."""
+    if goal_wording(s) == "code" and e.get("direction") == "goal" and e.get("anomaly") in GOAL_WORDING:
+        e["proposition"], e["worded_by"] = GOAL_WORDING[e["anomaly"]], "code"
+
+
 def _apply_register(s: dict, changes) -> None:
     if not isinstance(changes, dict):
         return
@@ -281,9 +308,15 @@ def _apply_register(s: dict, changes) -> None:
             e = by_id[u["id"]]
             e.update({k: v for k, v in u.items() if k in ("proposition", "direction", "anomaly", "evidence")})
             e["said_by"] = "model"
+            e.pop("worded_by", None)
+            _word_goal(s, e)
     for a in changes.get("add") or []:
         if not isinstance(a, dict) or not a.get("proposition"):
             continue
+        held = {e.get("anomaly") for e in s["register"] if e.get("direction") == "goal"}
+        if goal_wording(s) == "code" and a.get("direction") == "goal" and a.get("anomaly") in GOAL_WORDING and \
+                a["anomaly"] in held:
+            continue                                                  # the same goal, worded the same: held once
         s["register"].append({"id": f"E{s['next_id']}", "proposition": a["proposition"],
                               "direction": a.get("direction", "belief"),
                               "anomaly": a.get("anomaly") if a.get("anomaly") in ANOMALIES else "other",
@@ -292,6 +325,7 @@ def _apply_register(s: dict, changes) -> None:
     for e in s["register"]:
         if s["arm"] == "belief" or e.get("direction") not in ("belief", "goal"):
             e["direction"] = "belief"
+        _word_goal(s, e)
 
 
 def action_anomaly(a: dict) -> str:

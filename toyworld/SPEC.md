@@ -206,6 +206,15 @@ contradictions cluster. On the owner's records they did not: 130 of 153 goal-hel
 89 of 112, the till 40 of 40), so the contradiction was the default and no rule could pick it out. (A departure from
 "fits stage 2 unchanged", as first proposed.)
 
+**Code words a goal** (from stage 2's third run). A contradiction's premise is that a goal on an anomaly says the
+anomaly does not occur. In stage 2's third run the model wrote its stockout goals as the anomaly itself ("oat milk runs
+out and requests go unfilled") or as the day's level, rewritten each day ("there are 19 unfilled oat milk requests"),
+so the note set side by side two statements that agreed (RESULTS.md). From stage 2 on, the model chooses which anomaly
+becomes a goal and code writes the proposition (`world.GOAL_WORDING`), marked `worded_by: code`; the prompt says the
+model's own wording of a goal is not kept. A second goal on an anomaly already held is not added, and a goal the owner
+turns into a belief says the anomaly occurs. `--goal-wording model` restores the model's wording; records made before
+this replay with it.
+
 (A third type in the first draft, a goal still held about an anomaly nothing moves, was dropped when building: stage 1's
 uncontrollable-goal check already offers it. Two rules came from the owner's record: a proposal the exploration design
 withheld counts as proposed, since its absence was the design's doing; and the belief arm leaves no residue, since it

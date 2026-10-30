@@ -39,7 +39,7 @@ each day. The second is moving the goalposts: the goal is met by declaring what 
 stage-2 runs; the goals arm, 5 of 12. The arms differ only by the reviewer, so its offers may cost the stockout
 attention. This is suggestive at most, and it wants checking before more notes are added.
 
-**Proposed next:** the goal's wording is set by code. The model chooses which anomaly becomes a goal; the register
+**Built next** (owner, DECISIONS.md): the goal's wording is set by code. The model chooses which anomaly becomes a goal; the register
 writes the proposition ("the world is such that stockout does not occur"), so the note's premise holds by
 construction. This applies "Route, don't instruct" (CLAUDE.md). The run is then repeated unchanged.
 

@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Code words a goal from stage 2 on** (owner): the model chooses the anomaly, the register writes "the
+  world is such that this anomaly does not occur", after the third stage-2 run's goals stated the anomaly or the day's
+  level and the contradiction note could not be read (toyworld/RESULTS.md). The run is repeated unchanged otherwise.
 - 2026-10-30: After the negation test's dry run (Qwen3 8B, *The Told Hives* ch. 1: one passage lost whole to an
   undeclared entity, `the-garth`; one passage spanning a scene break returned empty): a state about something the
   passage names creates it, its kind inferred and logged, an exception for states to "only proper names created from
