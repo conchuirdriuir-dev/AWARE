@@ -10,7 +10,8 @@ whether the anomaly fell, whether the register held a goal for it. Never the wor
 
 Kinds are learned in two tiers, each admitted only on MDL gain above DARA's 2-bit margin:
   tier 1  rules over the rows (`kernel.learn`), one per target, at most two atoms
-  tier 2  a latent class over kinds of action (`kernel.latent`), on the mover rows
+  tier 2  a latent class over kinds of action (`kernel.latent`), on the mover rows; provisional (DECISIONS.md,
+          2026-10-30): built with the kernel's one-step test before the lookahead question was settled
 and every admission is checked against the same rows with their targets shuffled (the control against reading noise).
 """
 from __future__ import annotations

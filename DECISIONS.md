@@ -5,8 +5,8 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-10-30: **Stage 2's design** (owner, from the design note): kinds as rules over residue rows (tier 1) and latent
   classes over kinds of action (tier 2, expected silent in this world), each against a shuffled control; residue rows
   in the record's terms, never an action's numbers. The fixed anomaly ids stay for this stage. Tier 2 was built with
-  the kernel's one-step test before the lookahead entry below was seen: its silence on the owner's record is
-  provisional until that question is settled.
+  the kernel's one-step test before the lookahead entry below was seen. The owner keeps it as built, marked
+  provisional: its silence on the owner's record is not evidence until the lookahead question is settled.
 - 2026-10-30: **The DARA Agent Architecture Spec and the negation note are mapped into AWARE** (PLAN.md, "From the DARA
   Agent Architecture Spec and the negation note"): what is in, superseded, planned and open, so nothing from them is
   dropped unnoticed.
