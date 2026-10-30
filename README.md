@@ -13,9 +13,23 @@ written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are re
 
 ## Status
 
-Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
+Rung 1, freeform chat, has its shadow harness built ([chat/SPEC.md](chat/SPEC.md)) and awaits its calibration sessions. Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
 on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run on
-Qwen3 8B and 14B; stage 1 passed on Qwen3 8B; stage 2, kinds of failure learned from residue, has failed three runs (toyworld/RESULTS.md).
+Qwen3 8B and 14B; stage 1 passed on Qwen3 8B; stage 2 passed its criterion on its fourth run, but before any note took effect (toyworld/RESULTS.md).
+
+## Running rung 1: freeform chat
+
+The test ([chat/SPEC.md](chat/SPEC.md)): a conversation with the local model on anything, then your marks, then an
+offline review. Shadow mode: nothing the meta level makes is shown during the chat.
+
+```sh
+llama-server -hf Qwen/Qwen3-8B-GGUF:Q4_K_M -c 8192 -ngl 99 --jinja --port 8080
+llama-server -m EMBEDDING.gguf --embeddings --port 8081
+python -m chat.run talk   --session sessions/c01 --url http://127.0.0.1:8080     # /r starts a revision, /q ends
+python -m chat.run mark   --session sessions/c01                                  # your marks, before any codes
+python -m chat.run review --session sessions/c01 --url http://127.0.0.1:8080 --embed-url http://127.0.0.1:8081
+python -m chat.run show   --session sessions/c01                                  # the reviewer's codes and aims
+```
 
 ## Running the toy world
 

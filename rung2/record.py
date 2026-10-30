@@ -28,9 +28,13 @@ class Recorder:
             self._counts[key] = self.model.tokens(text) if text else 0
         return self._counts[key]
 
-    def chat(self, role: str, prompt: str, *, ref: str = "", schema: dict | None = None, max_tokens: int = 1024,
+    def message_tokens(self, messages: list[dict]) -> int:
+        """A conversation's tokens, with a small allowance per message for the chat template's markers."""
+        return sum(self.tokens(m["content"]) + 8 for m in messages)
+
+    def chat(self, role: str, prompt: str | list[dict], *, ref: str = "", schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
-        n = self.tokens(prompt)
+        n = self.tokens(prompt) if isinstance(prompt, str) else self.message_tokens(prompt)
         if n + max_tokens > self.window:
             self.event("too_long", role=role, ref=ref, prompt_tokens=n, max_tokens=max_tokens)
             raise TooLong(f"{role} {ref}: {n} + {max_tokens} tokens exceed the {self.window}-token window")

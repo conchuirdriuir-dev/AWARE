@@ -69,10 +69,12 @@ it. It is held back until the aim checks work.
 ## The aim stack
 
 Built by code from the person's turns and their codes:
-- A *task* turn with relation *new* pushes a new aim; *narrower* pushes a subgoal under the current aim; *same*
-  refines the current one in place; *broader* pops to the aim above; *back* returns to the aim it names.
+- A *task* turn with relation *new* starts a new stack with one aim (earlier aims stay listed, so a later turn can go
+  back to one); *narrower* pushes a subgoal under the current aim; *same* refines the current one in place, adding
+  the person's words to it; *broader* pops to the aim above; *back* returns to the aim it names.
 - *Feedback*, *aside* and *repair* do not change the stack. A *repair* is evidence about the model turn before it.
-- *Revision* (or `/r`) replaces the current aim with the person's new words.
+- *Revision*, as the reviewer codes it, replaces the current aim with the person's new words. The person's `/r` mark
+  never reaches the stack: it is the key, and the key only judges.
 
 The aim is always the person's own words, quoted. Code holds it, and neither model rewords it: the general form of
 the toy world's lesson that goals the model words for itself drift.

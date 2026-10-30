@@ -50,9 +50,11 @@ class Server:
         except Exception:
             return []
 
-    def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
+    def chat(self, prompt: str | list[dict], schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
-        body = {"messages": [{"role": "user", "content": prompt}], "max_tokens": max_tokens,
+        """`prompt` is one user message, or a whole conversation as chat messages (role and content)."""
+        messages = prompt if isinstance(prompt, list) else [{"role": "user", "content": prompt}]
+        body = {"messages": messages, "max_tokens": max_tokens,
                 "temperature": temperature, "seed": seed,
                 "chat_template_kwargs": {"enable_thinking": False}}    # Qwen3 and the like: no thinking (needs --jinja)
         if schema is not None and self.schema_style == "response_format":
@@ -155,8 +157,10 @@ class Fake:
     name = "fake"
     last_finish = "stop"
 
-    def chat(self, prompt: str, schema: dict | None = None, max_tokens: int = 1024,
+    def chat(self, prompt: str | list[dict], schema: dict | None = None, max_tokens: int = 1024,
              temperature: float = 0.0, seed: int = 0) -> str:
+        if isinstance(prompt, list):
+            return "Fake reply to: " + _short(prompt[-1]["content"], 20)
         if schema is not None and "opened" in schema.get("properties", {}):
             return json.dumps(self._loops(prompt))
         if schema is not None:

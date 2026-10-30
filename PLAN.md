@@ -8,7 +8,7 @@ answers it. A rung is done when its test passes, not when its code exists.
 
 | Rung | Question | Test | Status |
 |---|---|---|---|
-| 1. Freeform chat | Can it tell the model's drift from the person's own revision in an open conversation on any subject, and ask when it is worth asking? | [chat/SPEC.md](chat/SPEC.md): shadow sessions with Qwen3 8B, the subject opaque (embeddings and cluster ids), the person's marks as the key | **spec written; nothing built** |
+| 1. Freeform chat | Can it tell the model's drift from the person's own revision in an open conversation on any subject, and ask when it is worth asking? | [chat/SPEC.md](chat/SPEC.md): shadow sessions with Qwen3 8B, the subject opaque (embeddings and cluster ids), the person's marks as the key | **shadow harness built; awaits the 5 calibration sessions** |
 | 2. Memory of the whole | Can a store and a context builder keep a long story straight for a small local model, better than plain retrieval? | [rung2/SPEC.md](rung2/SPEC.md): six arms, 60 questions, a hand-written novella | **harness built; awaits the story and a real model** |
 | 3. The big picture | Can it see what the whole lacks (open threads, the shape, contradictions) and ask about it at the right moment? | sketched below: known inconsistencies planted in a second version of the rung-2 story, on whichever memory wins rung 2 | **sketched; its material exists** |
 | 4. Learning the person | Can it learn which questions this person finds worth asking, and which threads they return to? Where DARA's mechanisms compete with the simple version | to write | open |
