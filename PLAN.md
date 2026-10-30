@@ -8,7 +8,7 @@ answers it. A rung is done when its test passes, not when its code exists.
 
 | Rung | Question | Test | Status |
 |---|---|---|---|
-| 1. Accounting | Can a reviewer that sees only the record keep one aim and notice drift from it, without over-flagging? | a written conversation, turn by turn: offers made, offers held back, the person's answers | drafted on paper |
+| 1. Freeform chat | Can it tell the model's drift from the person's own revision in an open conversation on any subject, and ask when it is worth asking? | [chat/SPEC.md](chat/SPEC.md): shadow sessions with Qwen3 8B, the subject opaque (embeddings and cluster ids), the person's marks as the key | **spec written; nothing built** |
 | 2. Memory of the whole | Can a store and a context builder keep a long story straight for a small local model, better than plain retrieval? | [rung2/SPEC.md](rung2/SPEC.md): six arms, 60 questions, a hand-written novella | **harness built; awaits the story and a real model** |
 | 3. The big picture | Can it see what the whole lacks (open threads, the shape, contradictions) and ask about it at the right moment? | sketched below: known inconsistencies planted in a second version of the rung-2 story, on whichever memory wins rung 2 | **sketched; its material exists** |
 | 4. Learning the person | Can it learn which questions this person finds worth asking, and which threads they return to? Where DARA's mechanisms compete with the simple version | to write | open |
@@ -54,13 +54,15 @@ which the loop above avoids.
 
 ## Next
 
-1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
+1. **Freeform chat first** (DECISIONS.md, 2026-10-30): rung 1 as [chat/SPEC.md](chat/SPEC.md), in shadow mode,
+   then live. The toy world becomes the regression test for the back half (learning, offers, settlement).
+2. **The toy worlds** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
    Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 passed on Qwen3 8B ([toyworld/RESULTS.md](toyworld/RESULTS.md)).
    Stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"), is built, with `latent.py`
    ported; on the owner's stage-1 records it finds two kinds. Next: its run on Qwen3 8B under pressure.
-2. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
+3. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
-3. The run, on the owner's story, on Qwen3 8B.
+4. The run, on the owner's story, on Qwen3 8B.
 
 ## Porting DARA, stage by stage
 
