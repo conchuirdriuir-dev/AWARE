@@ -194,9 +194,44 @@ says what would make it wrong. Accepting a kind's offer adds a settled note to t
 terms (for example: "on days 2 to 4 the action that moves stockout was applied and stockout was still present"). The
 model is told what its own record shows, and what it does next stays its own.
 
-**Open, settled before any code (a design note for the owner):** which identities the latent classes are over (the
-action applications, the anomaly streams of each run, or the residue rows themselves), and which features of a row
-the kernel sees. The note shows, on the stage-1 record, what each choice would admit.
+## Stage 2 design note (for the owner, before any code)
+
+**The question.** A latent class is a set of *identities*, things that recur across the record's structures, and it is
+admitted only when positing it shortens the code by more than the margin over everything the observable facts already
+say. So what the classes range over decides what kinds can be found. Three candidates:
+
+| Identities | One structure is | A class would be | On this world |
+|---|---|---|---|
+| A. each action application | one day's application | a set of single days | each identity occurs once, so a class only memorises rows; its assignment costs about what it saves, and MDL refuses it. Never useful |
+| B. each anomaly's stream in a run (`toy-8b-s1-p/monitor-2/stockout`) | one day of that stream | streams where the right action keeps leaving the anomaly present | recurs across days, but in stage 1's record every stockout stream persisted, so the class equals "the anomaly is stockout", already an observable fact: not admitted |
+| C. each kind of action (`did:set_order_qty`, ...) | one application of it | actions that reduce an anomaly without removing it | the right abstraction ("the right action, too small" is a property of an action), but with one such action in this world the class has one member, the same as a rule citing that action: not admitted |
+
+**The finding.** In a world this small a latent class cannot pay: every kind of failure here is already one
+observable fact away (this action, on this anomaly, left it present). DARA's latent classes earn their place when
+several identities share a pattern no single observed fact names, which needs more actions and anomalies than the
+store has.
+
+**Recommendation.** Two tiers, both in the stage:
+1. **Kinds as rules.** Each residue day is a structure: the anomaly, the action (`action_symbol`), whether it fell,
+   and the target `still_present` (present at the lag the mover's rule cites). The kernel's `learn` forms rules for
+   `still_present`, admitted on the 2-bit margin. On stage 1's record the expected kind is
+   `still_present <- did:set_order_qty & fell`: reduced, not removed. This tier needs no new port.
+2. **Kinds as latent classes, over identities C** (kinds of action), with `latent.py` ported and its tests. Expected
+   not to be admitted here, and that is part of the test: it must stay silent where a rule already says it all, and
+   the shuffled control must admit nothing in either tier. It starts to matter when the anomaly ids are removed or the
+   world grows.
+
+The pass criteria stand with one reading made explicit: "a kind is admitted" means a rule (tier 1) or a latent class
+(tier 2). The shuffled control applies to both.
+
+**Features a residue row carries,** in the record's terms only: the anomaly; each action applied that day and the day
+before, as `action_symbol` names it; `fell` (below three quarters of the day before); `present` at the lag. Not the
+action's numbers (an order's size), which only the world can judge: the settled note shows the model its own levels
+before and after, and judging size is left to the model.
+
+**What each option admits on the stage-1 record:** pending the record. `runs/explore-8b/log.jsonl` and
+`runs/toy-8b-s1-p/log.jsonl` from the owner's machine fill this in, by a probe that runs tiers 1 and 2 and the shuffled
+control on them and prints what each admits.
 
 **Pass criteria** (fixed before the run; Qwen3 8B, under pressure, 3 runs per arm, the stage-1 map):
 
