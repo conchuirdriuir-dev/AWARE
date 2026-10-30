@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Rung 1's live test has three arms** (owner): Fresh (shadow, the control), Memory (plain retrieval over
+  the arm's earlier sessions) and AWARE, 20 sessions each from a pool of 20 tasks, each task once per arm in a random
+  order; the key is the person's blind marks, and kinds of drift are the person's, sorted after the run (chat/SPEC.md,
+  "The live test: three arms").
 - 2026-10-30: After the negation test's second dry run (passage 2's reply, indented despite the prompt, was cut off
   at 1,500 tokens and lost whole, its negated facts with it): a keeper reply cut off at the limit is asked once more
   at temperature 0 with 3,000 tokens, both replies recorded (owner).
