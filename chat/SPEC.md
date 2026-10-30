@@ -130,3 +130,16 @@ back half's regression test, not where progress is made.
 1. **Polarity:** the self-report (one call), or a small entailment model beside the embedder.
 2. **The judgement tool:** marking in a terminal after each session, or a small page.
 3. **The bucket thresholds:** set from the first 5 sessions and then frozen, or learned from the start.
+4. **Contradictions in content: in scope or not?** `fit` gives the polarity of a model turn against the aim, not of a
+   claim against an earlier claim. "I don't eat fish" (P4) followed by a suggestion of salmon is neither drift nor
+   revision, so nothing above looks for it. Either rung 1 leaves it out, said here, or a claim-level polarity check
+   joins the signals, which needs claims pulled from turns with their polarity in the fixed layer, since the cluster
+   cannot carry it (the negation note, Experiment 6).
+5. **A stronger baseline.** "Offer on every change of cluster" is easy to beat. A second rival: the same 8B model,
+   given the conversation so far and the quoted aim, asked each turn whether its last reply left the aim. Computed in
+   shadow mode from the same record, at one extra call per turn. If the meta level does not beat the model checking
+   itself, it is not earning its cost.
+6. **What the marks miss.** The person marks only the drifts they notice, so "caught" is measured against an
+   undercount. A few frozen transcripts with planted drifts and revisions, their key kept outside the repository and
+   read only by the scorer, would give a regression set with known answers, replayed with every new version beside the
+   shadow sessions. A planted transcript is not freeform, so it complements the marks and never replaces them.
