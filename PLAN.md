@@ -15,10 +15,6 @@ answers it. A rung is done when its test passes, not when its code exists.
 
 ## Next
 
-1. **The toy worlds first** (DECISIONS.md, 2026-10-29): the other session's harness and `compare.py` are in
-   [toyworld/](toyworld/), with stage 0's test written ([toyworld/SPEC.md](toyworld/SPEC.md)). The first 8B runs are in
-   and read (SPEC.md, "Changes after the first runs"). Next: rerun 8B, plain and under pressure, under the changed
-   measures; then all four arms on a 14B model, to tell the model's limits from the frame's.
 1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
    Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 passed on Qwen3 8B ([toyworld/RESULTS.md](toyworld/RESULTS.md)).
    Next is stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"): its test is written, and its
@@ -43,7 +39,48 @@ work: what it was asked, what it did, and what came of it.
 | Later: offers worth asking | when a question is worth the owner's attention, from the owner's own record | `read/ought.py` (flag or silence, priced) and what it imports | to map |
 
 Not ported: DARA's reader (`read/`: the ERG, binding, talk). The model reads; the ERG returns only if stage 5's
-grounded language needs it. The embedding model proposes groupings for stage 2's kinds; it never admits one.
+grounded language needs it, or if the negation test (below) shows the keeper losing negation.
+
+**The embedding model** proposes groupings for stage 2's kinds; it never admits one. It embeds each item inside its
+sentence with a task instruction, never as a bare word: on bare words every model tested put opposites among the
+nearest neighbours 10–17% of the time, in context with the instruction 1–2% (the negation note, Experiment 6).
+Qwen3-Embedding-4B at Q4 is the pick; 0.6B if it does not fit beside the 8B.
+
+**Not in DARA's kernel: lookahead.** The kernel admits a rule or class on its immediate gain. The negation note
+(Experiments 1–2) found that a real abstraction often costs bits at first and pays only when reused one level up (a
+decoy merge saved about 18 bits; the true axis cost about 1), so a one-step test refuses it. The remedy there is a
+credit ledger: a candidate is admitted on credit, its description length as debt, and kept only if reuse repays it
+within a window. It exists only as the note's scripts (`ledger_test.py`), not in DARA's kernel. Stage 2's design note
+expects tier 2's latent classes not to pay in the store world; whether that is the world's size or the one-step test is
+open, and is asked before tier 2 is built (toyworld/SPEC.md, "Stage 2 design note").
+
+## From the DARA Agent Architecture Spec and the negation note
+
+Both are the owner's (2026-10-28 and 2026-10-29), written for DARA. What AWARE holds of them:
+
+**In, kept as requirements** (toyworld/SPEC.md, "What every stage keeps"): routing in code (P1), isolated contexts
+(P2), MDL admission (P8), a no-lesson baseline (P12, the arms), the ledger's three evidence rules, and goal versus
+delusion.
+
+**Superseded on purpose:** "the model proposes, DARA disposes; DARA owns all state" (spec §1–9). In AWARE the model
+may write records, labelled as its own; only learned structure must pass MDL (DECISIONS.md, "Two layers of state").
+
+**Planned:** the residue archive and kinds from it (P3, P4: stage 2); negating the shared assumption (P7: stage 3);
+the catalog carried across episodes (stage 4); lookahead (above).
+
+**Open, in no stage yet:**
+- **The negation test.** On a chapter with a hand-written key of negated facts, run the keeper and count which negated
+  facts reach the store with their negation. The pilot's probes for *The Told Hives*, chapter 1 (those marked `neg`),
+  are one such key, kept outside the repository. If the keeper loses negation the ERG keeps, the ERG returns as the
+  reader of negation scope (spec §12.3).
+- **Negation as the operator that proposes abstractions,** ranked by recurrence across codes (the note, Experiment 1).
+- **Imagined cases are never evidence:** a case constructed by analogy may direct search and action, never be credited
+  (Experiment 3).
+- **The self-model tables:** the repayment record per bet shape, and the codes the system caused (spec §12.1).
+- **Provenance on every memory:** passive, selected, or self-caused; for story memory, reading in order is the control
+  and a retrieved passage cannot confirm the hypothesis that retrieved it.
+- **The catalog entry's package** (trigger, test, stop clause, correction: P5), the sizing, stopping, surrender and
+  intervention gates (P9), exploring by coverage (P6), and a stance toward other agents' goals (P11).
 
 ## Rung 3's test, sketched
 

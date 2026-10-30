@@ -7,6 +7,19 @@ measured, and which action touches which problem. Later stages replace each hand
 
 Moved from the other session's Round 30 harness (the owner's experiments doc, Rounds 29–30).
 
+## What every stage keeps
+
+Requirements from the owner's negation note (*Negation, Lookahead, and the Procedural Ledger*, 2026-10-29), already
+met by stages 0 and 1. A later stage that breaks one says so and why.
+
+| Requirement | Why | Where it is met |
+|---|---|---|
+| Credit only evidence chosen without looking at the outcome | selecting on whether a rule held keeps false rules (87–100% kept, Experiment 2) | exploration withholds each action at random, from the seed, never by result ([run.py](run.py)) |
+| Score each effect against its own absence, P(fall \| action) vs P(fall \| no action), never the base rate | a biased stream inflates the base rate and hides true rules | `moves` needs a fall more often with the action than without ([control.py](control.py)) |
+| When acting can change what is measured, credit only what the system cannot touch | an agent can make a false rule true where it acts | reconciliation is measured on the bank, never the system's own report ([monitor.py](monitor.py), [control.py](control.py)) |
+| A goal is something the system means to make true; a delusion is something it caused, filed as a fact about the world | the trap: the log filter clears the system's own report while the bank stays short | the register's direction of fit, goodhart and hidden days ([score.py](score.py)), the report-versus-bank check |
+| Learned structure is admitted only on MDL gain | a pattern must beat chance before it drives anything | the kernel's 2-bit margin |
+
 ## The world
 
 A small store, run day by day for 5 days ([world.py](world.py)). Seeded, so a run can be replayed.
@@ -222,6 +235,14 @@ store has.
 
 The pass criteria stand with one reading made explicit: "a kind is admitted" means a rule (tier 1) or a latent class
 (tier 2). The shuffled control applies to both.
+
+**An open question before tier 2: the size of the world, or a one-step test?** The finding above reads tier 2's
+silence as the world being small. The negation note gives a second reading: an abstraction pays when it is reused one
+level up, and the kernel scores only the immediate gain, so a class with one member now never pays even if a second
+would join it (PLAN.md, "Not in DARA's kernel: lookahead"). If it is the world's size, a larger world is the fix. If it
+is the one-step test, a larger world helps only once enough members have arrived for the class to pay at once, and a
+credit ledger is what holds the class while they arrive. Which one holds decides whether a credit ledger comes before
+tier 2 or after it.
 
 **Features a residue row carries,** in the record's terms only: the anomaly; each action applied that day and the day
 before, as `action_symbol` names it; `fell` (below three quarters of the day before); `present` at the lag. Not the

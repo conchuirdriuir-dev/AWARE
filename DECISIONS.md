@@ -2,6 +2,18 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **The DARA Agent Architecture Spec and the negation note are mapped into AWARE** (PLAN.md, "From the DARA
+  Agent Architecture Spec and the negation note"): what is in, superseded, planned and open, so nothing from them is
+  dropped unnoticed.
+- 2026-10-30: The negation note's three evidence rules and goal versus delusion are requirements every toy-world stage
+  keeps (toyworld/SPEC.md, "What every stage keeps").
+- 2026-10-30: The embedding model embeds each item inside its sentence with a task instruction, never as a bare word:
+  Qwen3-Embedding-4B at Q4, or 0.6B if it does not fit beside the 8B (the negation note, Experiment 6).
+- 2026-10-30: Whether stage 2's latent classes need lookahead (a credit ledger) is settled before tier 2 is built; the
+  ledger is not in DARA's kernel and would be new code.
+- 2026-10-30: The ERG stays out unless the negation test shows the keeper losing negation that the ERG keeps; DARA's
+  spec (§12.3) keeps it for negation scope, and the test decides between them.
+
 - 2026-10-30: **Stage 1's design** (owner): each action states what it is `for` (the model's claim, recorded as
   such); the map is learned from a randomised exploration phase (each proposed action withheld with probability 0.5);
   an effect counts within 2 days, given to the kernel as lags 1 and 2 rather than as a window, so no fall is credited
