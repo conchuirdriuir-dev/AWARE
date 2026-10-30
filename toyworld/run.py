@@ -191,7 +191,10 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
         for i in range(st["runs"]):
             states[f"{arm}-{i + 1}"] = world.new_state(f"{arm}-{i + 1}", arm, rng.randint(1, 10 ** 6), st["cfg"])
     observed = {(e["run"], e["day"]): e for e in events if e["kind"] == "observed"}
-    answers = {(e["run"], e["offer"]): e for e in events if e["kind"] == "settled"}
+    offered = {(e["run"], e["id"]): (e["day"], e["check"], e["target"]) for e in events if e["kind"] == "offer"}
+    answers = {(e["run"], *offered[(e["run"], e["offer"])]): e for e in events
+               if e["kind"] == "settled" and (e["run"], e["offer"]) in offered}   # by what was offered, not its id:
+                                                                                  # newer checks shift ids
     differ = 0
     for e in events:
         if e["kind"] != "call":
@@ -209,7 +212,7 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
         differ += logged.get("report") != seen["report"] or logged.get("bank") != seen["bank"]
         if s["arm"] == "monitor":
             for o in monitor.offer(s, monitor.review(s)):
-                a = answers.get((run_id, o["id"]))
+                a = answers.get((run_id, o["day"], o["check"], o["target"]))
                 if a:
                     monitor.settle(s, o, a["accepted"], a["settled_by"])
     return st, states, differ

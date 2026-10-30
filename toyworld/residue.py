@@ -1,10 +1,14 @@
 """Stage 2: kinds of failure, learned from residue (toyworld/SPEC.md, "Stage 2").
 
-Residue is where the record contradicts what the learned map (toyworld/control.py) expects. Two types of row:
+Residue is where the record contradicts what the learned map (toyworld/control.py) expects, or where the model's own
+statements contradict each other. Three types of row:
   mover    a learned mover was applied while its anomaly was present; target `still_present`: the anomaly is still
            present at the lag the mover's rule cites
   neglect  an anomaly with a learned mover was present two days running; target `unaddressed`: none of its movers
            was proposed that day (one the exploration design withheld counts as proposed: that was the design's doing)
+  contradiction  the register held a goal that an anomaly not occur; target `contradicts_goal`: the model's own
+           prediction for the next day says it will (stage 2's rerun: the model predicted, accurately, that its
+           order would leave the stockout in place, and held the goal anyway)
 A row says what happened in the record's own terms: the anomaly, the actions applied (as `action_symbol` names them),
 whether the anomaly fell, whether the register held a goal for it. Never the world's terms, never an action's numbers.
 
@@ -26,7 +30,9 @@ from kernel.structure import Structure
 from . import control as ctl
 from .world import action_symbol
 
-TARGET = {"mover": "still_present", "neglect": "unaddressed"}
+TARGET = {"mover": "still_present", "neglect": "unaddressed", "contradiction": "contradicts_goal"}
+PREDICTED = {"stockout": "oat_milk_unfilled_requests", "till_minimum": "sub5_raise_rate",
+             "reconciliation": "bank_settlement_shortfall"}           # the prediction field each anomaly is measured by
 LABEL = {"stockout": "unfilled requests", "till_minimum": "raise rate", "reconciliation": "bank shortfall"}
 SHUFFLES = 20
 
@@ -77,13 +83,25 @@ def rows(states: list[dict], cmap: dict) -> list[dict]:
                                 "fell": False, "goal": _goal(s, t, a),
                                 "target": not any(d in did or d in withheld for d in ds),   # a withheld proposal
                                 "before": xs[t - 2], "after": xs[t - 1]})                     # was addressed
+            pred = next((p for p in s.get("predictions", []) if p.get("day") == t + 1), {})
+            for e in next((r["register"] for r in s.get("registers", []) if r["day"] == t), []):
+                a = e.get("anomaly")
+                if e.get("direction") != "goal" or a not in PREDICTED:
+                    continue
+                try:
+                    p = float(pred.get(PREDICTED[a]))
+                except (TypeError, ValueError):
+                    continue                                    # no prediction for it: nothing to contradict
+                out.append({**base, "type": "contradiction", "anomaly": a, "action": None, "lag": 0, "fell": False,
+                            "goal": True, "goal_id": e.get("id"), "goal_text": e.get("proposition", ""),
+                            "target": p > ctl.OPEN[a], "predicted": p, "before": None, "after": p})
     return out
 
 
 def facts(r: dict) -> set[str]:
     """What a row says, as the tier-1 rules may cite it."""
     f = {f"anom:{r['anomaly']}"} | ({"fell"} if r["fell"] else set()) | ({"goal"} if r["goal"] else set())
-    if r["type"] == "mover":
+    if r["type"] in ("mover", "contradiction"):
         f |= set(r["did"])
     return f
 
@@ -168,6 +186,9 @@ def brief(r: dict) -> str:
     level = f"{LABEL[r['anomaly']]} {r['before']} -> {r['after']}"
     if r["type"] == "mover":
         return f"{r['run']} day {r['day']}: {r['action']} applied for {r['anomaly']}, still present ({level})"
+    if r["type"] == "contradiction":
+        return (f"{r['run']} day {r['day']}: goal {r['goal_id']} held, own prediction for the next day "
+                f"{LABEL[r['anomaly']]} {r['predicted']}")
     return f"{r['run']} day {r['day']}: {r['anomaly']} present two days running, no mover applied ({level})"
 
 
@@ -190,6 +211,11 @@ def note(kind: dict, rs: list[dict], fixes: list[str] = ()) -> str:
         levels = "; ".join(f"day {r['day']}: {r.get('params') or readable(d)}, {LABEL[a]} {r['before']} -> {r['after']}"
                            for r in rs)
         return f"{a} was still present after {readable(d)} on day(s) {days} ({levels})"
+    if kind["type"] == "contradiction":
+        r = rs[-1]
+        said = "; ".join(f"day {x['day']}: predicted {LABEL[x['anomaly']]} {x['predicted']}" for x in rs)
+        return (f"on day(s) {days} the register held goal {r['goal_id']} (\"{r['goal_text']}\") and the system's own "
+                f"prediction for the next day said {r['anomaly']} would still be present ({said})")
     a = rs[0]["anomaly"]
     levels = "; ".join(f"day {r['day']}: {r['after']}" for r in rs)
     moved = " or ".join(readable(f) for f in fixes) or "the actions that move it"

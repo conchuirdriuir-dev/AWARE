@@ -93,3 +93,27 @@ def test_kinds_command_and_stage_2_run_replay(tmp_path, cmap):
     assert differ == 0
     with pytest.raises(SystemExit):
         main(["run", "--fake", "--run", str(tmp_path / "x"), "--stage", "2", "--control", str(ex / "control.json")])
+
+
+def test_a_goal_its_own_prediction_contradicts_is_offered_with_both_statements(cmap):
+    kinds = {"kinds": [], "rows": 0, "control": {}}
+    s = world.new_state("monitor-1", "monitor", 5, {"view": "compact", "stage": 2, "control": cmap, "kinds": kinds})
+    goal = {"proposition": "the world is such that oat milk does not sell out", "direction": "goal",
+            "anomaly": "stockout"}
+    preds = {"oat_milk_unfilled_requests": 12, "sub5_raise_rate": 0.4, "nightly_reconciliation_discrepancy": 0,
+             "bank_settlement_shortfall": None}
+    world.apply_reply(s, 1, {"register_changes": {"add": [goal]}, "actions": [ORDER], "predictions": preds})
+    world.observe(s, 2)
+    rows = [r for r in residue.rows([s], cmap) if r["type"] == "contradiction"]
+    assert [(r["anomaly"], r["target"], r["predicted"]) for r in rows] == [("stockout", True, 12.0)]
+    offers = [o for o in monitor.offer(s, monitor.review(s)) if o["check"] == "own_contradiction"]
+    assert len(offers) == 1 and offers[0]["target"] == "E1" and offers[0]["question"].endswith("?")
+    n = offers[0]["change"]["note"]
+    assert "oat milk does not sell out" in n and "predicted unfilled requests 12" in n
+    assert monitor.offer(s, monitor.review(s)) == []                 # nothing new: not offered again
+    consistent = world.new_state("monitor-2", "monitor", 6, {"view": "compact", "stage": 2, "control": cmap,
+                                                            "kinds": kinds})
+    world.apply_reply(consistent, 1, {"register_changes": {"add": [goal]}, "actions": [ORDER],
+                                      "predictions": {**preds, "oat_milk_unfilled_requests": 0}})
+    world.observe(consistent, 2)
+    assert not [o for o in monitor.review(consistent) if o["check"] == "own_contradiction"]

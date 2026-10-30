@@ -193,7 +193,18 @@ the learned rules leave unexplained, as kinds nobody named, instead of a check w
 **Residue.** A day is residue when the record contradicts what the system expected from it:
 - the model applied an action the learned map says moves the anomaly, and at the lag the rule cites the anomaly is
   still present (it may have fallen, but not gone);
-- an anomaly with a known mover stayed present for 2 days or more with that mover never applied.
+- an anomaly with a known mover stayed present for 2 days or more with that mover never applied;
+- the register held a goal that an anomaly not occur, and the model's own prediction for the next day said it would
+  (added after stage 2's rerun, where the model predicted, accurately, that its order would leave the stockout in
+  place and held the goal anyway; RESULTS.md).
+
+**A contradiction is offered without a kind.** The first two types are claims about the world and need frequency: a
+kind is admitted only where the residue concentrates, by the margin. A contradiction between two of the model's own
+statements is a fact about one day, so each one is offered as it occurs, as stage 0's wishful prediction is, with the
+note setting the goal's words beside the prediction. Its rows still join the residue, so kinds can form where
+contradictions cluster. On the owner's records they did not: 130 of 153 goal-held days contradicted the goal (stockout
+89 of 112, the till 40 of 40), so the contradiction was the default and no rule could pick it out. (A departure from
+"fits stage 2 unchanged", as first proposed.)
 
 (A third type in the first draft, a goal still held about an anomaly nothing moves, was dropped when building: stage 1's
 uncontrollable-goal check already offers it. Two rules came from the owner's record: a proposal the exploration design

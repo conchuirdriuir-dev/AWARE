@@ -13,6 +13,7 @@ In stage 1 the first is replaced by two checks against the map learned from expl
 
 Stage 2 adds one check per kind of failure learned from residue (toyworld/residue.py): when this run's own days fall in
 a kind, the offer cites them and the kind's earlier members, and accepting it shows the model its own record of them.
+It also offers every contradiction between a held goal and the model's own prediction, which needs no learned kind.
 """
 from __future__ import annotations
 
@@ -37,14 +38,36 @@ def review(s: dict) -> list[dict]:
     """Findings from the record as it stands; each one is an offer not yet made."""
     found = _learned(s) if s["cfg"].get("stage", 0) >= 1 else _goals_not_working(s)
     if s["cfg"].get("stage", 0) >= 2:
-        found += _kinds(s)
+        found += _kinds(s) + _contradictions(s)
     return found + _report_and_predictions(s)
 
 
 KIND_SAYS = {"mover": "the action that moves the anomaly was applied and the anomaly stayed present",
-             "neglect": "the anomaly stayed present two days running and none of the actions that move it was proposed"}
+             "neglect": "the anomaly stayed present two days running and none of the actions that move it was proposed",
+             "contradiction": "the register held a goal that the anomaly not occur and the system's own prediction "
+                              "said it would"}
 KIND_WRONG_IF = {"mover": "the anomaly was about to clear anyway, or something else holds it up",
-                 "neglect": "acting on it those days was not possible, or a fix was already under way"}
+                 "neglect": "acting on it those days was not possible, or a fix was already under way",
+                 "contradiction": "the goal is meant to be reached later than the next day, or the prediction was "
+                                  "deliberately cautious"}
+
+
+def _contradictions(s: dict) -> list[dict]:
+    """Stage 2: a goal the model's own prediction contradicts. Two of the model's own statements disagree on one day,
+    so one instance is evidence of itself: unlike a claim about the world, it needs no frequency, and no learned kind,
+    to be offered (on the owner's records it was the default, 85% of goal-held days, which no rule can pick out)."""
+    found, kind = [], {"type": "contradiction"}
+    rows = [r for r in residue.rows([s], s["cfg"]["control"]) if r["type"] == "contradiction" and r["target"]]
+    for gid in sorted({r["goal_id"] for r in rows}):
+        mine = [r for r in rows if r["goal_id"] == gid]
+        found.append({"check": "own_contradiction", "target": gid,
+                      "question": f"Goal {gid} ('{mine[-1]['goal_text']}') was held while the system's own prediction "
+                                  f"said {mine[-1]['anomaly']} would still be present. Should the model be shown its "
+                                  "two statements side by side?",
+                      "evidence": [residue.brief(r) for r in mine],
+                      "wrong_if": KIND_WRONG_IF["contradiction"],
+                      "change": {"note": residue.note(kind, mine), "kind": f"contradiction {gid}"}})
+    return found
 
 
 def _kinds(s: dict) -> list[dict]:

@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Stage 2's third residue type** (owner): a held goal the model's own prediction contradicts. Each
+  is offered as it occurs, without a learned kind, since one contradiction between two of the model's statements is
+  evidence of itself (on the owner's records it was the default, 85% of goal-held days, so no rule could pick it out).
+  Replay now matches recorded settlements by what was offered (run, day, check, target), not by offer id, so newer
+  checks do not misplace older settlements.
 - 2026-10-30: The negation test's pass criteria (owner): zero inversions; a polarity check on the keeper's quotes is
   tried before the ERG; at least 5 negated facts comparable, else no decision. A text that gives no decision gets more
   probes before another text, and never a decided one (rung2/SPEC.md, "The negation test").
