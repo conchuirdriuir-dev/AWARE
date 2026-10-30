@@ -25,7 +25,7 @@ from pathlib import Path
 from rung2.model import Fake, Server
 from rung2.record import Recorder, TooLong
 
-from . import control, monitor, score, world
+from . import control, monitor, residue, score, world
 
 REPLY_TOKENS = 1024
 ASSUMED_REPLY = {"bare": 150, "belief": 180, "goals": 200, "monitor": 200}
@@ -131,6 +131,10 @@ def run(args, explore: bool = False) -> list[dict]:
         if not args.control:
             sys.exit("stage 1 needs --control: the control.json an exploration run wrote")
         cfg["control"] = json.loads(Path(args.control).read_text())   # into the record, so a replay needs nothing else
+        if args.stage >= 2:
+            if not args.kinds:
+                sys.exit("stage 2 needs --kinds: the kinds.json the kinds command wrote")
+            cfg["kinds"] = json.loads(Path(args.kinds).read_text())
     rec.event("start", model=model.name, cfg=cfg, arms=args.arms, runs=args.runs, days=args.days, seed=args.seed,
               temperature=args.temperature, settle=args.settle, argv=sys.argv[1:])
     rng = random.Random(args.seed)
@@ -209,6 +213,26 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
                 if a:
                     monitor.settle(s, o, a["accepted"], a["settled_by"])
     return st, states, differ
+
+
+def kinds(args) -> None:
+    """Stage 2: kinds of failure learned from records alone (replays of their logs), written to kinds.json."""
+    cmap = json.loads(Path(args.control).read_text())
+    states = []
+    for d in args.records:
+        _, st, differ = replay(Path(d) / "log.jsonl")
+        if differ:
+            sys.exit(f"{d}: the replay differs from the record on {differ} observations; no kinds learned")
+        states += [{**s, "run": f"{Path(d).name}/{k}"} for k, s in st.items()]
+    learned = residue.learn(states, cmap)
+    learned["sources"] = [str(Path(d) / "log.jsonl") for d in args.records]
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(learned, indent=1))
+    print(residue.describe(learned))
+    if learned["control"]["tier1_admitted"] or learned["control"]["tier2_admitted"]:
+        print("\nThe shuffled control admitted a kind: these kinds may be read into noise. Do not run stage 2 on them.")
+    print(f"\nThe kinds: {out}")
 
 
 def rescore(args) -> None:
@@ -302,12 +326,17 @@ def main(argv=None) -> None:
             r.add_argument("--settle", choices=["auto", "ask", "none"], default="auto",
                            help="monitor arm: who settles offers; auto = a stand-in that accepts every offer, "
                                 "labelled as such")
-            r.add_argument("--stage", type=int, choices=[0, 1], default=0)
-            r.add_argument("--control", help="stage 1: the control.json an exploration run wrote")
+            r.add_argument("--stage", type=int, choices=[0, 1, 2], default=0)
+            r.add_argument("--control", help="stage 1 and after: the control.json an exploration run wrote")
+            r.add_argument("--kinds", help="stage 2: the kinds.json the kinds command wrote")
 
     running(r)
     running(ex, explore=True)
     ex.set_defaults(runs=10)
+    kd = sub.add_parser("kinds")
+    kd.add_argument("--from", dest="records", nargs="+", required=True, help="run directories whose records to learn from")
+    kd.add_argument("--control", required=True, help="the control.json the exploration wrote")
+    kd.add_argument("--out", required=True, help="where to write kinds.json")
     rs = sub.add_parser("rescore")
     rs.add_argument("--run", required=True)
     e = sub.add_parser("estimate")
@@ -315,7 +344,7 @@ def main(argv=None) -> None:
     e.add_argument("--pp-tps", type=float, default=200.0, help="prompt-processing speed, tokens a second")
     e.add_argument("--gen-tps", type=float, default=8.0, help="generation speed, tokens a second")
     args = p.parse_args(argv)
-    {"run": run, "explore": explore, "estimate": estimate, "rescore": rescore}[args.cmd](args)
+    {"run": run, "explore": explore, "kinds": kinds, "estimate": estimate, "rescore": rescore}[args.cmd](args)
 
 
 if __name__ == "__main__":

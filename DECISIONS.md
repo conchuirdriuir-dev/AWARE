@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Stage 2's design** (owner, from the design note): kinds as rules over residue rows (tier 1) and latent
+  classes over kinds of action (tier 2, expected silent in this world), each against a shuffled control; residue rows
+  in the record's terms, never an action's numbers. The fixed anomaly ids stay for this stage. Tier 2 was built with
+  the kernel's one-step test before the lookahead entry below was seen: its silence on the owner's record is
+  provisional until that question is settled.
 - 2026-10-30: **The DARA Agent Architecture Spec and the negation note are mapped into AWARE** (PLAN.md, "From the DARA
   Agent Architecture Spec and the negation note"): what is in, superseded, planned and open, so nothing from them is
   dropped unnoticed.
@@ -13,7 +18,6 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   ledger is not in DARA's kernel and would be new code.
 - 2026-10-30: The ERG stays out unless the negation test shows the keeper losing negation that the ERG keeps; DARA's
   spec (§12.3) keeps it for negation scope, and the test decides between them.
-
 - 2026-10-30: **Stage 1's design** (owner): each action states what it is `for` (the model's claim, recorded as
   such); the map is learned from a randomised exploration phase (each proposed action withheld with probability 0.5);
   an effect counts within 2 days, given to the kernel as lags 1 and 2 rather than as a window, so no fall is credited

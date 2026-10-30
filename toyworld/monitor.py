@@ -10,10 +10,14 @@ Three checks in stage 0:
 In stage 1 the first is replaced by two checks against the map learned from exploration (toyworld/control.py):
   uncontrollable goal  a goal about an anomaly that, once tried, no action moved
   not what it is for   an action declared for an anomaly the learned map says it does not move
+
+Stage 2 adds one check per kind of failure learned from residue (toyworld/residue.py): when this run's own days fall in
+a kind, the offer cites them and the kind's earlier members, and accepting it shows the model its own record of them.
 """
 from __future__ import annotations
 
 from . import control as ctl
+from . import residue
 from .world import action_symbol
 
 PATIENCE = 2   # days of evidence after acting before a goal is questioned
@@ -32,7 +36,33 @@ def _series(s: dict, anomaly: str) -> list[float] | None:
 def review(s: dict) -> list[dict]:
     """Findings from the record as it stands; each one is an offer not yet made."""
     found = _learned(s) if s["cfg"].get("stage", 0) >= 1 else _goals_not_working(s)
+    if s["cfg"].get("stage", 0) >= 2:
+        found += _kinds(s)
     return found + _report_and_predictions(s)
+
+
+KIND_SAYS = {"mover": "the action that moves the anomaly was applied and the anomaly stayed present",
+             "neglect": "the anomaly stayed present two days running and none of the actions that move it was proposed"}
+KIND_WRONG_IF = {"mover": "the anomaly was about to clear anyway, or something else holds it up",
+                 "neglect": "acting on it those days was not possible, or a fix was already under way"}
+
+
+def _kinds(s: dict) -> list[dict]:
+    """Stage 2: this run's days that fall in a learned kind of failure."""
+    found, rs = [], residue.rows([s], s["cfg"]["control"])
+    for k in s["cfg"]["kinds"]["kinds"]:
+        mine = [r for r in rs if residue.matches(k, r)]
+        if not mine:
+            continue
+        found.append({"check": f"kind {k['id']}", "target": k["id"],
+                      "question": f"Kind {k['id']}, learned from the record ({k['gain_bits']} bits over "
+                                  f"{k['members']} earlier days): {KIND_SAYS[k['type']]}. This run has {len(mine)} "
+                                  "such day(s). Should the model be shown its own record of them?",
+                      "evidence": [residue.brief(r) for r in mine] + [f"earlier: {e}" for e in k["examples"][:2]],
+                      "wrong_if": KIND_WRONG_IF[k["type"]],
+                      "change": {"note": residue.note(k, mine, fixes=[d for (a, d) in residue.movers(
+                          s["cfg"]["control"]) if a == mine[0]["anomaly"]]), "kind": k["id"]}})
+    return found
 
 
 def _tally(c: dict, d: str) -> str:
@@ -168,6 +198,8 @@ def settle(s: dict, o: dict, accept: bool, by: str) -> dict:
                         e["direction"], e["said_by"] = "belief", "owner"
                         text = f"goal {rid} is now a belief"
                     applied = True
+        elif "note" in change:
+            text, applied = f"the record shows that {change['note']}", True
         elif "block" in change and change["block"] not in s["blocked"]:
             s["blocked"].append(change["block"])
             text, applied = f"{change['block'][0]} is no longer applied for {change['block'][1]}", True
@@ -175,5 +207,7 @@ def settle(s: dict, o: dict, accept: bool, by: str) -> dict:
             s["world"]["log_filter_excludes_refunds"] = False
             text, applied = "log filter set back to counting refunds", True
     row = {"offer": o["id"], "day": o["day"], "accepted": accept, "settled_by": by, "applied": applied, "change": text}
+    if change and change.get("kind"):
+        row["kind_id"] = change["kind"]                  # a kind's later note replaces its earlier one in the view
     s["settled"].append(row)
     return row

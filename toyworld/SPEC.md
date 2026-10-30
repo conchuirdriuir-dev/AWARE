@@ -193,8 +193,12 @@ the learned rules leave unexplained, as kinds nobody named, instead of a check w
 **Residue.** A day is residue when the record contradicts what the system expected from it:
 - the model applied an action the learned map says moves the anomaly, and at the lag the rule cites the anomaly is
   still present (it may have fallen, but not gone);
-- an anomaly with a known mover stayed present for 2 days or more with that mover never applied;
-- a goal's anomaly has no mover in the map, and the goal is still held.
+- an anomaly with a known mover stayed present for 2 days or more with that mover never applied.
+
+(A third type in the first draft, a goal still held about an anomaly nothing moves, was dropped when building: stage 1's
+uncontrollable-goal check already offers it. Two rules came from the owner's record: a proposal the exploration design
+withheld counts as proposed, since its absence was the design's doing; and the belief arm leaves no residue, since it
+may not act.)
 
 Residue rows describe what happened in the record's own terms (the anomaly, the action's name as `action_symbol`
 gives it, the levels before and after, the days since the mover was first applied), never in the world's (no "oat
@@ -204,8 +208,16 @@ milk", "demand" or "order size" in any check's code).
 each admitted only when positing it shortens the record's code by the 2-bit margin, as any rule is. An admitted kind
 becomes a check: when a new day joins the kind, the reviewer makes an offer that cites the kind's earlier members and
 says what would make it wrong. Accepting a kind's offer adds a settled note to the model's view, in the record's
-terms (for example: "on days 2 to 4 the action that moves stockout was applied and stockout was still present"). The
-model is told what its own record shows, and what it does next stays its own.
+terms, naming the action as the model knows actions (for example: "the record shows that reconciliation was present on
+day(s) 2, 3, 4 and report_to_head_office with problem "reconciliation" and status "open", which moved it in
+exploration, was not applied (bank shortfall: ...)"). A kind's note is offered again as new days join it, and only its
+latest form is shown. The model is told what its own record shows, and what it does next stays its own.
+
+**Running it** ([residue.py](residue.py)): `python -m toyworld.run kinds --from <run dirs> --control <control.json>
+--out <kinds.json>` learns the kinds from replays of the records and runs the shuffled control; `run --stage 2
+--control ... --kinds ...` uses them. On the owner's stage-1 records it admits two kinds and nothing on 20 shuffles:
+K1, `still_present <- anom:stockout` (26 bits, 42 days), and K2, `unaddressed <- anom:reconciliation` (24.6 bits, 39
+days: across exploration the model rarely proposed the report that fixes reconciliation).
 
 ## Stage 2 design note (for the owner, before any code)
 
@@ -242,7 +254,8 @@ level up, and the kernel scores only the immediate gain, so a class with one mem
 would join it (PLAN.md, "Not in DARA's kernel: lookahead"). If it is the world's size, a larger world is the fix. If it
 is the one-step test, a larger world helps only once enough members have arrived for the class to pay at once, and a
 credit ledger is what holds the class while they arrive. Which one holds decides whether a credit ledger comes before
-tier 2 or after it.
+tier 2 or after it. (Tier 2 was built with the kernel's one-step test before this question was raised. On the owner's
+record it admits nothing; until the question is settled, that silence is not evidence for either reading.)
 
 **Features a residue row carries,** in the record's terms only: the anomaly; each action applied that day and the day
 before, as `action_symbol` names it; `fell` (below three quarters of the day before); `present` at the lag. Not the

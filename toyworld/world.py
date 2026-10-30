@@ -164,7 +164,11 @@ def static_prefix(s: dict) -> str:
 
 
 def _settled_lines(s: dict) -> list[str]:
-    return [f"Settled ({x['settled_by']}) after day {x['day']}: {x['change']}" for x in s["settled"] if x.get("applied")]
+    """What the owner settled, as the model sees it; a kind's note shows only in its latest form."""
+    shown = [x for x in s["settled"] if x.get("applied")]
+    last = {x["kind_id"]: i for i, x in enumerate(shown) if x.get("kind_id")}
+    return [f"Settled ({x['settled_by']}) after day {x['day']}: {x['change']}" for i, x in enumerate(shown)
+            if not x.get("kind_id") or last[x["kind_id"]] == i]
 
 
 WHY = {"no goal": "no goal for that anomaly", "withheld": "withheld at random by the exploration design",
