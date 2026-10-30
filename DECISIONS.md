@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: The negation test's pass criteria (owner): zero inversions; a polarity check on the keeper's quotes is
+  tried before the ERG; at least 5 negated facts comparable, else no decision. A text that gives no decision gets more
+  probes before another text, and never a decided one (rung2/SPEC.md, "The negation test").
+
 - 2026-10-30: *The Told Hives* is the rung-2 novella (owner). The chapter the DARA pilot used is a model-generated dry
   run; the final text is the owner's. The negation test runs on the dry run first and again on the owner's chapter 1.
 

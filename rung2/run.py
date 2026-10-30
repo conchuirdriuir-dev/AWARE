@@ -195,7 +195,7 @@ def negation_cmd(args) -> None:
     run = Path(args.run)
     conn = store.open_store(run / "store.sqlite")
     erg = negation.read_erg(Path(args.erg)) if args.erg else None
-    text = negation.report(conn, negation.load_probes(Path(args.probes)), erg)
+    text = negation.report(conn, negation.load_probes(Path(args.probes)), erg, negation.quotes(run / "log.jsonl"))
     (run / "negation.txt").write_text(text, encoding="utf-8")
     print(text, end="")
 

@@ -179,21 +179,35 @@ python -m rung2.run negation --run runs/hives-8b --probes ../outside/key_probes.
 passage (states, knowledge, events, rules, with entity names), and the one row holding most of the probe's lemmas. A
 negated probe is *kept* when that row has every lemma and a negation, *inverted* when it has every lemma and no
 negation (the fact stored as its opposite, the costly error), and *not stored* otherwise, which is coverage and
-counted apart. Matching is by words, so the owner reads every inverted and partial row before it is counted. The
-probes are a key: only the scorer reads them.
+counted apart. A row's negation is in its own claim (the value, proposition, summary or statement, never the entity
+names beside it), or an event stored as not having happened. A positive probe whose row carries a negation is *negation added*, the same error the other way. For
+every inverted or added row the scorer finds the keeper's quote for it in the record and says whether a polarity check
+(the quote's negation against the row's) would have caught it. Matching is by words, so the owner reads every
+inverted, added and partial row before it is counted; the report's "points to" line follows the table below and is a
+reading, not a verdict. The probes are a key: only the scorer reads them.
 
 The two checks are not equal: the pilot counts the ERG's negation kept when negation is anywhere in the sentence, the
 keeper's only when it is in the row holding the fact. The comparison leans toward the ERG, so a keeper that holds up
 is a strong result.
 
-**Pass criteria** (proposed; the owner fixes them before the run):
+**Pass criteria** (owner, 2026-10-30, fixed before the run; the ERG's side is Run A, the ERG alone):
 
 | Outcome | Reading |
 |---|---|
-| The keeper inverts at most 1 of the negated facts the ERG keeps | the ERG stays out; the model reads |
-| The keeper inverts 2 or more of them | the ERG returns as the reader of negation scope, beside the keeper |
-| Most negated facts not stored by the keeper | a coverage problem, not negation: the keeper's prompt first, then rerun |
-| Most negated facts lost by the ERG too (unparsed or lost) | the chapter does not test negation: a harder key before deciding |
+| Fewer than 5 negated facts comparable (the ERG produced something and the keeper's passage holds the sentence) | no decision: add negated facts to the key |
+| The ERG loses most negated facts too | the chapter does not test negation: a harder key before deciding |
+| Most negated facts not stored by the keeper | coverage, not negation: the keeper's prompt first, then rerun |
+| No fact inverted and no negation added | the ERG stays out; the model reads |
+| Every inversion caught by a polarity check on the quotes | the ERG stays out; the check goes into `store.apply`, and the test is rerun |
+| An inversion the polarity check misses, where the ERG keeps the negation | the ERG returns, as the reader of negation scope beside the keeper |
+
+Zero inversions: an inverted fact answers a "never happened" question wrongly and with a citation, which a missing
+fact does not. The cheaper remedy comes first: a check in code on evidence the record already holds, before a parser.
+
+**When the text gives no decision** (the first two rows only, never a decided result), more facts come before another
+text, in this order: more negated facts from the same chapter (it has 36 sentences with a negation word, 7 of them
+probed); other dry-run chapters of the novella; a different book, as in the keeper's dry runs. The owner writes the
+added probes before seeing a result. Every run stays in the record, the ones that decided nothing too.
 
 ## Risks to watch
 

@@ -327,10 +327,31 @@ def test_negation_test_scores_kept_inverted_and_missing(conn, tmp_path, capsys):
     rows = [("R4", "no iron passes the gate", "ok", "erg", ""),
             ("L1", "latch never fastened", "ok", "erg", "")]
     erg.write_text("item      probe\n" + "".join(f"{a:<10}{b[:33]:<34}{c:<20}{d:<16}{e}\n" for a, b, c, d, e in rows))
+    reply = {"events": [{"summary": "Someone fastened the latch", "quote": "no one had fastened"}]}
+    (tmp_path / "log.jsonl").write_text(json.dumps({"kind": "call", "role": "keeper", "ref": p1["id"],
+                                                    "reply": json.dumps(reply)}) + "\n")
     main(["negation", "--run", str(tmp_path), "--probes", str(probes), "--erg", str(erg)])
     out = capsys.readouterr().out
     assert "kept 1, stored inverted 1, not stored 0" in out
     assert "the ERG kept the negation and the keeper inverted it on 1" in out
+    assert "quote: 'no one had fastened', a polarity check catches it" in out
+    assert "would catch 1 of 1" in out and "points to: no decision: 2 negated facts comparable" in out
     assert (tmp_path / "negation.txt").read_text() == out
     assert negation.negated(negation.words("the latch is unfastened")) and negation.has(negation.words("unfastened"), "fasten")
     assert not negation.negated(negation.words("she understood the united bees"))
+    assert negation.row_negated({"field": "Hanno set foot in the garth", "happened": False})
+    assert not negation.row_negated({"field": "Maren stood in the garth", "happened": True})
+
+
+def test_negation_test_reading_follows_the_pass_criteria():
+    from rung2.negation import reading
+    base = {"comparable": 7, "erg_lost": 0, "not stored": 0, "inverted": 0, "added": 0, "uncaught": 0,
+            "uncaught_erg_kept": 0}
+    assert reading(base, erg=False).startswith("no reading")
+    assert reading({**base, "comparable": 4}, True).startswith("no decision")
+    assert "does not test negation" in reading({**base, "erg_lost": 4}, True)
+    assert "coverage" in reading({**base, "not stored": 4}, True)
+    assert "ERG stays out" in reading(base, True)
+    assert "goes into store.apply" in reading({**base, "inverted": 1}, True)
+    assert "ERG returns" in reading({**base, "inverted": 1, "uncaught": 1, "uncaught_erg_kept": 1}, True)
+    assert "read it before deciding" in reading({**base, "inverted": 1, "uncaught": 1}, True)
