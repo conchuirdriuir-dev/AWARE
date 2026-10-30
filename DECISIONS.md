@@ -18,6 +18,8 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-10-30: Provisional until tested (owner, on the agent's defaults): a state is the residual stream after a layer,
   mean-pooled over the text; description length is probabilistic PCA's two-part code; D's paraphrase sets are drafted
   by the agent and frozen by the owner.
+- 2026-10-30: Description length is priced within the span of the window's states: the textbook version kept 19 axes
+  of 3 planted on the toy bed's first run (PLAN.md, step 2).
 - 2026-10-30: Saved activations are derived, never the record: the record keeps text, model, revision and layers.
 
 - 2026-10-30: **Rung 1's live test has three arms** (owner): Fresh (shadow, the control), Memory (plain retrieval over

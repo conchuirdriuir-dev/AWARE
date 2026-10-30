@@ -30,4 +30,8 @@ Reading the model's states needs torch, transformers, nnsight and nnterp:
 
 ```sh
 pip install -r requirements-model.txt
+python -m measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama   # D per layer, on frozen sets
+python -m pytest -m model                                                          # Qwen3-0.6B on CPU, plumbing only
 ```
+
+The toy bed, swept over noise levels: `python -m toybed`.
