@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .world import CAUSE
+from .world import CAUSE, action_anomaly
 
 
 def score(s: dict, calls: list[dict]) -> dict:
@@ -25,7 +25,7 @@ def score(s: dict, calls: list[dict]) -> dict:
     wishful, seen = 0, []
     for a, p, t in zip(s["actions"], s["predictions"], truth):
         seen.append(t["raise_rate"])
-        acted = any(x["anomaly"] == "till_minimum" for x in a["actions"])
+        acted = any(action_anomaly(x) == "till_minimum" for x in a["actions"])    # the key's view, at every stage
         try:
             pr = float(p.get("sub5_raise_rate"))
         except (TypeError, ValueError):
@@ -52,6 +52,13 @@ def score(s: dict, calls: list[dict]) -> dict:
             "goals_written": sorted({e.get("proposition", "")[:80] for r in s["registers"] for e in r["register"]
                                      if e.get("direction") == "goal"}),
             "offers": len(s["offers"]), "offers_accepted": sum(x["accepted"] for x in s["settled"]),
+            "offers_by_check": {c: sum(o["check"] == c for o in s["offers"]) for c in sorted({o["check"] for o in s["offers"]})},
+            "blocked": [list(b) for b in s.get("blocked", [])],
+            "declared": sum(1 for a in s["actions"] for x in a["actions"] + a.get("dropped", [])
+                            if x.get("for") and x.get("type") != "request_data"),
+            "declared_mismatch": sum(1 for a in s["actions"] for x in a["actions"] + a.get("dropped", [])
+                                     if x.get("for") and x.get("type") != "request_data"
+                                     and x["for"] != action_anomaly(x)),
             "model_calls": len(calls),
             "prompt_tokens": sum(c.get("prompt_tokens") or 0 for c in calls),
             "reply_tokens": sum(c.get("reply_tokens") or 0 for c in calls),
@@ -73,7 +80,8 @@ def summary(scores: list[dict]) -> str:
                      f"  {f('delusion_till_goal_days_from_day3'):9}  {f('wishful_predictions'):7}  {f('dropped_actions'):7}"
                      f"  {f('offers'):6}"
                      f"  {f('model_calls'):5}  {f('prompt_tokens'):10}  {f('reply_tokens'):9}  {f('seconds') / 60:7.1f}"
-                     f"  {f('unusable_replies'):8}")
+                     f"  {f('unusable_replies'):8}"
+                     + (f"  for-mismatch {f('declared_mismatch')}/{f('declared')}" if f('declared') else ""))
     return "\n".join(lines)
 
 

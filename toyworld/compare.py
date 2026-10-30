@@ -46,7 +46,7 @@ def main(argv=None) -> None:
                   f"  {f('reply_tokens'):9}  {f('seconds') / 60:7.1f}")
         st = start_event(d)
         print(f"{'':24} model={st.get('model')} pressure={st.get('cfg', {}).get('pressure')} "
-              f"view={st.get('cfg', {}).get('view')} settle={st.get('settle')}")
+              f"view={st.get('cfg', {}).get('view')} settle={st.get('settle')} stage={st.get('cfg', {}).get('stage', 0)}")
 
 
 if __name__ == "__main__":

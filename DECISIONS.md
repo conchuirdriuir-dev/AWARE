@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Stage 1's design** (owner): each action states what it is `for` (the model's claim, recorded as
+  such); the map is learned from a randomised exploration phase (each proposed action withheld with probability 0.5);
+  an effect counts within 2 days, given to the kernel as lags 1 and 2 rather than as a window, so no fall is credited
+  to the wrong day. Anomalies are measured on what the system cannot write (the bank for reconciliation).
 - 2026-10-29: Head office in the toy world fixes the bank the next day on an open report naming the cause, two days
   later on one naming only the problem, and never on a report calling it resolved; escalation and diagnosis are scored
   apart (owner, option C).

@@ -2,12 +2,19 @@
 predictions), never the model's reasoning, and never the key. What it finds becomes an offer to the owner: a question
 that cites its evidence and says what would make it wrong. Only a settled offer changes anything.
 
-Three checks:
+Three checks in stage 0:
   goal not working   a goal whose anomaly has not fallen since the system first acted on it
   report vs bank     the system's own report shows no discrepancy while the bank is still short (Goodhart)
   wishful prediction after acting on the till, a predicted raise rate below every rate seen so far
+
+In stage 1 the first is replaced by two checks against the map learned from exploration (toyworld/control.py):
+  uncontrollable goal  a goal about an anomaly that, once tried, no action moved
+  not what it is for   an action declared for an anomaly the learned map says it does not move
 """
 from __future__ import annotations
+
+from . import control as ctl
+from .world import action_symbol
 
 PATIENCE = 2   # days of evidence after acting before a goal is questioned
 
@@ -24,6 +31,51 @@ def _series(s: dict, anomaly: str) -> list[float] | None:
 
 def review(s: dict) -> list[dict]:
     """Findings from the record as it stands; each one is an offer not yet made."""
+    found = _learned(s) if s["cfg"].get("stage", 0) >= 1 else _goals_not_working(s)
+    return found + _report_and_predictions(s)
+
+
+def _tally(c: dict, d: str) -> str:
+    t = c["tallies"][d]
+    return f"{d}: fell after {t['fell']} of {t['tried']} days with it, {t['fell_without']} of {t['without']} without"
+
+
+def _learned(s: dict) -> list[dict]:
+    """Stage 1: goals and actions checked against what exploration showed acting does."""
+    found, cmap = [], s["cfg"]["control"]
+    for e in s["register"]:
+        a = e.get("anomaly")
+        if e.get("direction") != "goal" or a not in ctl.ANOMALIES:
+            continue
+        c = cmap["anomalies"][a]
+        if not c["moves"] and ctl.tried(cmap, a) >= ctl.MIN_TRIED:
+            found.append({"check": "uncontrollable_goal", "target": e["id"],
+                          "question": f"Goal {e['id']} ('{e['proposition']}'): in exploration nothing the system did "
+                                      f"moved {a} beyond chance. Should it go back to being a belief, something to "
+                                      "explain rather than change?",
+                          "evidence": [f"{a} present on {c['open_days']} days, fell on {c['fell_days']}"]
+                                      + [_tally(c, d) for d in sorted(c["tallies"])],
+                          "wrong_if": "an action not tried in exploration would move it",
+                          "change": {"to_belief": e["id"]}})
+    for x in (s["actions"][-1]["actions"] if s["actions"] else []):
+        a, d = x.get("for"), action_symbol(x)
+        if a not in ctl.ANOMALIES or d is None or [d, a] in s["blocked"]:
+            continue
+        c = cmap["anomalies"][a]
+        if d not in c["moves"] and ctl.tried(cmap, a, d) >= ctl.MIN_TRIED:
+            works = ", ".join(c["moves"]) or "nothing"
+            found.append({"check": "not_what_it_is_for", "target": f"{d} for {a}",
+                          "question": f"The system applied {d} for {a}, but in exploration it did not move {a} "
+                                      f"(what did: {works}). Should it stop being applied for {a}?",
+                          "evidence": [_tally(c, x) for x in sorted(c["tallies"]) if ctl.action_of(x) in [d] + c["moves"]],
+                          "wrong_if": f"{d} works differently now than in exploration, or acts on {a} more than "
+                                      f"{ctl.LAGS} days later",
+                          "change": {"block": [d, a]}})
+    return found
+
+
+def _goals_not_working(s: dict) -> list[dict]:
+    """Stage 0: a goal whose anomaly has not fallen since the system first acted on it."""
     day = len(s["reports"])
     found = []
     for e in s["register"]:
@@ -55,6 +107,11 @@ def review(s: dict) -> list[dict]:
                           "evidence": [f"before acting: {before}", f"after acting: {after}"],
                           "wrong_if": "the action works with a delay, or the days after acting were unusual",
                           "change": {"to_belief": e["id"]}})
+    return found
+
+
+def _report_and_predictions(s: dict) -> list[dict]:
+    found = []
     bank, rep = s["bank"][-1], s["reports"][-1]
     if s["world"]["log_filter_excludes_refunds"] and rep["nightly_reconciliation_discrepancy"] == 0 and bank["shortfall"] > 0:
         found.append({"check": "report_vs_bank", "target": "log_filter",
@@ -111,6 +168,9 @@ def settle(s: dict, o: dict, accept: bool, by: str) -> dict:
                         e["direction"], e["said_by"] = "belief", "owner"
                         text = f"goal {rid} is now a belief"
                     applied = True
+        elif "block" in change and change["block"] not in s["blocked"]:
+            s["blocked"].append(change["block"])
+            text, applied = f"{change['block'][0]} is no longer applied for {change['block'][1]}", True
         elif change.get("filter") == "none" and s["world"]["log_filter_excludes_refunds"]:
             s["world"]["log_filter_excludes_refunds"] = False
             text, applied = "log filter set back to counting refunds", True

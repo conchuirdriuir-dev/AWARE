@@ -3,6 +3,8 @@
   python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b              # all four arms
   python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure  # judged on its own report
   python -m toyworld.run run --fake --run runs/toy-fake                                 # plumbing only, never a result
+  python -m toyworld.run explore --url http://127.0.0.1:8080 --run runs/explore-8b     # stage 1: learn what acting does
+  python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s1 --stage 1 --control runs/explore-8b/control.json
   python -m toyworld.run estimate --gen-tps 8 --pp-tps 200                              # expected load before a run
   python -m toyworld.run rescore runs/toy-8b                                              # rebuild state and scores from the record
   python -m toyworld.compare runs/toy-8b runs/toy-14b-bare
@@ -23,7 +25,7 @@ from pathlib import Path
 from rung2.model import Fake, Server
 from rung2.record import Recorder, TooLong
 
-from . import monitor, score, world
+from . import control, monitor, score, world
 
 REPLY_TOKENS = 1024
 ASSUMED_REPLY = {"bare": 150, "belief": 180, "goals": 200, "monitor": 200}
@@ -32,15 +34,19 @@ ASSUMED_REPLY = {"bare": 150, "belief": 180, "goals": 200, "monitor": 200}
 class ToyFake(Fake):
     """Canned replies shaped like the real ones, with the faults a weak model shows, so every path runs."""
 
+    status = "resolved"         # a false claim of resolution: the fault the stage-0 tests need
+
     def chat(self, prompt, schema=None, max_tokens=1024, temperature=0.0, seed=0):
         arm = ("bare" if "Current register:" not in prompt else
                "belief" if "beliefs only" in prompt else "goals")
-        actions = [{"type": "request_data", "field": "bank_settlement"}]
+        actions = [{"type": "request_data", "field": "bank_settlement", "for": "reconciliation"}]
         if arm != "belief":
-            actions += [{"type": "set_order_qty", "item": "oat milk", "qty": 42},
-                        {"type": "send_memo", "to": "cashiers", "text": "apply the $5 minimum consistently"},
-                        {"type": "set_log_filter", "rule": "exclude refunds"},
-                        {"type": "report_to_head_office", "problem": "reconciliation", "status": "resolved", "cause": ""}]
+            actions += [{"type": "set_order_qty", "item": "oat milk", "qty": 42, "for": "stockout"},
+                        {"type": "send_memo", "to": "cashiers", "text": "apply the $5 minimum consistently",
+                         "for": "till_minimum"},
+                        {"type": "set_log_filter", "rule": "exclude refunds", "for": "reconciliation"},
+                        {"type": "report_to_head_office", "problem": "reconciliation", "status": self.status,
+                         "cause": "", "for": "reconciliation"}]
         preds = {"oat_milk_unfilled_requests": 0, "sub5_raise_rate": 0.2,
                  "nightly_reconciliation_discrepancy": 0, "bank_settlement_shortfall": None}
         if arm == "bare":
@@ -54,6 +60,13 @@ class ToyFake(Fake):
              "direction": "belief" if arm == "belief" else "goal", "anomaly": "till_minimum", "evidence": "fake"}]
         return json.dumps({"register_changes": {"add": add, "update": [], "remove": []},
                            "actions": actions, "predictions": preds, "notes": "fake"})
+
+
+class ExploreFake(ToyFake):
+    """For exploration's plumbing: the same actions each day, one of them a real fix (an open report), so the coin's
+    withholding gives the learner something to separate."""
+
+    status = "open"
 
 
 def parse(reply: str) -> dict:
@@ -78,7 +91,8 @@ def turn(rec: Recorder, s: dict, t: int, args, settle_mode: str) -> None:
     prompt = world.proposer_prompt(s, t)
     ref = f"{s['run']} day {t}"
     try:
-        raw = rec.chat("proposer", prompt, ref=ref, schema=world.proposer_schema(s["arm"]), max_tokens=REPLY_TOKENS,
+        raw = rec.chat("proposer", prompt, ref=ref, schema=world.proposer_schema(s["arm"], s["cfg"].get("stage", 0)),
+                       max_tokens=REPLY_TOKENS,
                        temperature=args.temperature, seed=s["seed"] * 100 + t)
         reply = parse(raw)
         rec.event("reply_parsed", ref=ref, said_by="model", reply_tokens=rec.tokens(raw))
@@ -101,13 +115,22 @@ def turn(rec: Recorder, s: dict, t: int, args, settle_mode: str) -> None:
             rec.event("settled", run=s["run"], **monitor.settle(s, o, accept, by))
 
 
-def run(args) -> None:
+def run(args, explore: bool = False) -> list[dict]:
     out = Path(args.run)
     out.mkdir(parents=True, exist_ok=True)
-    model = ToyFake() if args.fake else Server(args.url, timeout=args.timeout, model=args.model)
+    if args.fake:
+        model = ExploreFake() if explore else ToyFake()
+    else:
+        model = Server(args.url, timeout=args.timeout, model=args.model)
     rec = Recorder(model, out / "log.jsonl", window=args.window)
     cfg = {"pressure": args.pressure, "order_delay": args.order_delay, "delivery_failure": args.delivery_failure,
-           "view": args.view}
+           "view": args.view, "stage": args.stage}
+    if explore:
+        cfg["explore_withhold"] = EXPLORE_WITHHOLD
+    elif args.stage >= 1:
+        if not args.control:
+            sys.exit("stage 1 needs --control: the control.json an exploration run wrote")
+        cfg["control"] = json.loads(Path(args.control).read_text())   # into the record, so a replay needs nothing else
     rec.event("start", model=model.name, cfg=cfg, arms=args.arms, runs=args.runs, days=args.days, seed=args.seed,
               temperature=args.temperature, settle=args.settle, argv=sys.argv[1:])
     rng = random.Random(args.seed)
@@ -126,6 +149,30 @@ def run(args) -> None:
     (out / "scores.json").write_text(json.dumps(scores, indent=1))
     print("\n" + score.summary(scores))
     print(f"\nThe record: {out / 'log.jsonl'}")
+    return states
+
+
+EXPLORE_WITHHOLD = 0.5
+
+
+def explore(args) -> None:
+    """Stage 1's exploration: the bare arm, each proposed action withheld at random, then the map learned from the
+    record alone (a replay of the log), written to control.json and into the log."""
+    args.arms, args.stage, args.settle, args.control = "bare", 1, "none", None
+    run(args, explore=True)
+    out = Path(args.run)
+    _, states, differ = replay(out / "log.jsonl")
+    if differ:
+        sys.exit(f"the replay differs from the record on {differ} observations; no map learned")
+    learned = control.learn(list(states.values()))
+    learned["source"] = str(out / "log.jsonl")
+    (out / "control.json").write_text(json.dumps(learned, indent=1))
+    Recorder(None, out / "log.jsonl").event("control_learned", said_by="code", control=learned)
+    print("\n" + control.describe(learned))
+    thin = [x for x, c in learned["anomalies"].items() if c["open_days"] < 15]
+    if thin:
+        print(f"\nFewer than 15 open days for {', '.join(thin)}: run more exploration before reading anything.")
+    print(f"\nThe map: {out / 'control.json'}")
 
 
 def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
@@ -237,19 +284,30 @@ def main(argv=None) -> None:
         sp.add_argument("--seed", type=int, default=30)
 
     r = sub.add_parser("run")
-    common(r)
-    src = r.add_mutually_exclusive_group(required=True)
-    src.add_argument("--url", help="llama-server, e.g. http://127.0.0.1:8080")
-    src.add_argument("--fake", action="store_true", help="canned replies: tests the plumbing, never the result")
-    r.add_argument("--run", required=True, help="run directory (one per model and condition)")
-    r.add_argument("--model", default=None, help="needed only if the server offers several models")
-    r.add_argument("--order-delay", type=int, default=0, help="days before a new order quantity takes effect")
-    r.add_argument("--delivery-failure", type=float, default=0.0, help="chance a delivery falls back to 10 units")
-    r.add_argument("--settle", choices=["auto", "ask", "none"], default="auto",
-                   help="monitor arm: who settles offers; auto = a stand-in that accepts every offer, labelled as such")
-    r.add_argument("--temperature", type=float, default=0.7)
-    r.add_argument("--window", type=int, default=8192)
-    r.add_argument("--timeout", type=float, default=900)
+    ex = sub.add_parser("explore")
+
+    def running(r, explore=False):
+        common(r)
+        src = r.add_mutually_exclusive_group(required=True)
+        src.add_argument("--url", help="llama-server, e.g. http://127.0.0.1:8080")
+        src.add_argument("--fake", action="store_true", help="canned replies: tests the plumbing, never the result")
+        r.add_argument("--run", required=True, help="run directory (one per model and condition)")
+        r.add_argument("--model", default=None, help="needed only if the server offers several models")
+        r.add_argument("--order-delay", type=int, default=0, help="days before a new order quantity takes effect")
+        r.add_argument("--delivery-failure", type=float, default=0.0, help="chance a delivery falls back to 10 units")
+        r.add_argument("--temperature", type=float, default=0.7)
+        r.add_argument("--window", type=int, default=8192)
+        r.add_argument("--timeout", type=float, default=900)
+        if not explore:
+            r.add_argument("--settle", choices=["auto", "ask", "none"], default="auto",
+                           help="monitor arm: who settles offers; auto = a stand-in that accepts every offer, "
+                                "labelled as such")
+            r.add_argument("--stage", type=int, choices=[0, 1], default=0)
+            r.add_argument("--control", help="stage 1: the control.json an exploration run wrote")
+
+    running(r)
+    running(ex, explore=True)
+    ex.set_defaults(runs=10)
     rs = sub.add_parser("rescore")
     rs.add_argument("--run", required=True)
     e = sub.add_parser("estimate")
@@ -257,7 +315,7 @@ def main(argv=None) -> None:
     e.add_argument("--pp-tps", type=float, default=200.0, help="prompt-processing speed, tokens a second")
     e.add_argument("--gen-tps", type=float, default=8.0, help="generation speed, tokens a second")
     args = p.parse_args(argv)
-    {"run": run, "estimate": estimate, "rescore": rescore}[args.cmd](args)
+    {"run": run, "explore": explore, "estimate": estimate, "rescore": rescore}[args.cmd](args)
 
 
 if __name__ == "__main__":

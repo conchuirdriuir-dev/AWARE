@@ -14,8 +14,8 @@ written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are re
 ## Status
 
 Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
-on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) is built and
-tested with a fake model; it awaits a real one.
+on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run on
+Qwen3 8B and 14B; stage 1, with DARA's kernel learning what acting does, is built and tested with a fake model.
 
 ## Running the toy world
 
@@ -29,6 +29,11 @@ python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b      # 
 python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure
 python -m toyworld.compare runs/toy-8b runs/toy-8b-p
 python -m toyworld.run rescore --run runs/toy-8b                              # rebuild state and scores from the record
+
+# stage 1: learn what acting does, then run with the learned map in place of the hand-given one
+python -m toyworld.run explore --url http://127.0.0.1:8080 --run runs/explore-8b              # 10 runs, bare arm, ~50 calls
+python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s1 --stage 1 --control runs/explore-8b/control.json
+python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s1-p --stage 1 --control runs/explore-8b/control.json --pressure
 ```
 
 `--fake` in place of `--url` runs it with canned replies, testing the plumbing, never the result. `--settle ask` puts
