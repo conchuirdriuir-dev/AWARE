@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Rung 1's reviewer and key** (owner): the model is never asked to report on itself; a second call, in
+  its own context, codes each turn offline in shadow mode (dialogue act, relation to an aim stack built from the
+  person's quoted turns); the person marks revisions live with `/r`, and drift in review. Learning is over relations,
+  not topic ids, scored leave-one-session-out (chat/SPEC.md).
 - 2026-10-30: **Freeform chat is the general test** (owner): the subject matter is opaque, reaching the meta level only
   as embeddings and opaque cluster ids; the conversation's structure (who said it, the quoted aim, the self-report,
   the person's next turn) is fixed. The material is fresh sessions with Qwen3 8B, kept as a record every later version
