@@ -19,9 +19,30 @@ answers it. A rung is done when its test passes, not when its code exists.
    [toyworld/](toyworld/), with stage 0's test written ([toyworld/SPEC.md](toyworld/SPEC.md)). The first 8B runs are in
    and read (SPEC.md, "Changes after the first runs"). Next: rerun 8B, plain and under pressure, under the changed
    measures; then all four arms on a 14B model, to tell the model's limits from the frame's.
+1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
+   Qwen3 14B bare beat Qwen3 8B with stage 0. Next is stage 1, with DARA's kernel core ported in (below), all on
+   Qwen3 8B (DECISIONS.md, 2026-10-30).
 2. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
-3. The run, on the owner's story, at two sizes (Qwen3 8B and Gemma 12B).
+3. The run, on the owner's story, on Qwen3 8B.
+
+## Porting DARA, stage by stage
+
+DARA's kernel (`src/dara/kernel/`, about 3,950 lines, numpy and the standard library) imports nothing else from DARA, so
+it moves in by piece, each when a stage needs it, with a note of where it came from. Its rules (no language model
+holding beliefs, depth limits, declared steps) do not come with it. At the meta level its subject is the 8B model's
+work: what it was asked, what it did, and what came of it.
+
+| Stage | What it needs | From DARA | Lines |
+|---|---|---|---|
+| 1. Controllability from interventions | rules of the form "this action, then this anomaly falls", admitted on MDL gain over the intervention log | the kernel core: `structure`, `pattern`, `code`, `counts`, `cells`, `naming`, `learn` (the 2-bit margin, admission, retirement, save and load) | about 2,350 |
+| 2. Failure kinds from residue | kinds formed from what the held rules leave unexplained, admitted on MDL gain | `latent` (latent classes seeded from residuals, kinds of kinds) | about 700 |
+| 3. The register and negation | the frame the model's reasoning rests on, held as priced alternatives; the model proposes the negation, the law admits it | `frames` (priced frames, admitted and retired by the margin) | about 580 |
+| 4. A catalog that compounds | kinds carried across episodes, against a no-lesson baseline | `learn`'s save and load, `latent`'s carried kinds; the baseline arm is new | small |
+| Later: offers worth asking | when a question is worth the owner's attention, from the owner's own record | `read/ought.py` (flag or silence, priced) and what it imports | to map |
+
+Not ported: DARA's reader (`read/`: the ERG, binding, talk). The model reads; the ERG returns only if stage 5's
+grounded language needs it. The embedding model proposes groupings for stage 2's kinds; it never admits one.
 
 ## Rung 3's test, sketched
 
