@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: *The Told Hives* is the rung-2 novella (owner). The chapter the DARA pilot used is a model-generated dry
+  run; the final text is the owner's. The negation test runs on the dry run first and again on the owner's chapter 1.
+
 - 2026-10-30: **Stage 2's design** (owner, from the design note): kinds as rules over residue rows (tier 1) and latent
   classes over kinds of action (tier 2, expected silent in this world), each against a shuffled control; residue rows
   in the record's terms, never an action's numbers. The fixed anomaly ids stay for this stage. Tier 2 was built with
