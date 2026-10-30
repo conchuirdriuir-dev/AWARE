@@ -28,6 +28,7 @@ python -m toyworld.run estimate --gen-tps 8                                    #
 python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b      # four arms, 3 runs, 5 days
 python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure
 python -m toyworld.compare runs/toy-8b runs/toy-8b-p
+python -m toyworld.run rescore --run runs/toy-8b                              # rebuild state and scores from the record
 ```
 
 `--fake` in place of `--url` runs it with canned replies, testing the plumbing, never the result. `--settle ask` puts

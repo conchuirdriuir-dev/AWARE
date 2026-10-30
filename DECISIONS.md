@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: Head office in the toy world fixes the bank the next day on an open report naming the cause, two days
+  later on one naming only the problem, and never on a report calling it resolved; escalation and diagnosis are scored
+  apart (owner, option C).
+- 2026-10-29: After the first stage-0 runs (Qwen3 8B): hidden days and false reports are measured, actions need a goal
+  in the goals and monitor arms, and the reply template describes fields instead of giving values; then 8B is rerun
+  and a 14B model runs all four arms.
+
 - 2026-10-29: **What AWARE is.** AWARE is a metacognitive layer around a language model. The model does the
   object-level cognition (reasoning, answering, proposing); AWARE's code is the meta level, whose subject is that
   cognition: it keeps the record of what the model did, finds where it fails, controls what it sees, and learns,
