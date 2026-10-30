@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: After the negation test's second dry run (passage 2's reply, indented despite the prompt, was cut off
+  at 1,500 tokens and lost whole, its negated facts with it): a keeper reply cut off at the limit is asked once more
+  at temperature 0 with 3,000 tokens, both replies recorded (owner).
 - 2026-10-30: **Rung 1's reviewer and key** (owner): the model is never asked to report on itself; a second call, in
   its own context, codes each turn offline in shadow mode (dialogue act, relation to an aim stack built from the
   person's quoted turns); the person marks revisions live with `/r`, and drift in review. Learning is over relations,
