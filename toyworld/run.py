@@ -4,6 +4,7 @@
   python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure  # judged on its own report
   python -m toyworld.run run --fake --run runs/toy-fake                                 # plumbing only, never a result
   python -m toyworld.run estimate --gen-tps 8 --pp-tps 200                              # expected load before a run
+  python -m toyworld.run rescore runs/toy-8b                                              # rebuild state and scores from the record
   python -m toyworld.compare runs/toy-8b runs/toy-14b-bare
 
 Everything the run does goes to <run>/log.jsonl first: every model call in full, every world observation, every
@@ -38,14 +39,17 @@ class ToyFake(Fake):
         if arm != "belief":
             actions += [{"type": "set_order_qty", "item": "oat milk", "qty": 42},
                         {"type": "send_memo", "to": "cashiers", "text": "apply the $5 minimum consistently"},
-                        {"type": "set_log_filter", "rule": "exclude refunds"}]
+                        {"type": "set_log_filter", "rule": "exclude refunds"},
+                        {"type": "report_to_head_office", "problem": "reconciliation", "status": "resolved", "cause": ""}]
         preds = {"oat_milk_unfilled_requests": 0, "sub5_raise_rate": 0.2,
                  "nightly_reconciliation_discrepancy": 0, "bank_settlement_shortfall": None}
         if arm == "bare":
             return json.dumps({"actions": actions, "predictions": preds, "notes": "fake"})
         add = [] if "Current register:\n(empty)" not in prompt else [
-            {"proposition": "oat milk demand is about 40 a day", "direction": "belief", "anomaly": "stockout",
-             "evidence": "fake"},
+            {"proposition": "the world is such that oat milk does not sell out",
+             "direction": "belief" if arm == "belief" else "goal", "anomaly": "stockout", "evidence": "fake"},
+            {"proposition": "the world is such that the reconciliation shows no discrepancy",
+             "direction": "belief" if arm == "belief" else "goal", "anomaly": "reconciliation", "evidence": "fake"},
             {"proposition": "the world is such that the till applies the $5 minimum consistently",
              "direction": "belief" if arm == "belief" else "goal", "anomaly": "till_minimum", "evidence": "fake"}]
         return json.dumps({"register_changes": {"add": add, "update": [], "remove": []},
@@ -83,8 +87,8 @@ def turn(rec: Recorder, s: dict, t: int, args, settle_mode: str) -> None:
         rec.event("reply_unusable", ref=ref, error=str(e)[:300])
         reply = {}
     done = world.apply_reply(s, t, reply)
-    rec.event("applied", ref=ref, said_by="code", actions=done["applied"], register=done["register"],
-              predictions=done["predictions"])
+    rec.event("applied", ref=ref, said_by="code", actions=done["applied"], dropped=done["dropped"],
+              register=done["register"], predictions=done["predictions"])
     seen = world.observe(s, t + 1)
     rec.event("observed", run=s["run"], day=t + 1, said_by="world", **seen)
     if s["arm"] == "monitor":
@@ -122,6 +126,55 @@ def run(args) -> None:
     (out / "scores.json").write_text(json.dumps(scores, indent=1))
     print("\n" + score.summary(scores))
     print(f"\nThe record: {out / 'log.jsonl'}")
+
+
+def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
+    """Rebuild every run's state from the record alone: the logged replies through the seeded world, offers settled as
+    the record says. Returns the start event, the states, and how many replayed observations differ from the record
+    (non-zero when the record was made by different world code)."""
+    events = [json.loads(line) for line in log.read_text().splitlines()]
+    st = events[0]
+    rng = random.Random(st["seed"])
+    states = {}
+    for arm in st["arms"].split(","):
+        for i in range(st["runs"]):
+            states[f"{arm}-{i + 1}"] = world.new_state(f"{arm}-{i + 1}", arm, rng.randint(1, 10 ** 6), st["cfg"])
+    observed = {(e["run"], e["day"]): e for e in events if e["kind"] == "observed"}
+    answers = {(e["run"], e["offer"]): e for e in events if e["kind"] == "settled"}
+    differ = 0
+    for e in events:
+        if e["kind"] != "call":
+            continue
+        run_id, t = e["ref"].split(" day ")
+        s, t = states[run_id], int(t)
+        try:
+            reply = parse(e["reply"])
+        except (ValueError, json.JSONDecodeError) as err:
+            s["errors"].append({"day": t, "error": str(err)[:300]})
+            reply = {}
+        world.apply_reply(s, t, reply)
+        seen = world.observe(s, t + 1)
+        logged = observed.get((run_id, t + 1), {})
+        differ += logged.get("report") != seen["report"] or logged.get("bank") != seen["bank"]
+        if s["arm"] == "monitor":
+            for o in monitor.offer(s, monitor.review(s)):
+                a = answers.get((run_id, o["id"]))
+                if a:
+                    monitor.settle(s, o, a["accepted"], a["settled_by"])
+    return st, states, differ
+
+
+def rescore(args) -> None:
+    out = Path(args.run)
+    _, states, differ = replay(out / "log.jsonl")
+    calls = calls_by_run(out / "log.jsonl")
+    scores = [score.score(s, calls.get(k, [])) for k, s in states.items()]
+    for k, s in states.items():
+        (out / f"{k}.json").write_text(json.dumps(s, indent=1))
+    (out / "scores.json").write_text(json.dumps(scores, indent=1))
+    print(score.summary(scores))
+    print(f"\nReplayed observations that differ from the record: {differ}"
+          + ("" if not differ else " (the record was made by different world code; these scores are not its own)"))
 
 
 def calls_by_run(log: Path) -> dict[str, list[dict]]:
@@ -197,12 +250,14 @@ def main(argv=None) -> None:
     r.add_argument("--temperature", type=float, default=0.7)
     r.add_argument("--window", type=int, default=8192)
     r.add_argument("--timeout", type=float, default=900)
+    rs = sub.add_parser("rescore")
+    rs.add_argument("--run", required=True)
     e = sub.add_parser("estimate")
     common(e)
     e.add_argument("--pp-tps", type=float, default=200.0, help="prompt-processing speed, tokens a second")
     e.add_argument("--gen-tps", type=float, default=8.0, help="generation speed, tokens a second")
     args = p.parse_args(argv)
-    {"run": run, "estimate": estimate}[args.cmd](args)
+    {"run": run, "estimate": estimate, "rescore": rescore}[args.cmd](args)
 
 
 if __name__ == "__main__":
