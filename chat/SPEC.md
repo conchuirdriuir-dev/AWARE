@@ -66,7 +66,7 @@ without something new.
    is untouched, so every session is clean material, and any later version of the meta level can be replayed over it.
 2. **Live (after shadow passes).** Offers appear in the chat. A settled answer can add a note to the model's context,
    quoted from the record, as in the toy world. Live sessions change the conversation, so their offers are judged
-   live, and replay over them is only approximate.
+   live, and replay over them is only approximate. Its test is below ("The live test: three arms").
 
 ## The record that improves over time
 
@@ -117,7 +117,55 @@ embedding time per turn) apart from the offline replay's cost.
 - No better than baseline: embeddings alone cannot separate the two here, and polarity or the entailment model is
   needed.
 
-## What carries over, and what stays behind
+## The live test: three arms
+
+Shadow says whether the meta level can see drift. This says whether it helps: does Qwen3 8B with AWARE drift less over
+sessions than the same model with plain memory, or with nothing (owner, 2026-10-30)? It runs after shadow passes.
+
+| Arm | What the model's context holds beyond the session itself |
+|---|---|
+| **Fresh** | nothing. A shadow session: the meta level records its offers and shows nothing. The control |
+| **Memory** | excerpts of this arm's earlier sessions, retrieved by the embedding model against the current turn and quoted verbatim. No residue, no offers: plain retrieval |
+| **AWARE** | the general loop: excerpts chosen by residue and learned kinds, quoted verbatim, and offers to the person in the chat, settled notes added to the context |
+
+Every arm uses the same model, settings, prompt, self-report schema and context budget; Memory and AWARE have the same
+number of tokens for what they add. Each arm's memory holds only its own sessions.
+
+**Twenty tasks, each once per arm.** The person writes a pool of 20 tasks: openings for a session, varied in subject
+and kind, kept outside the repository. Each task is run once in each arm, 60 sessions in all, in an order drawn at
+random and recorded before the first session, so a task's difficulty and the person's growing skill fall on every arm
+alike. A session opens with its task and runs as the person likes, revising freely, to 15 turns or more. The tasks used
+to build or tune the meta level (the shadow sessions) are never in the pool.
+
+**The key is shadow's,** made the same way: after each session the person reads it back and marks drift and revision.
+For this test the read-back is blind: offers, settled notes and the arm are stripped, so the person marks the
+transcript alone, and judges the offers separately afterwards. Each drift mark carries a few words of what went wrong.
+After the 60th session, still blind to the arms, the person sorts those words into kinds. The kinds are the key's,
+read only by the scorer; they are never the kinds AWARE learned.
+
+**Measures,** from the marks, by arm and by session order (first 10 against last 10 of each arm):
+
+| Measure | What it is |
+|---|---|
+| drift rate | marked drifts per 10 model turns |
+| repeated drift, same kind | a drift of a kind the person already marked in an earlier session of the same arm, on a different task |
+| worth asking | live offers judged worth asking, of all offers (AWARE only) |
+| caught | marked drifts with an offer within 2 turns (AWARE only) |
+| cost | model and embedding time per turn, and tokens added to the context |
+
+**Pass criteria** (proposed; the person fixes them before the first scored session):
+
+| Outcome | Reading |
+|---|---|
+| Fresh's drift rate does not fall from its first 10 sessions to its last 10 | the control holds: what improves elsewhere is not the person's skill |
+| In the last 10, Memory's repeated drift is no higher than Fresh's, and AWARE's is at most half of Memory's | the meta level helps beyond remembering: it carries kinds of failure to new tasks |
+| In the last 10, AWARE's drift rate is below Memory's and Fresh's | the help shows in the conversation, not only in repeats |
+| Worth asking at least 2 in 3 live, as in shadow | live offers do not cost the person more than they give |
+| AWARE no better than Memory | what helped is memory, not metacognition: back to the residue and kinds |
+| Fresh's drift rate falls as much as the others' | the person's skill is the effect; read the arms' gap, not their slopes |
+
+With 20 sessions an arm only large gaps show; a borderline result is read as none, and repeated before it is read.
+
 
 **Carried from the toy world and DARA:** the record, offers and settlement, the kernel and `latent.py`, the shuffled
 controls, and replay from the record.
@@ -130,3 +178,4 @@ back half's regression test, not where progress is made.
 1. **Polarity:** the self-report (one call), or a small entailment model beside the embedder.
 2. **The judgement tool:** marking in a terminal after each session, or a small page.
 3. **The bucket thresholds:** set from the first 5 sessions and then frozen, or learned from the start.
+4. **The live test's pass criteria,** above, fixed before its first scored session; and the 20 tasks and their order.
