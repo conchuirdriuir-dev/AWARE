@@ -20,8 +20,9 @@ answers it. A rung is done when its test passes, not when its code exists.
    and read (SPEC.md, "Changes after the first runs"). Next: rerun 8B, plain and under pressure, under the changed
    measures; then all four arms on a 14B model, to tell the model's limits from the frame's.
 1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
-   Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 is built (toyworld/SPEC.md, "Stage 1"), with DARA's kernel
-   core ported in (below): next, its exploration and runs on Qwen3 8B (DECISIONS.md, 2026-10-30).
+   Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 passed on Qwen3 8B ([toyworld/RESULTS.md](toyworld/RESULTS.md)).
+   Next is stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"): its test is written, and its
+   design note (what the latent classes range over) comes before any code.
 2. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
 3. The run, on the owner's story, on Qwen3 8B.

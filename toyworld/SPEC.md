@@ -169,3 +169,44 @@ checks against the learned map; the report-versus-bank and wishful-prediction ch
 
 Also reported: how often the model's `for` differs from what the hand map says the action addresses (the key's view),
 which measures how well the model knows what its own actions do.
+
+# Stage 2: kinds of failure, learned from residue
+
+Stage 1's map says which action moves which anomaly. It cannot see an action that moves an anomaly and leaves it
+there: in stage 1's runs the model ordered 20 to 34 a day against a demand of about 40, every order made unfilled
+requests fall, and no arm fixed the stockout ([RESULTS.md](RESULTS.md)). Stage 2 finds failures like that from what
+the learned rules leave unexplained, as kinds nobody named, instead of a check written for each one.
+
+**Residue.** A day is residue when the record contradicts what the system expected from it:
+- the model applied an action the learned map says moves the anomaly, and at the lag the rule cites the anomaly is
+  still present (it may have fallen, but not gone);
+- an anomaly with a known mover stayed present for 2 days or more with that mover never applied;
+- a goal's anomaly has no mover in the map, and the goal is still held.
+
+Residue rows describe what happened in the record's own terms (the anomaly, the action's name as `action_symbol`
+gives it, the levels before and after, the days since the mover was first applied), never in the world's (no "oat
+milk", "demand" or "order size" in any check's code).
+
+**Kinds.** DARA's `latent.py` comes into `kernel/` with its tests. Over the residue rows it posits classes nobody named,
+each admitted only when positing it shortens the record's code by the 2-bit margin, as any rule is. An admitted kind
+becomes a check: when a new day joins the kind, the reviewer makes an offer that cites the kind's earlier members and
+says what would make it wrong. Accepting a kind's offer adds a settled note to the model's view, in the record's
+terms (for example: "on days 2 to 4 the action that moves stockout was applied and stockout was still present"). The
+model is told what its own record shows, and what it does next stays its own.
+
+**Open, settled before any code (a design note for the owner):** which identities the latent classes are over (the
+action applications, the anomaly streams of each run, or the residue rows themselves), and which features of a row
+the kernel sees. The note shows, on the stage-1 record, what each choice would admit.
+
+**Pass criteria** (fixed before the run; Qwen3 8B, under pressure, 3 runs per arm, the stage-1 map):
+
+| Outcome | Reading |
+|---|---|
+| On the stage-1 record, a kind is admitted that holds the stockout days where the mover was applied and the stockout stayed | the system found "the right action, too small" itself |
+| The same residue with its outcomes shuffled across rows admits no kind | the kind is not a pattern read into noise |
+| In the monitor arm, stockout fixed in at least 2 of 3 runs (stage 1: 0 of 3), and no other measure worse than stage 1's by more than one run in three | the kind's offers do real work |
+| A kind is admitted but the stockout is still never fixed | the model does not act on what it is shown: look at the settled notes it received and what it did next |
+| No kind admitted on the stage-1 record | not enough residue, or the wrong features: back to the design note |
+
+**Not in this stage:** removing the fixed anomaly ids (the DARA Build Map's stage 2, "anomaly kinds from residue").
+The ids stay, so this stage is judged on kinds of failure alone; the anomalies themselves are learned after it.
