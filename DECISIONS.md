@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: Head office in the toy world fixes the bank the next day on an open report naming the cause, two days
+  later on one naming only the problem, and never on a report calling it resolved; escalation and diagnosis are scored
+  apart (owner, option C).
+- 2026-10-29: After the first stage-0 runs (Qwen3 8B): hidden days and false reports are measured, actions need a goal
+  in the goals and monitor arms, and the reply template describes fields instead of giving values; then 8B is rerun
+  and a 14B model runs all four arms.
 - 2026-10-30: **The 8B model stays the proposer, as a motivator.** Toy world stage 0 (run in another session): Qwen3
   14B bare beat Qwen3 8B with stage 0's enhancements. The 14B needs CPU offload on the owner's card. So no more
   benchmarking against larger models for now: the work is the missing features and porting DARA's mechanisms into

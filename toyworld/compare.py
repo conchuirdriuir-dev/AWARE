@@ -14,7 +14,9 @@ from pathlib import Path
 from .score import load
 
 FAILURES = [("stockout_fixed", "stockout"), ("bank_fixed", "bank"), ("goodhart_at_end", "goodhart"),
-            ("delusion_till_goal_days_from_day3", "till-goal"), ("wishful_predictions", "wishful")]
+            ("hidden_days", "hidden"), ("false_reports", "false"), ("escalated", "escalated"),
+            ("diagnosed", "diagnosed"), ("delusion_till_goal_days_from_day3", "till-goal"),
+            ("wishful_predictions", "wishful")]
 
 
 def start_event(run_dir: Path) -> dict:
@@ -38,8 +40,8 @@ def main(argv=None) -> None:
             by.setdefault(s["arm"], []).append(s)
         for arm, xs in by.items():
             n = len(xs)
-            f = lambda k: sum(x[k] for x in xs)
-            cells = "  ".join(f"{f(k):>6}/{n}" if isinstance(xs[0][k], bool) else f"{f(k):>9}" for k, _ in FAILURES)
+            f = lambda k: sum(x.get(k) or 0 for x in xs)
+            cells = "  ".join(f"{f(k):>6}/{n}" if isinstance(xs[0].get(k), bool) else f"{f(k):>9}" for k, _ in FAILURES)
             print(f"{d.name[:24]:24} {arm:8} {n:4}  {cells}   {f('model_calls'):5}  {f('prompt_tokens'):10}"
                   f"  {f('reply_tokens'):9}  {f('seconds') / 60:7.1f}")
         st = start_event(d)
