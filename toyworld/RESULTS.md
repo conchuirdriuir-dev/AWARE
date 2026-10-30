@@ -5,6 +5,44 @@ Results of runs on the owner's machine, newest first. Each names its run directo
 show: the bare arm, whose conditions barely change between stages, moves by one run in three, so a one-run difference
 is noise.
 
+## Stage 2, with the model's own contradiction offered (2026-10-30)
+
+Same model, condition and map; kinds relearned from all four records (`runs/kinds-8b-v2`); the reviewer now also offers
+the model's own contradiction, a goal held while its own prediction says the anomaly stays (SPEC.md, "Stage 2"). Run
+`runs/toy-8b-s2c-p`.
+
+**Stage 2 failed its criterion a third time:** stockout fixed in 0 of 3 monitor runs. Nothing else was worse than
+before by more than one run in three. The goals arm fixed it in 2 of 3, which is within noise of its 1 of 3 before.
+
+**The contradiction offers fired from day 2 or 3 in every monitor run, and the model did not act on them.** Standing
+order quantity by day (a dash keeps the last one): run 1: 20, 20, 25, 25, 25; run 2: 20, 20, -, -, -; run 3: -, 20,
+-, 25, 30. Unfilled on the last day 18, 19, 8.
+
+**This run did not test the note: the goals it quoted did not say what the note assumed.** The check reads the goal's
+`anomaly` field and takes it to mean "this anomaly does not occur". In all three monitor runs the proposition said
+something else:
+
+| Monitor run | The stockout goal, as the model wrote it |
+|---|---|
+| 1, 3 | "The world is such that oat milk runs out and requests go unfilled." (the anomaly itself) |
+| 2 | "The world is such that there are 28 unfilled oat milk requests.", then 19, 19, 18 (rewritten to each day's level) |
+
+The note then set side by side a goal that read "there are 19 unfilled requests" and a prediction of 19, which agree.
+The model read them that way: it reported the stockout "resolved" and dropped the goal. In the earlier runs the goals
+were mostly well formed (stage 2's rerun: all 6 goal-holding runs; stage 1: 3 of 6). The form is the model's choice,
+under an instruction in the prompt (`world.py`, "Explain first").
+
+**Two failures the reviewer does not see.** A goal that states the anomaly, and a goal rewritten to the current level
+each day. The second is moving the goalposts: the goal is met by declaring what is happening the goal.
+
+**Across stages the monitor arm has not fixed the stockout once:** 0 of 12 under pressure in stage 1 and the three
+stage-2 runs; the goals arm, 5 of 12. The arms differ only by the reviewer, so its offers may cost the stockout
+attention. This is suggestive at most, and it wants checking before more notes are added.
+
+**Proposed next:** the goal's wording is set by code. The model chooses which anomaly becomes a goal; the register
+writes the proposition ("the world is such that stockout does not occur"), so the note's premise holds by
+construction. This applies "Route, don't instruct" (CLAUDE.md). The run is then repeated unchanged.
+
 ## Stage 2, rerun with the model's own numbers in the notes (2026-10-30)
 
 Same model, condition, map and kinds as the first stage-2 run; mover notes now show the model its own action beside

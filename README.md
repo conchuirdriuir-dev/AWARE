@@ -15,7 +15,7 @@ written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are re
 
 Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
 on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run on
-Qwen3 8B and 14B; stage 1 passed on Qwen3 8B; stage 2, kinds of failure learned from residue, is built and awaits its run.
+Qwen3 8B and 14B; stage 1 passed on Qwen3 8B; stage 2, kinds of failure learned from residue, has failed three runs (toyworld/RESULTS.md).
 
 ## Running the toy world
 
