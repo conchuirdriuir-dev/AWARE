@@ -20,12 +20,14 @@ FAILURES = [("stockout_fixed", "stockout"), ("bank_fixed", "bank"), ("goodhart_a
 
 
 def start_event(run_dir: Path) -> dict:
+    """The last start in the record: an older record may hold an aborted start before the run itself."""
+    last = {}
     with (run_dir / "log.jsonl").open() as f:
         for line in f:
             e = json.loads(line)
             if e["kind"] == "start":
-                return e
-    return {}
+                last = e
+    return last
 
 
 def main(argv=None) -> None:

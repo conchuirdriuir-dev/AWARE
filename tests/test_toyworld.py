@@ -147,3 +147,11 @@ def test_rescore_rebuilds_the_scores_from_the_record_alone(tmp_path):
     _, _, differ = replay(out / "log.jsonl")
     main(["rescore", "--run", str(out)])
     assert differ == 0 and json.loads((out / "scores.json").read_text()) == before
+
+
+def test_a_run_directory_holds_one_record(tmp_path):
+    import pytest
+    out = tmp_path / "run"
+    main(["run", "--fake", "--run", str(out), "--runs", "1", "--days", "2"])
+    with pytest.raises(SystemExit):
+        main(["run", "--fake", "--run", str(out), "--runs", "1", "--days", "2"])

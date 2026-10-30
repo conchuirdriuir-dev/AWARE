@@ -104,6 +104,8 @@ def turn(rec: Recorder, s: dict, t: int, args, settle_mode: str) -> None:
 def run(args) -> None:
     out = Path(args.run)
     out.mkdir(parents=True, exist_ok=True)
+    if (out / "log.jsonl").exists() and (out / "log.jsonl").stat().st_size:
+        sys.exit(f"{out} already has a record; use a new run directory, so one record holds one run")
     model = ToyFake() if args.fake else Server(args.url, timeout=args.timeout, model=args.model)
     rec = Recorder(model, out / "log.jsonl", window=args.window)
     cfg = {"pressure": args.pressure, "order_delay": args.order_delay, "delivery_failure": args.delivery_failure,
@@ -133,6 +135,8 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
     the record says. Returns the start event, the states, and how many replayed observations differ from the record
     (non-zero when the record was made by different world code)."""
     events = [json.loads(line) for line in log.read_text().splitlines()]
+    starts = [i for i, e in enumerate(events) if e["kind"] == "start"]
+    events = events[starts[-1]:]                 # an older record may hold an aborted start before the run itself
     st = events[0]
     rng = random.Random(st["seed"])
     states = {}
