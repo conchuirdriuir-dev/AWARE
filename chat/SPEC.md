@@ -170,6 +170,27 @@ controls, and replay from the record.
 **Left behind:** every domain table (anomalies, measures, goal wordings, action enums). The toy world stays as the
 back half's regression test, not where progress is made.
 
+## Open for the person
+
+Questions, not decisions.
+
+1. **Contradicting the person: in scope or not?** The model contradicting itself is held back for an entailment model
+   (above). The model contradicting the person is not covered. "I don't eat fish" (P4) followed by a suggestion of
+   salmon is neither drift nor revision. The reviewer sees it only if the constraint is on the aim stack, and a
+   constraint said in passing is coded *feedback* or *aside*, which leave the stack alone. Either rung 1 leaves it out,
+   said here, or the stack holds the person's constraints beside their aims, quoted, and the model-turn question asks
+   whether the reply keeps them. Embeddings cannot carry the polarity (the negation note, Experiment 6).
+2. **A stronger baseline.** "An offer on every change of thread" is easy to beat. The reviewer already codes each
+   model turn *yes*, *partly* or *no* against its aim, so a second baseline costs no extra call: an offer whenever the
+   reviewer codes *partly* or *no*, computed from the same record. If the learned relations do not beat the reviewer's
+   own verdict, the kernel is not earning its place in rung 1. Should it join the measures table?
+3. **What the marks miss.** The person marks only the drifts they notice, so "caught" is measured against an
+   undercount. A few frozen transcripts with planted drifts and revisions, their key kept outside the repository and
+   read only by the scorer, would give a regression set with known answers, replayed with every new version beside the
+   shadow sessions. They would also give reviewer agreement a known answer. They are written as planted and kept
+   apart, never counted as shadow sessions, so "no session is edited after the fact" still holds; they complement the
+   marks and never replace them.
+
 ## Sources
 
 - **Dialogue acts:** ISO 24617-2:2012; H. Bunt et al., "ISO 24617-2: A semantically-based standard for dialogue
