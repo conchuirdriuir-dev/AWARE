@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-29: After stage 0: no larger model is the benchmark (swapping models or hardware is easy); work starts from
+  capabilities the record shows missing, testing whether AWARE's parts supply them. The first is the hidden invariant
+  (demand = sold + unfilled), found by DARA's law over the reports (toyworld/INVARIANT.md).
+
 - 2026-10-29: Head office in the toy world fixes the bank the next day on an open report naming the cause, two days
   later on one naming only the problem, and never on a report calling it resolved; escalation and diagnosis are scored
   apart (owner, option C).

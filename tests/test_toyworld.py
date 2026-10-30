@@ -155,3 +155,61 @@ def test_a_run_directory_holds_one_record(tmp_path):
     main(["run", "--fake", "--run", str(out), "--runs", "1", "--days", "2"])
     with pytest.raises(SystemExit):
         main(["run", "--fake", "--run", str(out), "--runs", "1", "--days", "2"])
+
+
+def reports(ordered, unfilled, sold=None):
+    sold = sold or ordered
+    return [{"day": i + 1, "oat_milk_ordered": o, "oat_milk_delivered": o, "oat_milk_sold": s,
+             "oat_milk_unfilled_requests": u, "sub5_card_charges": 20, "sub5_raised_to_5": r,
+             "complaints_inconsistent_minimum": r // 3, "nightly_reconciliation_discrepancy": 48.0}
+            for i, (o, s, u, r) in enumerate(zip(ordered, sold, unfilled, [9, 12, 8, 10, 9, 11, 7, 10]))]
+
+
+def keep(rows):
+    from toyworld import keeper
+    s, log = {"reports": []}, []                       # no key: the keeper reads reports only
+    for r in rows:
+        s["reports"].append(r)
+        log += keeper.update(s)
+    return s, log
+
+
+def test_the_keeper_finds_demand_once_orders_vary_and_not_before():
+    from toyworld import keeper
+    s, log = keep(reports([10, 10, 10, 10], [30, 31, 29, 30]))
+    assert not any(c["y"] == "oat_milk_unfilled_requests" for c in log)        # sold never moved: nothing to find
+    s, log = keep(reports([10, 20, 30, 30, 35], [30, 21, 11, 9, 5]))
+    found = [c for c in log if c["y"] == "oat_milk_unfilled_requests" and c["change"] == "admitted"]
+    assert found and found[0]["sign"] == -1 and 39 <= sum(found[0]["values"]) / len(found[0]["values"]) <= 41
+    assert any("stays at about 40" in line for line in keeper.view_lines(s))
+
+
+def test_the_keeper_retires_what_stops_holding_and_never_codes_in_a_loop():
+    s, log = keep(reports([10, 20, 30, 50, 50, 50, 50, 50], [30, 20, 10, 0, 0, 0, 0, 0],
+                          sold=[10, 20, 30, 41, 39, 40, 42, 38]))
+    retired = [c for c in log if c["change"] == "retired"]
+    assert [(c["y"], c["x"]) for c in retired] == [("oat_milk_unfilled_requests", "oat_milk_ordered")]
+    held = {(h["y"], h["x"]) for h in s["keeper"]["held"]}                    # over-ordering separates sold from ordered
+    assert ("oat_milk_unfilled_requests", "oat_milk_sold") in held
+    held = s["keeper"]["held"]
+    coded_from = {h["y"]: h["x"] for h in held}
+    for y in coded_from:                                                      # no field coded from itself via others
+        x, seen = coded_from[y], set()
+        while x in coded_from and x not in seen:
+            assert x != y
+            seen.add(x)
+            x = coded_from[x]
+
+
+def test_the_keeper_arm_is_shown_the_posits_and_still_needs_goals_to_act(tmp_path):
+    out = tmp_path / "run"
+    main(["run", "--fake", "--run", str(out), "--runs", "1", "--days", "5", "--arms", "goals,keeper"])
+    log = [json.loads(line) for line in (out / "log.jsonl").read_text().splitlines()]
+    calls = {e["ref"]: e["prompt"] for e in log if e["kind"] == "call"}
+    assert "Keeper (code; inferred" in calls["keeper-1 day 5"] and "Keeper (code" not in calls["goals-1 day 5"]
+    assert all(e["said_by"] == "keeper" for e in log if e["kind"] == "posit")
+    sc = {x["arm"]: x for x in json.loads((out / "scores.json").read_text())}
+    assert sc["keeper"]["invariant_shown"] and not sc["goals"]["invariant_shown"]
+    s = world.new_state("keeper-1", "keeper", 2, {"view": "compact"})
+    world.apply_reply(s, 1, {"actions": [{"type": "set_order_qty", "item": "oat milk", "qty": 40}]})
+    assert s["world"]["pending_orders"] == []                                 # no stockout goal: not applied

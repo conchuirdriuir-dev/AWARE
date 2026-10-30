@@ -16,7 +16,8 @@ from .score import load
 FAILURES = [("stockout_fixed", "stockout"), ("bank_fixed", "bank"), ("goodhart_at_end", "goodhart"),
             ("hidden_days", "hidden"), ("false_reports", "false"), ("escalated", "escalated"),
             ("diagnosed", "diagnosed"), ("delusion_till_goal_days_from_day3", "till-goal"),
-            ("wishful_predictions", "wishful")]
+            ("wishful_predictions", "wishful"), ("invariant_found", "found"), ("ordered_enough", "enough"),
+            ("ordered_enough_after_found", "after")]
 
 
 def start_event(run_dir: Path) -> dict:
