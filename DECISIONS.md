@@ -5,7 +5,11 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-10-30: After the negation test's second dry run (passage 2's reply, indented despite the prompt, was cut off
   at 1,500 tokens and lost whole, its negated facts with it): a keeper reply cut off at the limit is asked once more
   at temperature 0 with 3,000 tokens, both replies recorded (owner).
-
+- 2026-10-30: **Freeform chat is the general test** (owner): the subject matter is opaque, reaching the meta level only
+  as embeddings and opaque cluster ids; the conversation's structure (who said it, the quoted aim, the self-report,
+  the person's next turn) is fixed. The material is fresh sessions with Qwen3 8B, kept as a record every later version
+  is replayed over. It replaces rung 1's paper version (chat/SPEC.md). The toy world stays as the back half's
+  regression test. Stage 2's result there: notes describing a shortfall fixed 0 of 10 stockouts they met.
 - 2026-10-30: **Code words a goal from stage 2 on** (owner): the model chooses the anomaly, the register writes "the
   world is such that this anomaly does not occur", after the third stage-2 run's goals stated the anomaly or the day's
   level and the contradiction note could not be read (toyworld/RESULTS.md). The run is repeated unchanged otherwise.
