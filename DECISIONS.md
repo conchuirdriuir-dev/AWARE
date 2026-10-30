@@ -2,6 +2,14 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **The 8B model stays the proposer, as a motivator.** Toy world stage 0 (run in another session): Qwen3
+  14B bare beat Qwen3 8B with stage 0's enhancements. The 14B needs CPU offload on the owner's card. So no more
+  benchmarking against larger models for now: the work is the missing features and porting DARA's mechanisms into
+  AWARE, built to make an 8B model hold up. Swapping the proposer later is cheap. Each stage is still scored against
+  the stage before it on the 8B, so a component is kept only if it does work.
+- 2026-10-30: **A small embedding model beside the proposer,** for higher-order abstraction (the other session's
+  finding): it proposes similarity, MDL admits what holds (two layers of state). Its size is set by what fits beside
+  the 8B on the owner's card.
 - 2026-10-29: Toy world stage 0 (PR #1): `--settle auto` is the default. A stand-in accepts every offer, labelled
   "auto stand-in for the owner" in the record, so runs can go unattended; its results show what the checks can do, not
   that following them was right. `--settle ask` puts offers to the owner.
