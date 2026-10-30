@@ -111,6 +111,8 @@ showed what the measures missed. The owner decided these changes before any reru
 
 Records made before these changes do not replay under the new world: `rescore` says so.
 
+The records of every stage-0 run, and what they taught, are in [results/stage0/](results/stage0/README.md).
+
 ## Cost
 
 One condition is 4 arms × 3 runs × 5 days = 60 calls. A call is about 1k prompt tokens, about 700 of them a fixed prefix
