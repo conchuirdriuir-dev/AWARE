@@ -17,8 +17,8 @@ answers it. A rung is done when its test passes, not when its code exists.
 
 1. **The toy worlds first** (DECISIONS.md, 2026-10-29): stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run, and
    Qwen3 14B bare beat Qwen3 8B with stage 0. Stage 1 passed on Qwen3 8B ([toyworld/RESULTS.md](toyworld/RESULTS.md)).
-   Next is stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"): its test is written, and its
-   design note (what the latent classes range over) comes before any code.
+   Stage 2, kinds of failure learned from residue (toyworld/SPEC.md, "Stage 2"), is built, with `latent.py`
+   ported; on the owner's stage-1 records it finds two kinds. Next: its run on Qwen3 8B under pressure.
 2. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
 3. The run, on the owner's story, on Qwen3 8B.
@@ -32,8 +32,8 @@ work: what it was asked, what it did, and what came of it.
 
 | Stage | What it needs | From DARA | Lines |
 |---|---|---|---|
-| 1. Controllability from interventions | rules of the form "this action, then this anomaly falls", admitted on MDL gain over the intervention log | the kernel core: `structure`, `pattern`, `code`, `counts`, `cells`, `naming`, `learn` (the 2-bit margin, admission, retirement, save and load) | about 2,350 |
-| 2. Failure kinds from residue | kinds formed from what the held rules leave unexplained, admitted on MDL gain | `latent` (latent classes seeded from residuals, kinds of kinds) | about 700 |
+| 1. Controllability from interventions | rules of the form "this action, then this anomaly falls", admitted on MDL gain over the intervention log | **ported:** the kernel core: `structure`, `pattern`, `code`, `counts`, `cells`, `naming`, `learn` (the 2-bit margin, admission, retirement, save and load) | about 2,350 |
+| 2. Failure kinds from residue | kinds formed from what the held rules leave unexplained, admitted on MDL gain | `latent` (latent classes seeded from residuals, kinds of kinds): **ported** | about 700 |
 | 3. The register and negation | the frame the model's reasoning rests on, held as priced alternatives; the model proposes the negation, the law admits it | `frames` (priced frames, admitted and retired by the margin) | about 580 |
 | 4. A catalog that compounds | kinds carried across episodes, against a no-lesson baseline | `learn`'s save and load, `latent`'s carried kinds; the baseline arm is new | small |
 | Later: offers worth asking | when a question is worth the owner's attention, from the owner's own record | `read/ought.py` (flag or silence, priced) and what it imports | to map |
@@ -52,7 +52,8 @@ decoy merge saved about 18 bits; the true axis cost about 1), so a one-step test
 credit ledger: a candidate is admitted on credit, its description length as debt, and kept only if reuse repays it
 within a window. It exists only as the note's scripts (`ledger_test.py`), not in DARA's kernel. Stage 2's design note
 expects tier 2's latent classes not to pay in the store world; whether that is the world's size or the one-step test is
-open, and is asked before tier 2 is built (toyworld/SPEC.md, "Stage 2 design note").
+open (toyworld/SPEC.md, "Stage 2 design note"). Tier 2 was built with the one-step test before this question was
+raised; its silence is read as provisional until it is settled (DECISIONS.md, 2026-10-30).
 
 ## From the DARA Agent Architecture Spec and the negation note
 

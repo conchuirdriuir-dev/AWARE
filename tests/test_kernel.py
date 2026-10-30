@@ -1,6 +1,6 @@
 """DARA's kernel tests (tests/unit/test_kernel.py at DARA main 95cea64), imports renamed. Left in DARA: six tests of its
-Q1 teacher (dara.teacher), which AWARE does not use, and two that need `modules` and `latent`, which come with later
-stages (PLAN.md, "Porting DARA, stage by stage").
+Q1 teacher (dara.teacher), which AWARE does not use, and one that needs `modules`, which comes with a later stage
+(PLAN.md, "Porting DARA, stage by stage"). The test that needed `latent` came back with stage 2.
 
 The relational kernel's guarantees (DARA's docs/KERNEL_v0_1.md §8.1, stage K0) and its first language check (§9, K1)."""
 from __future__ import annotations
@@ -782,3 +782,51 @@ def test_the_record_of_searches_says_what_each_pattern_came_to():
         assert all(p["within"] == (p["gain"] >= top - K.MARGIN_BITS) for p in r["patterns"])
         assert all((p["depth"] == 1) == (p["parent_bound"] is None) for p in r["patterns"])
     assert rounds[-1]["decision"] in ("BELOW_MARGIN", "NO_HYPOTHESIS", "AMBIGUOUS", "MAX_RULES")
+
+
+@pytest.mark.invariant
+def test_a_word_and_its_antonym_on_the_places_they_are_said_of_are_one_hypothesis():
+    """Two patterns that tie and split every held cell alike (the same rows or exactly complementary ones within each
+    cell) are one hypothesis (I-5 extended, SMALLEST_AGENT §9bb). A compact told-volition lineage: a form, four
+    commented places, a speaker's standing word of each; with the push's effect `at ∧ pushed` held, the word patterns
+    `at ∧ pushed ∧ says_on` and `at ∧ pushed ∧ says_off` tie exactly, are complementary within the pushed cells and
+    empty outside them, and are not complementary over every candidate. Under the earlier rule (only exactly
+    complementary columns merge) formation stops as ambiguous; under this one the word rule forms."""
+    from kernel import latent as lt
+    places = [f"p{i}" for i in range(8)]
+
+    def struct(at, state, pushed=(), says=()):
+        return Structure({"cell": {(c,) for c in at}, "place": {(p,) for p in places},
+                          "at": {(c, places[i]) for c, i in at.items()}, "on": {(c,) for c in at if state.get(c)},
+                          "pushed": {(places[i],) for i in pushed},
+                          "says_on": {(places[i],) for i, w in says if w}, "says_off": {(places[i],) for i, w in says if not w}})
+    effect = {1: False, 2: True, 5: True, 6: False}
+    cs = [f"c{i}" for i in range(12)]
+    at = {cs[i]: i for i in range(8)}
+    ev = []
+    for t in range(24):
+        if t == 12:                                                 # the pushed cells replaced: the effect belongs to the place
+            for k, i in enumerate(effect):
+                old = next(c for c, j in at.items() if j == i)
+                del at[old]
+                at[cs[8 + k]] = i
+        st = {c: i < 4 for c, i in at.items()}
+        pushed = [i for i in effect if (t + i) % 3 == 0]
+        for i in pushed:
+            st[next(c for c, j in at.items() if j == i)] = effect[i]
+        ev.append(struct(dict(at), st, pushed, [(i, effect[i]) for i in effect]))
+    evz = lt.with_class(ev, frozenset(cs[:4]) | frozenset(cs[8:10]), "Z1", ("cell",))
+    ts = [K.Target("pushed", 1, ("place",)), K.Target("on", 1, ("cell",))]
+    search = K.Search(max_atoms=3, chain=True, invent=False, cells=False)
+    same = K._same_partition
+    try:
+        K._same_partition = lambda *a, **k: False                    # the earlier rule
+        before, _ = K.learn(evz, ts, search)
+    finally:
+        K._same_partition = same
+    after, _ = K.learn(evz, ts, search)
+    assert before.stops["on"] == "AMBIGUOUS"
+    assert after.stops["on"] != "AMBIGUOUS"
+    assert any({"at", "pushed", "says_on"} == {s for s, _ in r.atoms} or {"at", "pushed", "says_off"} == {s for s, _ in r.atoms}
+               for r in after.rules["on"])
+    assert after.train_bits["on"] < before.train_bits["on"] - 20
