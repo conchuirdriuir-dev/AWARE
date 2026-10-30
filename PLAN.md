@@ -109,10 +109,9 @@ may write records, labelled as its own; only learned structure must pass MDL (DE
 the catalog carried across episodes (stage 4); lookahead (above).
 
 **Open, in no stage yet:**
-- **The negation test.** On a chapter with a hand-written key of negated facts, run the keeper and count which negated
-  facts reach the store with their negation. The pilot's probes for *The Told Hives*, chapter 1 (those marked `neg`),
-  are one such key, kept outside the repository. If the keeper loses negation the ERG keeps, the ERG returns as the
-  reader of negation scope (spec §12.3).
+- **The negation test,** set up and waiting for its run (rung2/SPEC.md, "The negation test"): the keeper on *The Told
+  Hives*, chapter 1, against the pilot's probes and its ERG-only run. If the keeper loses negation the ERG keeps, the
+  ERG returns as the reader of negation scope (spec §12.3).
 - **Negation as the operator that proposes abstractions,** ranked by recurrence across codes (the note, Experiment 1).
 - **Imagined cases are never evidence:** a case constructed by analogy may direct search and action, never be credited
   (Experiment 3).

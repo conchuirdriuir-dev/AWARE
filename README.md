@@ -70,4 +70,7 @@ python -m rung2.run check --url http://127.0.0.1:8080                   # lists 
 python -m rung2.run build --story dry/story --run runs/dry --url http://127.0.0.1:8080 --only keeper  # [--model NAME]
 python -m rung2.run show  --run runs/dry > runs/dry/show.txt
 ```
+
+**The negation test** ([rung2/SPEC.md](rung2/SPEC.md), "The negation test"): the keeper's store against DARA's pilot
+probes, beside the pilot's ERG-only run. `python -m rung2.run negation --run DIR --probes key_probes.py [--erg REPORT]`.
 The file formats are in `rung2/run.py` and `rung2/score.py`. Run the tests with `python -m pytest`.
