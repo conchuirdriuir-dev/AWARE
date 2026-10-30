@@ -17,8 +17,9 @@ answers it. A rung is done when its test passes, not when its code exists.
 
 1. **The toy worlds first** (DECISIONS.md, 2026-10-29): the other session's harness and `compare.py` are in
    [toyworld/](toyworld/), with stage 0's test written ([toyworld/SPEC.md](toyworld/SPEC.md)). The first 8B runs are in
-   and read (SPEC.md, "Changes after the first runs"). Next: rerun 8B, plain and under pressure, under the changed
-   measures; then all four arms on a 14B model, to tell the model's limits from the frame's.
+   and read (SPEC.md, "Changes after the first runs"). Both 8B and 14B have run under the changed
+   measures (the owner's experiments doc, Round 30). Next: the missing capabilities, one at a time, on 8B; the first
+   is the hidden invariant ([toyworld/INVARIANT.md](toyworld/INVARIANT.md)).
 2. **Rung 2 when the story is written:** the owner writes the novella from the outline (its audit fixes applied) and
    freezes the key. The keeper is ready: four dry runs on Qwen3 8B, and a loop pass per chapter.
 3. The run, on the owner's story, at two sizes (Qwen3 8B and Gemma 12B).

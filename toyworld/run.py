@@ -23,10 +23,10 @@ from pathlib import Path
 from rung2.model import Fake, Server
 from rung2.record import Recorder, TooLong
 
-from . import monitor, score, world
+from . import finder, monitor, score, world
 
 REPLY_TOKENS = 1024
-ASSUMED_REPLY = {"bare": 150, "belief": 180, "goals": 200, "monitor": 200}
+ASSUMED_REPLY = {"bare": 150, "belief": 180, "goals": 200, "monitor": 200, "finder": 200}
 
 
 class ToyFake(Fake):
@@ -69,6 +69,12 @@ def parse(reply: str) -> dict:
     return out
 
 
+def finder_step(s: dict) -> list[dict]:
+    changes = finder.update(s)
+    s.setdefault("finder_log", []).extend(changes)
+    return changes
+
+
 def ask_owner(o: dict) -> bool:
     print(f"\n[{o['id']}] {o['question']}\n  evidence: {'; '.join(o['evidence'])}\n  wrong if: {o['wrong_if']}")
     return input("  accept? [y/N] ").strip().lower().startswith("y")
@@ -91,6 +97,9 @@ def turn(rec: Recorder, s: dict, t: int, args, settle_mode: str) -> None:
               register=done["register"], predictions=done["predictions"])
     seen = world.observe(s, t + 1)
     rec.event("observed", run=s["run"], day=t + 1, said_by="world", **seen)
+    if s["arm"] == "finder":
+        for c in finder_step(s):
+            rec.event("posit", run=s["run"], said_by="finder", **c)
     if s["arm"] == "monitor":
         for o in monitor.offer(s, monitor.review(s)):
             rec.event("offer", run=s["run"], **o)
@@ -118,6 +127,8 @@ def run(args) -> None:
     for s in states:
         rec.event("observed", run=s["run"], day=1, said_by="world", report=s["reports"][0], bank=s["bank"][0],
                   requested=[])
+        if s["arm"] == "finder":
+            finder_step(s)
     for t in range(1, args.days + 1):
         for s in states:
             turn(rec, s, t, args, args.settle)
@@ -143,6 +154,8 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
     for arm in st["arms"].split(","):
         for i in range(st["runs"]):
             states[f"{arm}-{i + 1}"] = world.new_state(f"{arm}-{i + 1}", arm, rng.randint(1, 10 ** 6), st["cfg"])
+            if arm == "finder":
+                finder_step(states[f"{arm}-{i + 1}"])
     observed = {(e["run"], e["day"]): e for e in events if e["kind"] == "observed"}
     answers = {(e["run"], e["offer"]): e for e in events if e["kind"] == "settled"}
     differ = 0
@@ -160,6 +173,8 @@ def replay(log: Path) -> tuple[dict, dict[str, dict], int]:
         seen = world.observe(s, t + 1)
         logged = observed.get((run_id, t + 1), {})
         differ += logged.get("report") != seen["report"] or logged.get("bank") != seen["bank"]
+        if s["arm"] == "finder":
+            finder_step(s)
         if s["arm"] == "monitor":
             for o in monitor.offer(s, monitor.review(s)):
                 a = answers.get((run_id, o["id"]))
@@ -233,7 +248,7 @@ def main(argv=None) -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def common(sp):
-        sp.add_argument("--arms", default=",".join(world.ARMS))
+        sp.add_argument("--arms", default=",".join(world.ARMS), help="bare, belief, goals, monitor, finder")
         sp.add_argument("--runs", type=int, default=3, help="runs per arm")
         sp.add_argument("--days", type=int, default=5)
         sp.add_argument("--view", choices=["compact", "full"], default="compact")
