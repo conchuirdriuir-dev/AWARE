@@ -1,3 +1,7 @@
 runs/
 __pycache__/
 .pytest_cache/
+
+# derived from a record by `python -m toyworld.run rescore`; rebuilt, never committed
+toyworld/results/**/*-[0-9]*.json
+toyworld/results/**/scores.json
