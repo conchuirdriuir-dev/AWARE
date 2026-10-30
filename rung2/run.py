@@ -6,6 +6,7 @@
     python -m rung2.run show  --run DIR [--upto N]               what the store holds, and what the keeper lost
     python -m rung2.run split --text BOOK.txt --out DIR [--chapters N]   a Gutenberg book into ch01.md, ch02.md, ...
     python -m rung2.run check --url URL [--embed-url URL]        each kind of request, alone: which one a server refuses
+    python -m rung2.run negation --run DIR --probes key_probes.py [--erg stage1_report.txt]   does the keeper keep "not"?
 
 `build --only keeper` runs just the keeper and the chapter lines: the dry run (SPEC.md, "Before trusting the store").
 
@@ -25,7 +26,7 @@ import sys
 import time
 from pathlib import Path
 
-from . import keeper, retrieval, store
+from . import keeper, negation, retrieval, store
 from .arms import ARMS, Arms
 from .model import Fake, Server, check
 from .record import Recorder
@@ -174,16 +175,29 @@ def main(argv=None) -> None:
     s.add_argument("--run", required=True)
     s.add_argument("--key", required=True)
     s.add_argument("--settled")
+    ng = sub.add_parser("negation")
+    ng.add_argument("--run", required=True)
+    ng.add_argument("--probes", required=True, help="the pilot's key_probes.py, kept outside the repository")
+    ng.add_argument("--erg", help="the pilot's ERG-only report (Run A), to compare probe by probe")
     args = p.parse_args(argv)
     if args.cmd == "build" and not (args.fake or args.url):
         p.error("build needs --url or --fake")
     {"build": build, "ask": ask, "score": score_cmd, "show": show_cmd, "split": split_cmd,
-     "check": check_cmd}[args.cmd](args)
+     "check": check_cmd, "negation": negation_cmd}[args.cmd](args)
 
 
 def check_cmd(args) -> None:
     for name, ok, detail in check(args.url, args.embed_url, keeper.SCHEMA, args.model, args.embed_model):
         print(f"{'ok  ' if ok else 'FAIL'} {name}\n     {detail}")
+
+
+def negation_cmd(args) -> None:
+    run = Path(args.run)
+    conn = store.open_store(run / "store.sqlite")
+    erg = negation.read_erg(Path(args.erg)) if args.erg else None
+    text = negation.report(conn, negation.load_probes(Path(args.probes)), erg)
+    (run / "negation.txt").write_text(text, encoding="utf-8")
+    print(text, end="")
 
 
 def show_cmd(args) -> None:

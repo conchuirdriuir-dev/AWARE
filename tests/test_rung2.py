@@ -302,3 +302,35 @@ def test_third_dry_run_fixes(conn):
     rows = conn.execute("SELECT about_id, corrected_by FROM knowledge").fetchall()
     assert [r["about_id"] for r in rows] == ["tom", "tom"] and all(r["corrected_by"] is None for r in rows)
     assert any("(near the fence)" in x for x in builder.entity_lines(conn, "the-new-boy", 1, builder.Counter()))
+
+
+def test_negation_test_scores_kept_inverted_and_missing(conn, tmp_path, capsys):
+    from rung2 import negation
+    p1 = passage(conn, 1, 1, "No iron passed that gate. The latch was one that no one had fastened. Maren kept bees.")
+    store.apply(conn, empty(
+        new_entities=[{"name": "Maren", "kind": "character", "aliases": [], "quote": "Maren kept bees"}],
+        rules=[{"statement": "No iron may pass the gate", "quote": "No iron passed that gate"}],
+        events=[{"summary": "Someone fastened the latch", "participants": [], "happened": True,
+                 "quote": "no one had fastened"}]), p1)
+    probes = tmp_path / "key_probes.py"
+    probes.write_text('GENDER = {"Maren": "f"}\nPROBES = {\n'
+                      '  "R4": [dict(label="no iron passes the gate", find="No iron passed that gate",\n'
+                      '              lemmas=["iron", "pass", "gate"], neg=True)],\n'
+                      '  "L1": [dict(label="latch never fastened", find="no one had fastened",\n'
+                      '              lemmas=["latch", "fasten"], neg=True)],\n'
+                      '  "S1": [dict(label="Maren keeps bees", find="Maren kept bees", lemmas=["bee"], entity="Maren")],\n'
+                      '  "X": [dict(label="not in the text", find="a sentence nowhere", lemmas=["x"])],\n}\n')
+    got = {i: negation.score_probe(conn, ps[0])["status"] for i, ps in negation.load_probes(probes).items()}
+    assert got == {"R4": "ok", "L1": "inverted", "S1": "partial", "X": "sentence not found"}    # S1: no row holds bees
+
+    erg = tmp_path / "ergonly_report.txt"
+    rows = [("R4", "no iron passes the gate", "ok", "erg", ""),
+            ("L1", "latch never fastened", "ok", "erg", "")]
+    erg.write_text("item      probe\n" + "".join(f"{a:<10}{b[:33]:<34}{c:<20}{d:<16}{e}\n" for a, b, c, d, e in rows))
+    main(["negation", "--run", str(tmp_path), "--probes", str(probes), "--erg", str(erg)])
+    out = capsys.readouterr().out
+    assert "kept 1, stored inverted 1, not stored 0" in out
+    assert "the ERG kept the negation and the keeper inverted it on 1" in out
+    assert (tmp_path / "negation.txt").read_text() == out
+    assert negation.negated(negation.words("the latch is unfastened")) and negation.has(negation.words("unfastened"), "fasten")
+    assert not negation.negated(negation.words("she understood the united bees"))

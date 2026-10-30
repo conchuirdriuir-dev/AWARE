@@ -152,6 +152,44 @@ At each chapter's end, two calls read the whole chapter:
 by hand. If the 8B keeper misses more than a third of the ledger's items, run the keeper on the 14B model and report
 that as part of D's cost.
 
+## The negation test
+
+Does the keeper keep "not"? DARA's spec keeps the ERG for negation scope (§12.3: embeddings place "did not betray him"
+near "betrayed him"); AWARE lets the model read and checks its quotes (PLAN.md, "Not ported"). This decides between
+them on one chapter, before rung 2 relies on the store.
+
+**Material,** kept outside the repository: *The Told Hives*, chapter 1, and the probes of DARA's stage-1 pilot
+(`key_probes.py`): 33 facts, 7 of them negated ("No iron passed that gate", "a wooden latch that no one had fastened").
+Each probe names a phrase of its sentence and the lemmas the fact needs.
+
+**The two runs.** The keeper on Qwen3 8B, alone, as in a dry run; and the pilot's Run A, the ERG only, on the owner's
+machine (its README).
+
+```sh
+python -m rung2.run build --story ../outside/hives --run runs/hives-8b --url http://127.0.0.1:8080 --only keeper
+python -m rung2.run negation --run runs/hives-8b --probes ../outside/key_probes.py --erg ../outside/ergonly_report.txt
+```
+
+**Scoring** ([negation.py](negation.py)). For each probe: the passage holding its phrase, the store's rows citing that
+passage (states, knowledge, events, rules, with entity names), and the one row holding most of the probe's lemmas. A
+negated probe is *kept* when that row has every lemma and a negation, *inverted* when it has every lemma and no
+negation (the fact stored as its opposite, the costly error), and *not stored* otherwise, which is coverage and
+counted apart. Matching is by words, so the owner reads every inverted and partial row before it is counted. The
+probes are a key: only the scorer reads them.
+
+The two checks are not equal: the pilot counts the ERG's negation kept when negation is anywhere in the sentence, the
+keeper's only when it is in the row holding the fact. The comparison leans toward the ERG, so a keeper that holds up
+is a strong result.
+
+**Pass criteria** (proposed; the owner fixes them before the run):
+
+| Outcome | Reading |
+|---|---|
+| The keeper inverts at most 1 of the negated facts the ERG keeps | the ERG stays out; the model reads |
+| The keeper inverts 2 or more of them | the ERG returns as the reader of negation scope, beside the keeper |
+| Most negated facts not stored by the keeper | a coverage problem, not negation: the keeper's prompt first, then rerun |
+| Most negated facts lost by the ERG too (unparsed or lost) | the chapter does not test negation: a harder key before deciding |
+
 ## Risks to watch
 
 1. **Lookalikes** merged through aliases.
