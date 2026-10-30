@@ -2,6 +2,24 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-30: **Big Picture v8 replaces AWARE's framing** (owner). The goal, in the owner's words: "The agent should
+  function as if it is aware, even without metacognition machinery." Metacognition did not tell the whole story of what
+  the owner wants, and DARA is not tenable for these aims. The rungs (freeform chat, rung 2, the toy world) and the
+  DARA kernel port are retired at the tag `aware-rungs-final`; the lines below are history. The Big Picture doc is the
+  design and takes precedence over the repository; PLAN.md tracks the build against it.
+- 2026-10-30: **The person's role** (owner): writes the goal statement, produces the reference work, and builds arm B's
+  scaffold under a fixed effort budget. The person does not settle anything inside the agent's loop.
+- 2026-10-30: **Llama 3.1 8B Instruct first, then Qwen3-8B** (owner): Llama for comparability with steering work;
+  Qwen3 (Apache 2.0) is the likely long-term model if Llama's license proves restrictive. Code reads both through
+  nnterp, so the switch is a configuration change. Qwen3-0.6B tests the plumbing on CPU until the RTX 3090 arrives.
+- 2026-10-30: **Landmarks are the 8B's own states** of the task statement and its paraphrases, so landmarks and the
+  agent's states share one space; no separate embedding model (owner, on the agent's default).
+- 2026-10-30: Reference work is written by a person, so scoring stays off the cloud (owner).
+- 2026-10-30: Provisional until tested (owner, on the agent's defaults): a state is the residual stream after a layer,
+  mean-pooled over the text; description length is probabilistic PCA's two-part code; D's paraphrase sets are drafted
+  by the agent and frozen by the owner.
+- 2026-10-30: Saved activations are derived, never the record: the record keeps text, model, revision and layers.
+
 - 2026-10-30: **Rung 1's live test has three arms** (owner): Fresh (shadow, the control), Memory (plain retrieval over
   the arm's earlier sessions) and AWARE, 20 sessions each from a pool of 20 tasks, each task once per arm in a random
   order; the key is the person's blind marks, and kinds of drift are the person's, sorted after the run (chat/SPEC.md,

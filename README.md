@@ -1,90 +1,33 @@
 # AWARE
 
-A metacognitive layer around a local language model, built on one machine and run without cloud services. The model
-does the object-level cognition: it reasons, answers and proposes. AWARE's code is the meta level, and its subject is
-that cognition: it keeps the record of what the model did, finds where it fails, controls what it sees, and learns,
-admitted on MDL gain, which failures recur and which interventions fix them. It offers questions to the person, never
-to the model, and the person settles them. The question it tests: how much does a metacognitive layer add to a fixed
-local model's reasoning?
+The goal, in the owner's words: "The agent should function as if it is aware, even without metacognition machinery."
 
-AWARE starts from a finding of the owner's layered-metacognition experiments: with a structure that routes what each
-part sees, much of metacognition is reachable with an ordinary model. Each capability is added as a rung whose test is
-written before anything is built ([PLAN.md](PLAN.md)). DARA and DARA-PALS are references for it, not dependencies.
+AWARE is an agent on a local 8B model that stays self-coherent, revises itself as its situation changes, and stays on
+its goal over long work in a domain it was not prepared for. Its orientation comes from the geometry of the model's own
+states, not from a structure built by hand. The design is the Big Picture doc
+([Big Picture — v8](https://claude.ai/artifact/RmZatX3o5ZrAkJToUvSsQW), a Claude Doc, with its Tech stack tab); this
+repository builds it, step by step, each step's test written before the step ([PLAN.md](PLAN.md)).
+
+It runs on one machine, without cloud services: Hugging Face transformers with nnsight for the model's activations,
+numpy for the geometry.
 
 ## Status
 
-Rung 1, freeform chat, has its shadow harness built ([chat/SPEC.md](chat/SPEC.md)) and awaits its calibration sessions. Rung 2's harness is built ([rung2/SPEC.md](rung2/SPEC.md)) and tested end to end with a fake model. It has not yet run
-on a real model or on the owner's story. The toy world's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)) has run on
-Qwen3 8B and 14B; stage 1 passed on Qwen3 8B; stage 2 passed its criterion on its fourth run, but before any note took effect (toyworld/RESULTS.md).
+The framing changed on 2026-10-30 (DECISIONS.md). The earlier work (freeform chat, the rung-2 memory harness, the toy
+world, the port of DARA's kernel) is retired, kept at the tag `aware-rungs-final`. Step 2 of the plan, the CPU work
+before the GPU arrives, is under way.
 
-## Running rung 1: freeform chat
+## Running
 
-The test ([chat/SPEC.md](chat/SPEC.md)): a conversation with the local model on anything, then your marks, then an
-offline review. Shadow mode: nothing the meta level makes is shown during the chat.
-
-```sh
-llama-server -hf Qwen/Qwen3-8B-GGUF:Q4_K_M -c 8192 -ngl 99 --jinja --port 8080
-llama-server -m EMBEDDING.gguf --embeddings --port 8081
-python -m chat.run talk   --session sessions/c01 --url http://127.0.0.1:8080     # /r starts a revision, /q ends
-python -m chat.run mark   --session sessions/c01                                  # your marks, before any codes
-python -m chat.run review --session sessions/c01 --url http://127.0.0.1:8080 --embed-url http://127.0.0.1:8081
-python -m chat.run show   --session sessions/c01                                  # the reviewer's codes and aims
-```
-
-## Running the toy world
-
-The store world from the owner's experiments, moved in as the Build Map's stage 0 ([toyworld/SPEC.md](toyworld/SPEC.md)).
-It needs one `llama-server` and nothing else.
+Python 3.11+. The geometry, toy bed and compass need only numpy:
 
 ```sh
-llama-server -m MODEL.gguf -c 8192 -ngl 99 --jinja --port 8080
-python -m toyworld.run estimate --gen-tps 8                                    # what a run will cost, at your speed
-python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b      # four arms, 3 runs, 5 days
-python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-p --pressure
-python -m toyworld.compare runs/toy-8b runs/toy-8b-p
-python -m toyworld.run rescore --run runs/toy-8b                              # rebuild state and scores from the record
-
-# stage 1: learn what acting does, then run with the learned map in place of the hand-given one
-python -m toyworld.run explore --url http://127.0.0.1:8080 --run runs/explore-8b              # 10 runs, bare arm, ~50 calls
-python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s1 --stage 1 --control runs/explore-8b/control.json
-python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s1-p --stage 1 --control runs/explore-8b/control.json --pressure
-
-# stage 2: learn kinds of failure from the records so far, then run with them (no model calls in `kinds`)
-python -m toyworld.run kinds --from runs/explore-8b runs/toy-8b-s1-p --control runs/explore-8b/control.json --out runs/kinds-8b/kinds.json
-python -m toyworld.run run --url http://127.0.0.1:8080 --run runs/toy-8b-s2-p --stage 2 --control runs/explore-8b/control.json --kinds runs/kinds-8b/kinds.json --pressure
+pip install -r requirements.txt
+python -m pytest
 ```
 
-`--fake` in place of `--url` runs it with canned replies, testing the plumbing, never the result. `--settle ask` puts
-the reviewer's offers to you at the terminal; the default, `auto`, is a stand-in labelled as such in the record.
-
-## Running rung 2
-
-Python 3.11+ with numpy (`pip install -r requirements.txt`), and `llama.cpp`'s `llama-server`.
+Reading the model's states needs torch, transformers, nnsight and nnterp:
 
 ```sh
-# the test model, its window capped at 8k; and a small embedding model for arm B
-llama-server -m MODEL.gguf -c 8192 --port 8080
-llama-server -m EMBEDDING.gguf --embeddings --port 8081
-
-# chapters as story/ch01.md ... ch18.md; one run directory per model
-python -m rung2.run build --story story --run runs/8b --url http://127.0.0.1:8080 --embed-url http://127.0.0.1:8081
-python -m rung2.run ask   --run runs/8b --questions questions.jsonl --evidence evidence.jsonl
-python -m rung2.run score --run runs/8b --key ../outside/key.jsonl --settled settled.jsonl   # writes runs/8b/report.md
+pip install -r requirements-model.txt
 ```
-
-`--fake` in place of `--url` runs the whole pipeline with canned replies: it tests the plumbing, never the result.
-
-**The keeper's dry run**, before trusting the store: a few chapters of any plain-text book, the keeper alone, and
-what it recorded printed for reading against the text.
-
-```sh
-llama-server -m MODEL.gguf -c 8192 -ngl 99 --jinja --port 8080          # --jinja lets the client turn thinking off
-python -m rung2.run split --text book.txt --out dry/story --chapters 3
-python -m rung2.run check --url http://127.0.0.1:8080                   # lists the models; add --model NAME if several
-python -m rung2.run build --story dry/story --run runs/dry --url http://127.0.0.1:8080 --only keeper  # [--model NAME]
-python -m rung2.run show  --run runs/dry > runs/dry/show.txt
-```
-
-**The negation test** ([rung2/SPEC.md](rung2/SPEC.md), "The negation test"): the keeper's store against DARA's pilot
-probes, beside the pilot's ERG-only run. `python -m rung2.run negation --run DIR --probes key_probes.py [--erg REPORT]`.
-The file formats are in `rung2/run.py` and `rung2/score.py`. Run the tests with `python -m pytest`.

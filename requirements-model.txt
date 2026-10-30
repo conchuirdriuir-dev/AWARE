@@ -1,0 +1,5 @@
+-r requirements.txt
+torch>=2.4
+transformers>=4.51
+nnsight>=0.4
+nnterp>=1.0
