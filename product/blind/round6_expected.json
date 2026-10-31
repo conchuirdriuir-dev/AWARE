@@ -1,0 +1,6 @@
+{
+  "name": "blind-6",
+  "reading at 460": "closed loop",
+  "final reading": "closed loop",
+  "rationale": "From step 200 the partner stops supplying anything new: every arrival is a fresh reading of content the session already received between steps 60 and 199, replayed in order on a cycle (about 56 arrivals, roughly 140 steps) far longer than the 21-state window. The entity keeps listening normally, so it follows the replayed content and its own states revisit old ground too. Relative to the session's record the arrivals carry nothing new, so this is a closed loop on the partner's side; but because each replayed item is far from the entity's last 21 states and from the previously held external, a short-window innovation will report news present and gain intact and may mistake it for healthy, on-track work. The partner's responses at 460-479 continue the same replay, so a probe, if one fires, should also show a partner-side closed loop."
+}
