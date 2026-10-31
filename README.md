@@ -22,11 +22,12 @@ geometry.
 
 The framing changed on 2026-10-30 and again on 2026-10-31 (DECISIONS.md). The earlier work (freeform chat, the rung-2
 memory harness, the toy world, the port of DARA's kernel) is retired at the tag `aware-rungs-final`. The product
-track's toy bed has run five rounds against pre-registered bars (PLAN.md, `product/rounds/`): v9's detectors failed
+track's toy bed has run six rounds against pre-registered bars (PLAN.md, `product/rounds/`): v9's detectors failed
 all three bars; v10's passed three of four; round 3, with sparse externals as in real sessions, failed every bar, and review traced it to a
 misspecified observer (`reviews/round3/triage.md`); round 4, event-locked coupling read as news and gain, passes
 five of eight, every coupling bar among them; round 5, the observer as an event record, passes eight of nine,
-including a blind structure written before its code. Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
+including a blind structure written before its code; round 6's blind structure (a partner replaying old content)
+exposed that novelty is measured against recent history only. Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
 
 ## Running
 
@@ -35,7 +36,8 @@ Python 3.11+. The geometry, axes, toy bed and Gate 1 need only numpy:
 ```sh
 pip install -r requirements.txt
 python -m pytest
-python -m product.round5                     # the toy bed, round 5: the event record, with a blind structure
+python -m product.round6                     # the toy bed, round 6: separation narrowed, the residual descriptor
+python -m product.round5                     # round 5: the event record, with a blind structure
 python -m product.round4                     # round 4: event-locked coupling, news and gain
 python -m product.round3                     # round 3: sparse externals, at zero, the probe
 python -m product.round2                     # round 2: v10's detectors against v10's bars

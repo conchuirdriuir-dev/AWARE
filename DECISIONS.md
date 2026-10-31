@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 6: product seven of nine, discovery fails; not frozen.** The blind structure, a partner
+  replaying content the session received 60–260 steps earlier, read open in every run: novelty is measured against the
+  last 21 states, not the session's record. Open for the owner: whether content gone from recent history is news
+  again. The residual descriptor sees dynamics and not topics, but also fires when news falls or echoes arrive.
+
 - 2026-10-31: **Naming a change in the entity's dynamics is discovery's, not the product's** (owner). The product's
   separation bar narrows to what the product needs: a dynamics shift is not called a closed loop or a topic shift.
   Mode detection gets its own test under the discovery capacity (shared by both tracks), read by a residual

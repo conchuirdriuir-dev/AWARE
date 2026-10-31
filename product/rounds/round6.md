@@ -112,3 +112,13 @@ Calibration: K = 1, N = 4, M = 10, profile peak at lead 2 (correlation 0.993).
   externals carry less news, or echo the entity, the movement left unexplained changes character.
 - **The blind structure read open in every run,** against an expected reading recorded before the code. What it is,
   and why, is below; the file was opened only after this result was written.
+
+**The blind structure, opened after the result was recorded.** "blind-6": from step 200 the partner stops supplying
+anything new. Every arrival is a fresh reading of content the session already received (steps 60–199), replayed in
+order on a cycle of about 140 steps, far longer than the 21-state history. The entity keeps listening and follows it.
+The reviewer expected a closed loop on the partner's side, nothing being new relative to the session's record, and
+named the trap: each replayed item is far from the entity's last 21 states and from the external held before it, so a
+short-history innovation reports news present and gain intact. It read open in every run. **The design measures
+novelty against recent history, not against the session's record.** Whether content that has left the recent history
+is news again (the entity no longer holds it) or not (the session already had it) is a design question for the owner,
+not a bug.

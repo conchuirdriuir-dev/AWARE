@@ -179,3 +179,17 @@ def test_round_five_probe_is_read_by_its_own_responses():
     ref = round4.reference(run, inn, 1)
     read = round5.probe_read(run, inn, 1, ref)
     assert read["news"] > round4.FLOOR and read["overall"] == "open"
+
+
+# round 6: the residual descriptor
+
+from product import round6  # noqa: E402
+
+
+def test_round_six_residual_descriptor_sees_a_dynamics_shift_and_not_a_topic_shift():
+    rng = np.random.default_rng(5)
+    dyn = round4.make("dynamics shift", rng)
+    top = round4.make("topic shift", rng)
+    d_dyn = round6.observe(dyn, round4.innovations(dyn))["descriptor"]
+    d_top = round6.observe(top, round4.innovations(top))["descriptor"]
+    assert d_dyn > 4 * d_top
