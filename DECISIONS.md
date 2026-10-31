@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Echo floor on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus, 4,096-token windows):
+  it does not hold. Within about a thousand tokens an echo read alone sits nearly as far from its in-context original
+  as news does, at every layer but the first. Alone against alone, repeats separate from different content at AUC
+  0.92–1.00 at every layer, and position cannot enter. Proposed for the owner: news compares an arrival with earlier
+  chunks read alone, not with in-context states.
+
 - 2026-10-31: **Echo floor, long sessions** (Qwen3-4B, draft sets, 56 statements, about 1,000 tokens): it holds in
   the last positions at layers 28 and 32 (AUC 0.95, 0.99), not at 24 or 35. At every layer the floor grows with
   position while news stays put, so the margin narrows; at real session lengths it is unknown. The floor must be a

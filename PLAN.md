@@ -121,6 +121,25 @@ no text from it enters this repository or its records, only session ids, positio
 - **How it is read:** the floor holds at real lengths if news ranks above exact echo at AUC 0.9 or better in the last
   position bin, at the layers that held in the long-session test.
 
+*Real-session result* (2026-10-31; Qwen3-0.6B on CPU, draft sets, first token left out; 4,096-token windows of 10
+sessions, 160 echoes, 500 news; record in `runs/echo-corpus-qwen06/`, references only, not committed). Exact echo's
+median as a fraction of news's median, and the AUC of news over echo, by token position:
+
+| Layer | 0–512 | 512–1,024 | 1,024–2,048 | 2,048–4,096 |
+|---|---|---|---|---|
+| 0 | 0.39, 0.99 | 0.38, 0.97 | 0.41, 0.98 | 0.41, 0.98 |
+| 12 | 0.65, 0.88 | 0.78, 0.76 | 0.90, 0.64 | 0.93, **0.63** |
+| 21 | 0.52, 0.97 | 0.68, 0.87 | 0.83, 0.77 | 0.86, **0.75** |
+| 27 | 0.51, 0.94 | 0.55, 0.92 | 0.65, 0.79 | 0.65, **0.81** |
+
+**Read as written: the floor does not hold at real lengths.** Within about a thousand tokens of real agent work, an
+echo read alone sits nearly as far from its own in-context original as news does, at every layer but the first,
+which is close to the tokens themselves. The fault is the comparison, not the floor: an arrival read alone is measured
+against states read in context, and context reshapes a state the deeper it sits. **Post hoc, alone against alone**
+(the D run's states): a paraphrase of a statement sits nearer its original than the nearest different statement at
+AUC 0.92–1.00 at every layer, and position cannot enter. On short, distinct statements only; real chunks of code and
+tool output will crowd closer.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
