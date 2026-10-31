@@ -39,7 +39,7 @@ at every layer asked for, and the same text read twice gives the same state.
 | Step | Doc | Test | Status |
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
-| 3. Toy bed | v9 and v10, Toy bed | below | **round 2 (v10): coupling passes all three of its bars; separation fails on the "at zero" threshold (below)** |
+| 3. Toy bed | v9, v10 and the v10 draft | below | **round 2 (v10): coupling passes its three bars, separation fails on the "at zero" rule; round 3 pre-registered (below)** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
@@ -173,6 +173,73 @@ with a small ridge (1.0), fitted on the first 70% of a window and judged on the 
 - **Not bars, worth knowing.** Mastery's descriptor fires (its A really does change, 0.5 to 0.2). Valid inference's
   pause makes point contrast fire and admission reject it, so it reads as a noise spike at onset, then recovers.
   Every structure's commonest late cell is "on track", for the same reason as the separation fail.
+
+### Step 3, round 3: the step, at zero, and the probe (pre-registered 2026-10-31, before its code)
+
+From the v10 tab's draft section "The step, and coupling at zero" as revised after review, and the owner's decisions
+of the same day (DECISIONS.md). Two numbers are the agent's proposals, left unchanged by the owner: δ is half the
+reference coupling, and readings use one-sided 90% bounds. Round 2's code stays as its record; round 3 is new code
+(`python -m product.round3`).
+
+**Generator.** Round 2's, with 32 dimensions, D = 1 and 500 steps, plus:
+- **Sparse externals.** Each step is one self chunk. An opening intake (steps 0–39) delivers an external every step at
+  twice the usual noise (files read, a briefing). After it, an external arrives on a step with probability 0.4. The
+  entity is driven by the most recent external, which stays in context; the observer sees a new external only on the
+  step it arrives, with a marker saying whether one did.
+- **Onset at step 200**, so the reference window (below) closes before it. Ramps run 200–260.
+- **Readings of an external.** The detectors use the external read alone (the raw external). For the framing
+  comparison only, an in-context reading mixes in the entity's state: 0.5 × external + 0.5 × the entity's current state.
+- **3b, proliferation:** each arriving external is the entity's state 1, 3 or 10 steps back plus noise 0.3 D.
+- **7, valid inference:** the externals carry a trend; none arrive for steps 200–239 while the entity extrapolates on
+  trend; then they resume on trend.
+- **8, healthy and declining (new):** from onset the externals' novelty falls, both their walk and their noise ramping
+  to 0.15 of normal over 60 steps, while the entity keeps listening (B unchanged).
+- **The probe:** the entity asks; for the next 20 steps an external arrives every step as the partner's response. In
+  healthy structures (progress, mastery, 8) the responses are fresh externals at full novelty. In 3a they are fresh but
+  the entity no longer listens (B = 0). In 3b they echo the entity at the structure's lag. A probe is issued at step
+  460 in every run whose late reading is not open.
+
+**Coupling** (windows of 160 steps, 3 axes, p = 12, ridge 1.0): as round 2, plus the arrival marker in both fits, so
+only the external's content is credited. Scored by contiguous 5-fold with a 12-step gap either side of each test fold,
+held-out errors pooled. Its uncertainty comes from 200 bootstrap resamples of held-out steps in blocks of 12.
+
+**At zero.** The reference is coupling in the first window after the intake (steps 40–200); δ is half of it.
+- Open: the lower 90% bound is above δ.
+- At zero: the upper 90% bound is below δ.
+- Undecided: neither.
+- A run whose reference coupling is not above zero has no δ, and counts against every bar it enters.
+
+Windows: late, steps 300–460; after the probe, steps 340–500; valid inference after resume, windows starting at 240,
+260, 280 and 300.
+
+**Point contrast, admission, spectral descriptor:** as round 2, moved to the new onset (before 140–200, after 200–230,
+later stretch 260–320). Their thresholds are the 99th percentiles over 500 progress runs with a separate seed, and the
+admission floor is the median there, as in round 2.
+
+**Shrinkage** (the review's version of "self-dynamics fitted once"): the past model is fitted per window with ridge
+toward a prior instead of toward zero, λ = 20. The prior has the lag-1 block equal to â × identity and the other lags
+and the intercept zero. â is the median mean diagonal of per-window lag-1 fits over 50 progress runs with a separate
+seed. A scalar persistence is used because it is the same in any basis, and the code changes from window to window.
+
+**Pass.**
+1. **Separation.** Rows 1, 2, 5 and 6 each at 90% or better, read as in round 2, with "coupling open" replaced by
+   "the late reading is not at zero". The closed loops (3a, and 3b at each lag) are called a dynamics shift in at most
+   10% of runs.
+2. **Coupling AUC, mastery over 3a and over 3b at each lag:** 0.8 or better, late window.
+3. **Coupling AUC, progress over 3b at each lag:** 0.8 or better, late window.
+4. **Valid inference:** at least 90% of the windows after resume not read at zero.
+5. **At zero, late window, before any probe:** progress, mastery, topic shift and dynamics shift each read at zero in
+   at most 10% of runs.
+6. **After the probe:** 3a and 3b at each lag read at zero in at least 80% of runs; structure 8 reads not at zero in
+   at least 90%. The undecided share is reported for every structure, before and after.
+7. **Shrinkage is kept** only if it narrows the spread of progress's late coupling and does not raise 3b's
+   false-open rate (late reading open) by more than 0.02 at any lag. This bar decides shrinkage, not round 3: rows 1–6
+   are scored without shrinkage, and shrinkage's own readings are reported beside them.
+8. **Framing** (reported, decides only the claim): reading alone is shown to help if, for progress over 3b, its AUC
+   beats the in-context reading's by 0.05 or more at every lag. If not, the toy has not shown it; a linear framing term
+   may only rescale coupling, which δ and AUCs ignore, and logged sessions decide.
+
+Before the GPU, the same 200 trials a structure and seed 0 as rounds 1 and 2.
 
 ## Research track (`research/`): reasoning over the entity's own axes
 
