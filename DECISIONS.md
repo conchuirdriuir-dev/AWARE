@@ -2,6 +2,14 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **The observer is an event record** (owner accepts the reframe in the v10 tab, "The observer as an event
+  record"). Events are arrivals, probes and corrections, each with an innovation and a response. The compass is three
+  readings: news, gain and unexplained surprise; separation is read from events; seeking is probing. Substrate
+  decisions in it, accepted: the record holds events with their innovations and responses; the response profile and
+  the echo floor are measured beside D; the frame is the span of admitted innovation directions. Toy rules: a round
+  that passes every bar freezes the toy as the regression test, changed after that only for a real-data finding; each
+  round meets one blind structure, written before its code by a reviewer given only the design.
+
 - 2026-10-31: **Toy bed round 4 passes five of eight bars**, not retuned: news and gain pass every coupling bar at every
   echo lag (1 to 20), with intervals that keep their coverage. The misses are the carried-over point contrast and
   admission on a noisier background, and two errors in the pre-registration (the re-read window excluded the probe's
