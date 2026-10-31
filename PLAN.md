@@ -39,7 +39,7 @@ at every layer asked for, and the same text read twice gives the same state.
 | Step | Doc | Test | Status |
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
-| 3. Toy bed | v9 and v10, Toy bed | below | **round 1 (v9 detectors) failed three of four bars; round 2 (v10 detectors) below** |
+| 3. Toy bed | v9 and v10, Toy bed | below | **round 2 (v10): coupling passes all three of its bars; separation fails on the "at zero" threshold (below)** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. **Can end the product track** |
@@ -151,6 +151,28 @@ with a small ridge (1.0), fitted on the first 70% of a window and judged on the 
 - Row 7: of the windows starting after the externals resume (160, 180 and 200), at least 90% not flagged closed loop.
   v10 does not say which windows; the pause itself is predicted to dip, so this reading counts only the windows after
   it, and the whole run is reported beside it.
+
+**Round 2 result** (2026-10-31, `python -m product.round2`, 200 trials a structure, seed 0). Three of four bars pass.
+
+| Bar | Result | Pass |
+|---|---|---|
+| Separation: topic / dynamics / noise spike / progress | 1.00 / **0.82** / 1.00 / 0.98 | no |
+| Closed loop called a dynamics shift: dullness / lag 1 / lag 3 / lag 10 (at most 0.10) | **0.55** / 0.00 / 0.02 / 0.02 | no |
+| Coupling AUC, mastery over: dullness / lag 1 / lag 3 / lag 10 | 1.00 / 1.00 / 1.00 / 1.00 | yes |
+| Coupling AUC, progress over proliferation: lag 1 / lag 3 / lag 10 | 0.93 / 0.93 / 0.94 | yes |
+| Valid inference not flagged, after resume (whole run 0.94) | 0.96 | yes |
+
+- **Coupling does what v10 says.** It reads zero for externals that echo the entity at every lag, though their
+  provenance says external, and it recovers when valid inference resumes. Admission now separates topic shifts from
+  noise spikes on its own (1.00 each).
+- **The separation fail is the threshold for "at zero", not coupling.** Rule as written: below the 5th percentile of
+  progress coupling. Progress coupling is wide (median 0.09, standard deviation 0.09), so that percentile is −0.02,
+  and the dullness loop, centred on zero (median −0.016), clears it in 55% of runs. Coupling itself ranks loop below
+  mastery at AUC 1.00. A post-hoc check, not a retune. Bears on v10's "Coupling under collinearity" item, and on how
+  "at zero" is defined at all; a fix is a round 3 with its own pre-registration.
+- **Not bars, worth knowing.** Mastery's descriptor fires (its A really does change, 0.5 to 0.2). Valid inference's
+  pause makes point contrast fire and admission reject it, so it reads as a noise spike at onset, then recovers.
+  Every structure's commonest late cell is "on track", for the same reason as the separation fail.
 
 ## Research track (`research/`): reasoning over the entity's own axes
 

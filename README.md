@@ -22,8 +22,8 @@ geometry.
 
 The framing changed on 2026-10-30 and again on 2026-10-31 (DECISIONS.md). The earlier work (freeform chat, the rung-2
 memory harness, the toy world, the port of DARA's kernel) is retired at the tag `aware-rungs-final`. The product
-track's toy bed is built and its first pre-registered run fails three of four bars (PLAN.md); model access awaits the
-GPU and a reachable Hugging Face.
+track's toy bed has run twice against pre-registered bars: v9's detectors failed three of four; v10's pass three of
+four, coupling all of its own (PLAN.md). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
 
 ## Running
 
@@ -32,7 +32,8 @@ Python 3.11+. The geometry, axes, toy bed and Gate 1 need only numpy:
 ```sh
 pip install -r requirements.txt
 python -m pytest
-python -m product.toybed                     # the toy bed against its pre-registered bars
+python -m product.round2                     # the toy bed, round 2: v10's detectors against v10's bars
+python -m product.toybed                     # round 1, v9's detectors (the record)
 ```
 
 Reading the model's states needs torch, transformers, nnsight and nnterp:

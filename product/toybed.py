@@ -15,10 +15,11 @@ import json
 import numpy as np
 
 from product import detectors
-from product.compass import cell
+from product.compass import cell_v9 as cell
 
 KINDS = ("topic shift", "dynamics shift", "closed loop (dullness)", "closed loop (proliferation)", "mastery",
          "noise spike", "progress")
+EXTRA = ("valid inference",)            # v10, round 2
 
 
 def orthonormal(rng, k: int, d: int) -> np.ndarray:
@@ -31,15 +32,23 @@ def rotation(angle: float, scale: float) -> np.ndarray:
 
 
 def generate(kind: str, rng, d: int = 32, D: float = 1.0, T: int = 240, t0: int = 120, ramp: int = 60,
-             n_origin: int = 10) -> dict:
-    """One run: the entity's states s, the external states E (both T x d), the origin's centroid c, the onset t0."""
-    if kind not in KINDS:
+             n_origin: int = 10, lag: int = 0, pause: int = 40) -> dict:
+    """One run: the entity's states s, the external states E (both T x d), the origin's centroid c, the onset t0.
+    In proliferation the externals echo the entity's state `lag` steps back (round 1: 0). In valid inference the
+    externals carry a trend and pause for `pause` steps from onset while the entity extrapolates on trend."""
+    if kind not in KINDS + EXTRA:
         raise ValueError(kind)
     c0 = rng.normal(scale=10.0, size=d)
     walk = np.cumsum(rng.normal(scale=0.3 * D / np.sqrt(d), size=(T, d)), axis=0)
     if kind == "topic shift":
         walk[t0:] += 6 * D * orthonormal(rng, 1, d)[0]
+    trend = np.zeros(d)
+    if kind == "valid inference":
+        trend = 0.3 * D * orthonormal(rng, 1, d)[0]
+        walk += np.arange(T)[:, None] * trend
     E = c0 + walk + rng.normal(scale=D / np.sqrt(d), size=(T, d))
+    if kind == "valid inference":
+        E[t0:t0 + pause] = E[t0 - 1]                    # nothing new arrives: the last external, repeated
     I = np.eye(d)
     rot = I * 0.5
     if kind == "dynamics shift":
@@ -62,8 +71,10 @@ def generate(kind: str, rng, d: int = 32, D: float = 1.0, T: int = 240, t0: int 
         elif kind == "noise spike" and t0 <= t < t0 + 3:
             sigma = 20 * D
         if kind == "closed loop (proliferation)" and t >= t0:
-            E[t] = s[t] + rng.normal(scale=0.3 * D / np.sqrt(d), size=d)
+            E[t] = s[t - lag] + rng.normal(scale=0.3 * D / np.sqrt(d), size=d)
         x, e = s[t] - c0, E[t] - c0
+        if kind == "valid inference" and t0 <= t < t0 + pause:
+            e = walk[t0 - 1] + trend * (t - t0 + 1)     # the entity's own on-trend extrapolation drives it
         s[t + 1] = c0 + A @ x + beta * (I - A) @ e + drift + rng.normal(scale=sigma / np.sqrt(d), size=d)
     return {"s": s, "E": E, "c": E[:n_origin].mean(0), "t0": t0, "kind": kind}
 

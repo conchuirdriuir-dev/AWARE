@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **v10's drift tab is the product track's design** (owner): coupling replaces frame growth, dynamic
+  residual replaces static, the band is removed. Round 2 was pre-registered in PLAN.md and committed before its code.
+  It passes three of four bars; separation fails on the agent's own rule for "at zero", not on coupling.
+- 2026-10-31: Substrate (owner, v10): admission takes a residual and a unit supplied by the caller (v10: dynamic
+  residual, in the measured floor), keeping retain-and-tag. Static residual in D stays the default.
+
 - 2026-10-31: **v9 is the design, with two tracks on one substrate** (owner). Drift detection is the product (the one
   practical demonstration); reasoning over the entity's own axes is the research track. They feed each other and are
   kept apart so neither erases the other: separate directories, separate pass criteria. The Entity tab is the parent.
