@@ -140,6 +140,19 @@ against states read in context, and context reshapes a state the deeper it sits.
 AUC 0.92–1.00 at every layer, and position cannot enter. On short, distinct statements only; real chunks of code and
 tool output will crowd closer.
 
+*Alone against alone on real sessions, written 2026-10-31 before its code* (`python -m substrate.echo_floor --corpus
+DIR --alone`). With news now read alone against alone (DECISIONS.md), does it tell repeats from new content in real
+agent work, where chunks of code and tool output crowd close?
+- **Chunks:** the first 300 of each of 10 sessions (seed 0), capped at 256 tokens, each read alone.
+- **Classes,** by text alone (word 3-gram Jaccard against every earlier chunk in the session; no text recorded):
+  *exact repeats* (identical text to an earlier chunk); *near repeats* (overlap 0.8 or more, not identical); *new*
+  (overlap below 0.2 with every earlier chunk). Chunks in between are left out.
+- **Measured:** each chunk's distance to the nearest earlier chunk's alone reading, in units of D; the AUC of new over
+  near repeat per layer; the same AUC in the first and last third of each session's chunks.
+- **How it is read:** alone against alone works on real sessions if new ranks above near repeat at AUC 0.9 or better
+  at the late layers (the last third), and the AUC in the last third of chunks is within 0.05 of the first third's
+  (position does not enter). Exact repeats are reported; they should sit at zero.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |

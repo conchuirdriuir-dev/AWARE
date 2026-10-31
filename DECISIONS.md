@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **News compares an arrival with earlier chunks read alone** (owner; substrate). Every chunk is read
+  twice, in context and alone, as logging planned. News, short and long, is an arrival's alone reading against the
+  alone readings of the entity's chunks and earlier externals; gain and dynamics stay on the in-context trajectory.
+  The echo floor becomes D, the spread between alone readings of the same content.
+
 - 2026-10-31: **Echo floor on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus, 4,096-token windows):
   it does not hold. Within about a thousand tokens an echo read alone sits nearly as far from its in-context original
   as news does, at every layer but the first. Alone against alone, repeats separate from different content at AUC
