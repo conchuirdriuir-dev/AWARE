@@ -153,6 +153,26 @@ agent work, where chunks of code and tool output crowd close?
   at the late layers (the last third), and the AUC in the last third of chunks is within 0.05 of the first third's
   (position does not enter). Exact repeats are reported; they should sit at zero.
 
+*Alone-against-alone result* (2026-10-31; Qwen3-0.6B, draft sets, first token left out; 10 sessions, 2,987 chunks:
+48 exact repeats, 15 near repeats, 2,403 new, 521 between; record in `runs/echo-alone-qwen06/`, references only, not
+committed). A first run was broken by a reader bug (one-token chunks pooled over nothing, giving NaN) and is not a
+result. In units of D:
+
+| Layer | New, median (5th) | Near repeat, median (95th) | Exact repeat, max | AUC: all / first third / last third |
+|---|---|---|---|---|
+| 0 | 0.80 (0.46) | 0.21 (0.24) | 0.000 | 1.00 / 1.00 / 1.00 |
+| 12 | 1.04 (0.60) | 0.20 (0.37) | 0.000 | 1.00 / 1.00 / 1.00 |
+| 21 | 1.26 (0.72) | 0.21 (0.37) | 0.000 | 1.00 / 1.00 / 1.00 |
+| 27 | 1.59 (0.91) | 0.29 (0.46) | 0.000 | 1.00 / 1.00 / 1.00 |
+
+**Read as written: it works.** New content ranks above near repeats at AUC 1.00 at every layer, in the first third of
+sessions and the last alike, and exact repeats sit at zero. Two cautions. Only 15 near repeats were found, and they
+are near-repeats by text overlap, the easy kind; a retried call with different arguments, or a repeat in other words,
+is not tested here. And **the floor is not D.** New content's nearest earlier chunk sits at 0.5–0.9 D at its 5th
+percentile, below D at every layer: real chunks crowd closer than the short paraphrase statements D was measured on.
+A floor of D would call much new content a repeat. On this corpus the line falls between near repeats' 95th
+percentile (0.24–0.46 D) and new content's 5th (0.46–0.91 D), so the floor has to be measured on real repeats, as here.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |

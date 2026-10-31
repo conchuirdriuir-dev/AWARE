@@ -29,7 +29,8 @@ five of eight, every coupling bar among them; round 5, the observer as an event 
 including a blind structure written before its code; round 6's blind structure (a partner replaying old content)
 exposed that novelty is measured against recent history only; round 7a, with arrival cause and long news, passes
 seven of ten, separation among them; round 7b (contingency, the reactive toy) passes seven of twelve and shows that
-detecting repeated content waits on the real model's echo floor. Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
+detecting repeated content waits on the real model's echo floor. On the owner's logged sessions, news read alone
+against alone tells repeats from new content at every layer (Qwen3-0.6B, a dress rehearsal). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
 
 ## Running
 

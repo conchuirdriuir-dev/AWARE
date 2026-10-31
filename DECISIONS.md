@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Alone against alone works on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus): new
+  content ranks above near repeats at AUC 1.00 at every layer, early and late in sessions; exact repeats sit at zero.
+  But the floor is not D: new content's nearest earlier chunk sits below D (5th percentile 0.5–0.9 D), so the floor
+  must be measured on real repeats (between 0.24–0.46 D and 0.46–0.91 D here). Supersedes "the echo floor becomes D"
+  in the line below; open for the owner. Untested: repeats in other words, and retried calls with new arguments.
+
 - 2026-10-31: **News compares an arrival with earlier chunks read alone** (owner; substrate). Every chunk is read
   twice, in context and alone, as logging planned. News, short and long, is an arrival's alone reading against the
   alone readings of the entity's chunks and earlier externals; gain and dynamics stay on the in-context trajectory.
