@@ -105,6 +105,22 @@ not settled by this, and the echo floor has to be read as a function of position
 cleanly throughout, but an early layer is close to the tokens themselves, so its separation of exact repeats may not
 carry to repeats in other words.
 
+*Real sessions, written 2026-10-31 before their code* (`python -m substrate.echo_floor --corpus DIR`). Does the floor
+hold at the lengths of real agent work? On the owner's 45 Claude Code sessions (`dara-session-transcripts`, private:
+no text from it enters this repository or its records, only session ids, positions and distances).
+- **Chunks:** each session's events parsed into chunks with their provenance and arrival cause: the agent's text and
+  tool calls are self; tool results are external and elicited; the owner's messages are external and spontaneous.
+  Each chunk is capped at 256 tokens (truncation recorded).
+- **Windows:** the first W tokens of chunks of each of 10 sessions (W = 4,096 for the rehearsal in this container on
+  Qwen3-0.6B; the owner's run sets W up to 32,768 with the 8B), read in one pass.
+- **Exact echoes:** the window's self chunks, each read alone, against the nearest in-context state, by the token
+  position of the original (0–512, 512–1,024, 1,024–2,048, 2,048–W).
+- **News:** self chunks from *other* sessions, read alone, against the nearest in-context state of the window.
+- **Reported in units of D** (the paraphrase sets', which are short statements, so also as a fraction of news's
+  median), with the AUC of news over exact echo per position bin.
+- **How it is read:** the floor holds at real lengths if news ranks above exact echo at AUC 0.9 or better in the last
+  position bin, at the layers that held in the long-session test.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
