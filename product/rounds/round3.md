@@ -97,3 +97,10 @@ Before the GPU, the same 200 trials a structure and seed 0 as rounds 1 and 2.
 - **What it says for the design.** With externals as sparse as real sessions, coupling must be read where the
   information is: around arrivals (event-locked), with a past model small enough for the window. A round 4 is its
   own pre-registration.
+
+**Correction after review** (2026-10-31; `reviews/round3/`). The diagnosis above is wrong. Three independent reviews
+found that the observer is misspecified for externals held in context: the fit sees an external only on arrival and
+cannot switch its lag coefficients when one arrives. It is not a power problem (coupling stays negative on windows of
+2,600–3,000 steps). With arrival-gated lags added to both fits, 30 runs a structure: reference above zero in 97–100%,
+every ranking AUC 1.00. The bootstrap bounds were also too narrow, and the shrinkage test aimed at the wrong
+coefficient. Round 3's bars stand as failed; the triage is `reviews/round3/triage.md`.

@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Round 3's diagnosis corrected by review** (three fresh reviewers, checked by the builder): the failure
+  was a misspecified observer for externals held in context, not a lack of power; arrival-gated lags restore coupling
+  in a 30-run check. Supersedes the diagnosis in the line below. Triage: `reviews/round3/triage.md`.
+
 - 2026-10-31: **Toy bed round 3 fails every bar**, as pre-registered and not retuned: with sparse externals coupling's
   median is at or below zero everywhere. The code is sound (with an external every step it gives round 2's pattern);
   the per-window estimator lacks the power. Shrinkage is not kept (lag-10 false-open 0.13 to 0.41, the review's

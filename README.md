@@ -23,8 +23,8 @@ geometry.
 The framing changed on 2026-10-30 and again on 2026-10-31 (DECISIONS.md). The earlier work (freeform chat, the rung-2
 memory harness, the toy world, the port of DARA's kernel) is retired at the tag `aware-rungs-final`. The product
 track's toy bed has run three rounds against pre-registered bars (PLAN.md, `product/rounds/`): v9's detectors failed
-all three bars; v10's passed three of four; round 3, with sparse externals as in real sessions, failed every bar and
-is under review (`reviews/round3/`). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
+all three bars; v10's passed three of four; round 3, with sparse externals as in real sessions, failed every bar, and review traced it to a
+misspecified observer (`reviews/round3/triage.md`). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
 
 ## Running
 
