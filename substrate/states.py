@@ -32,7 +32,7 @@ class Reader:
                      "layers": self.model.num_layers, "width": config.hidden_size,
                      "dtype": str(next(self.model._model.parameters()).dtype)}
 
-    def states(self, texts: list[str], layers: list[int], skip_first: bool = False) -> np.ndarray:
+    def states(self, texts: list[str], layers: list[int], skip_first: bool = True) -> np.ndarray:
         """One state per text and layer: an array of shape (texts, layers, width), float32. With `skip_first`, the
         sequence's first token is also left out: a model without a begin-of-sequence token (Qwen3) puts an attention
         sink there, whose massive activations otherwise swamp the mean."""
@@ -53,7 +53,7 @@ class Reader:
                     out[i, j] = s[0, keep.to(s.device)].float().mean(0).cpu().numpy()
         return out
 
-    def states_in_context(self, chunks: list[str], layers: list[int], skip_first: bool = False) -> np.ndarray:
+    def states_in_context(self, chunks: list[str], layers: list[int], skip_first: bool = True) -> np.ndarray:
         """One state per chunk and layer, each chunk read inside the whole sequence (one forward pass): what the model
         makes of the chunk once deep in, against `states`, which reads each chunk on its own. Chunks are joined as
         given, so they carry their own separators or chat formatting."""

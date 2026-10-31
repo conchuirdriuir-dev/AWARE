@@ -47,7 +47,7 @@ def nearest(X: np.ndarray, S: np.ndarray) -> np.ndarray:
 
 
 def echo_floor(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False,
-               skip_first: bool = False) -> dict:
+               skip_first: bool = True) -> dict:
     d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = np.array([row["D"] for row in d_report["layers"]])
     sessions = build_sessions(sets)
@@ -85,13 +85,14 @@ def main(argv=None):
     p.add_argument("--sets", default="material/paraphrases.jsonl")
     p.add_argument("--layers", type=int, nargs="+")
     p.add_argument("--draft", action="store_true", help="allow unfrozen sets; recorded as a draft run")
-    p.add_argument("--skip-first", action="store_true", help="leave each sequence's first token (an attention sink) out")
+    p.add_argument("--keep-first", action="store_true",
+                   help="keep each sequence's first token; by default it is left out (an attention sink)")
     a = p.parse_args(argv)
     from substrate.states import Reader
     reader = Reader(a.model, revision=a.revision)
     layers = a.layers or default_layers(reader.info["layers"])
     report = echo_floor(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), draft=a.draft,
-                        skip_first=a.skip_first)
+                        skip_first=not a.keep_first)
     print(f"{reader.info['model']} ({reader.info['dtype']}){'  DRAFT' if a.draft else ''}; distances in units of D")
     print(f"{'layer':>5} {'D':>8} {'echo med':>9} {'echo 95':>8} {'para med':>9} {'news med':>9} {'news 5':>7} "
           f"{'AUC n>e':>8} {'AUC n>p':>8} {'pos r':>6}")

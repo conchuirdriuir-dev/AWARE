@@ -30,7 +30,7 @@ def default_layers(n: int) -> list[int]:
 
 
 def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False,
-            skip_first: bool = False) -> dict:
+            skip_first: bool = True) -> dict:
     if not draft and not all(s.get("frozen") for s in sets):
         raise SystemExit("the paraphrase sets are not frozen; the owner freezes them, or run with --draft")
     blob = json.dumps(sets, sort_keys=True).encode()

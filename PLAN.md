@@ -27,8 +27,8 @@ provenance logged at the source (`record.py`: self or external on every chunk).
 | 1. Model access and D | states on the real model; D per layer on frozen paraphrase sets | **code built; plumbing passes on real Qwen3-0.6B weights on CPU (2026-10-31); awaits the card and the frozen sets** |
 | 2. Logging | per-chunk activation capture, in context and alone; provenance tagged at creation and carried when re-read | **reader and record built; the harness that writes them is product step 4** |
 
-**State** (provisional): the residual stream after a layer, mean-pooled over a chunk's tokens (special tokens left
-out), read alone (`states`) or inside the whole sequence (`states_in_context`). **D**: the root-mean-square distance
+**State** (provisional): the residual stream after a layer, mean-pooled over a chunk's tokens (special tokens and a
+sequence's first token left out: an attention sink where there is no begin-of-sequence token), read alone (`states`) or inside the whole sequence (`states_in_context`). **D**: the root-mean-square distance
 of a state from its paraphrase set's mean, averaged over sets, per layer; the layer proposed is the one with the
 largest between-to-within ratio, and the owner chooses. **Material:** 20 sets of 5 paraphrases
 (`material/paraphrases.jsonl`), drafted by the model, not yet frozen. **Pass:** states for every text on both models

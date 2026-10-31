@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **A state leaves out a sequence's first token by default** (owner, after the echo-floor dress
+  rehearsal): without a begin-of-sequence token it is an attention sink whose massive activations swamp the mean.
+  Substrate: the reader's `skip_first` now defaults to on; `--keep-first` restores the old reading.
+
 - 2026-10-31: **Echo-floor dress rehearsal** (Qwen3-0.6B, draft sets). As first run it measured an attention sink:
   Qwen3 has no begin-of-sequence token, so every sequence's first token carries massive activations that swamp the
   mean of every text read alone. With that token left out, repeats separate from news at every layer (AUC 0.90–1.00),
