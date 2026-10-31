@@ -55,3 +55,13 @@ pip install -r requirements-model.txt
 python -m substrate.measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama   # D per layer, frozen sets
 python -m pytest -m model                                                                    # Qwen3-0.6B, plumbing only
 ```
+
+The echo floor (substrate), beside D. On an 8 GB card with 32 GB of RAM (an RTX 4060, say), the 8B runs in full
+precision split between the GPU and RAM: slower, but exact. `--quantize 4bit` fits on the card alone, as a quick
+check only, since quantisation adds noise to D.
+
+```sh
+python -m substrate.echo_floor --model meta-llama/Llama-3.1-8B-Instruct --run runs/echo-llama \
+    --device auto --gpu-memory 6.5               # frozen sets; add --long for the long-session test
+python -m substrate.echo_floor --model Qwen/Qwen3-8B --run runs/echo-qwen8b --device auto --gpu-memory 6.5 --long
+```
