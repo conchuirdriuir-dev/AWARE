@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **"Coupling at zero" is measured against the session's own opening coupling** (owner): δ is a fraction of
+  the coupling in the session's first window, held fixed like the origin. Readings are open, at zero or undecided;
+  undecided is when to probe. The fraction and the confidence rule are set in round 3's pre-registration.
+
 - 2026-10-31: **Gate 0 does not end anything** (owner). It is refined and better understood until the product track
   passes it; that is not moving the goalposts, since the product must still pass Gate 0. Ignore the docs' "can end
   the project" line. Supersedes "Gate 0 can end the product track, not the project".
