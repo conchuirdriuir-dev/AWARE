@@ -2,6 +2,14 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **The step is one self-provenance chunk** (owner): time is indexed by the entity's own chunks; E(t) is
+  the externals that arrived since its previous chunk, pooled, with a marker when none did. Not turns, not tokens.
+- 2026-10-31: **Externals are read alone for the joint fit** (owner); the entity's states in context. The in-context
+  reading of externals is kept beside it for the divergence hypothesis.
+- 2026-10-31: **Stable self-dynamics is a test of its own** (owner): a past-only model fitted once on calibration
+  sessions, in a fixed retained code, against per-session fits; relied on only if it passes. Drafted into the v10 tab
+  ("The step, and coupling at zero (draft)") for the owner's review.
+
 - 2026-10-31: **"Coupling at zero" is measured against the session's own opening coupling** (owner): δ is a fraction of
   the coupling in the session's first window, held fixed like the origin. Readings are open, at zero or undecided;
   undecided is when to probe. The fraction and the confidence rule are set in round 3's pre-registration.
