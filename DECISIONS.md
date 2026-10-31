@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **δ comes from the first window after the opening intake** (owner, after review comments), not the
+  session's first window, which runs high on files and briefing. Also from the review: self-dynamics are fitted per
+  window, shrunk toward a calibration fit (a fixed past model would let E absorb its errors and read open in 3b); the
+  test's bar is 3b's false-open rate; k-fold leaves a p-step gap (the exploratory gain falls from fourfold to 2.3-fold);
+  round 3 adds a framing term and a healthy structure whose coupling declines. All drafted into the v10 tab.
+
 - 2026-10-31: **The step is one self-provenance chunk** (owner): time is indexed by the entity's own chunks; E(t) is
   the externals that arrived since its previous chunk, pooled, with a marker when none did. Not turns, not tokens.
 - 2026-10-31: **Externals are read alone for the joint fit** (owner); the entity's states in context. The in-context
