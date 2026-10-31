@@ -2,6 +2,151 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Alone against alone works on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus): new
+  content ranks above near repeats at AUC 1.00 at every layer, early and late in sessions; exact repeats sit at zero.
+  But the floor is not D: new content's nearest earlier chunk sits below D (5th percentile 0.5–0.9 D), so the floor
+  must be measured on real repeats (between 0.24–0.46 D and 0.46–0.91 D here). Supersedes "the echo floor becomes D"
+  in the line below; open for the owner. Untested: repeats in other words, and retried calls with new arguments.
+
+- 2026-10-31: **News compares an arrival with earlier chunks read alone** (owner; substrate). Every chunk is read
+  twice, in context and alone, as logging planned. News, short and long, is an arrival's alone reading against the
+  alone readings of the entity's chunks and earlier externals; gain and dynamics stay on the in-context trajectory.
+  The echo floor becomes D, the spread between alone readings of the same content.
+
+- 2026-10-31: **Echo floor on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus, 4,096-token windows):
+  it does not hold. Within about a thousand tokens an echo read alone sits nearly as far from its in-context original
+  as news does, at every layer but the first. Alone against alone, repeats separate from different content at AUC
+  0.92–1.00 at every layer, and position cannot enter. Proposed for the owner: news compares an arrival with earlier
+  chunks read alone, not with in-context states.
+
+- 2026-10-31: **Echo floor, long sessions** (Qwen3-4B, draft sets, 56 statements, about 1,000 tokens): it holds in
+  the last positions at layers 28 and 32 (AUC 0.95, 0.99), not at 24 or 35. At every layer the floor grows with
+  position while news stays put, so the margin narrows; at real session lengths it is unknown. The floor must be a
+  function of context position.
+
+- 2026-10-31: **A state leaves out a sequence's first token by default** (owner, after the echo-floor dress
+  rehearsal): without a begin-of-sequence token it is an attention sink whose massive activations swamp the mean.
+  Substrate: the reader's `skip_first` now defaults to on; `--keep-first` restores the old reading.
+
+- 2026-10-31: **Echo-floor dress rehearsal** (Qwen3-0.6B, draft sets). As first run it measured an attention sink:
+  Qwen3 has no begin-of-sequence token, so every sequence's first token carries massive activations that swamp the
+  mean of every text read alone. With that token left out, repeats separate from news at every layer (AUC 0.90–1.00),
+  best at 21–27, and the echo floor grows with context position. Open for the owner: whether the state definition
+  leaves out a sequence's first token by default (the reader's `skip_first`, off for now).
+
+- 2026-10-31: **Toy bed round 7b passes seven of twelve product bars; not frozen.** Entity captured, probing
+  partner-side loops first, short-lag mirrors and the attractor loop work. Misses: contingency only names a mirror
+  whose lag is short against the probe window; a degenerate recurrence threshold; the probe absorbs the arrival-cause
+  field's work; and repeats (replay, the blind structure's retry loop) sit on the toy's √2·D floor. Detecting repeats
+  waits on the real model's echo floor.
+
+- 2026-10-31: **Toy bed round 7a passes seven of ten bars**, separation among them for the first time. Misses: the
+  news floor was in the wrong unit for comparing two readings (√2 D, not D); closed loops were never probed, though
+  the design probes a partner-side loop first; and the blind structure (a quiet partner, the entity sensing through
+  its own tool calls) showed that every elicited arrival was treated as a confirmation, when only low-news ones are.
+
+- 2026-10-31: **From the biologist review** (owner; triage in `reviews/design/biologist-triage.md`). Each chunk records
+  its arrival cause beside its origin: spontaneous, or elicited by the entity's preceding action (substrate). News is
+  measured twice, short (against the last 21 states) and long (against the session's record), which settles what counts
+  as new. The compass gains contingency-based partner capture and an "entity captured" reading (gain too high), pending
+  their test. Round 7 is split: 7a, provenance and news; 7b, contingency and the reactive toy.
+
+- 2026-10-31: **Toy bed round 6: product seven of nine, discovery fails; not frozen.** The blind structure, a partner
+  replaying content the session received 60–260 steps earlier, read open in every run: novelty is measured against the
+  last 21 states, not the session's record. Open for the owner: whether content gone from recent history is news
+  again. The residual descriptor sees dynamics and not topics, but also fires when news falls or echoes arrive.
+
+- 2026-10-31: **Naming a change in the entity's dynamics is discovery's, not the product's** (owner). The product's
+  separation bar narrows to what the product needs: a dynamics shift is not called a closed loop or a topic shift.
+  Mode detection gets its own test under the discovery capacity (shared by both tracks), read by a residual
+  descriptor: the structure of unexplained surprise (its subspace and step-to-step dynamics), scored apart from the
+  product's pass. Scalar gain stays for coupling.
+
+- 2026-10-31: **Toy bed round 5 passes eight of nine bars; not frozen.** The blind structure (an entity replaying its
+  own moves while ignoring novel externals) read closed loop in every run. Separation fails: the builder's news-spike
+  rule took a per-arrival threshold over about 12 arrivals, and a scalar gain profile cannot see a dynamics change
+  confined to a subspace. The K rule was amended before any test result, after the first build showed it degenerate.
+
+- 2026-10-31: **The observer is an event record** (owner accepts the reframe in the v10 tab, "The observer as an event
+  record"). Events are arrivals, probes and corrections, each with an innovation and a response. The compass is three
+  readings: news, gain and unexplained surprise; separation is read from events; seeking is probing. Substrate
+  decisions in it, accepted: the record holds events with their innovations and responses; the response profile and
+  the echo floor are measured beside D; the frame is the span of admitted innovation directions. Toy rules: a round
+  that passes every bar freezes the toy as the regression test, changed after that only for a real-data finding; each
+  round meets one blind structure, written before its code by a reviewer given only the design.
+
+- 2026-10-31: **Toy bed round 4 passes five of eight bars**, not retuned: news and gain pass every coupling bar at every
+  echo lag (1 to 20), with intervals that keep their coverage. The misses are the carried-over point contrast and
+  admission on a noisier background, and two errors in the pre-registration (the re-read window excluded the probe's
+  responses; the K rule assumed a rising profile, and K = 4 assumed a persistence the generator lacks).
+
+- 2026-10-31: **Event-locked latency** (owner). A gain reading waits for a news budget (its 90% bound within ±0.25 of
+  the reference gain), pooled over the shortest recent span that meets it. News is read per arrival against the D
+  floor; news at zero is N arrivals in a row below it, N calibrated so healthy sessions show it at most 10% of the time.
+  Unmet within M arrivals: undecided, and a probe fires. Intervals are analytic over arrival blocks and must show their
+  stated coverage against a refitting bootstrap. **M is a tuning problem** (owner): chosen by a rule fixed in advance,
+  on calibration runs kept apart from the test, never on test results.
+
+- 2026-10-31: **Event-locked pooling: news and gain** (owner). Overlapping responses are modelled jointly through each
+  arrival's innovation (its content not forecast from the entity's history H or the previous externals). Arrivals are
+  pooled by regression into news (innovation size) and gain (response per unit innovation, a scalar per lead);
+  coupling is kept as their product. Closed loop: gain at zero with news present (dullness), or news at zero
+  (proliferation); low news with gain intact is undecided and calls for a probe. News and gain each take their
+  reference from the window after the intake, refining δ.
+
+- 2026-10-31: **Event-locked coupling, its horizons** (owner): history H (how far back the forecast before an arrival
+  looks) is kept apart from response K (how many steps after it count). H is set by the echo lags the product commits
+  to catching. K is measured per model and layer, like D: the lead where the averaged response to arrivals reaches 90%
+  of its plateau. The response is reported as a profile by lead, with lead 1 scored on its own.
+
+- 2026-10-31: **Round 3's diagnosis corrected by review** (three fresh reviewers, checked by the builder): the failure
+  was a misspecified observer for externals held in context, not a lack of power; arrival-gated lags restore coupling
+  in a 30-run check. Supersedes the diagnosis in the line below. Triage: `reviews/round3/triage.md`.
+
+- 2026-10-31: **Toy bed round 3 fails every bar**, as pre-registered and not retuned: with sparse externals coupling's
+  median is at or below zero everywhere. The code is sound (with an external every step it gives round 2's pattern);
+  the per-window estimator lacks the power. Shrinkage is not kept (lag-10 false-open 0.13 to 0.41, the review's
+  predicted bias). Next is the owner's call.
+
+- 2026-10-31: **δ comes from the first window after the opening intake** (owner, after review comments), not the
+  session's first window, which runs high on files and briefing. Also from the review: self-dynamics are fitted per
+  window, shrunk toward a calibration fit (a fixed past model would let E absorb its errors and read open in 3b); the
+  test's bar is 3b's false-open rate; k-fold leaves a p-step gap (the exploratory gain falls from fourfold to 2.3-fold);
+  round 3 adds a framing term and a healthy structure whose coupling declines. All drafted into the v10 tab.
+
+- 2026-10-31: **The step is one self-provenance chunk** (owner): time is indexed by the entity's own chunks; E(t) is
+  the externals that arrived since its previous chunk, pooled, with a marker when none did. Not turns, not tokens.
+- 2026-10-31: **Externals are read alone for the joint fit** (owner); the entity's states in context. The in-context
+  reading of externals is kept beside it for the divergence hypothesis.
+- 2026-10-31: **Stable self-dynamics is a test of its own** (owner): a past-only model fitted once on calibration
+  sessions, in a fixed retained code, against per-session fits; relied on only if it passes. Drafted into the v10 tab
+  ("The step, and coupling at zero (draft)") for the owner's review.
+
+- 2026-10-31: **"Coupling at zero" is measured against the session's own opening coupling** (owner): δ is a fraction of
+  the coupling in the session's first window, held fixed like the origin. Readings are open, at zero or undecided;
+  undecided is when to probe. The fraction and the confidence rule are set in round 3's pre-registration.
+
+- 2026-10-31: **Gate 0 does not end anything** (owner). It is refined and better understood until the product track
+  passes it; that is not moving the goalposts, since the product must still pass Gate 0. Ignore the docs' "can end
+  the project" line. Supersedes "Gate 0 can end the product track, not the project".
+
+- 2026-10-31: **v10's drift tab is the product track's design** (owner): coupling replaces frame growth, dynamic
+  residual replaces static, the band is removed. Round 2 was pre-registered in PLAN.md and committed before its code.
+  It passes three of four bars; separation fails on the agent's own rule for "at zero", not on coupling.
+- 2026-10-31: Substrate (owner, v10): admission takes a residual and a unit supplied by the caller (v10: dynamic
+  residual, in the measured floor), keeping retain-and-tag. Static residual in D stays the default.
+
+- 2026-10-31: **v9 is the design, with two tracks on one substrate** (owner). Drift detection is the product (the one
+  practical demonstration); reasoning over the entity's own axes is the research track. They feed each other and are
+  kept apart so neither erases the other: separate directories, separate pass criteria. The Entity tab is the parent.
+  Supersedes v8 as the design (2026-10-30 lines below).
+- 2026-10-31: **Gate 0 can end the product track, not the project** (owner).
+- 2026-10-31: Description length is dropped; v9's admission rule replaces it. An axis that lowers held-out residual
+  by more than D is predictive; any other is retained as structural, tagged untested. Residual is static and D is
+  compared with a reduction in root-mean-square residual, both provisional (v9 tension log).
+- 2026-10-31: The toy bed follows v9's specification, its detectors and bars pre-registered in PLAN.md before its code;
+  the first run fails all three bars, each failure on an item v9's tension log already holds. Not retuned.
+
 - 2026-10-30: **Big Picture v8 replaces AWARE's framing** (owner). The goal, in the owner's words: "The agent should
   function as if it is aware, even without metacognition machinery." Metacognition did not tell the whole story of what
   the owner wants, and DARA is not tenable for these aims. The rungs (freeform chat, rung 2, the toy world) and the

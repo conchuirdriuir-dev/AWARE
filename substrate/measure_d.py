@@ -1,9 +1,9 @@
 """Measuring D on the real model (PLAN.md, step 1): the spread of states within paraphrase sets, per layer, beside the
 spread between sets. The layer proposed is the one with the largest between-to-within ratio; the owner chooses.
 
-    python -m measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama
-    python -m measure_d --model Qwen/Qwen3-8B --run runs/d-qwen --layers 8 16 24
-    python -m measure_d --model Qwen/Qwen3-0.6B --run runs/d-plumbing --draft      # before the sets are frozen
+    python -m substrate.measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama
+    python -m substrate.measure_d --model Qwen/Qwen3-8B --run runs/d-qwen --layers 8 16 24
+    python -m substrate.measure_d --model Qwen/Qwen3-0.6B --run runs/d-plumbing --draft      # before the sets are frozen
 
 The sets must be frozen by the owner; --draft runs on unfrozen ones and says so in the record.
 """
@@ -16,8 +16,8 @@ from pathlib import Path
 
 import numpy as np
 
-from geometry import between, spread
-from record import Record
+from substrate.geometry import between, spread
+from substrate.record import Record
 
 
 def load_sets(path: str | Path) -> list[dict]:
@@ -29,16 +29,17 @@ def default_layers(n: int) -> list[int]:
     return sorted(set(range(0, n, max(1, n // 8))) | {n - 1})
 
 
-def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False) -> dict:
+def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False,
+            skip_first: bool = True) -> dict:
     if not draft and not all(s.get("frozen") for s in sets):
         raise SystemExit("the paraphrase sets are not frozen; the owner freezes them, or run with --draft")
     blob = json.dumps(sets, sort_keys=True).encode()
     record.append("run", "code", **reader.info, read_layers=layers, sets_sha256=hashlib.sha256(blob).hexdigest(),
-                  draft=draft, pooling="mean over non-special tokens")
+                  draft=draft, pooling="mean over non-special tokens" + (", first token left out" if skip_first else ""))
     for s in sets:
         record.append("set", s.get("by", "person"), id=s["id"], texts=s["texts"], frozen=bool(s.get("frozen")))
-    per_set = [reader.states(s["texts"], layers) for s in sets]          # each: texts x layers x width
-    again = reader.states(sets[0]["texts"][:1], layers)
+    per_set = [reader.states(s["texts"], layers, skip_first) for s in sets]          # each: texts x layers x width
+    again = reader.states(sets[0]["texts"][:1], layers, skip_first)
     repeat = float(np.abs(again[0] - per_set[0][0]).max())
     rows = []
     for j, layer in enumerate(layers):
@@ -59,9 +60,14 @@ def main(argv=None):
     p.add_argument("--sets", default="material/paraphrases.jsonl")
     p.add_argument("--layers", type=int, nargs="+")
     p.add_argument("--draft", action="store_true", help="allow unfrozen sets; recorded as a draft run")
+    p.add_argument("--device", choices=["cuda", "cpu", "auto"], help="auto: split the model across GPU and RAM")
+    p.add_argument("--gpu-memory", type=float, help="with --device auto: GiB of GPU memory to use (e.g. 6.5 on 8 GB)")
+    p.add_argument("--dtype", choices=["bfloat16", "float32"])
+    p.add_argument("--quantize", choices=["4bit", "8bit"], help="a quick check only: quantisation adds noise to D")
     a = p.parse_args(argv)
-    from states import Reader
-    reader = Reader(a.model, revision=a.revision)
+    from substrate.states import Reader
+    reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
+                    quantize=a.quantize)
     layers = a.layers or default_layers(reader.info["layers"])
     report = measure(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), draft=a.draft)
     print(f"{reader.info['model']}  ({reader.info['dtype']}){'  DRAFT sets' if a.draft else ''}")
