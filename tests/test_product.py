@@ -81,3 +81,37 @@ def test_admission_keeps_a_topic_candidate_and_rejects_a_noise_candidate():
 def test_v10_compass_has_four_cells_and_no_band():
     assert cell(False, False) == "on track" and cell(False, True) == "closed loop"
     assert cell(True, False) == "progress" and cell(True, True) == "lost"
+
+
+# round 3: sparse externals, at zero against the post-intake reference, the probe
+
+from product import round3  # noqa: E402
+
+
+def test_round_three_externals_are_sparse_after_the_intake_and_forced_during_the_probe():
+    run = round3.make("progress", np.random.default_rng(0))
+    m = run["m"]
+    assert m[:round3.INTAKE].all() and m[round3.PROBE:round3.PROBE + round3.PROBE_LEN].all()
+    assert 0.3 < m[round3.INTAKE:round3.PROBE].mean() < 0.5
+    assert not run["E"][~m].any()                                  # the observer sees nothing where none arrived
+
+
+def test_round_three_echoes_arrive_as_the_entity_at_the_lag():
+    run = round3.make("proliferation, lag 3", np.random.default_rng(1))
+    k = next(k for k in range(round3.T0 + 5, round3.T) if run["m"][k])
+    assert np.linalg.norm(run["E"][k] - run["s"][k - 3]) < 1.0
+
+
+def test_readings_follow_the_bounds_against_delta():
+    assert round3.reading({"low": 0.2, "high": 0.4}, 0.1) == "open"
+    assert round3.reading({"low": -0.1, "high": 0.05}, 0.1) == "at zero"
+    assert round3.reading({"low": 0.05, "high": 0.2}, 0.1) == "undecided"
+    assert round3.reading({"low": 0.2, "high": 0.4}, None) == "no reference"
+
+
+def test_round_three_coupling_recovers_when_an_external_arrives_every_step(monkeypatch):
+    monkeypatch.setattr(round3, "ARRIVAL", 1.0)
+    rng = np.random.default_rng(2)
+    healthy = [round3.coupling(round3.make("progress", rng), 300)["coupling"] for _ in range(5)]
+    w = round3.coupling(round3.make("progress", rng), 300)
+    assert np.median(healthy) > 0.05 and w["low"] <= w["coupling"] <= w["high"]

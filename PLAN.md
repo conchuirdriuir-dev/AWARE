@@ -39,7 +39,7 @@ at every layer asked for, and the same text read twice gives the same state.
 | Step | Doc | Test | Status |
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
-| 3. Toy bed | v9, v10 and the v10 draft | below | **round 2 (v10): coupling passes its three bars, separation fails on the "at zero" rule; round 3 pre-registered (below)** |
+| 3. Toy bed | v9, v10 and the v10 draft | below | **round 2 (v10): coupling passes its three bars, separation fails on the "at zero" rule; round 3 (sparse externals) fails every bar: coupling vanishes when externals are sparse (below)** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
@@ -240,6 +240,33 @@ seed. A scalar persistence is used because it is the same in any basis, and the 
    may only rescale coupling, which δ and AUCs ignore, and logged sessions decide.
 
 Before the GPU, the same 200 trials a structure and seed 0 as rounds 1 and 2.
+
+**Round 3 result** (2026-10-31, `python -m product.round3`, 200 trials a structure, seed 0; report in
+`runs/round3.json`, not committed). **No bar passes.**
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / dynamics / spike / progress; loops called dynamics | 0.995 / **0.12** / 0.995 / 0.995; ≤ 0.075 | no |
+| 2 Coupling AUC, mastery over dullness / lag 1 / 3 / 10 | **0.22 / 0.39 / 0.39 / 0.13** | no |
+| 3 Coupling AUC, progress over lag 1 / 3 / 10 | **0.55 / 0.55 / 0.20** | no |
+| 4 Valid inference not at zero after resume | **0.05** | no |
+| 5 At zero before the probe: progress / mastery / topic / dynamics (at most 0.10) | **0.88 / 0.92 / 0.91 / 0.85** | no |
+| 6 After the probe: loops at zero (0.26 / 0.28 / 0.31 / 0.04); structure 8 not at zero | **0.26** | no |
+| 7 Shrinkage: progress spread 0.020 → 0.004; lag-10 false-open 0.13 → **0.41** | not kept | — |
+| 8 Framing: alone over in context, by lag | 0.55 vs 0.50 / 0.55 vs 0.48 / 0.20 vs 0.35 | not shown |
+
+- **Coupling vanishes with sparse externals.** Its median is at or below zero in every structure, progress (−0.013)
+  and mastery (−0.024) included, so 58–82% of runs have no reference and every bar that reads δ fails with them.
+- **Not a bug** (post-hoc check): the same code with an external every step gives round 2's pattern back (progress
+  +0.10, mastery +0.27, dullness −0.015). At 40% arrivals, an external's unique effect is confined to the one step
+  after it arrives, and that signal is smaller than the cost of fitting about 40 parameters on about 90 training
+  rows. Under a heavily regularised past model, an echo at lag 10 even reads as more coupled than progress.
+- **The review's warning about shrinkage, confirmed.** A scalar-persistence prior cut progress's spread fivefold and
+  raised the lag-10 echo's false-open rate from 0.13 to 0.41: E absorbs what the prior gets wrong.
+- **What held.** Point contrast with admission separated topic shifts, noise spikes and progress at 0.995.
+- **What it says for the design.** With externals as sparse as real sessions, coupling must be read where the
+  information is: around arrivals (event-locked), with a past model small enough for the window. A round 4 is its
+  own pre-registration.
 
 ## Research track (`research/`): reasoning over the entity's own axes
 

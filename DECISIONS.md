@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 3 fails every bar**, as pre-registered and not retuned: with sparse externals coupling's
+  median is at or below zero everywhere. The code is sound (with an external every step it gives round 2's pattern);
+  the per-window estimator lacks the power. Shrinkage is not kept (lag-10 false-open 0.13 to 0.41, the review's
+  predicted bias). Next is the owner's call.
+
 - 2026-10-31: **δ comes from the first window after the opening intake** (owner, after review comments), not the
   session's first window, which runs high on files and briefing. Also from the review: self-dynamics are fitted per
   window, shrunk toward a calibration fit (a fixed past model would let E absorb its errors and read open in 3b); the
