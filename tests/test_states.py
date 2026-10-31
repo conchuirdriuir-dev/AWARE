@@ -104,3 +104,16 @@ def test_skip_first_leaves_out_the_first_token_only_when_no_bos_precedes_it(tiny
     inside = no_bos.states_in_context(["plan a garden ", "write the budget "], [1], skip_first=True)
     alone = no_bos.states(["plan a garden "], [1], skip_first=True)
     assert np.allclose(inside[0], alone[0], atol=1e-5)          # the first chunk, sink left out either way
+
+
+def test_a_one_token_text_keeps_its_token_rather_than_averaging_nothing(tiny):
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    from transformers import PreTrainedTokenizerFast
+
+    model, _ = tiny
+    vocab = {"[UNK]": 0, "<pad>": 2, **{w: i + 3 for i, w in enumerate(WORDS)}}
+    tk = Tokenizer(models.WordLevel(vocab, unk_token="[UNK]"))
+    tk.pre_tokenizer = pre_tokenizers.Whitespace()
+    reader = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"))
+    assert np.isfinite(reader.states(["plan"], [1])).all()
+    assert np.isfinite(reader.states_in_context(["plan", "write the budget"], [1])).all()

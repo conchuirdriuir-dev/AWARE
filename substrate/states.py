@@ -62,7 +62,7 @@ class Reader:
             for i, text in enumerate(texts):
                 ids = self.tokenizer(text, return_tensors="pt")["input_ids"]
                 keep = ~torch.isin(ids[0], self.special)
-                if skip_first:
+                if skip_first and keep[1:].any():           # a one-token text keeps its token: no empty mean
                     keep[0] = False
                 saved = []
                 with self.model.trace(ids):
@@ -85,7 +85,7 @@ class Reader:
             piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
             spans.append((len(ids), len(ids) + len(piece)))
             ids.extend(piece)
-        if skip_first and spans and spans[0][0] == 0:
+        if skip_first and spans and spans[0][0] == 0 and spans[0][1] > 1:
             spans[0] = (1, spans[0][1])                 # the sequence's own first token: the sink
         saved = []
         with torch.no_grad():
