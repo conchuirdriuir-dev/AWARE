@@ -98,3 +98,46 @@ residual descriptor; K, N, M; probe rates.
 7b is the last planned change to the toy. If product bars 1–12 all pass, the generator, readings and thresholds are
 frozen under the tag `toybed-frozen`, changed after that only for a finding on real data. If any fails, nothing is
 frozen, and the next round meets a new blind structure.
+
+## Round 7b result
+
+2026-10-31, `python -m product.round7b`, 200 trials a structure, seed 0; report in `runs/round7b.json`, not committed.
+**Seven of twelve product bars. Nothing is frozen.** Calibration: K = 1, N = 4, M = 10, profile peak at lead 2
+(0.993); thresholds include recurrence 0.0 (progress's 99th percentile) and contingency 0.234.
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / noise spike / progress; dynamics | 1.00 / 0.97 / 0.98; 0.95 | yes |
+| 2 Gain ranks mastery above dullness | 1.00 | yes |
+| 3 Long news ranks progress above each echo | 1.00 at every lag | yes |
+| 4 Valid inference | 1.00 | yes |
+| 5 Healthy not closed or captured, final (at least 0.90 each) | 1.00 / 0.995 / 1.00 / 0.99 / 0.975 / **0.80** (saturating) / 0.93 / 0.985 | no |
+| 6 Loops closed, final (at least 0.80 each) | dullness 1.00; echoes 0.92–1.00; **replay 0.57**; attractor 0.98 | no |
+| 7 Response profile | lead 2; 0.993 | yes |
+| 8 Intervals honest | misses 0.11 / 0.115; SE ratio 1.005 | yes |
+| 9 Blind structure matches its expected final reading | **0.115** | no |
+| 10 Arrival cause does work: open with the field / closed without it | 0.985 / **0.015** | no |
+| 11 Capture is contingency: AUC echo over replay; echoes called mirror; replay called stale | 1.00 / 0.98 / 0.81 / 0.81 / **0.53**; **0.995 / 0.86 / 0 / 0 / 0**; 0.95 | no |
+| 12 Entity captured: the copying entity / mastery | 0.825 / 0.005 | yes |
+
+**What worked.** Entity captured fires on an entity copying a partner off the task and not on mastery. Probing
+partner-side loops first rescues healthy and declining work (0.975, against 0.00 in 7a). Contingency tells a
+short-lag mirror from a stale partner (lag 1 called mirror in 0.995, replay called stale in 0.95). The attractor loop
+is caught (0.98) by persistence and recurrence.
+
+**What the misses are** (post-hoc checks, 60 runs each):
+- **Contingency can only identify a mirror whose lag is short against the probe window.** Long-lag echoes are probed and
+  read closed loop, as they should; only the label fails. A lag-10 partner's responses in the 20-step window mostly
+  echo states from before the probe moved the entity, so the probe's direction is diluted below the threshold; at lag
+  20 none of them carry it. A design limit, not a bug: a probe can only test what returns within its window.
+- **Saturating** reads closed loop in some runs through a degenerate threshold in this pre-registration: progress's
+  99th percentile of recurrence is exactly 0, so "recurrence above it" fires on any recurrence at all, and saturating's
+  lower persistent gain completes the condition. The saturation also compresses gain on large innovations, leaving
+  about a fifth of runs undecided after the probe.
+- **Replay** reads closed in 0.57. With the √2·D floor its long news (median about 1.35 D) sits on the floor, so the
+  reading is close to a coin toss; a floor between two readings of the same content cannot separate content that is
+  exactly that, which is what replay is. The real model's measured echo floor, with its own spread, has to decide it.
+- **The arrival-cause field's work is absorbed by the probe.** With the field ignored, confirmations heavy reads news
+  at zero, the probe fires, and the partner's fresh responses read open: 0.015 closed. Probing first makes the field
+  redundant for this structure in the toy. It still matters where a probe is costly or unanswered, which the toy does
+  not model.
