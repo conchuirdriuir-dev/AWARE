@@ -2,7 +2,9 @@
 
 The design is the Big Picture doc, v9 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a
 Claude Doc). Its **Entity** tab is the parent: what the entity is, the substrate decisions, the capacities, and the two
-tracks. The **Drift detection (v9)** tab is the product track's full treatment; **Tech stack** sets the build order.
+tracks. The **Drift detection (v10)** tab is the product track's full treatment (v9's is kept as the record);
+**Tech stack** sets the build order. v10's Gate 0 still reads "can end the project"; the owner's decision that it ends
+the product track only stands until the doc says otherwise.
 Where this file and the doc differ, the doc wins and this file is corrected.
 
 **Two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
@@ -37,7 +39,7 @@ at every layer asked for, and the same text read twice gives the same state.
 | Step | Doc | Test | Status |
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
-| 3. Toy bed | Toy bed specification | below | **built; first run fails three of its four bars (below)** |
+| 3. Toy bed | v9 and v10, Toy bed | below | **round 1 (v9 detectors) failed three of four bars; round 2 (v10 detectors) below** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. **Can end the product track** |
@@ -110,6 +112,45 @@ What each miss says, each mapped to an item already open in v9's tension log:
 - **What passed.** Point contrast separates topic shifts, and the margin catches the dullness closed loop (0.86).
 
 Any change to the detectors in answer to this is a new pre-registration and a new run, not an edit to this one.
+
+### Step 3, round 2: v10's detectors (pre-registered 2026-10-31, before its code)
+
+v10 replaced frame growth with coupling, static residual with dynamic, and removed the band. Same generator as round 1,
+with 360 steps (onset at 120) so the late windows clear the 60-step ramps, and these changes from v10:
+- **3b, proliferation,** at three echo lags: from onset the externals are the entity's state 1, 3 or 10 steps back plus
+  noise 0.3 D. Scored at each lag separately, never pooled.
+- **7, valid inference:** the externals carry a trend (0.3 D a step along one direction); at onset they pause for 40
+  steps (the last external is repeated, stale); meanwhile the entity is driven by its own on-trend extrapolation; then
+  the externals resume on trend.
+
+**Detectors.** All in the code: the top principal axes of the window's own states about c. Fits are least squares
+with a small ridge (1.0), fitted on the first 70% of a window and judged on the rest.
+- **Coupling** (windows of 160 steps, 3 axes): the fall in held-out one-step error when the current external state is
+  added to a fit already using the last p = 12 states (above the longest echo lag, 10). A Granger-style reduction,
+  not the size of B̂.
+- **Dynamic residual:** the held-out one-step error of that full fit.
+- **Point contrast on the residual** (4 axes, p = 1): a joint fit on the 60 steps before onset; the candidate is the
+  mean residual vector over the 30 steps after onset minus that over the 60 before; the statistic is its length.
+- **Admission of that candidate** (`substrate/axes.py`, residual supplied by the product): the candidate's level is
+  re-estimated on onset's first 15 steps and judged on the next 15; admitted if it lowers the held-out residual by more
+  than the floor, the median of the same residual over progress runs with no candidate.
+- **Spectral descriptor** (4 axes, p = 1): the sorted eigenvalue magnitudes of Â from the joint fit, so B̂·E is
+  removed; the distance between the 60 steps before onset and steps 180–240.
+- Thresholds from 500 progress runs with a separate seed: point contrast and the descriptor fire above their 99th
+  percentile; coupling is "at zero" below its 5th percentile and the residual "at floor" below its 95th. A window is
+  flagged closed loop when both hold.
+
+**Pass** (v10's bars):
+- Rows 1, 2, 5, 6 at 90% or better, each over 200 trials, read in order: point contrast fires and the candidate is
+  admitted, topic shift; fires and rejected, noise spike; otherwise the descriptor fires and coupling is open (late
+  window 200–360), dynamics shift; fires with coupling at zero, closed loop; nothing fires, progress. Row 2 also needs
+  3a and 3b (every lag) called dynamics shift in no more than 10% of their runs.
+- Coupling over steps 200–360 ranks mastery above 3a, and above 3b at each lag, at AUC 0.8 or better.
+- Coupling over steps 200–360 ranks progress above 3b at AUC 0.8 or better, at every lag separately. A fail means
+  coupling is also measuring provenance (v10: then the in-context/out-of-context divergence is needed).
+- Row 7: of the windows starting after the externals resume (160, 180 and 200), at least 90% not flagged closed loop.
+  v10 does not say which windows; the pause itself is predicted to dip, so this reading counts only the windows after
+  it, and the whole run is reported beside it.
 
 ## Research track (`research/`): reasoning over the entity's own axes
 
