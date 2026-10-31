@@ -97,3 +97,13 @@ lead-1 gain; news and gain read in context against alone; the blind structure's 
 If every bar passes, the generator, readings and thresholds of this round are frozen under the tag `toybed-frozen`.
 After that they change only for a finding on real data, recorded with the finding. If a bar fails, nothing is frozen,
 and round 6 meets a new blind structure.
+
+### Amendment, 2026-10-31, before any test or blind result
+
+The first build of this round could not finish: the refitting bootstrap returned a standard error of zero. The
+cause is the rule for K above. At a horizon of 8 or more, every reference-window arrival falls in one overlap block,
+so the cluster-robust error collapses toward zero, z grows without bound, and the rule picks a degenerate horizon (12).
+Only calibration numbers had been computed; no test structure's or the blind structure's result had been computed or
+seen. Amended rule: **K is the horizon that maximises the median z among the horizons whose reference-window arrivals
+form at least 10 overlap blocks (median over the 200 calibration runs)**, so that the error is defined. Nothing else
+changes.
