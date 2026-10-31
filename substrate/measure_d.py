@@ -60,9 +60,14 @@ def main(argv=None):
     p.add_argument("--sets", default="material/paraphrases.jsonl")
     p.add_argument("--layers", type=int, nargs="+")
     p.add_argument("--draft", action="store_true", help="allow unfrozen sets; recorded as a draft run")
+    p.add_argument("--device", choices=["cuda", "cpu", "auto"], help="auto: split the model across GPU and RAM")
+    p.add_argument("--gpu-memory", type=float, help="with --device auto: GiB of GPU memory to use (e.g. 6.5 on 8 GB)")
+    p.add_argument("--dtype", choices=["bfloat16", "float32"])
+    p.add_argument("--quantize", choices=["4bit", "8bit"], help="a quick check only: quantisation adds noise to D")
     a = p.parse_args(argv)
     from substrate.states import Reader
-    reader = Reader(a.model, revision=a.revision)
+    reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
+                    quantize=a.quantize)
     layers = a.layers or default_layers(reader.info["layers"])
     report = measure(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), draft=a.draft)
     print(f"{reader.info['model']}  ({reader.info['dtype']}){'  DRAFT sets' if a.draft else ''}")

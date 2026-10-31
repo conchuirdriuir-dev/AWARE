@@ -2,7 +2,12 @@
 tokens, through nnterp's standardized layer names so the same code reads Llama and Qwen.
 
 Special tokens are left out of the mean: Llama's begin-of-text token carries a state far larger than any other and
-would swamp it. States are derived, never the record; `info` is what the record keeps so they can be rebuilt.
+would swamp it. States are derived, never the record; `info` is what the record keeps so they can be rebuilt,
+including how the model was loaded: where its layers sit, in what precision, and whether it was quantised (4-bit is a
+quick check only: it adds noise to D).
+
+Loading the 8B on a card smaller than its weights: `device_map="auto"` with `gpu_memory` (GiB) puts as many layers
+on the GPU as fit and the rest in system RAM. Slower, but exact.
 """
 from __future__ import annotations
 
@@ -10,16 +15,30 @@ import numpy as np
 
 
 class Reader:
-    def __init__(self, model, tokenizer=None, revision: str | None = None, device: str | None = None):
-        """`model` is a Hugging Face name, or an already-built model with its `tokenizer` (the tests' tiny one)."""
+    def __init__(self, model, tokenizer=None, revision: str | None = None, device: str | None = None,
+                 dtype: str | None = None, gpu_memory: float | None = None, quantize: str | None = None):
+        """`model` is a Hugging Face name, or an already-built model with its `tokenizer` (the tests' tiny one).
+        `device`: "cuda", "cpu" or "auto" (split across GPU and RAM, capped at `gpu_memory` GiB on the GPU).
+        `dtype`: "bfloat16" or "float32" (default: bfloat16 on a GPU, float32 on CPU). `quantize`: None, "4bit" or
+        "8bit" (needs bitsandbytes and a GPU)."""
         import torch
         from nnterp import StandardizedTransformer
 
+        self.load = {"device": device, "dtype": dtype, "gpu_memory": gpu_memory, "quantize": quantize}
         if isinstance(model, str):
             cuda = torch.cuda.is_available()
-            self.model = StandardizedTransformer(model, revision=revision,
-                                                 dtype=torch.bfloat16 if cuda else torch.float32,
-                                                 device_map=device or ("cuda" if cuda else "cpu"))
+            kwargs = {"revision": revision,
+                      "dtype": getattr(torch, dtype) if dtype else (torch.bfloat16 if cuda else torch.float32),
+                      "device_map": device or ("cuda" if cuda else "cpu")}
+            if device == "auto" and gpu_memory is not None:
+                kwargs["max_memory"] = {0: f"{gpu_memory}GiB", "cpu": "64GiB"}
+            if quantize is not None:
+                if not cuda:
+                    raise ValueError("quantised loading needs a GPU (bitsandbytes)")
+                from transformers import BitsAndBytesConfig
+                kwargs["quantization_config"] = (BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
+                                                 if quantize == "4bit" else BitsAndBytesConfig(load_in_8bit=True))
+            self.model = StandardizedTransformer(model, **kwargs)
             self.name = model
         else:
             self.model = StandardizedTransformer(model, tokenizer=tokenizer)
@@ -30,7 +49,7 @@ class Reader:
         self.info = {"model": self.name, "revision": revision,
                      "commit": getattr(config, "_commit_hash", None),
                      "layers": self.model.num_layers, "width": config.hidden_size,
-                     "dtype": str(next(self.model._model.parameters()).dtype)}
+                     "dtype": str(next(self.model._model.parameters()).dtype), "load": self.load}
 
     def states(self, texts: list[str], layers: list[int], skip_first: bool = True) -> np.ndarray:
         """One state per text and layer: an array of shape (texts, layers, width), float32. With `skip_first`, the
