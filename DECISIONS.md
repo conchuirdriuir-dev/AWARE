@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **From the biologist review** (owner; triage in `reviews/design/biologist-triage.md`). Each chunk records
+  its arrival cause beside its origin: spontaneous, or elicited by the entity's preceding action (substrate). News is
+  measured twice, short (against the last 21 states) and long (against the session's record), which settles what counts
+  as new. The compass gains contingency-based partner capture and an "entity captured" reading (gain too high), pending
+  their test. Round 7 is split: 7a, provenance and news; 7b, contingency and the reactive toy.
+
 - 2026-10-31: **Toy bed round 6: product seven of nine, discovery fails; not frozen.** The blind structure, a partner
   replaying content the session received 60–260 steps earlier, read open in every run: novelty is measured against the
   last 21 states, not the session's record. Open for the owner: whether content gone from recent history is news

@@ -53,7 +53,7 @@ def test_a_real_direction_is_admitted_and_a_noise_direction_is_retained_as_struc
 
 def test_chunks_carry_their_provenance_and_sources_are_checked(tmp_path):
     r = Record(tmp_path / "run" / "record.jsonl")
-    r.chunk("the task", "person", "external")
+    r.chunk("the task", "person", "external", cause="spontaneous")
     r.chunk("a reply", "model", "self")
     Record(tmp_path / "run" / "record.jsonl").append("states", "code", layers=[4])
     rows = read(tmp_path / "run" / "record.jsonl")
@@ -63,3 +63,13 @@ def test_chunks_carry_their_provenance_and_sources_are_checked(tmp_path):
         r.append("text", "reviewer", text="a")
     with pytest.raises(ValueError):
         r.chunk("x", "model", "mine")
+
+
+def test_an_external_chunk_needs_its_arrival_cause(tmp_path):
+    r = Record(tmp_path / "r.jsonl")
+    with pytest.raises(ValueError):
+        r.chunk("tool output", "code", "external")
+    with pytest.raises(ValueError):
+        r.chunk("tool output", "code", "external", cause="mine")
+    entry = r.chunk("tests passed", "code", "external", cause="elicited")
+    assert entry["cause"] == "elicited" and entry["provenance"] == "external"
