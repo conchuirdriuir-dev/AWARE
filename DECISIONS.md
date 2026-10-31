@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Naming a change in the entity's dynamics is discovery's, not the product's** (owner). The product's
+  separation bar narrows to what the product needs: a dynamics shift is not called a closed loop or a topic shift.
+  Mode detection gets its own test under the discovery capacity (shared by both tracks), read by a residual
+  descriptor: the structure of unexplained surprise (its subspace and step-to-step dynamics), scored apart from the
+  product's pass. Scalar gain stays for coupling.
+
 - 2026-10-31: **Toy bed round 5 passes eight of nine bars; not frozen.** The blind structure (an entity replaying its
   own moves while ignoring novel externals) read closed loop in every run. Separation fails: the builder's news-spike
   rule took a per-arrival threshold over about 12 arrivals, and a scalar gain profile cannot see a dynamics change
