@@ -141,3 +141,17 @@ is caught (0.98) by persistence and recurrence.
   at zero, the probe fires, and the partner's fresh responses read open: 0.015 closed. Probing first makes the field
   redundant for this structure in the toy. It still matters where a probe is costly or unanswered, which the toy does
   not model.
+
+**The blind structure, opened after the result was recorded.** "blind-7b": from step 200 the entity runs a fixed
+retry loop, repeating nine actions in order on a 23-step cycle, each drawing back the same result again (elicited, a
+fixed vector plus reading noise). Each result sits about 3 D from the recent window, so it is not a confirmation and
+short news looks present; the entity takes it up, so short gain looks intact, as healthy active sensing does. But
+nothing new to the session arrives, and no innovation lasts past a cycle. The reviewer expected a closed loop on the
+entity's side (an agent stuck re-issuing the same calls), after the probe too. It read open in 89% of runs. The cause
+is replay's: a repeat re-read with noise lands on the √2·D floor, so long news cannot reliably call it nothing new.
+Persistence did not complete the loop reading either.
+
+**Across 7a and 7b, one limit recurs.** Detecting that content *repeats* (replay, the retry loop) depends on a floor
+for "the same content, read again" that the toy cannot supply: in the toy it is √2·D by construction, exactly where
+repeats sit. On the real model it is the echo floor, measured with its own spread (DECISIONS.md, the event record),
+and only that measurement can say whether repeats are separable from news.

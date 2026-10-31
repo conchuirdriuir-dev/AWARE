@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 7b passes seven of twelve product bars; not frozen.** Entity captured, probing
+  partner-side loops first, short-lag mirrors and the attractor loop work. Misses: contingency only names a mirror
+  whose lag is short against the probe window; a degenerate recurrence threshold; the probe absorbs the arrival-cause
+  field's work; and repeats (replay, the blind structure's retry loop) sit on the toy's √2·D floor. Detecting repeats
+  waits on the real model's echo floor.
+
 - 2026-10-31: **Toy bed round 7a passes seven of ten bars**, separation among them for the first time. Misses: the
   news floor was in the wrong unit for comparing two readings (√2 D, not D); closed loops were never probed, though
   the design probes a partner-side loop first; and the blind structure (a quiet partner, the entity sensing through

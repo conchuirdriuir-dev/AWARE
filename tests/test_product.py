@@ -214,3 +214,29 @@ def test_round_7a_confirmations_are_elicited_and_carry_little_short_news():
     inn = round7a.news(run)
     conf = inn["elicited"] & (inn["t"] < 460)
     assert conf.sum() > 20 and np.median(inn["news"][conf]) < 1.0
+
+
+# round 7b: contingency and the reactive toy
+
+from product import round7b  # noqa: E402
+
+
+def test_round_7b_probe_displaces_the_entity_only_from_step_461():
+    rng = np.random.default_rng(8)
+    run = round7b.make("progress", rng)
+    jump = run["s"][461] - run["s"][460]
+    assert jump @ run["probe"] > 1.5
+
+
+def test_round_7b_a_short_lag_mirror_follows_the_probe_and_a_replay_does_not():
+    rng = np.random.default_rng(9)
+    mirror = round7b.make("proliferation, lag 1", rng)
+    stale = round7b.make("replay", rng)
+    assert round7b.contingency(mirror, round7b.news(mirror)) > 0.3 > round7b.contingency(stale, round7b.news(stale))
+
+
+def test_round_7b_attractor_loop_recurs_and_progress_does_not():
+    rng = np.random.default_rng(10)
+    loop, calm = round7b.make("attractor loop", rng), round7b.make("progress", rng)
+    assert round7b.persistence(loop, round7b.news(loop))["recurrence"] > 0.3
+    assert round7b.persistence(calm, round7b.news(calm))["recurrence"] < 0.05
