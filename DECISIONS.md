@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Echo floor, long sessions** (Qwen3-4B, draft sets, 56 statements, about 1,000 tokens): it holds in
+  the last positions at layers 28 and 32 (AUC 0.95, 0.99), not at 24 or 35. At every layer the floor grows with
+  position while news stays put, so the margin narrows; at real session lengths it is unknown. The floor must be a
+  function of context position.
+
 - 2026-10-31: **A state leaves out a sequence's first token by default** (owner, after the echo-floor dress
   rehearsal): without a begin-of-sequence token it is an attention sink whose massive activations swamp the mean.
   Substrate: the reader's `skip_first` now defaults to on; `--keep-first` restores the old reading.

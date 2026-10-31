@@ -85,6 +85,26 @@ RTX 4060 with 32 GB of RAM runs the 8B, split between GPU and RAM), draft sets, 
 - **How it is read:** the floor holds at length if news ranks above exact echo at AUC 0.9 or better in the last bin
   (25–56) at the layers that separated best in the short sessions (21–27 of 28 there; the 4B's last third here).
 
+*Long-session result* (2026-10-31; Qwen3-4B, bfloat16 on CPU, draft sets, first token left out; 4 sessions of 56
+statements; record in `runs/echo-qwen4b-long/`, not committed). Medians, with exact echoes' 95th percentile after the
+slash, in units of D:
+
+| Layer | News (5th) | Echo, positions 1–8 | 9–24 | 25–56 | AUC 1–8 / 9–24 / 25–56 |
+|---|---|---|---|---|---|
+| 8 | 2.18 (1.95) | 1.19 / 1.48 | 1.43 / 1.60 | 1.55 / 1.81 | 1.00 / 1.00 / 1.00 |
+| 24 | 2.81 (2.41) | 1.97 / 2.32 | 2.43 / 2.72 | 2.57 / 2.85 | 1.00 / 0.91 / **0.78** |
+| 28 | 2.72 (2.39) | 1.56 / 1.81 | 1.99 / 2.25 | 2.25 / 2.56 | 1.00 / 1.00 / 0.95 |
+| 32 | 2.64 (2.36) | 1.42 / 1.65 | 1.80 / 2.16 | 2.08 / 2.38 | 1.00 / 1.00 / 0.99 |
+| 35 | 2.44 (2.14) | 1.49 / 2.23 | 1.89 / 2.51 | 2.09 / 2.59 | 0.98 / 0.89 / **0.83** |
+
+**Read as written: the floor holds in the last bin at two of the four last-third layers (28, 32), not at 24 or 35.**
+At every layer the echo floor grows with position (at 32: 1.42 to 2.08 D), while news stays put, so the margin
+narrows as a session grows: at 32 the last bin's 95th percentile (2.38) already meets news's 5th (2.36). These
+sessions are about 1,000 tokens; real ones run to tens of thousands. Whether repeats stay separable at real lengths is
+not settled by this, and the echo floor has to be read as a function of position, not a constant. Layer 8 holds
+cleanly throughout, but an early layer is close to the tokens themselves, so its separation of exact repeats may not
+carry to repeats in other words.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
