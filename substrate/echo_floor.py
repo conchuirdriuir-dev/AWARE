@@ -205,6 +205,82 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     return report
 
 
+def _shingles(text: str) -> set:
+    words = text.split()
+    return {" ".join(words[i:i + 3]) for i in range(max(1, len(words) - 2))}
+
+
+def classify(texts: list[str]) -> list[tuple[str, float]]:
+    """Each chunk against every earlier one in its session, by text only: exact repeat, near repeat (word 3-gram
+    Jaccard 0.8 or more), new (below 0.2 with every earlier chunk), or between."""
+    sh, seen, out = [], {}, []
+    for t in texts:
+        s = _shingles(t)
+        best = max((len(s & e) / len(s | e) for e in sh if s | e), default=0.0)
+        if t in seen:
+            out.append(("exact repeat", 1.0))
+        elif best >= 0.8:
+            out.append(("near repeat", best))
+        elif best < 0.2:
+            out.append(("new", best))
+        else:
+            out.append(("between", best))
+        sh.append(s)
+        seen[t] = True
+    return out
+
+
+def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record, corpus: str, n_sessions: int = 10,
+                     per_session: int = 300, draft: bool = False, skip_first: bool = True, seed: int = 0,
+                     cap: int = 256) -> dict:
+    """News alone against alone on logged sessions: each chunk's distance to the nearest earlier chunk's alone
+    reading, for repeats against new content. No corpus text is recorded, only references and classes."""
+    from substrate.corpus import load_session, sessions as session_paths
+
+    d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
+    D = np.array([row["D"] for row in d_report["layers"]])
+    tok = reader.tokenizer
+    rng = np.random.default_rng(seed)
+    paths = session_paths(corpus)
+    paths = [paths[i] for i in rng.permutation(len(paths))]
+    dist, kinds, third, refs = [], [], [], []
+    done = 0
+    for path in paths:
+        chunks = load_session(path)[:per_session]
+        if len(chunks) < 60:
+            continue
+        texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
+        A = reader.states(texts, layers, skip_first)                       # every chunk read alone
+        cls = classify(texts)
+        for i in range(1, len(texts)):
+            dist.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
+            kinds.append(cls[i][0])
+            third.append(min(2, 3 * i // len(texts)))
+            refs.append({"ref": chunks[i]["ref"], "class": cls[i][0], "overlap": round(cls[i][1], 3),
+                         "provenance": chunks[i]["provenance"], "cause": chunks[i]["cause"]})
+        done += 1
+        if done == n_sessions:
+            break
+    record.append("echo corpus, alone", "code", chunks=refs, per_session=per_session, cap=cap, draft=draft)
+    dist, kinds, third = np.array(dist) / D, np.array(kinds), np.array(third)
+    rows = []
+    for j, layer in enumerate(layers):
+        new, near, exact = dist[kinds == "new", j], dist[kinds == "near repeat", j], dist[kinds == "exact repeat", j]
+        row = {"layer": layer, "D": float(D[j]), "new, median": float(np.median(new)), "new, 5th": float(np.percentile(new, 5)),
+               "near repeat, median": float(np.median(near)) if len(near) else float("nan"),
+               "near repeat, 95th": float(np.percentile(near, 95)) if len(near) else float("nan"),
+               "exact repeat, max": float(exact.max()) if len(exact) else float("nan"),
+               "AUC new over near repeat": auc(new, near) if len(near) else float("nan")}
+        for k, name in ((0, "first third"), (2, "last third")):
+            nw, nr = dist[(kinds == "new") & (third == k), j], dist[(kinds == "near repeat") & (third == k), j]
+            row[f"AUC, {name}"] = auc(nw, nr) if len(nw) and len(nr) else float("nan")
+        rows.append(row)
+    counts = {k: int(np.sum(kinds == k)) for k in ("exact repeat", "near repeat", "new", "between")}
+    report = record.append("echo floor, alone", "code", layers=rows, counts=counts, sessions=done, draft=draft)
+    np.savez(record.path.parent / "echo_alone.npz", dist=dist, kinds=kinds, third=third)      # derived
+    return report
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True)
@@ -220,6 +296,7 @@ def main(argv=None):
     p.add_argument("--long", action="store_true", help="long sessions: does the floor hold as a session grows?")
     p.add_argument("--corpus", help="a directory of logged session archives (S*.tar.gz): the floor at real lengths")
     p.add_argument("--window", type=int, default=4096, help="with --corpus: tokens of each session read in one pass")
+    p.add_argument("--alone", action="store_true", help="with --corpus: news alone against alone, repeats against new")
     p.add_argument("--keep-first", action="store_true",
                    help="keep each sequence's first token; by default it is left out (an attention sink)")
     a = p.parse_args(argv)
@@ -227,6 +304,18 @@ def main(argv=None):
     reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
                     quantize=a.quantize)
     layers = a.layers or default_layers(reader.info["layers"])
+    if a.corpus and a.alone:
+        rep = echo_floor_alone(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), a.corpus,
+                               draft=a.draft, skip_first=not a.keep_first)
+        print(f"{reader.info['model']} ({reader.info['dtype']}){'  DRAFT' if a.draft else ''}; alone against alone, "
+              f"{rep['sessions']} sessions; chunks by class: {rep['counts']}; units of D")
+        print(f"{'layer':>5} {'D':>8} {'new med':>8} {'new 5':>6} {'near med':>9} {'near 95':>8} {'exact max':>9} "
+              f"{'AUC':>5} {'AUC 1st':>8} {'AUC last':>8}")
+        for r in rep["layers"]:
+            print(f"{r['layer']:>5} {r['D']:>8.3f} {r['new, median']:>8.2f} {r['new, 5th']:>6.2f} "
+                  f"{r['near repeat, median']:>9.2f} {r['near repeat, 95th']:>8.2f} {r['exact repeat, max']:>9.3f} "
+                  f"{r['AUC new over near repeat']:>5.2f} {r['AUC, first third']:>8.2f} {r['AUC, last third']:>8.2f}")
+        return
     if a.corpus:
         rep = echo_floor_corpus(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), a.corpus,
                                 window=a.window, draft=a.draft, skip_first=not a.keep_first)

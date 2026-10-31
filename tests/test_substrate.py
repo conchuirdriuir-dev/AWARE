@@ -102,3 +102,11 @@ def test_a_logged_session_becomes_chunks_with_provenance_and_cause(tmp_path):
         ("external", "spontaneous"), ("self", None), ("self", None), ("external", "elicited")]
     assert chunks[0]["text"] == "Please check x." and chunks[2]["text"].startswith("[tool call Read]")
     assert chunks[3]["text"] == "x = 1" and chunks[1]["ref"] == ["S99", "a1", 1]       # the thinking block is left out
+
+
+def test_chunks_are_classed_as_exact_near_repeat_or_new_by_text():
+    from substrate.echo_floor import classify
+
+    base = "the quick brown fox jumps over the lazy dog near the river bank today"
+    texts = [base, base, base + " again", "an entirely different sentence about budgets and gardens and lessons"]
+    assert [k for k, _ in classify(texts)] == ["new", "exact repeat", "near repeat", "new"]
