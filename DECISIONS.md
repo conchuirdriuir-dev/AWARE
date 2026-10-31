@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 7a passes seven of ten bars**, separation among them for the first time. Misses: the
+  news floor was in the wrong unit for comparing two readings (√2 D, not D); closed loops were never probed, though
+  the design probes a partner-side loop first; and the blind structure (a quiet partner, the entity sensing through
+  its own tool calls) showed that every elicited arrival was treated as a confirmation, when only low-news ones are.
+
 - 2026-10-31: **From the biologist review** (owner; triage in `reviews/design/biologist-triage.md`). Each chunk records
   its arrival cause beside its origin: spontaneous, or elicited by the entity's preceding action (substrate). News is
   measured twice, short (against the last 21 states) and long (against the session's record), which settles what counts

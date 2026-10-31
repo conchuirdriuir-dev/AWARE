@@ -193,3 +193,24 @@ def test_round_six_residual_descriptor_sees_a_dynamics_shift_and_not_a_topic_shi
     d_dyn = round6.observe(dyn, round4.innovations(dyn))["descriptor"]
     d_top = round6.observe(top, round4.innovations(top))["descriptor"]
     assert d_dyn > 4 * d_top
+
+
+# round 7a: provenance and news
+
+from product import round7a  # noqa: E402
+
+
+def test_round_7a_long_news_is_low_for_replayed_content_and_short_news_is_not():
+    rng = np.random.default_rng(6)
+    run = round7a.make("replay", rng)
+    inn = round7a.news(run)
+    late = (inn["t"] >= 260) & (inn["t"] < 460)
+    assert np.median(inn["long"][late]) < 2.0 < np.median(inn["news"][late])
+
+
+def test_round_7a_confirmations_are_elicited_and_carry_little_short_news():
+    rng = np.random.default_rng(7)
+    run = round7a.make("confirmations", rng)
+    inn = round7a.news(run)
+    conf = inn["elicited"] & (inn["t"] < 460)
+    assert conf.sum() > 20 and np.median(inn["news"][conf]) < 1.0

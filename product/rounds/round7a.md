@@ -119,3 +119,12 @@ The noise-spike fix worked (0.975, against 0.88 in round 6); separation passes f
   pushes it under the floor. The toy did not show what the field does; 7b's reactive tool should.
 - **Short and long news agree on healthy work** (median correlation 0.86–0.89; 0.46 for healthy and declining). Long
   news earns its place only where content returns, which is replay's job and, on this result, the blind structure's.
+
+**The blind structure, opened after the result was recorded.** "blind-7a": from step 200 the partner goes quiet,
+its rare spontaneous messages content-free acknowledgements re-presenting one point, while the entity drives its own
+work through tool calls whose elicited results each carry content new to the session, and takes them up. The reviewer
+expected open: news is present, only it arrives because the entity asked, and gain is open. It read closed loop in
+every run (re-presentation in 82%). **The rule treated every elicited arrival as a confirmation.** Only an elicited
+arrival with little news confirms an action; one with news is the world answering the entity's own sensing (the
+biologist review's active sensing, finding 1). The partner-side loop should exclude confirmations, not every elicited
+arrival.
