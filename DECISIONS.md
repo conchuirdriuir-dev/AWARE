@@ -44,7 +44,7 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   by more than D is predictive; any other is retained as structural, tagged untested. Residual is static and D is
   compared with a reduction in root-mean-square residual, both provisional (v9 tension log).
 - 2026-10-31: The toy bed follows v9's specification, its detectors and bars pre-registered in PLAN.md before its code;
-  the first run fails three of four bars, each failure on an item v9's tension log already holds. Not retuned.
+  the first run fails all three bars, each failure on an item v9's tension log already holds. Not retuned.
 
 - 2026-10-30: **Big Picture v8 replaces AWARE's framing** (owner). The goal, in the owner's words: "The agent should
   function as if it is aware, even without metacognition machinery." Metacognition did not tell the whole story of what
