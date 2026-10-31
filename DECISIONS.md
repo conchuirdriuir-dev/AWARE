@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Event-locked latency** (owner). A gain reading waits for a news budget (its 90% bound within ±0.25 of
+  the reference gain), pooled over the shortest recent span that meets it. News is read per arrival against the D
+  floor; news at zero is N arrivals in a row below it, N calibrated so healthy sessions show it at most 10% of the time.
+  Unmet within M arrivals: undecided, and a probe fires. Intervals are analytic over arrival blocks and must show their
+  stated coverage against a refitting bootstrap. **M is a tuning problem** (owner): chosen by a rule fixed in advance,
+  on calibration runs kept apart from the test, never on test results.
+
 - 2026-10-31: **Event-locked pooling: news and gain** (owner). Overlapping responses are modelled jointly through each
   arrival's innovation (its content not forecast from the entity's history H or the previous externals). Arrivals are
   pooled by regression into news (innovation size) and gain (response per unit innovation, a scalar per lead);
