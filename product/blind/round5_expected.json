@@ -1,0 +1,6 @@
+{
+  "name": "blind-5",
+  "reading at 460": "closed loop",
+  "final reading": "closed loop",
+  "rationale": "From step 200 the entity falls into a repetitive action loop: it stops conditioning on what arrives and instead replays its own last six moves (states 194-199) in a fixed cycle, under the same relaxation dynamics and noise as the baseline, while the partner keeps sending normal, novel externals (slow walk plus fresh content jumps, ~40% of steps). News therefore stays well above D, but none of the innovations show up in the entity's subsequent movement, so pooled gain falls to about zero, confidently below half of the opening-window gain: news present, gain at zero is a closed loop on the entity's side. What makes it a trap is that the entity keeps moving substantially (cycle steps of several D), so it carries large unexplained surprise and does not look still or dull; a detector that reads movement or surprise as activity could call it progress or a discovery candidate. The probe responses at 460-479 are ordinary novel externals that the entity also ignores, and nothing from 460 on alters earlier steps, so the reading after any probe remains closed loop."
+}
