@@ -48,3 +48,27 @@ class Reader:
                 for j, s in enumerate(saved):
                     out[i, j] = s[0, keep.to(s.device)].float().mean(0).cpu().numpy()
         return out
+
+    def states_in_context(self, chunks: list[str], layers: list[int]) -> np.ndarray:
+        """One state per chunk and layer, each chunk read inside the whole sequence (one forward pass): what the model
+        makes of the chunk once deep in, against `states`, which reads each chunk on its own. Chunks are joined as
+        given, so they carry their own separators or chat formatting."""
+        import torch
+
+        spans, ids = [], []
+        first = self.tokenizer("", return_tensors="pt")["input_ids"][0].tolist()    # what the tokenizer prepends
+        ids.extend(first)
+        for chunk in chunks:
+            piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
+            spans.append((len(ids), len(ids) + len(piece)))
+            ids.extend(piece)
+        saved = []
+        with torch.no_grad():
+            with self.model.trace(torch.tensor([ids])):
+                for layer in layers:
+                    saved.append(self.model.layers_output[layer].save())
+        out = np.zeros((len(chunks), len(layers), self.info["width"]), dtype=np.float32)
+        for j, s in enumerate(saved):
+            for i, (a, b) in enumerate(spans):
+                out[i, j] = s[0, a:b].float().mean(0).cpu().numpy()
+        return out

@@ -1,9 +1,9 @@
 """Measuring D on the real model (PLAN.md, step 1): the spread of states within paraphrase sets, per layer, beside the
 spread between sets. The layer proposed is the one with the largest between-to-within ratio; the owner chooses.
 
-    python -m measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama
-    python -m measure_d --model Qwen/Qwen3-8B --run runs/d-qwen --layers 8 16 24
-    python -m measure_d --model Qwen/Qwen3-0.6B --run runs/d-plumbing --draft      # before the sets are frozen
+    python -m substrate.measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama
+    python -m substrate.measure_d --model Qwen/Qwen3-8B --run runs/d-qwen --layers 8 16 24
+    python -m substrate.measure_d --model Qwen/Qwen3-0.6B --run runs/d-plumbing --draft      # before the sets are frozen
 
 The sets must be frozen by the owner; --draft runs on unfrozen ones and says so in the record.
 """
@@ -16,8 +16,8 @@ from pathlib import Path
 
 import numpy as np
 
-from geometry import between, spread
-from record import Record
+from substrate.geometry import between, spread
+from substrate.record import Record
 
 
 def load_sets(path: str | Path) -> list[dict]:
@@ -60,7 +60,7 @@ def main(argv=None):
     p.add_argument("--layers", type=int, nargs="+")
     p.add_argument("--draft", action="store_true", help="allow unfrozen sets; recorded as a draft run")
     a = p.parse_args(argv)
-    from states import Reader
+    from substrate.states import Reader
     reader = Reader(a.model, revision=a.revision)
     layers = a.layers or default_layers(reader.info["layers"])
     report = measure(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), draft=a.draft)

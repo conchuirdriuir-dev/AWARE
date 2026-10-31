@@ -8,9 +8,9 @@ import pytest
 torch = pytest.importorskip("torch")
 pytest.importorskip("nnterp")
 
-from measure_d import measure  # noqa: E402
-from record import Record, read  # noqa: E402
-from states import Reader  # noqa: E402
+from substrate.measure_d import measure  # noqa: E402
+from substrate.record import Record, read  # noqa: E402
+from substrate.states import Reader  # noqa: E402
 
 WORDS = "the a plan garden budget write design for of to and family river lesson".split()
 
@@ -72,3 +72,13 @@ def test_qwen3_small_reads_states_on_cpu():
     S = reader.states(sets[0]["texts"][:2] + sets[0]["texts"][:1], [0, reader.info["layers"] - 1])
     assert S.shape[:2] == (3, 2) and np.isfinite(S).all()
     assert np.array_equal(S[0], S[2])
+
+
+def test_a_chunk_read_in_context_differs_from_the_same_chunk_read_alone(tiny):
+    model, tok = tiny
+    reader = Reader(model, tokenizer=tok)
+    chunks = ["plan a garden ", "write the budget ", "plan a garden "]
+    inside = reader.states_in_context(chunks, [1, 3])
+    alone = reader.states(chunks, [1, 3])
+    assert np.allclose(inside[0], alone[0], atol=1e-5)      # the first chunk has nothing before it but <bos>
+    assert not np.allclose(inside[2], alone[2], atol=1e-3)  # the same words, read deep in

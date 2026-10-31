@@ -2,6 +2,17 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **v9 is the design, with two tracks on one substrate** (owner). Drift detection is the product (the one
+  practical demonstration); reasoning over the entity's own axes is the research track. They feed each other and are
+  kept apart so neither erases the other: separate directories, separate pass criteria. The Entity tab is the parent.
+  Supersedes v8 as the design (2026-10-30 lines below).
+- 2026-10-31: **Gate 0 can end the product track, not the project** (owner).
+- 2026-10-31: Description length is dropped; v9's admission rule replaces it. An axis that lowers held-out residual
+  by more than D is predictive; any other is retained as structural, tagged untested. Residual is static and D is
+  compared with a reduction in root-mean-square residual, both provisional (v9 tension log).
+- 2026-10-31: The toy bed follows v9's specification, its detectors and bars pre-registered in PLAN.md before its code;
+  the first run fails three of four bars, each failure on an item v9's tension log already holds. Not retuned.
+
 - 2026-10-30: **Big Picture v8 replaces AWARE's framing** (owner). The goal, in the owner's words: "The agent should
   function as if it is aware, even without metacognition machinery." Metacognition did not tell the whole story of what
   the owner wants, and DARA is not tenable for these aims. The rungs (freeform chat, rung 2, the toy world) and the
