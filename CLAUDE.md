@@ -1,13 +1,16 @@
 # Working on AWARE
 
-Read [README.md](README.md) and [PLAN.md](PLAN.md). Work serves the current rung's test; build the simplest thing that
-can pass it. Propose a change to the plan rather than widening a build.
+Read [README.md](README.md) and [PLAN.md](PLAN.md). The design is the Big Picture doc linked there; it takes precedence
+over this repository. Work serves the current step's test; build the simplest thing that can pass it. Propose a change
+to the doc or the plan rather than widening a build.
 
-- **The record comes first.** Append everything; anything else is derived from it and can be rebuilt.
-- **Label who said what:** the person, the model, the reviewer, the keeper. Stated and inferred are kept apart.
-- **Route, don't instruct.** What each part sees is set by code, never by asking a model to ignore something.
-- **The reviewer sees the record, not the worker's reasoning,** in its own context.
-- **The person settles; the system offers.** An offer is a question that cites its evidence and says what would make
-  it wrong. No pressure, no verdicts, no repeat without something new. Following an offer is not proof it was right.
-- **Keys judge, never supply.** An answer key is read only by the scorer.
-- Add a document only when a rung needs one; record decisions in DECISIONS.md, one line each.
+- **The record comes first.** Append everything; anything else is derived from it and can be rebuilt. Activations are
+  derived: a cache, rebuilt by replaying the forward pass from the recorded text, model and revision.
+- **Label who said what:** the person, the model, the code. Stated and inferred are kept apart.
+- **Tests before builds.** A step's pass criterion and thresholds are written before its code and fixed before it runs.
+- **Keys judge, never supply.** The reference scorer and any answer key are read only by scoring, never by an arm.
+- **Route in code.** What each arm sees is set by code, never by asking a model to ignore something; arm S never sees
+  arm C's geometry.
+- **No hand-building in discovery.** Self-negation is domain-free and written once; nothing is rebuilt for the
+  transfer domain. A domain-specific fix in discovery or the compass hides hand-building.
+- Add a document only when a step needs one; record decisions in DECISIONS.md, one line each.
