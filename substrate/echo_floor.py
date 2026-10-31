@@ -131,6 +131,80 @@ def echo_floor_long(reader, sets: list[dict], layers: list[int], record: Record,
     return report
 
 
+def _bins(W: int) -> list[tuple[int, int]]:
+    edges, e = [0, 512], 512
+    while e * 2 < W:
+        e *= 2
+        edges.append(e)
+    edges.append(W)
+    return list(zip(edges[:-1], edges[1:]))
+
+
+def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Record, corpus: str, window: int = 4096,
+                      n_sessions: int = 10, news_per: int = 50, draft: bool = False, skip_first: bool = True,
+                      seed: int = 0, cap: int = 256) -> dict:
+    """The echo floor on logged sessions: each window's self chunks read alone against the nearest in-context state,
+    by token position, against self chunks from other sessions. No corpus text is recorded, only references."""
+    from substrate.corpus import load_session, sessions as session_paths
+
+    d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
+    D = np.array([row["D"] for row in d_report["layers"]])
+    tok = reader.tokenizer
+
+    def capped(text):
+        ids = tok(text, add_special_tokens=False)["input_ids"]
+        return tok.decode(ids[:cap]), len(ids) > cap, min(len(ids), cap)
+
+    rng = np.random.default_rng(seed)
+    paths = [session_paths(corpus)[i] for i in rng.permutation(len(session_paths(corpus)))]
+    loaded = {p.name.split(".")[0]: load_session(p) for p in paths}
+    chosen = [k for k in loaded if len(loaded[k]) >= 40][:n_sessions]
+    bins = _bins(window)
+    echo, news, pos = [], [], []
+    windows = []
+    for name in chosen:
+        texts, refs, offsets, selfs, n_tok = [], [], [], [], 0
+        for ch in loaded[name]:
+            text, cut, n = capped(ch["text"])
+            if n_tok + n + 2 > window:
+                break
+            texts.append(text)
+            refs.append({"ref": ch["ref"], "provenance": ch["provenance"], "cause": ch["cause"], "truncated": cut,
+                         "position": n_tok})
+            offsets.append(n_tok)
+            if ch["provenance"] == "self":
+                selfs.append(len(texts) - 1)
+            n_tok += n + 2
+        S = reader.states_in_context([t + "\n\n" for t in texts], layers, skip_first)
+        alone = reader.states([texts[i] for i in selfs], layers, skip_first)
+        echo.append(nearest(alone, S))
+        pos.extend(offsets[i] for i in selfs)
+        others = [ch for k in chosen if k != name for ch in loaded[k] if ch["provenance"] == "self"]
+        pick = [others[i] for i in rng.choice(len(others), size=min(news_per, len(others)), replace=False)]
+        news.append(nearest(reader.states([capped(ch["text"])[0] for ch in pick], layers, skip_first), S))
+        windows.append({"session": name, "tokens": n_tok, "chunks": refs, "news refs": [ch["ref"] for ch in pick]})
+    record.append("echo corpus windows", "code", windows=windows, window=window, cap=cap, draft=draft)
+    echo, news, pos = np.concatenate(echo) / D, np.concatenate(news) / D, np.array(pos)
+    rows = []
+    for j, layer in enumerate(layers):
+        nmed = float(np.median(news[:, j]))
+        row = {"layer": layer, "D": float(D[j]), "news, median": nmed, "news, 5th": float(np.percentile(news[:, j], 5))}
+        for lo, hi in bins:
+            ex = echo[(pos >= lo) & (pos < hi), j]
+            if len(ex):
+                row[f"echo {lo}-{hi}, median"] = float(np.median(ex))
+                row[f"echo {lo}-{hi}, 95th"] = float(np.percentile(ex, 95))
+                row[f"echo {lo}-{hi}, of news median"] = float(np.median(ex) / nmed)
+                row[f"AUC {lo}-{hi}"] = auc(news[:, j], ex)
+        rows.append(row)
+    last = f"AUC {bins[-1][0]}-{bins[-1][1]}"
+    report = record.append("echo floor, corpus", "code", layers=rows, bins=bins, window=window, draft=draft,
+                           skip_first=skip_first, holds_at=[r["layer"] for r in rows if r.get(last, 0) >= 0.9],
+                           echoes=int(len(pos)), news=int(len(news)))
+    np.savez(record.path.parent / "echo_corpus.npz", echo=echo, news=news, position=pos)      # derived
+    return report
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True)
@@ -144,6 +218,8 @@ def main(argv=None):
     p.add_argument("--dtype", choices=["bfloat16", "float32"])
     p.add_argument("--quantize", choices=["4bit", "8bit"], help="a quick check only: quantisation adds noise to D")
     p.add_argument("--long", action="store_true", help="long sessions: does the floor hold as a session grows?")
+    p.add_argument("--corpus", help="a directory of logged session archives (S*.tar.gz): the floor at real lengths")
+    p.add_argument("--window", type=int, default=4096, help="with --corpus: tokens of each session read in one pass")
     p.add_argument("--keep-first", action="store_true",
                    help="keep each sequence's first token; by default it is left out (an attention sink)")
     a = p.parse_args(argv)
@@ -151,6 +227,18 @@ def main(argv=None):
     reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
                     quantize=a.quantize)
     layers = a.layers or default_layers(reader.info["layers"])
+    if a.corpus:
+        rep = echo_floor_corpus(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), a.corpus,
+                                window=a.window, draft=a.draft, skip_first=not a.keep_first)
+        print(f"{reader.info['model']} ({reader.info['dtype']}){'  DRAFT' if a.draft else ''}; corpus windows of "
+              f"{a.window} tokens; {rep['echoes']} echoes, {rep['news']} news; units of D (of news's median)")
+        for r in rep["layers"]:
+            cells = [f"{lo}-{hi}: {r[f'echo {lo}-{hi}, median']:.2f} ({r[f'echo {lo}-{hi}, of news median']:.2f}) "
+                     f"AUC {r[f'AUC {lo}-{hi}']:.2f}" for lo, hi in rep["bins"] if f"AUC {lo}-{hi}" in r]
+            print(f"layer {r['layer']:>3}  D {r['D']:.3f}  news {r['news, median']:.2f} (5th {r['news, 5th']:.2f})  "
+                  + " | ".join(cells))
+        print("holds in the last position bin (AUC >= 0.9) at layers:", rep["holds_at"])
+        return
     if a.long:
         rep = echo_floor_long(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), draft=a.draft,
                               skip_first=not a.keep_first)

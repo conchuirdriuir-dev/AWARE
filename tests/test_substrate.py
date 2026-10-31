@@ -73,3 +73,32 @@ def test_an_external_chunk_needs_its_arrival_cause(tmp_path):
         r.chunk("tool output", "code", "external", cause="mine")
     entry = r.chunk("tests passed", "code", "external", cause="elicited")
     assert entry["cause"] == "elicited" and entry["provenance"] == "external"
+
+
+def test_a_logged_session_becomes_chunks_with_provenance_and_cause(tmp_path):
+    import io
+    import json
+    import tarfile
+
+    from substrate.corpus import load_session
+
+    def event(role, at, uuid, content):
+        return {"created_at": at, role: {"uuid": uuid, "internal_anthropic_catchall": {"message": {"content": content}}}}
+    page = {"ccr": {"data": [
+        event("assistant", "2026-01-01T00:00:02", "a1", [{"type": "thinking", "thinking": "hidden"},
+                                                          {"type": "text", "text": "I will look."},
+                                                          {"type": "tool_use", "name": "Read", "input": {"path": "x"}}]),
+        event("user", "2026-01-01T00:00:01", "u1", "Please check x."),
+        event("user", "2026-01-01T00:00:03", "u2", [{"type": "tool_result", "content": [{"type": "text", "text": "x = 1"}]}]),
+    ]}}
+    raw = ('<envelope untrusted="true"> ' + json.dumps(page) + " </envelope>").encode()
+    archive = tmp_path / "S99.tar.gz"
+    with tarfile.open(archive, "w:gz") as tar:
+        info = tarfile.TarInfo("S99/S99_p01.json")
+        info.size = len(raw)
+        tar.addfile(info, io.BytesIO(raw))
+    chunks = load_session(archive)
+    assert [(c["provenance"], c["cause"]) for c in chunks] == [
+        ("external", "spontaneous"), ("self", None), ("self", None), ("external", "elicited")]
+    assert chunks[0]["text"] == "Please check x." and chunks[2]["text"].startswith("[tool call Read]")
+    assert chunks[3]["text"] == "x = 1" and chunks[1]["ref"] == ["S99", "a1", 1]       # the thinking block is left out
