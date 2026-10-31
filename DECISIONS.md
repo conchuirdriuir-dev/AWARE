@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Gate 0 does not end anything** (owner). It is refined and better understood until the product track
+  passes it; that is not moving the goalposts, since the product must still pass Gate 0. Ignore the docs' "can end
+  the project" line. Supersedes "Gate 0 can end the product track, not the project".
+
 - 2026-10-31: **v10's drift tab is the product track's design** (owner): coupling replaces frame growth, dynamic
   residual replaces static, the band is removed. Round 2 was pre-registered in PLAN.md and committed before its code.
   It passes three of four bars; separation fails on the agent's own rule for "at zero", not on coupling.

@@ -3,14 +3,14 @@
 The design is the Big Picture doc, v9 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a
 Claude Doc). Its **Entity** tab is the parent: what the entity is, the substrate decisions, the capacities, and the two
 tracks. The **Drift detection (v10)** tab is the product track's full treatment (v9's is kept as the record);
-**Tech stack** sets the build order. v10's Gate 0 still reads "can end the project"; the owner's decision that it ends
-the product track only stands until the doc says otherwise.
+**Tech stack** sets the build order. Gate 0 ends nothing: it is refined until the product passes it, and the doc's
+"can end the project" line is ignored (owner, DECISIONS.md).
 Where this file and the doc differ, the doc wins and this file is corrected.
 
 **Two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
 fast feedback; the research track (reasoning over the entity's own axes) has no demo yet and is the reason the project
-exists. They never share a pass criterion: the product's faster feedback would win every local decision. Gate 0 can
-end the product track, not the project (owner, 2026-10-31). The substrate changes only by the owner's decision.
+exists. They never share a pass criterion: the product's faster feedback would win every local decision. The
+substrate changes only by the owner's decision.
 
 A step's pass criterion is written here before its code, and its thresholds are fixed before it runs. A step is done
 when its test passes, not when its code exists.
@@ -42,7 +42,7 @@ at every layer asked for, and the same text read twice gives the same state.
 | 3. Toy bed | v9 and v10, Toy bed | below | **round 2 (v10): coupling passes all three of its bars; separation fails on the "at zero" threshold (below)** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
-| 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. **Can end the product track** |
+| 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
 | 7. Arms S and C; main demo | Main demo | C closes half the A–B gap on both scores and beats S by more than run-to-run noise | open |
 
 ### Step 3: the toy bed (pre-registered 2026-10-31, before its code)
