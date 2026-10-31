@@ -54,6 +54,27 @@ the 8B on the card with frozen sets.
   not settled here. The toy's assumption, that an echo sits about √2·D from what it repeats, is checked against the
   measured ratio.
 
+*Dress rehearsal result* (2026-10-31; Qwen3-0.6B on CPU, draft sets; records in `runs/echo-qwen06/` and
+`runs/echo-qwen06-skip/`, not committed). **As written, it measured an artefact.** Qwen3 has no begin-of-sequence
+token, so the first token of every sequence is an attention sink with massive activations. Every text read alone
+starts a sequence and carries it; in a session only the first statement does. So D jumped from 1.3 to about 41 at
+layer 3, news landed nearest the first statement (its 5th percentile at 0.26 D), and news ranked above exact echoes at
+only 0.59 from layer 3 to 24. Post hoc, with each sequence's first token left out (`--skip-first`):
+
+| Layer | D | Exact echo | Paraphrased echo | News (5th pct) | AUC news over echo / over paraphrase |
+|---|---|---|---|---|---|
+| 0 | 1.3 | 0.84 | 1.56 | 2.14 (1.83) | 1.00 / 0.98 |
+| 3–9 | 2.6–5.2 | 1.00–1.52 | 1.61–1.90 | 2.04–2.54 (1.79–2.28) | 1.00 / 0.96–1.00 |
+| 12–18 | 7.7–18 | 1.81–2.18 | 2.06–2.31 | 2.54–2.57 (2.16–2.19) | 0.90–0.99 / 0.74–0.92 |
+| 21–27 | 33–69 | 1.32–1.67 | 1.76–2.02 | 2.53–2.73 (2.24–2.47) | 1.00 / 0.97–1.00 |
+
+Medians in units of D. **Repeats are separable from news at every layer,** most cleanly at 21–27, where news's 5th
+percentile clears the exact echo's 95th. The toy's √2·D (1.41) is close to the real echo floor at 21–27 and too low in
+the middle layers. **Echo distance grows with a statement's position in its session** (correlation 0.6–0.8): the
+echo floor is a function of context position, as the biologist review proposed for D (finding 11). Sessions here are
+8 statements long, so how far it grows over a real session is not known. A small model on draft sets: plumbing and a
+first look.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |

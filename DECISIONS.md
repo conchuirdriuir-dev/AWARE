@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Echo-floor dress rehearsal** (Qwen3-0.6B, draft sets). As first run it measured an attention sink:
+  Qwen3 has no begin-of-sequence token, so every sequence's first token carries massive activations that swamp the
+  mean of every text read alone. With that token left out, repeats separate from news at every layer (AUC 0.90–1.00),
+  best at 21–27, and the echo floor grows with context position. Open for the owner: whether the state definition
+  leaves out a sequence's first token by default (the reader's `skip_first`, off for now).
+
 - 2026-10-31: **Toy bed round 7b passes seven of twelve product bars; not frozen.** Entity captured, probing
   partner-side loops first, short-lag mirrors and the attractor loop work. Misses: contingency only names a mirror
   whose lag is short against the probe window; a degenerate recurrence threshold; the probe absorbs the arrival-cause

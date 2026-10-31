@@ -32,8 +32,10 @@ class Reader:
                      "layers": self.model.num_layers, "width": config.hidden_size,
                      "dtype": str(next(self.model._model.parameters()).dtype)}
 
-    def states(self, texts: list[str], layers: list[int]) -> np.ndarray:
-        """One state per text and layer: an array of shape (texts, layers, width), float32."""
+    def states(self, texts: list[str], layers: list[int], skip_first: bool = False) -> np.ndarray:
+        """One state per text and layer: an array of shape (texts, layers, width), float32. With `skip_first`, the
+        sequence's first token is also left out: a model without a begin-of-sequence token (Qwen3) puts an attention
+        sink there, whose massive activations otherwise swamp the mean."""
         import torch
 
         out = np.zeros((len(texts), len(layers), self.info["width"]), dtype=np.float32)
@@ -41,6 +43,8 @@ class Reader:
             for i, text in enumerate(texts):
                 ids = self.tokenizer(text, return_tensors="pt")["input_ids"]
                 keep = ~torch.isin(ids[0], self.special)
+                if skip_first:
+                    keep[0] = False
                 saved = []
                 with self.model.trace(ids):
                     for layer in layers:
@@ -49,7 +53,7 @@ class Reader:
                     out[i, j] = s[0, keep.to(s.device)].float().mean(0).cpu().numpy()
         return out
 
-    def states_in_context(self, chunks: list[str], layers: list[int]) -> np.ndarray:
+    def states_in_context(self, chunks: list[str], layers: list[int], skip_first: bool = False) -> np.ndarray:
         """One state per chunk and layer, each chunk read inside the whole sequence (one forward pass): what the model
         makes of the chunk once deep in, against `states`, which reads each chunk on its own. Chunks are joined as
         given, so they carry their own separators or chat formatting."""
@@ -62,6 +66,8 @@ class Reader:
             piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
             spans.append((len(ids), len(ids) + len(piece)))
             ids.extend(piece)
+        if skip_first and spans and spans[0][0] == 0:
+            spans[0] = (1, spans[0][1])                 # the sequence's own first token: the sink
         saved = []
         with torch.no_grad():
             with self.model.trace(torch.tensor([ids])):

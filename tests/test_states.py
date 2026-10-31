@@ -82,3 +82,25 @@ def test_a_chunk_read_in_context_differs_from_the_same_chunk_read_alone(tiny):
     alone = reader.states(chunks, [1, 3])
     assert np.allclose(inside[0], alone[0], atol=1e-5)      # the first chunk has nothing before it but <bos>
     assert not np.allclose(inside[2], alone[2], atol=1e-3)  # the same words, read deep in
+
+
+def test_skip_first_leaves_out_the_first_token_only_when_no_bos_precedes_it(tiny):
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    from transformers import PreTrainedTokenizerFast
+
+    model, tok = tiny
+    with_bos = Reader(model, tokenizer=tok)
+    text = "plan a garden budget"
+    assert np.allclose(with_bos.states([text], [1], skip_first=True), with_bos.states([text], [1]), atol=1e-6)
+    vocab = {"[UNK]": 0, "<pad>": 2, **{w: i + 3 for i, w in enumerate(WORDS)}}
+    tk = Tokenizer(models.WordLevel(vocab, unk_token="[UNK]"))
+    tk.pre_tokenizer = pre_tokenizers.Whitespace()
+    no_bos = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"))
+    ids = no_bos.tokenizer(text, return_tensors="pt")
+    with torch.no_grad():
+        hidden = model(**ids, output_hidden_states=True).hidden_states
+    got = no_bos.states([text], [1], skip_first=True)
+    assert np.allclose(got[0, 0], hidden[2][0, 1:].mean(0).numpy(), atol=1e-5)
+    inside = no_bos.states_in_context(["plan a garden ", "write the budget "], [1], skip_first=True)
+    alone = no_bos.states(["plan a garden "], [1], skip_first=True)
+    assert np.allclose(inside[0], alone[0], atol=1e-5)          # the first chunk, sink left out either way

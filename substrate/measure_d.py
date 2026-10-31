@@ -29,16 +29,17 @@ def default_layers(n: int) -> list[int]:
     return sorted(set(range(0, n, max(1, n // 8))) | {n - 1})
 
 
-def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False) -> dict:
+def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: bool = False,
+            skip_first: bool = False) -> dict:
     if not draft and not all(s.get("frozen") for s in sets):
         raise SystemExit("the paraphrase sets are not frozen; the owner freezes them, or run with --draft")
     blob = json.dumps(sets, sort_keys=True).encode()
     record.append("run", "code", **reader.info, read_layers=layers, sets_sha256=hashlib.sha256(blob).hexdigest(),
-                  draft=draft, pooling="mean over non-special tokens")
+                  draft=draft, pooling="mean over non-special tokens" + (", first token left out" if skip_first else ""))
     for s in sets:
         record.append("set", s.get("by", "person"), id=s["id"], texts=s["texts"], frozen=bool(s.get("frozen")))
-    per_set = [reader.states(s["texts"], layers) for s in sets]          # each: texts x layers x width
-    again = reader.states(sets[0]["texts"][:1], layers)
+    per_set = [reader.states(s["texts"], layers, skip_first) for s in sets]          # each: texts x layers x width
+    again = reader.states(sets[0]["texts"][:1], layers, skip_first)
     repeat = float(np.abs(again[0] - per_set[0][0]).max())
     rows = []
     for j, layer in enumerate(layers):
