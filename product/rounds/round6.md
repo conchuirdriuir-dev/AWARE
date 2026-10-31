@@ -81,3 +81,34 @@ and round 7 meets a new blind structure.
 
 Reported, deciding nothing: K, the profile, N and M's sweeps, undecided and probe rates, surprise by structure,
 framing, and the blind structure's reading at 460.
+
+## Round 6 result
+
+2026-10-31, `python -m product.round6`, 200 trials a structure, seed 0; report in `runs/round6.json`, not committed.
+**Product: seven of nine bars. Discovery: fails. Nothing is frozen;** round 7 meets a new blind structure.
+Calibration: K = 1, N = 4, M = 10, profile peak at lead 2 (correlation 0.993).
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / noise spike / progress; dynamics not closed loop or topic | 1.00 / **0.88** / 0.99; 0.955 | no |
+| 2 Gain ranks mastery above dullness | 1.00 | yes |
+| 3 News ranks progress above each echo, lags 1 to 20 | 1.00 at every lag | yes |
+| 4 Valid inference not closed loop | 1.00 | yes |
+| 5 Healthy read closed loop at 460 (at most 0.10) | 0.00 / 0.00 / 0.00 / 0.005 / 0.02 | yes |
+| 6 Final: every loop closed; healthy and declining not closed | 1.00 for every loop; 0.98 | yes |
+| 7 Response profile | lead 2; 0.993 | yes |
+| 8 Intervals honest | misses 0.09 / 0.055; SE ratio 1.006 | yes |
+| 9 Blind structure matches its expected final reading | **0.00** (it read open in every run) | no |
+| D Residual descriptor fires: dynamics ≥ 0.9 / topic ≤ 0.1 / healthy and declining ≤ 0.1 | 1.00 / 0.005 / **0.88** | no |
+
+- **The news-spike fix worked:** progress is now labelled correctly in 0.99 of runs (0.875 in round 5).
+- **The noise-spike miss is a threshold choice in this pre-registration** (post-hoc, 100 runs). The spike's surprise
+  cleared its threshold in every run. But the rule also requires the later stretch's surprise to be within progress's
+  95th percentile, which rejects about 5% of real spikes by construction (4 of 100), and chance news spikes at onset
+  take about 3 more. A rule that discards 5% by design leaves no margin under a 90% bar.
+- **The residual descriptor sees dynamics, not topics,** as v9 asked (1.00 against 0.005). But it fires on healthy
+  and declining work (0.88), on proliferation (0.21–1.00 by lag) and barely on mastery (0.035, whose dynamics do
+  change). So it reads changes in where the entity's movement comes from, not only in its own dynamics: once
+  externals carry less news, or echo the entity, the movement left unexplained changes character.
+- **The blind structure read open in every run,** against an expected reading recorded before the code. What it is,
+  and why, is below; the file was opened only after this result was written.
