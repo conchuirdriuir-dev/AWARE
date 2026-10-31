@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Event-locked pooling: news and gain** (owner). Overlapping responses are modelled jointly through each
+  arrival's innovation (its content not forecast from the entity's history H or the previous externals). Arrivals are
+  pooled by regression into news (innovation size) and gain (response per unit innovation, a scalar per lead);
+  coupling is kept as their product. Closed loop: gain at zero with news present (dullness), or news at zero
+  (proliferation); low news with gain intact is undecided and calls for a probe. News and gain each take their
+  reference from the window after the intake, refining δ.
+
 - 2026-10-31: **Event-locked coupling, its horizons** (owner): history H (how far back the forecast before an arrival
   looks) is kept apart from response K (how many steps after it count). H is set by the echo lags the product commits
   to catching. K is measured per model and layer, like D: the lead where the averaged response to arrivals reaches 90%
