@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Event-locked coupling, its horizons** (owner): history H (how far back the forecast before an arrival
+  looks) is kept apart from response K (how many steps after it count). H is set by the echo lags the product commits
+  to catching. K is measured per model and layer, like D: the lead where the averaged response to arrivals reaches 90%
+  of its plateau. The response is reported as a profile by lead, with lead 1 scored on its own.
+
 - 2026-10-31: **Round 3's diagnosis corrected by review** (three fresh reviewers, checked by the builder): the failure
   was a misspecified observer for externals held in context, not a lack of power; arrival-gated lags restore coupling
   in a 30-run check. Supersedes the diagnosis in the line below. Triage: `reviews/round3/triage.md`.
