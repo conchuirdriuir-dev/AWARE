@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 4 passes five of eight bars**, not retuned: news and gain pass every coupling bar at every
+  echo lag (1 to 20), with intervals that keep their coverage. The misses are the carried-over point contrast and
+  admission on a noisier background, and two errors in the pre-registration (the re-read window excluded the probe's
+  responses; the K rule assumed a rising profile, and K = 4 assumed a persistence the generator lacks).
+
 - 2026-10-31: **Event-locked latency** (owner). A gain reading waits for a news budget (its 90% bound within ±0.25 of
   the reference gain), pooled over the shortest recent span that meets it. News is read per arrival against the D
   floor; news at zero is N arrivals in a row below it, N calibrated so healthy sessions show it at most 10% of the time.

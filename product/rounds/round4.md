@@ -95,3 +95,40 @@ The innovation measures an external against the entity's own states in one space
 read alone and the entity's states in context, so even an exact echo of the entity's words will sit some distance
 from its state, possibly above D. The floor for news on the real model needs its own measurement (a known echo read
 alone against the in-context state it repeats), beside D, before news at zero means anything there.
+
+## Round 4 result
+
+2026-10-31, `python -m product.round4`, 200 trials a structure, seed 0; report in `runs/round4.json`, not committed.
+**Five of eight bars pass.** Calibration chose K = 1, N = 4 and M = 10; every N and M in the sweeps met their rule
+(progress never read news at zero; progress and mastery met the budget in every run at every M), so the smallest won.
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / dynamics / spike / progress; loops called dynamics | **0.81** / 0.955 / **0.82** / 0.96; 0.00 for every loop | no |
+| 2 Gain ranks mastery above dullness | 1.00 | yes |
+| 3 News ranks progress above each echo, lags 1 / 3 / 10 / 15 / 20 | 1.00 at every lag | yes |
+| 4 Valid inference not closed loop | 1.00 | yes |
+| 5 Healthy structures read closed loop at 460 (at most 0.10) | 0.00 / 0.00 / 0.00 / 0.005 / 0.02 | yes |
+| 6 After the probe: every loop closed; structure 8 not closed | 1.00 for every loop; **0.52** | no |
+| 7 K recovered (4 ± 1) | **1** | no |
+| 8 Intervals honest: misses 0.09 above, 0.055 below; analytic / bootstrap SE 1.006 | within the bars | yes |
+
+Every run had a reference (round 3: 18–43%). Framing: reading alone and in context both rank perfectly; not shown in
+the toy.
+
+**What the misses are** (post-hoc checks, 60 runs each):
+- **Separation** is round 3's point contrast and admission, unchanged, on a noisier background. The per-arrival content
+  jumps raised the admission floor from 2.08 to 3.14 and the point-contrast threshold from 1.78 to 2.49, so admission
+  rejects 12% of topic shifts and point contrast misses 18% of noise spikes. Nothing in coupling is involved.
+- **Structure 8 after the probe** is a timing error in this pre-registration. The re-read at 495 counts news over the
+  last N = 4 arrivals; in 27 of 29 probed runs all four came after the probe ended (steps 480–495), back at low
+  novelty, so news read at zero although the probe's responses carried full news and the gain read open in most.
+  The probe's own responses were never in the news window.
+- **K** is two errors of the builder's. In this generator each arrival's content jump is replaced by the next arrival's
+  (every 2.5 steps on average), so the response to one arrival peaks at lead 2 and fades to a plateau of 0.125, rather
+  than rising to it: the pre-registered "4" assumed a persistence the generator does not have. And "the first lead at
+  90% of the plateau" returns 1 for any profile that starts above its plateau.
+
+**What it says.** Event-locked news and gain do what the design claims, at every echo lag tested, with intervals that
+keep their stated coverage. The remaining misses are in the detectors carried over from round 2 and in two rules of
+this pre-registration (the re-read window, the definition of K), each a change for a round 5.

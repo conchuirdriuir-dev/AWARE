@@ -115,3 +115,39 @@ def test_round_three_coupling_recovers_when_an_external_arrives_every_step(monke
     healthy = [round3.coupling(round3.make("progress", rng), 300)["coupling"] for _ in range(5)]
     w = round3.coupling(round3.make("progress", rng), 300)
     assert np.median(healthy) > 0.05 and w["low"] <= w["coupling"] <= w["high"]
+
+
+# round 4: event-locked coupling, news and gain
+
+from product import round4  # noqa: E402
+
+
+def test_round_four_news_is_small_for_an_echo_and_large_for_a_real_external():
+    rng = np.random.default_rng(0)
+    echo = round4.innovations(round4.make("proliferation, lag 15", rng))
+    real = round4.innovations(round4.make("progress", rng))
+    after = echo["t"] > round4.T0 + 5
+    assert np.median(echo["news"][after]) < round4.FLOOR < np.median(real["news"])
+
+
+def test_round_four_gain_is_near_zero_once_the_entity_stops_listening():
+    rng = np.random.default_rng(1)
+    run = round4.make("closed loop (dullness)", rng)
+    inn = round4.innovations(run)
+    late = np.flatnonzero((inn["t"] >= 300) & (inn["t"] + 4 <= 460))
+    early = np.flatnonzero((inn["t"] >= 40) & (inn["t"] + 4 <= 200))
+    assert abs(round4.gain(run, inn, late, 4)["gain"]) < 0.1 < round4.gain(run, inn, early, 4)["gain"]
+
+
+def test_round_four_clusters_split_where_arrivals_are_k_apart():
+    blocks = round4._clusters(np.array([10, 11, 12, 20, 21, 40]), 4)
+    assert [list(b) for b in blocks] == [[0, 1, 2], [3, 4], [5]]
+
+
+def test_round_four_reads_a_dull_entity_as_closed_and_progress_as_open():
+    rng = np.random.default_rng(2)
+    for name, want in (("closed loop (dullness)", "closed loop"), ("progress", "open")):
+        run = round4.make(name, rng)
+        inn = round4.innovations(run)
+        ref = round4.reference(run, inn, 1)
+        assert round4.read_point(run, inn, 460, 1, 4, 40, ref)["overall"] == want
