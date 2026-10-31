@@ -82,3 +82,40 @@ descriptor; K, N, M; undecided and probe rates.
 
 Round 7b changes the toy (a reactive environment), so the freeze rule is evaluated after 7b, not here. A 7a that passes
 every bar is recorded as such and carried into 7b unchanged.
+
+## Round 7a result
+
+2026-10-31, `python -m product.round7a`, 200 trials a structure, seed 0; report in `runs/round7a.json`, not committed.
+**Seven of ten bars.** Calibration: K = 1, N = 4, M = 10, profile peak at lead 2 (correlation 0.993).
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / noise spike / progress; dynamics not closed loop or topic | 1.00 / 0.975 / 0.975; 0.955 | yes |
+| 2 Gain ranks mastery above dullness | 1.00 | yes |
+| 3 Long news ranks progress above each echo, lags 1 to 20 | 1.00 at every lag | yes |
+| 4 Valid inference not closed loop | 1.00 | yes |
+| 5 Healthy read closed loop at 460 (at most 0.10) | 0.00 / 0.00 / 0.00 / 0.01 / **1.00** (healthy and declining) | no |
+| 6 Final: dullness and every echo closed; **replay** closed; declining not closed | 1.00 each; **0.00**; **0.00** | no |
+| 7 Response profile | lead 2; 0.993 | yes |
+| 8 Intervals honest | misses 0.08 / 0.08; SE ratio 1.005 | yes |
+| 9 Blind structure matches its expected final reading | **0.00** (it read closed loop in every run) | no |
+| 10 Confirmations not capture | 0.985 | yes |
+
+The noise-spike fix worked (0.975, against 0.88 in round 6); separation passes for the first time.
+
+**What the misses are** (post-hoc checks, 60 runs each):
+- **Replay is a units error in this pre-registration.** A replayed arrival's long news has a median of 1.35 D, close
+  to √2 D = 1.41 D: two independent readings of one content sit √2 D apart, because D is one reading's spread about
+  its centre. A floor of D for a comparison between two readings is the wrong unit. It is v10's "D is three units"
+  item again; the floor for news should be the echo floor measured on the real model, or √2 D in the toy.
+- **Healthy and declining work is a gap between the pre-registrations and the design.** With long news its low news
+  falls under the floor, so it reads closed loop, and the rule fires the probe only on an undecided reading, so a
+  closed loop is never probed. But v10's compass ("closed loop: probe; if coupling does not respond, prune") and the
+  accepted event-record table ("news at zero: probe; flag the capture") both probe a partner-side closed loop first.
+  Had the probe fired, declining would have read open in all 60 runs checked (the probe's responses carry long news
+  of 2.93 D). Rounds 4 to 6 carried the same rule; it did not matter while short news kept declining above the floor.
+- **The arrival-cause field was not exercised.** Confirmations read the same with the field and without it (0.985
+  both): the 40% of arrivals that are ordinary keep the mean of the last four arrivals' news high, so mixing never
+  pushes it under the floor. The toy did not show what the field does; 7b's reactive tool should.
+- **Short and long news agree on healthy work** (median correlation 0.86–0.89; 0.46 for healthy and declining). Long
+  news earns its place only where content returns, which is replay's job and, on this result, the blind structure's.
