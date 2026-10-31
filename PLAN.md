@@ -34,6 +34,26 @@ largest between-to-within ratio, and the owner chooses. **Material:** 20 sets of
 (`material/paraphrases.jsonl`), drafted by the model, not yet frozen. **Pass:** states for every text on both models
 at every layer asked for, and the same text read twice gives the same state.
 
+**The echo floor** (DECISIONS.md, the event record): the distance below which an arrival is the entity's own content
+coming back. It is measured, not assumed; rounds 7a and 7b found that detecting repeated content waits on it.
+
+*Dress rehearsal, written 2026-10-31 before its code* (`python -m substrate.echo_floor`). On Qwen3-0.6B on CPU, with
+the draft paraphrase sets, so it is labelled draft throughout: plumbing and a first look, never the result, which is
+the 8B on the card with frozen sets.
+- **Sessions:** 10, each 8 statements drawn from different sets (seed 0), joined by blank lines and read in one pass;
+  each statement's state is read in context.
+- **Arrivals**, each read alone and measured against the nearest of its session's in-context states:
+  - an **exact echo**, a statement of the session, verbatim;
+  - a **paraphrased echo**, another paraphrase of a statement of the session;
+  - **news**, a statement from a set the session does not contain.
+- **Per layer** (every third of Qwen3-0.6B's 28, and the last): D from the paraphrase sets (`measure_d`, draft);
+  the three distances' medians and spreads in units of D; the AUC of news over exact echo and over paraphrased echo;
+  and how exact-echo distance varies with the statement's position in its session.
+- **How it is read:** repeats are separable from news at a layer if news ranks above exact echo at AUC 0.9 or better.
+  The paraphrased echo is reported beside it: whether a repeat in other words is still a repeat is a design question,
+  not settled here. The toy's assumption, that an echo sits about √2·D from what it repeats, is checked against the
+  measured ratio.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
