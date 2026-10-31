@@ -75,6 +75,16 @@ echo floor is a function of context position, as the biologist review proposed f
 8 statements long, so how far it grows over a real session is not known. A small model on draft sets: plumbing and a
 first look.
 
+*Long sessions, written 2026-10-31 before their code* (`python -m substrate.echo_floor --long`). Does the echo floor
+hold as a session grows? On Qwen3-4B in bfloat16 on CPU (the 8B does not fit this container's 15 GB; the owner's
+RTX 4060 with 32 GB of RAM runs the 8B, split between GPU and RAM), draft sets, first token left out.
+- **Sessions:** 4, each holding 14 sets' four paraphrases other than the second (56 statements, shuffled), read in one
+  pass. The other 6 sets supply news; each session set's second paraphrase is its paraphrased echo.
+- **Measured:** each exact echo's distance to the nearest in-context state, by its original's position (1–8, 9–24,
+  25–56); news's distance to the nearest of all 56; both in units of D; the AUC of news over exact echo per bin.
+- **How it is read:** the floor holds at length if news ranks above exact echo at AUC 0.9 or better in the last bin
+  (25–56) at the layers that separated best in the short sessions (21–27 of 28 there; the 4B's last third here).
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
