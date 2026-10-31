@@ -107,3 +107,36 @@ Only calibration numbers had been computed; no test structure's or the blind str
 seen. Amended rule: **K is the horizon that maximises the median z among the horizons whose reference-window arrivals
 form at least 10 overlap blocks (median over the 200 calibration runs)**, so that the error is defined. Nothing else
 changes.
+
+## Round 5 result
+
+2026-10-31, `python -m product.round5`, 200 trials a structure, seed 0, with the amended K rule; report in
+`runs/round5.json`, not committed. **Eight of nine bars pass. Nothing is frozen** (the freeze rule needs every bar);
+round 6 meets a new blind structure. Calibration: K = 1 (median overlap blocks by horizon 65, 38, 23, 14, 8, …), N = 4,
+M = 10.
+
+| Bar | Result | Pass |
+|---|---|---|
+| 1 Separation: topic / dynamics / spike / progress; loops called dynamics | 1.00 / **0.015** / **0.765** / **0.875**; 0.00 for every loop | no |
+| 2 Gain ranks mastery above dullness | 1.00 | yes |
+| 3 News ranks progress above each echo, lags 1 to 20 | 1.00 at every lag | yes |
+| 4 Valid inference not closed loop | 1.00 | yes |
+| 5 Healthy read closed loop at 460 (at most 0.10) | 0.00 / 0.00 / 0.00 / 0.005 / 0.02 | yes |
+| 6 Final: every loop closed; healthy and declining not closed | 1.00 for every loop; 0.98 | yes |
+| 7 Response profile: peak at lead 2; correlation with the expected profile | lead 2; 0.993 | yes |
+| 8 Intervals honest: misses 0.09 above, 0.055 below; analytic / bootstrap SE 1.006 | within the bars | yes |
+| 9 Blind structure: final reading matches the expected one | **1.00** | yes |
+
+The probe, read by its own responses, now resolves healthy and declining work (0.98 not closed, against 0.52 in
+round 4).
+
+**What the separation misses are** (post-hoc checks, 80 runs each):
+- **The news-spike rule is the builder's error.** Its threshold is the 99th percentile of news *per arrival*, but it
+  fires if *any* of the about 12 arrivals in the onset window crosses it, so progress throws a false topic shift in
+  about 12% of runs (15% in the check). That accounts for progress's miss and most of the noise spike's (16% called a
+  topic shift). The surprise rule beside it used the per-run maximum, as this one should have.
+- **The dynamics shift is a design tension.** The scalar gain profile barely moves when the dynamics change in 4 of 32
+  dimensions (median change 0.133 against progress's 0.094, threshold 0.341), so it never fires. A gain pooled across
+  all directions, chosen for its stability, cannot see a change confined to a subspace. Healthy and declining work is
+  called a dynamics shift in 84% of runs, so the profile's change also tracks how much news there is, not only the
+  dynamics.
