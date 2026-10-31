@@ -140,3 +140,11 @@ round 4).
   all directions, chosen for its stability, cannot see a change confined to a subspace. Healthy and declining work is
   called a dynamics shift in 84% of runs, so the profile's change also tracks how much news there is, not only the
   dynamics.
+
+**The blind structure, opened after the result was recorded.** "blind-5": from step 200 the entity falls into a
+repetitive action loop, replaying its own last six states in a cycle and no longer conditioning on what arrives,
+while the partner keeps sending ordinary novel externals. The reviewer expected a closed loop on the entity's side
+(news present, gain at zero), and named the trap: the entity keeps moving several D a step, so a detector that reads
+movement or surprise as activity could call it progress or a discovery candidate. It read closed loop in all 200 runs,
+at 460 and finally, and every run was labelled closed loop in separation. It tests the gain axis under large
+unexplained surprise; it is close kin to dullness, so it does not test the news axis.

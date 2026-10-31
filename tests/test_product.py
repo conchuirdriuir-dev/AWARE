@@ -151,3 +151,31 @@ def test_round_four_reads_a_dull_entity_as_closed_and_progress_as_open():
         inn = round4.innovations(run)
         ref = round4.reference(run, inn, 1)
         assert round4.read_point(run, inn, 460, 1, 4, 40, ref)["overall"] == want
+
+
+# round 5: the event record
+
+from product import round5  # noqa: E402
+
+
+def test_round_five_expected_profile_peaks_at_lead_two():
+    prof = round5.expected_profile()
+    assert int(np.argmax(prof)) + 1 == 2 and np.isclose(prof[0], 0.5)
+
+
+def test_round_five_surprise_is_large_on_a_noise_spike_and_explained_on_progress():
+    rng = np.random.default_rng(3)
+    spike = round4.make("noise spike", rng)
+    calm = round4.make("progress", rng)
+    ev_spike = round5.events(spike, round4.innovations(spike))
+    ev_calm = round5.events(calm, round4.innovations(calm))
+    assert ev_spike["onset surprise max"] > 5 * ev_calm["onset surprise max"]
+
+
+def test_round_five_probe_is_read_by_its_own_responses():
+    rng = np.random.default_rng(4)
+    run = round4.make("healthy, declining", rng)
+    inn = round4.innovations(run)
+    ref = round4.reference(run, inn, 1)
+    read = round5.probe_read(run, inn, 1, ref)
+    assert read["news"] > round4.FLOOR and read["overall"] == "open"

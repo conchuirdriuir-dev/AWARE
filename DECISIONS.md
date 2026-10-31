@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-10-31: **Toy bed round 5 passes eight of nine bars; not frozen.** The blind structure (an entity replaying its
+  own moves while ignoring novel externals) read closed loop in every run. Separation fails: the builder's news-spike
+  rule took a per-arrival threshold over about 12 arrivals, and a scalar gain profile cannot see a dynamics change
+  confined to a subspace. The K rule was amended before any test result, after the first build showed it degenerate.
+
 - 2026-10-31: **The observer is an event record** (owner accepts the reframe in the v10 tab, "The observer as an event
   record"). Events are arrivals, probes and corrections, each with an innovation and a response. The compass is three
   readings: news, gain and unexplained surprise; separation is read from events; seeking is probing. Substrate
