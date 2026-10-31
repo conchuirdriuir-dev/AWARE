@@ -22,7 +22,7 @@ provenance logged at the source (`record.py`: self or external on every chunk).
 
 | Step | Test | Status |
 |---|---|---|
-| 1. Model access and D | states on the real model; D per layer on frozen paraphrase sets | **code built; tested on a tiny random Qwen3 only (Hugging Face unreachable from the build container); awaits the card and the frozen sets** |
+| 1. Model access and D | states on the real model; D per layer on frozen paraphrase sets | **code built; plumbing passes on real Qwen3-0.6B weights on CPU (2026-10-31); awaits the card and the frozen sets** |
 | 2. Logging | per-chunk activation capture, in context and alone; provenance tagged at creation and carried when re-read | **reader and record built; the harness that writes them is product step 4** |
 
 **State** (provisional): the residual stream after a layer, mean-pooled over a chunk's tokens (special tokens left
