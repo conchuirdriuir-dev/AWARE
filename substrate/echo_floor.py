@@ -10,6 +10,8 @@ session's in-context states. Distances are reported in units of D. The sets must
 from __future__ import annotations
 
 import argparse
+import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -147,6 +149,7 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     by token position, against self chunks from other sessions. No corpus text is recorded, only references."""
     from substrate.corpus import load_session, sessions as session_paths
 
+    corpus_paths(corpus)
     d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = np.array([row["D"] for row in d_report["layers"]])
     tok = reader.tokenizer
@@ -205,6 +208,61 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     return report
 
 
+def _checkpoint(record: Record, key: str) -> Path:
+    path = record.path.parent / "checkpoints" / key
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _save_atomic(path: Path, arrays: dict, meta) -> None:
+    """Write a checkpoint so that a kill mid-write leaves the old file or none, never a partial one."""
+    tmp = path.with_name(path.name + ".tmp.npz")
+    np.savez(tmp, **arrays)
+    tmp_meta = path.with_name(path.name + ".tmp.json")
+    tmp_meta.write_text(json.dumps(meta))
+    os.replace(tmp_meta, path.with_suffix(".json"))
+    os.replace(tmp, path)
+
+
+def d_resumable(reader, sets, layers, record, draft, skip_first) -> np.ndarray:
+    """D per layer, measured once per run directory and reused when the run resumes."""
+    path = _checkpoint(record, "d.json")
+    if path.exists():
+        saved = json.loads(path.read_text())
+        if saved["layers"] == list(layers) and saved["skip_first"] == skip_first:
+            record.append("resumed", "code", step="D", checkpoint=str(path))
+            return np.array(saved["D"])
+    report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
+    D = [row["D"] for row in report["layers"]]
+    tmp = path.with_name("d.tmp.json")
+    tmp.write_text(json.dumps({"layers": list(layers), "skip_first": skip_first, "D": D}))
+    os.replace(tmp, path)
+    return np.array(D)
+
+
+def session_resumable(record: Record, key: str, compute):
+    """One session's result: loaded if a checkpoint exists, else computed and saved at once."""
+    path = _checkpoint(record, key + ".npz")
+    if path.exists() and path.with_suffix(".json").exists():
+        record.append("resumed", "code", step=key, checkpoint=str(path))
+        data = np.load(path)
+        return {k: data[k] for k in data.files}, json.loads(path.with_suffix(".json").read_text())
+    arrays, meta = compute()
+    _save_atomic(path, arrays, meta)
+    return arrays, meta
+
+
+def corpus_paths(corpus: str) -> list[Path]:
+    """The session archives in `corpus`, checked before any model work starts."""
+    from substrate.corpus import sessions as session_paths
+
+    paths = session_paths(corpus)
+    if not paths:
+        raise SystemExit(f"no session archives (S*.tar.gz) found in {corpus!r}: point --corpus at the corpus's "
+                         f"sessions/ folder, e.g. .../dara-session-transcripts/sessions")
+    return paths
+
+
 def _shingles(text: str) -> set:
     words = text.split()
     return {" ".join(words[i:i + 3]) for i in range(max(1, len(words) - 2))}
@@ -237,11 +295,10 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
     reading, for repeats against new content. No corpus text is recorded, only references and classes."""
     from substrate.corpus import load_session, sessions as session_paths
 
-    d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
-    D = np.array([row["D"] for row in d_report["layers"]])
+    paths = corpus_paths(corpus)
+    D = d_resumable(reader, sets, layers, record, draft, skip_first)
     tok = reader.tokenizer
     rng = np.random.default_rng(seed)
-    paths = session_paths(corpus)
     paths = [paths[i] for i in rng.permutation(len(paths))]
     dist, kinds, third, refs = [], [], [], []
     done = 0
@@ -249,18 +306,26 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
         chunks = load_session(path)[:per_session]
         if len(chunks) < 60:
             continue
-        texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
-        A = reader.states(texts, layers, skip_first)                       # every chunk read alone
-        cls = classify(texts)
-        for i in range(1, len(texts)):
-            dist.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
-            kinds.append(cls[i][0])
-            third.append(min(2, 3 * i // len(texts)))
-            refs.append({"ref": chunks[i]["ref"], "class": cls[i][0], "overlap": round(cls[i][1], 3),
-                         "provenance": chunks[i]["provenance"], "cause": chunks[i]["cause"]})
+
+        def compute(chunks=chunks):
+            texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
+            A = reader.states(texts, layers, skip_first)                   # every chunk read alone
+            cls = classify(texts)
+            d = [np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0) for i in range(1, len(texts))]
+            meta = [{"ref": chunks[i]["ref"], "class": cls[i][0], "overlap": round(cls[i][1], 3),
+                     "provenance": chunks[i]["provenance"], "cause": chunks[i]["cause"],
+                     "third": min(2, 3 * i // len(texts))} for i in range(1, len(texts))]
+            return {"dist": np.array(d)}, meta
+        arrays, meta = session_resumable(record, "alone-" + path.name.split(".")[0], compute)
+        dist.extend(arrays["dist"])
+        kinds.extend(m["class"] for m in meta)
+        third.extend(m["third"] for m in meta)
+        refs.extend(meta)
         done += 1
         if done == n_sessions:
             break
+    if not done:
+        raise SystemExit(f"no session in {corpus!r} had at least 60 chunks")
     record.append("echo corpus, alone", "code", chunks=refs, per_session=per_session, cap=cap, draft=draft)
     dist, kinds, third = np.array(dist) / D, np.array(kinds), np.array(third)
     rows = []
@@ -281,6 +346,83 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
     return report
 
 
+def echo_floor_retries(reader, sets: list[dict], layers: list[int], record: Record, corpus: str, n_sessions: int = 10,
+                       per_session: int = 1000, draft: bool = False, skip_first: bool = True, seed: int = 0,
+                       cap: int = 256) -> dict:
+    """Retried calls: does news, alone against alone, follow what comes back rather than the call's repetition? The
+    floor is measured in the same run, from all chunks classed by text. No corpus text is recorded."""
+    from substrate.corpus import load_session, sessions as session_paths
+
+    def jaccard(a, b):
+        A, B = _shingles(a), _shingles(b)
+        return len(A & B) / len(A | B) if A | B else 0.0
+
+    paths = corpus_paths(corpus)
+    D = d_resumable(reader, sets, layers, record, draft, skip_first)
+    tok = reader.tokenizer
+    rng = np.random.default_rng(seed)
+    paths = [paths[i] for i in rng.permutation(len(paths))]
+    dist, content, calls, refs = [], [], [], []
+    done = 0
+    for path in paths:
+        chunks = load_session(path)[:per_session]
+        if len(chunks) < 60:
+            continue
+
+        def compute(chunks=chunks):
+            texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
+            A = reader.states(texts, layers, skip_first)
+            cls = classify(texts)
+            call_class, seen = {}, []
+            for c in chunks:
+                if "tool" not in c:
+                    continue
+                prev = [d for d in seen if d["tool"] == c["tool"]]
+                if prev:
+                    if any(c["args"] == d["args"] for d in prev):
+                        call_class[c["call"]] = "exact retry"
+                    else:
+                        best = max(jaccard(c["args"], d["args"]) for d in prev)
+                        call_class[c["call"]] = "retried" if best >= 0.5 else "fresh" if best < 0.2 else "between"
+                seen.append(c)
+            d, meta = [], []
+            for i in range(1, len(texts)):
+                d.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
+                kind = cls[i][0]
+                is_result = chunks[i]["provenance"] == "external" and chunks[i].get("call") in call_class
+                meta.append({"ref": chunks[i]["ref"],
+                             "content": "repeated" if kind in ("exact repeat", "near repeat") else kind,
+                             "call": call_class[chunks[i]["call"]] if is_result else ""})
+            return {"dist": np.array(d)}, meta
+        arrays, meta = session_resumable(record, "retries-" + path.name.split(".")[0], compute)
+        dist.extend(arrays["dist"])
+        content.extend(m["content"] for m in meta)
+        calls.extend(m["call"] for m in meta)
+        refs.extend(meta)
+        done += 1
+        if done == n_sessions:
+            break
+    if not done:
+        raise SystemExit(f"no session in {corpus!r} had at least 60 chunks")
+    record.append("echo corpus, retries", "code", chunks=refs, per_session=per_session, cap=cap, draft=draft)
+    dist, content, calls = np.array(dist) / D, np.array(content), np.array(calls)
+    rows = []
+    for j, layer in enumerate(layers):
+        floor = 0.5 * (np.percentile(dist[content == "repeated", j], 95) + np.percentile(dist[content == "new", j], 5))
+        row = {"layer": layer, "D": float(D[j]), "floor": float(floor)}
+        for call in ("retried", "exact retry", "fresh"):
+            rep = dist[(calls == call) & (content == "repeated"), j]
+            new = dist[(calls == call) & (content == "new"), j]
+            row[f"{call}, repeated: n"] = int(len(rep))
+            row[f"{call}, repeated: below floor"] = float(np.mean(rep < floor)) if len(rep) else float("nan")
+            row[f"{call}, new: n"] = int(len(new))
+            row[f"{call}, new: above floor"] = float(np.mean(new > floor)) if len(new) else float("nan")
+        rows.append(row)
+    report = record.append("echo floor, retries", "code", layers=rows, sessions=done, draft=draft)
+    np.savez(record.path.parent / "echo_retries.npz", dist=dist, content=content, calls=calls)      # derived
+    return report
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True)
@@ -297,6 +439,7 @@ def main(argv=None):
     p.add_argument("--corpus", help="a directory of logged session archives (S*.tar.gz): the floor at real lengths")
     p.add_argument("--window", type=int, default=4096, help="with --corpus: tokens of each session read in one pass")
     p.add_argument("--alone", action="store_true", help="with --corpus: news alone against alone, repeats against new")
+    p.add_argument("--retries", action="store_true", help="with --corpus: retried calls, read by what comes back")
     p.add_argument("--keep-first", action="store_true",
                    help="keep each sequence's first token; by default it is left out (an attention sink)")
     a = p.parse_args(argv)
@@ -304,6 +447,16 @@ def main(argv=None):
     reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
                     quantize=a.quantize)
     layers = a.layers or default_layers(reader.info["layers"])
+    if a.corpus and a.retries:
+        rep = echo_floor_retries(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), a.corpus,
+                                 draft=a.draft, skip_first=not a.keep_first)
+        print(f"{reader.info['model']} ({reader.info['dtype']}){'  DRAFT' if a.draft else ''}; retried calls, "
+              f"{rep['sessions']} sessions; floor in units of D; share on the right side of the floor (n)")
+        for r in rep["layers"]:
+            cells = [f"{c}: repeated {r[f'{c}, repeated: below floor']:.2f} ({r[f'{c}, repeated: n']}), "
+                     f"new {r[f'{c}, new: above floor']:.2f} ({r[f'{c}, new: n']})" for c in ("retried", "exact retry", "fresh")]
+            print(f"layer {r['layer']:>3}  floor {r['floor']:.2f}  " + " | ".join(cells))
+        return
     if a.corpus and a.alone:
         rep = echo_floor_alone(reader, load_sets(a.sets), layers, Record(Path(a.run) / "record.jsonl"), a.corpus,
                                draft=a.draft, skip_first=not a.keep_first)

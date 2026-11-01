@@ -8,10 +8,46 @@ quick check only: it adds noise to D).
 
 Loading the 8B on a card smaller than its weights: `device_map="auto"` with `gpu_memory` (GiB) puts as many layers
 on the GPU as fit and the rest in system RAM. Slower, but exact.
+
+Attention is read in chunks (DECISIONS.md, 2026-11-01): the model runs its own fused attention, and for the layers
+asked for, the causal softmax is recomputed from the post-rotary queries and keys a block of query rows at a time and
+averaged over heads, so no full heads x T x T matrix is ever held (eager attention's peak was ~17 GB a layer for the
+8B at 8,192 tokens). Exact: the same softmax eager attention takes, in float32.
 """
 from __future__ import annotations
 
 import numpy as np
+
+READOUT = "aware_readout"
+ROW_BUDGET = 1 << 26            # score elements per block (heads x rows x T): 256 MB in float32
+_capture: dict | None = None    # layer index -> (T, T) float32 array being filled, during attention_in_context
+_base: list = []                # the model's own attention function, which the readout passes through to
+
+
+def _readout(module, query, key, value, attention_mask, scaling, dropout=0.0, **kwargs):
+    """The model's own attention, plus, for a captured layer, its head-averaged probabilities computed in row
+    blocks. query is (1, heads, T, d), after rotary embedding; key and value (1, kv heads, T, d)."""
+    import torch
+    from transformers.models.qwen3.modeling_qwen3 import repeat_kv
+
+    out = _base[0](module, query, key, value, attention_mask, scaling=scaling, dropout=dropout, **kwargs)
+    target = None if _capture is None else _capture.get(module.layer_idx)
+    if target is not None:
+        if getattr(module, "sliding_window", None):
+            raise NotImplementedError("the attention readout assumes full causal attention")
+        with torch.no_grad():
+            q = query[0].float()
+            k = repeat_kv(key, module.num_key_value_groups)[0].float()
+            H, T, _ = q.shape
+            rows = max(1, ROW_BUDGET // (H * T))
+            kpos = torch.arange(T, device=q.device)
+            for r0 in range(0, T, rows):
+                r1 = min(T, r0 + rows)
+                scores = torch.matmul(q[:, r0:r1], k.transpose(1, 2)) * scaling
+                later = kpos[None, :] > torch.arange(r0, r1, device=q.device)[:, None]
+                scores.masked_fill_(later, float("-inf"))
+                target[r0:r1] = torch.softmax(scores, dim=-1).mean(0).cpu().numpy()
+    return out
 
 
 class Reader:
@@ -97,3 +133,37 @@ class Reader:
             for i, (a, b) in enumerate(spans):
                 out[i, j] = s[0, a:b].float().mean(0).cpu().numpy()
         return out
+
+    def attention_in_context(self, chunks: list[str], layers: list[int]) -> tuple[np.ndarray, list[tuple[int, int]]]:
+        """Attention probabilities over one sequence of chunks, averaged over heads: an array (layers, T, T), float32,
+        and each chunk's token span. Read in row blocks beside the model's own attention (see the module notes)."""
+        global _capture
+        import torch
+        from transformers.masking_utils import ALL_MASK_ATTENTION_FUNCTIONS
+        from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
+        from transformers.models.qwen3.modeling_qwen3 import eager_attention_forward
+
+        spans, ids = [], []
+        ids.extend(self.tokenizer("", return_tensors="pt")["input_ids"][0].tolist())
+        for chunk in chunks:
+            piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
+            spans.append((len(ids), len(ids) + len(piece)))
+            ids.extend(piece)
+        if not getattr(self.model, "dispatched", True):    # nnsight keeps the weights on meta until first used
+            self.model.dispatch()
+        hf = self.model._model
+        config = hf.config
+        base = config._attn_implementation
+        _base[:] = [ALL_ATTENTION_FUNCTIONS.get_interface(base, eager_attention_forward)]
+        ALL_ATTENTION_FUNCTIONS.register(READOUT, _readout)
+        ALL_MASK_ATTENTION_FUNCTIONS.register(READOUT, ALL_MASK_ATTENTION_FUNCTIONS[base])
+        T = len(ids)
+        _capture = {layer: np.zeros((T, T), dtype=np.float32) for layer in layers}
+        try:
+            config._attn_implementation = READOUT
+            with torch.no_grad():
+                hf(torch.tensor([ids], device=hf.device), use_cache=False)
+            return np.stack([_capture[layer] for layer in layers]), spans
+        finally:
+            config._attn_implementation = base
+            _capture = None

@@ -117,3 +117,35 @@ def test_a_one_token_text_keeps_its_token_rather_than_averaging_nothing(tiny):
     reader = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"))
     assert np.isfinite(reader.states(["plan"], [1])).all()
     assert np.isfinite(reader.states_in_context(["plan", "write the budget"], [1])).all()
+
+
+def test_attention_in_context_matches_transformers_own_head_mean(monkeypatch):
+    import copy
+
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    from transformers import PreTrainedTokenizerFast, Qwen3Config, Qwen3ForCausalLM
+
+    from substrate import states
+
+    vocab = {"[UNK]": 0, "<pad>": 2, **{w: i + 3 for i, w in enumerate(WORDS)}}
+    tk = Tokenizer(models.WordLevel(vocab, unk_token="[UNK]"))
+    tk.pre_tokenizer = pre_tokenizers.Whitespace()
+    tok = PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>")
+    torch.manual_seed(0)
+    config = Qwen3Config(vocab_size=64, hidden_size=32, intermediate_size=64, num_hidden_layers=4,
+                         num_attention_heads=4, num_key_value_heads=2, head_dim=8)
+    eager = Qwen3ForCausalLM(copy.deepcopy(config)).eval()
+    eager.set_attn_implementation("eager")
+    fused = copy.deepcopy(eager)
+    fused.set_attn_implementation("sdpa")                                   # the model runs its fused attention
+    monkeypatch.setattr(states, "ROW_BUDGET", 4 * 6 * 2)                     # blocks of two query rows
+    reader = Reader(fused, tokenizer=tok)
+    A, spans = reader.attention_in_context(["plan a garden ", "write the budget "], [1, 3])
+    ids = torch.tensor([tok("plan a garden write the budget", add_special_tokens=False)["input_ids"]])
+    with torch.no_grad():
+        ref = eager(ids, output_attentions=True).attentions
+        assert torch.allclose(fused(ids).logits, eager(ids).logits, atol=1e-5)
+    assert spans == [(0, 3), (3, 6)] and A.shape == (2, 6, 6)
+    assert np.allclose(A[0], ref[1][0].mean(0).numpy(), atol=1e-6)
+    assert np.allclose(A[1], ref[3][0].mean(0).numpy(), atol=1e-6)
+    assert fused.config._attn_implementation == "sdpa"                     # restored after the read

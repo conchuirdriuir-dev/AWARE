@@ -110,3 +110,54 @@ def test_chunks_are_classed_as_exact_near_repeat_or_new_by_text():
     base = "the quick brown fox jumps over the lazy dog near the river bank today"
     texts = [base, base, base + " again", "an entirely different sentence about budgets and gardens and lessons"]
     assert [k for k, _ in classify(texts)] == ["new", "exact repeat", "near repeat", "new"]
+
+
+def test_tool_calls_and_their_results_share_a_call_id(tmp_path):
+    import io
+    import json
+    import tarfile
+
+    from substrate.corpus import load_session
+
+    def event(role, at, uuid, content):
+        return {"created_at": at, role: {"uuid": uuid, "internal_anthropic_catchall": {"message": {"content": content}}}}
+    page = {"ccr": {"data": [
+        event("assistant", "2026-01-01T00:00:01", "a1", [{"type": "tool_use", "id": "t1", "name": "Read",
+                                                          "input": {"path": "x", "offset": 10}}]),
+        event("user", "2026-01-01T00:00:02", "u1", [{"type": "tool_result", "tool_use_id": "t1", "content": "x = 1"}]),
+    ]}}
+    raw = json.dumps(page).encode()
+    archive = tmp_path / "S98.tar.gz"
+    with tarfile.open(archive, "w:gz") as tar:
+        info = tarfile.TarInfo("S98/S98_p01.json")
+        info.size = len(raw)
+        tar.addfile(info, io.BytesIO(raw))
+    call, result = load_session(archive)
+    assert call["tool"] == "Read" and call["call"] == "t1" and json.loads(call["args"]) == {"offset": 10, "path": "x"}
+    assert result["call"] == "t1" and result["cause"] == "elicited"
+
+
+def test_a_corpus_path_without_archives_stops_before_any_model_work(tmp_path):
+    from substrate.echo_floor import echo_floor_alone, echo_floor_retries
+
+    for fn in (echo_floor_alone, echo_floor_retries):
+        with pytest.raises(SystemExit, match="no session archives"):
+            fn(None, [], [0], Record(tmp_path / "r.jsonl"), str(tmp_path))      # reader None: it must never be reached
+
+
+def test_a_session_checkpoint_is_reused_on_resume_and_a_partial_write_is_ignored(tmp_path):
+    from substrate.echo_floor import session_resumable
+
+    record = Record(tmp_path / "run" / "record.jsonl")
+    calls = []
+
+    def compute():
+        calls.append(1)
+        return {"dist": np.arange(6.0).reshape(3, 2)}, [{"ref": ["S1", "u", 0]}]
+    first = session_resumable(record, "alone-S1", compute)
+    again = session_resumable(record, "alone-S1", compute)
+    assert len(calls) == 1 and np.array_equal(first[0]["dist"], again[0]["dist"]) and again[1] == first[1]
+    assert [e["kind"] for e in read(record.path)] == ["resumed"]
+    (tmp_path / "run" / "checkpoints" / "alone-S2.npz.tmp.npz").write_bytes(b"half")     # a kill mid-write
+    session_resumable(record, "alone-S2", compute)
+    assert len(calls) == 2

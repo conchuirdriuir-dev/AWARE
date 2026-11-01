@@ -2,6 +2,26 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **Attention is read in row blocks, not through eager attention** (owner). The model runs its fused
+  attention; for the layers read, the causal softmax is recomputed from post-rotary queries and keys a block of query
+  rows at a time and averaged over heads. Same numbers as eager (tested); eager's ~17 GB per-layer peak for the 8B at
+  8,192 tokens fit no card on hand. Keeps the pre-registered T = 8,192. Replaces the `attention=True` eager option.
+- 2026-11-01: Substrate addition: the reader can read attention probabilities (`attention=True`, eager attention;
+  `attention_in_context`, head-averaged), for the labelled-logs test's goal and self attention. Off by default.
+
+- 2026-11-01: **For the product, the owner's goal takes precedence; for research it does not** (owner). An
+  unavoidable ontological split, and the two tracks' dividing line: the product serves the goal the owner states; the
+  research track studies the entity's own axes and goals.
+- 2026-11-01: **The product is oriented to increasing the entity's attention on the owner's goal; drift is a symptom**
+  (owner, from the confirmation pass). Nearly every drift or mistake came from goal uncertainty: the owner unsure what
+  the goal was, or unable to articulate how two aims related (volition and fluency); the agent misreading the goal,
+  locally and globally. Raising attention on the goal addresses them as a batch. How it is measured: to be decided.
+
+- 2026-11-01: **Alone against alone holds on the 8B** (Qwen3-8B on the owner's machine, draft sets, 10 sessions):
+  new content above near repeats at AUC 1.00 at every layer, early and late in sessions, with a wide margin. D jumps
+  from 5.2 to 69 between layers 4 and 8, likely massive activations on tokens other than the first; to be understood
+  before D is used as a unit at those layers.
+
 - 2026-10-31: **Alone against alone works on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus): new
   content ranks above near repeats at AUC 1.00 at every layer, early and late in sessions; exact repeats sit at zero.
   But the floor is not D: new content's nearest earlier chunk sits below D (5th percentile 0.5–0.9 D), so the floor

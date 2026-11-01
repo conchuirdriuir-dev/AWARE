@@ -173,13 +173,53 @@ percentile, below D at every layer: real chunks crowd closer than the short para
 A floor of D would call much new content a repeat. On this corpus the line falls between near repeats' 95th
 percentile (0.24–0.46 D) and new content's 5th (0.46–0.91 D), so the floor has to be measured on real repeats, as here.
 
+*Alone against alone on the 8B* (2026-11-01; Qwen3-8B, bfloat16, split across the owner's RTX 4060 and RAM; draft
+sets; the same 10 sessions and 2,987 chunks). In units of D:
+
+| Layer | D | New, median (5th) | Near repeat, median (95th) | AUC: all / first third / last third |
+|---|---|---|---|---|
+| 0 | 1.88 | 0.63 (0.35) | 0.16 (0.17) | 1.00 / 1.00 / 1.00 |
+| 4 | 5.17 | 0.88 (0.50) | 0.25 (0.29) | 1.00 / 1.00 / 1.00 |
+| 8–20 | 69–77 | 0.13–0.32 (0.08–0.19) | 0.03–0.05 (0.04–0.06) | 1.00 at every layer |
+| 24–32 | 91–153 | 0.52–0.89 (0.30–0.51) | 0.08–0.13 (0.12–0.22) | 1.00 at every layer |
+| 35 | 187 | 1.41 (0.77) | 0.29 (0.42) | 1.00 / 1.00 / 1.00 |
+
+**Read as written: it holds on the 8B,** as on the 0.6B: new content above near repeats at AUC 1.00 at every layer,
+first and last third alike, exact repeats at zero. The margin is wide: new content's 5th percentile is two to four
+times near repeats' 95th. One flag: **D jumps from 5.2 at layer 4 to 69 at layer 8** and stays there, which looks like
+massive activations in a few dimensions on tokens other than the first. It does not touch the AUCs (a ratio), but D
+is a poor unit at those layers until it is understood. The floor, read off the real distribution: at layers 28–32,
+between 0.17–0.22 D and 0.41–0.51 D.
+
+*Retried calls, written 2026-11-01 before their code* (`python -m substrate.echo_floor --corpus DIR --retries`). An
+agent stuck in a loop re-issues calls; does news, alone against alone, follow what comes back, not the fact that a call
+repeated? On the owner's corpus, references only.
+- **Calls and results:** tool calls are linked to their results by call id. A **retried call** has the same tool name
+  as an earlier call in the session and arguments at word 3-gram Jaccard 0.5 or more, short of identical; an **exact
+  retry** has identical arguments; a **fresh call** has the same tool name but arguments below 0.2 with every earlier
+  call of that tool.
+- **The results' content,** by text against every earlier chunk: *repeated* (overlap 0.8 or more, or identical),
+  *new* (below 0.2), or between (left out).
+- **The floor, measured in the same run** from all chunks' classes (as the alone-against-alone check): per layer, the
+  midpoint between near and exact repeats' 95th percentile and new chunks' 5th percentile of distance to the nearest
+  earlier chunk, alone against alone.
+- **Measured:** each result's distance to its nearest earlier chunk; the share of retried and exact-retry calls'
+  results below the floor when their content is repeated, and above it when it is new; the same for fresh calls.
+- **How it is read:** news follows content on retried calls if, at the late layers (the last third), at least 90% of
+  retried calls' results with repeated content read below the floor and at least 90% with new content read above it.
+  A class with fewer than 10 results is reported as too few to read. Repeats in other words (the same content
+  reworded) cannot be labelled from text, and stay untested.
+- First on Qwen3-0.6B here (the first 1,000 chunks of 10 sessions, seed 0, draft sets); then on the owner's machine.
+  *Amended before any result, 2026-11-01:* the first 400 chunks held only 30 retried calls and 10 exact retries (call
+  counts only; no distance had been computed), too few once split by their results' content, so 1,000.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
 | 3. Toy bed | v9, v10 and the v10 draft | below | **eight rounds run (below); detecting repeats now waits on the real model's echo floor** |
-| 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
+| 4. Labelled logs | Tests, in order; Entity tab, the product's aim (draft) | [goal attention and goal alignment](product/labelled_logs.md) on the owner-confirmed departures, the agent's 27 closures first | **pre-registered 2026-11-01; rehearsed on 0.6B (plumbing); 8B run on the owner's machine pending** |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
 | 7. Arms S and C; main demo | Main demo | C closes half the A–B gap on both scores and beats S by more than run-to-run noise | open |
