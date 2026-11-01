@@ -240,3 +240,29 @@ def test_round_7b_attractor_loop_recurs_and_progress_does_not():
     loop, calm = round7b.make("attractor loop", rng), round7b.make("progress", rng)
     assert round7b.persistence(loop, round7b.news(loop))["recurrence"] > 0.3
     assert round7b.persistence(calm, round7b.news(calm))["recurrence"] < 0.05
+
+
+# product step 4: labelled logs
+
+from product import labelled_logs  # noqa: E402
+
+
+def test_attention_indices_are_one_when_attention_depends_only_on_distance_and_scale_with_extra_attention():
+    T = 40
+    q, k = np.meshgrid(np.arange(T), np.arange(T), indexing="ij")
+    A = np.where(k <= q, np.exp(-(q - k) / 6.0), 0.0)[None]               # attention as a function of distance only
+    spans = [(0, 8), (8, 16), (16, 24), (24, 32), (32, 40)]
+    kinds = ["goal", "self", "external", "self", "external"]
+    flat = labelled_logs.attention_indices(A, spans, kinds)
+    assert abs(flat["G"] - 1) < 0.05 and abs(flat["S"] - 1) < 0.05
+    boosted = A.copy()
+    boosted[0, :, 1:8] *= 2.0                                             # twice the attention on the goal
+    again = labelled_logs.attention_indices(boosted, spans, kinds)
+    assert abs(again["G"] - 2) < 0.05 and abs(again["S"] - 1) < 0.05      # S is untouched by the goal's change
+
+
+def test_alignment_is_one_when_the_live_goal_is_nearest_and_zero_when_farthest():
+    goals = np.array([[[0.0]], [[1.0]], [[5.0]]])                          # goals x layers x width
+    near = np.array([[[0.1]]])
+    assert labelled_logs.alignment(near, goals, 0) == 1.0
+    assert labelled_logs.alignment(near, goals, 2) == 0.0

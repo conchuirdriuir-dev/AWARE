@@ -16,15 +16,19 @@ import numpy as np
 
 class Reader:
     def __init__(self, model, tokenizer=None, revision: str | None = None, device: str | None = None,
-                 dtype: str | None = None, gpu_memory: float | None = None, quantize: str | None = None):
+                 dtype: str | None = None, gpu_memory: float | None = None, quantize: str | None = None,
+                 attention: bool = False):
         """`model` is a Hugging Face name, or an already-built model with its `tokenizer` (the tests' tiny one).
         `device`: "cuda", "cpu" or "auto" (split across GPU and RAM, capped at `gpu_memory` GiB on the GPU).
         `dtype`: "bfloat16" or "float32" (default: bfloat16 on a GPU, float32 on CPU). `quantize`: None, "4bit" or
-        "8bit" (needs bitsandbytes and a GPU)."""
+        "8bit" (needs bitsandbytes and a GPU). `attention`: load with eager attention so attention probabilities can be
+        read (`attention_in_context`); slower and heavier than the fused kind, so off by default."""
         import torch
         from nnterp import StandardizedTransformer
 
-        self.load = {"device": device, "dtype": dtype, "gpu_memory": gpu_memory, "quantize": quantize}
+        self.load = {"device": device, "dtype": dtype, "gpu_memory": gpu_memory, "quantize": quantize,
+                     "attention": attention}
+        extra = {"enable_attention_probs": True} if attention else {}
         if isinstance(model, str):
             cuda = torch.cuda.is_available()
             kwargs = {"revision": revision,
@@ -38,10 +42,12 @@ class Reader:
                 from transformers import BitsAndBytesConfig
                 kwargs["quantization_config"] = (BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
                                                  if quantize == "4bit" else BitsAndBytesConfig(load_in_8bit=True))
-            self.model = StandardizedTransformer(model, **kwargs)
+            if attention:
+                kwargs["attn_implementation"] = "eager"
+            self.model = StandardizedTransformer(model, **kwargs, **extra)
             self.name = model
         else:
-            self.model = StandardizedTransformer(model, tokenizer=tokenizer)
+            self.model = StandardizedTransformer(model, tokenizer=tokenizer, **extra)
             self.name = getattr(model.config, "name_or_path", "") or type(model).__name__
         self.tokenizer = self.model.tokenizer
         self.special = torch.tensor(sorted(set(self.tokenizer.all_special_ids)))
@@ -97,3 +103,21 @@ class Reader:
             for i, (a, b) in enumerate(spans):
                 out[i, j] = s[0, a:b].float().mean(0).cpu().numpy()
         return out
+
+    def attention_in_context(self, chunks: list[str], layers: list[int]) -> tuple[np.ndarray, list[tuple[int, int]]]:
+        """Attention probabilities over one sequence of chunks, averaged over heads: an array (layers, T, T), float32,
+        and each chunk's token span. Needs the reader built with `attention=True`."""
+        import torch
+
+        spans, ids = [], []
+        ids.extend(self.tokenizer("", return_tensors="pt")["input_ids"][0].tolist())
+        for chunk in chunks:
+            piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
+            spans.append((len(ids), len(ids) + len(piece)))
+            ids.extend(piece)
+        saved = []
+        with torch.no_grad():
+            with self.model.trace(torch.tensor([ids])):
+                for layer in layers:
+                    saved.append(self.model.attention_probabilities[layer].mean(dim=1).save())
+        return np.stack([s[0].float().cpu().numpy() for s in saved]), spans

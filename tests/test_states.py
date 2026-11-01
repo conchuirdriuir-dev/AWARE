@@ -117,3 +117,26 @@ def test_a_one_token_text_keeps_its_token_rather_than_averaging_nothing(tiny):
     reader = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"))
     assert np.isfinite(reader.states(["plan"], [1])).all()
     assert np.isfinite(reader.states_in_context(["plan", "write the budget"], [1])).all()
+
+
+def test_attention_in_context_matches_transformers_own_head_mean():
+    import transformers
+
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    from transformers import PreTrainedTokenizerFast, Qwen3Config, Qwen3ForCausalLM
+
+    vocab = {"[UNK]": 0, "<pad>": 2, **{w: i + 3 for i, w in enumerate(WORDS)}}
+    tk = Tokenizer(models.WordLevel(vocab, unk_token="[UNK]"))
+    tk.pre_tokenizer = pre_tokenizers.Whitespace()
+    tok = PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>")
+    torch.manual_seed(0)
+    model = Qwen3ForCausalLM(Qwen3Config(vocab_size=64, hidden_size=32, intermediate_size=64, num_hidden_layers=4,
+                                         num_attention_heads=4, num_key_value_heads=2, head_dim=8,
+                                         attn_implementation="eager")).eval()
+    reader = Reader(model, tokenizer=tok, attention=True)
+    A, spans = reader.attention_in_context(["plan a garden ", "write the budget "], [1, 3])
+    ids = torch.tensor([tok("plan a garden write the budget", add_special_tokens=False)["input_ids"]])
+    with torch.no_grad():
+        ref = model(ids, output_attentions=True).attentions
+    assert spans == [(0, 3), (3, 6)] and A.shape == (2, 6, 6)
+    assert np.allclose(A[1], ref[3][0].mean(0).numpy(), atol=1e-6)

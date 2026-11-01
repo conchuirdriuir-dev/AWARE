@@ -61,6 +61,16 @@ events and controls.
 Reported, deciding nothing: every reading's change across onset; global alignment A′; accommodation's readings;
 alignment with the departed-from aim and, for ascents, with the next aim in the same line; news; per-layer results.
 
+### Amendment, 2026-11-01, before any data
+
+The pre-registered baseline for the attention indices, the window's mean attention at each distance over all keys,
+compresses the index it divides: the set being measured feeds its own baseline. In a unit test before any corpus run,
+doubling attention on the goal read as G = 1.63, and dragged S to 0.78 though the entity's own tokens were unchanged.
+Amended: **expected attention at each distance is the mean over other external tokens** (neither the goal nor the
+entity's own), falling back to all keys at a distance where there are none. G then reads attention on the goal against
+outside content at the same distance, and S attention on the entity's own tokens against the same. Nothing else
+changes.
+
 ### Runs
 
 First a rehearsal here on Qwen3-0.6B (plumbing, draft sets), then the run on the owner's machine with Qwen3-8B, split

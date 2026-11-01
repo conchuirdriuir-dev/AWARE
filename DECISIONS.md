@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: Substrate addition: the reader can read attention probabilities (`attention=True`, eager attention;
+  `attention_in_context`, head-averaged), for the labelled-logs test's goal and self attention. Off by default.
+
 - 2026-11-01: **For the product, the owner's goal takes precedence; for research it does not** (owner). An
   unavoidable ontological split, and the two tracks' dividing line: the product serves the goal the owner states; the
   research track studies the entity's own axes and goals.
