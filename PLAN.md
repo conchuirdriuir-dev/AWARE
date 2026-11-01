@@ -219,7 +219,7 @@ repeated? On the owner's corpus, references only.
 |---|---|---|---|
 | 0. Text-only floor | v9 step 0 | the text panel on the owner's 45 sessions | **done by the owner, twice:** text sees the owner leave an aim (AUC 0.65–0.71), not the agent |
 | 3. Toy bed | v9, v10 and the v10 draft | below | **eight rounds run (below); detecting repeats now waits on the real model's echo floor** |
-| 4. Labelled logs | Tests, in order; Entity tab, the product's aim (draft) | [goal attention and goal alignment](product/labelled_logs.md) on the owner-confirmed departures, the agent's 27 closures first | **pre-registered 2026-11-01; labels confirmed by the owner** |
+| 4. Labelled logs | Tests, in order; Entity tab, the product's aim (draft) | [goal attention and goal alignment](product/labelled_logs.md) on the owner-confirmed departures, the agent's 27 closures first | **pre-registered 2026-11-01; rehearsed on 0.6B (plumbing); 8B run on the owner's machine pending** |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
 | 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
 | 7. Arms S and C; main demo | Main demo | C closes half the A–B gap on both scores and beats S by more than run-to-run noise | open |

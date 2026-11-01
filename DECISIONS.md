@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **Attention is read in row blocks, not through eager attention** (owner). The model runs its fused
+  attention; for the layers read, the causal softmax is recomputed from post-rotary queries and keys a block of query
+  rows at a time and averaged over heads. Same numbers as eager (tested); eager's ~17 GB per-layer peak for the 8B at
+  8,192 tokens fit no card on hand. Keeps the pre-registered T = 8,192. Replaces the `attention=True` eager option.
 - 2026-11-01: Substrate addition: the reader can read attention probabilities (`attention=True`, eager attention;
   `attention_in_context`, head-averaged), for the labelled-logs test's goal and self attention. Off by default.
 

@@ -263,7 +263,7 @@ def main(argv=None):
     if not session_paths(Path(a.corpus) / "sessions"):
         raise SystemExit(f"no session archives in {a.corpus!r}/sessions")
     from substrate.states import Reader
-    reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory, attention=True)
+    reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory)
     n = reader.info["layers"]
     layers = list(range(math.ceil(2 * n / 3), n))
     record = Record(Path(a.run) / "record.jsonl")
