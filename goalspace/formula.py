@@ -166,3 +166,56 @@ def adjusted_rand(a, b) -> float:
     expected = s_a * s_b / comb(len(a))
     top = (s_a + s_b) / 2
     return float((s_ij - expected) / (top - expected)) if top != expected else float("nan")
+
+
+# --- reading 1, amended: the aims' own axes against the controls' axes, on the same next aim ---------------------
+
+def bits_on_axes(X: np.ndarray, x: np.ndarray, V: np.ndarray, floor_var: float) -> float:
+    """Code length of x under axes V (orthonormal rows), calibrated on the rows X: their mean, their variance along
+    each axis, and what they leave off the axes per spanned dimension, floored."""
+    X = np.asarray(X, dtype=np.float64)
+    n, d = X.shape
+    k = len(V)
+    mu = X.mean(0)
+    Z = X - mu
+    total = float((Z ** 2).sum(1).mean())
+    lam = (Z @ V.T) ** 2 if k else np.zeros((n, 0))
+    lam = lam.mean(0)
+    span = max(1, min(d, n - 1))
+    sigma2 = max((total - float(lam.sum())) / max(span - k, 1), floor_var, 1e-12)
+    lam = np.maximum(lam, sigma2)
+    r = np.asarray(x, dtype=np.float64) - mu
+    p = V @ r if k else np.zeros(0)
+    maha = float((p ** 2 / lam).sum()) + (float(r @ r) - float(p @ p)) / sigma2
+    logdet = float(np.log(lam).sum()) + (d - k) * math.log(sigma2)
+    return 0.5 * (d * math.log(2 * math.pi) + logdet + maha) / LN2
+
+
+def axes_comparison(A: np.ndarray, C: np.ndarray, has_c: np.ndarray, floor_var: float, start: int,
+                    min_controls: int = 20, kmax: int = KMAX) -> dict:
+    """For each aim t from `start`, k from MDL on the earlier aims; then, cross-fitted in two folds (earlier aims split
+    by the parity of their position): the aims' top-k axes fitted on one fold's aims, the controls' top-k axes on the
+    same fold's controls, and both calibrated on the other fold's aims, coding aim t; bits averaged over the folds.
+    Without cross-fitting the aims' axes would be fitted on their own calibration data, an in-sample advantage.
+    w = 1 if the aims' axes code aim t in fewer bits, 0 if more, 1/2 on a tie; NaN with fewer than `min_controls`
+    earlier controls."""
+    n = len(A)
+    out = {"bits_aims_axes": np.full(n, np.nan), "bits_control_axes": np.full(n, np.nan), "w": np.full(n, np.nan),
+           "k": np.full(n, -1)}
+    for t in range(start, n):
+        if np.count_nonzero(has_c[:t]) < min_controls:
+            continue
+        k = Fit(A[:t], floor_var).choose_k(kmax)
+        ba = bc = 0.0
+        for f in (0, 1):
+            fit_idx = np.arange(f, t, 2)
+            cal_idx = np.arange(1 - f, t, 2)
+            ctl_idx = fit_idx[has_c[fit_idx]]
+            kk = min(k, len(ctl_idx) - 1, len(fit_idx) - 1)
+            Va = Fit(A[fit_idx], floor_var).V[:kk]
+            Vc = Fit(C[ctl_idx], floor_var).V[:kk]
+            ba += bits_on_axes(A[cal_idx], A[t], Va, floor_var) / 2
+            bc += bits_on_axes(A[cal_idx], A[t], Vc, floor_var) / 2
+        out["bits_aims_axes"][t], out["bits_control_axes"][t], out["k"][t] = ba, bc, k
+        out["w"][t] = 1.0 if ba < bc else 0.0 if ba > bc else 0.5
+    return out

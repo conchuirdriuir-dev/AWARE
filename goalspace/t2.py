@@ -18,7 +18,8 @@ from pathlib import Path
 
 import numpy as np
 
-from goalspace.formula import Fit, Tfidf, adjusted_rand, auc, kmeans, prequential, surprisal
+from goalspace.formula import (Fit, Tfidf, adjusted_rand, auc, axes_comparison, kmeans, prequential,
+                               surprisal)
 from substrate.geometry import spread
 from substrate.record import Record
 
@@ -78,8 +79,9 @@ def streams(A: np.ndarray, C: np.ndarray, has_c: np.ndarray, floor_var: float) -
     ctl = prequential(C[idx], floor_var, start=min(WINDOW, len(idx)))
     gain_c = np.full(len(A), np.nan)
     gain_c[idx] = ctl["gain"]
+    axes = axes_comparison(A, C, has_c, floor_var, start=BURN)
     return {"gain": aims["gain"], "Lk": aims["Lk"], "k": aims["k"], "gain_control": gain_c,
-            "surprisal": surprisal(aims["Lk"], WINDOW)}
+            "surprisal": surprisal(aims["Lk"], WINDOW), "w": axes["w"], "k_axes": axes["k"]}
 
 
 def per_space(X_aims: np.ndarray, X_ctl: np.ndarray, has_c: np.ndarray, D: float) -> dict:
@@ -115,7 +117,26 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
     scored_all = np.arange(BURN, n)
     paired = scored_all[np.isfinite(layer_spaces[0]["gain_control"][scored_all])]
 
-    # reading 1
+    # reading 1, amended (the aims' own axes against the controls' axes, on the same next aim)
+    def block_interval(values: np.ndarray, index: np.ndarray) -> list[float]:
+        sess = np.array([aims[i]["ord"] for i in index])
+        uniq = np.unique(sess)
+        boot = []
+        for _ in range(DRAWS):
+            pick = rng.choice(uniq, size=len(uniq))
+            m = np.concatenate([np.flatnonzero(sess == s) for s in pick])
+            boot.append(values[m].mean())
+        return [float(x) for x in np.percentile(boot, [5, 95])]
+
+    scored_w = scored_all[np.isfinite(layer_spaces[0]["w"][scored_all])]
+    w1 = np.mean([sp["w"][scored_w] for sp in layer_spaces], axis=0)
+    lo1, hi1 = block_interval(w1, scored_w)
+    r1 = {"W": float(w1.mean()), "90% interval": [lo1, hi1], "text W": float(np.nanmean(text_space["w"][scored_w])),
+          "n": int(len(scored_w)), "per layer W": [float(np.mean(sp["w"][scored_w])) for sp in layer_spaces],
+          "ties (k = 0), share by layer": [float(np.mean(sp["w"][scored_w] == 0.5)) for sp in layer_spaces]}
+    r1["passed"] = bool(lo1 > 0.5 and r1["W"] > r1["text W"])
+
+    # reading 1 as registered (reported, deciding nothing)
     w = win_rate(layer_spaces, paired)
     w_text = win_rate([text_space], paired)
     sess = np.array([aims[i]["ord"] for i in paired])
@@ -126,12 +147,12 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
         m = np.concatenate([np.flatnonzero(sess == s) for s in pick])
         boot.append(w[m].mean())
     lo, hi = np.percentile(boot, [5, 95])
-    r1 = {"W": float(w.mean()), "90% interval": [float(lo), float(hi)], "text W": float(w_text.mean()),
+    r1_reg = {"W": float(w.mean()), "90% interval": [float(lo), float(hi)], "text W": float(w_text.mean()),
           "n": int(len(paired)), "aims without a control": int(len(scored_all) - len(paired)),
           "per layer W": [float(np.mean(sp["gain"][paired] > sp["gain_control"][paired])) for sp in layer_spaces],
           "bits saved per aim, median by layer": [float(np.nanmedian(sp["gain"][paired])) for sp in layer_spaces],
           "bits saved per control, median by layer": [float(np.nanmedian(sp["gain_control"][paired])) for sp in layer_spaces]}
-    r1["passed"] = bool(lo > 0.5 and r1["W"] > r1["text W"])
+    r1_reg["would have passed"] = bool(lo > 0.5 and r1_reg["W"] > r1_reg["text W"])
 
     # reading 2 and the reported event sets
     def event_auc(ev: list[int]) -> dict:
@@ -157,6 +178,7 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
     else:
         r2["passed"] = bool(r2["AUC"] >= 0.7 and r2["90% interval"][0] > 0.5 and r2["AUC"] > r2["text AUC"])
     reported = {
+        "reading 1 as registered": r1_reg,
         "agent closures": event_auc(events(aims, R, labels, lambda l: "closure" in l["kind"] and l["who"] == ["agent"])),
         "undecidable-then": event_auc(events(aims, R, labels, lambda l: "undecidable-then" in l["kind"]))}
 
@@ -250,8 +272,10 @@ def main(argv=None):
     print(f"  reading 2: AUC {r2['AUC']:.3f} interval {np.round(r2.get('90% interval', [np.nan] * 2), 3).tolist()}"
           f" text AUC {r2.get('text AUC', float('nan')):.3f} (events {r2['n']})")
     for name, v in report["reported"].items():
-        if isinstance(v, dict):
+        if isinstance(v, dict) and "AUC" in v:
             print(f"  reported, {name}: AUC {v['AUC']:.3f} (n {v['n']})")
+        elif isinstance(v, dict):
+            print(f"  reported, {name}: W {v['W']:.3f} (text {v['text W']:.3f})")
     print("  passed:", report["passed"])
 
 

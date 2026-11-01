@@ -235,3 +235,20 @@ codings identical). **W** is the mean of wₜ over scored aims whose earlier con
 the text baseline's W computed the same way.
 
 Reading 2, the reported readings and the keys are unchanged.
+
+### Checks of the amended reading on planted data, before any corpus data (2026-11-01)
+
+- **An in-sample advantage, fixed.** When aims and controls share the same true axes, the first code still had the
+  aims' axes win 92%: they were fitted on the same earlier aims both codings are calibrated on. Now cross-fitted in
+  two folds (earlier aims split by parity):
+  - the aims' axes are fitted on one fold, and the controls' axes on that fold's controls;
+  - both are calibrated on the other fold;
+  - bits are averaged over the folds.
+
+  With shared axes, W now centres near 0.5. With different axes, it reads 1.0.
+- **The interval does not hold its coverage.** On a planted null (40 runs, 30 sessions of 4 aims, shared axes), W
+  averages 0.48 but spreads from 0.20 to 0.86. The session-block interval excludes 0.5 in 8 of 40 runs (nominal: 2).
+  Each W comes from a fit that grows with time and is shared by every later aim, so the scores depend on each other
+  across the whole sequence, not just within a session.
+
+The amended reading is not run on the corpus until its inference is settled.
