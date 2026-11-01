@@ -274,3 +274,33 @@ def test_alignment_is_one_when_the_live_goal_is_nearest_and_zero_when_farthest()
     near = np.array([[[0.1]]])
     assert labelled_logs.alignment(near, goals, 0) == 1.0
     assert labelled_logs.alignment(near, goals, 2) == 0.0
+
+
+def _null_window(T, goal_len, chunk):
+    """Attention on distance only, long-tailed, with rows summing to 1 as softmax's do."""
+    q, k = np.meshgrid(np.arange(T), np.arange(T), indexing="ij")
+    A = np.where(k <= q, 1.0 / (q - k + 1.0), 0.0)
+    A = A / A.sum(axis=1, keepdims=True)
+    spans, kinds, a, n = [(1, 1 + goal_len)], ["goal"], 1 + goal_len, 0
+    while a < T:
+        spans.append((a, min(T, a + chunk)))
+        kinds.append("self" if n % 2 else "external")
+        a, n = min(T, a + chunk), n + 1
+    return A[None], spans, kinds
+
+
+def test_raw_goal_attention_carries_a_position_bias_that_the_placebo_ratio_cancels():
+    short = labelled_logs.attention_indices(*_null_window(400, 4, 20))
+    longer = labelled_logs.attention_indices(*_null_window(400, 40, 20))
+    assert short["G"] > 1.1 and longer["G"] > 1.05 and abs(short["G"] - longer["G"]) > 0.05   # varies with length
+    assert abs(short["S"] - 1) < 0.05                                       # S is barely touched
+    placebo = labelled_logs.attention_indices(*_null_window(400, 4, 20))  # the same slot, another goal-shaped turn
+    assert abs(short["G"] / placebo["G"] - 1) < 0.05
+
+
+def test_the_placebo_is_another_session_and_line_nearest_in_length():
+    pool = [{"id": "a", "session": "S01", "line": "L1", "tokens": 30},     # same session: excluded
+            {"id": "b", "session": "S02", "line": "L1", "tokens": 31},     # same line: excluded
+            {"id": "c", "session": "S03", "line": "L2", "tokens": 50},
+            {"id": "d", "session": "S04", "line": "L3", "tokens": 26}]
+    assert labelled_logs.pick_placebo(pool, {"ord": "S01", "line": "L1"}, 30)["id"] == "d"

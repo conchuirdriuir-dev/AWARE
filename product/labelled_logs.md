@@ -79,6 +79,36 @@ an anchor needs its W = 100 chunks before, as run 3's did (its `delta` returns n
 and eight ascents fall in their session's first 100 chunks, so **20 agent closures and 14 owner ascents are scored**,
 against 135 controls. Nothing in the rules changes; this fixes the n each AUC is read on.
 
+### Amendment, 2026-11-01, after the 0.6B rehearsal and before the 8B result: a G pass must also hold over a placebo goal
+
+Accepted by the owner from a review (PR #15, `proposals/labelled-logs-goal-attention.md`). It tightens G's bar only.
+
+**Why.** Raw G is not 1 when attention ignores the goal. The goal always sits at the front, so at a given distance its
+keys pair with earlier queries than the outside keys behind e(d); softmax rows sum to 1, and an earlier query spreads
+over fewer keys, so the goal gains on position alone. Null G reads 1.13–1.22 with long-tailed, row-normalised
+attention that depends on distance only (checked here independently; the review's check, with a sink and content
+salience, gives 1.2–2.1), and it varies with window length and goal-turn length. If closures and controls differ in
+either, raw G's AUC can read length. S is barely affected (0.98–0.99 under the same null). The rehearsal's G sat above
+1 in both groups (1.22, 1.53). Found from the code and a synthetic check, not from the rehearsal's numbers.
+
+**What is added.**
+1. **A placebo pass,** on the window before onset, for each anchor with a live aim. The same window, with the goal slot
+   holding a **placebo aim's owner turn** instead: an aim from a different session and a different line, located as
+   the live aim's turn is, the nearest in token length (after the 256-token cap) to the live turn, ties broken by seed
+   0. The window's chunks are cut to the budget left by the longer of the two turns, so both passes read the same
+   chunks (the live pass is re-read when the placebo turn is the longer). The reading is **G(live) / G(placebo).**
+2. **The rule:** G supports the batch claim only if raw G passes as pre-registered **and** the ratio's AUC (closures
+   lower, predicted) has its 90% interval's lower bound above 0.5. If raw G passes and the ratio does not, the result
+   reads "G's pass is not distinguishable from position and length".
+3. **Lengths, reported:** each anchor's window length and goal-turn length in tokens, each with its AUC of closures
+   against controls.
+
+**Unchanged:** raw G as the pre-registered reading and its bar; S and A and the ascent check; events and controls. The
+placebo is read on the window before onset only, since the window after decides nothing. **Considered, not applied:**
+the review's optional fix to e(d)'s fallback (the mean over all keys where no outside key exists, the goal's own
+included; under 2% of G at T = 8,192, and biased toward 1). It would change the raw reading the 8B run was already
+computing.
+
 ### Runs
 
 First a rehearsal here on Qwen3-0.6B (plumbing, draft sets), then the run on the owner's machine with Qwen3-8B, split

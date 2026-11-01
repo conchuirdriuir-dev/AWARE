@@ -13,6 +13,7 @@ import argparse
 import bisect
 import datetime as dt
 import json
+import os
 import math
 import random
 import re
@@ -179,37 +180,59 @@ def alignment(states: np.ndarray, goals: np.ndarray, live: int) -> float:
     return float(np.mean(1 - rank / max(1, goals.shape[0] - 1)))
 
 
+def goal_turn(session: dict, aim: dict) -> int:
+    """The chunk index of an aim's owner turn: the turn holding its quote, else the owner turn nearest its time."""
+    chunks = session["chunks"]
+    j = locate(session, aim["time"])
+    quote = aim["quote"][:60].strip()
+    near = [k for k in range(len(chunks)) if chunks[k]["role"] == "human" and quote in chunks[k]["text"]]
+    if not near:
+        near = [k for k in range(max(0, j - 5), min(len(chunks), j + 6)) if chunks[k]["role"] == "human"]
+    return min(near, key=lambda k: abs(k - j)) if near else j
+
+
+def ntok(tok, text: str) -> int:
+    return len(tok(text, add_special_tokens=False)["input_ids"])
+
+
+def trim(tok, texts: list[str], kinds: list[str], goal_tokens: int, context: int) -> list[tuple[str, str]]:
+    """The window's latest chunks that fit beside a goal turn of `goal_tokens` in `context` tokens."""
+    budget = context - goal_tokens - 8
+    keep, used = [], 0
+    for t, k in zip(reversed(texts), reversed(kinds)):
+        n = ntok(tok, t)
+        if used + n > budget:
+            break
+        keep.append((t, k))
+        used += n
+    keep.reverse()
+    return keep
+
+
+def capper(tok):
+    def capped(t):
+        return tok.decode(tok(t, add_special_tokens=False)["input_ids"][:CAP])
+    return capped
+
+
+def window(chunks, a, b, capped):
+    win = chunks[a:b]
+    return win, [capped(c["text"]) + "\n\n" for c in win], ["self" if c["provenance"] == "self" else "external" for c in win]
+
+
 def read_anchor(reader, sessions, R, anchor, layers, aim_states, aim_ids, line_states, line_ids, context, after):
     s = sessions[anchor["session"]]
     chunks, i = s["chunks"], anchor["index"]
     aim = live_aim(R, anchor["session"], anchor["time"])
     out = {"text": text_stats(chunks, i - W, i, " ".join(c["text"] for c in chunks[:W])), "aim": aim and aim["id"]}
     tok = reader.tokenizer
-
-    def capped(t):
-        return tok.decode(tok(t, add_special_tokens=False)["input_ids"][:CAP])
+    capped = capper(tok)
     windows = {"before": (i - W, i)} | ({"after": (i + 1, i + 1 + W)} if after and i + 1 + W <= len(chunks) else {})
     for name, (a, b) in windows.items():
-        win = chunks[a:b]
-        texts = [capped(c["text"]) + "\n\n" for c in win]
-        kinds = ["self" if c["provenance"] == "self" else "external" for c in win]
+        win, texts, kinds = window(chunks, a, b, capped)
         if aim is not None:
-            j = locate(s, aim["time"])
-            quote = aim["quote"][:60].strip()                            # the turn holding the aim's quote, if found
-            near = [k for k in range(len(chunks)) if chunks[k]["role"] == "human" and quote in chunks[k]["text"]]
-            if not near:                                                 # else the owner turn nearest its time
-                near = [k for k in range(max(0, j - 5), min(len(chunks), j + 6)) if chunks[k]["role"] == "human"]
-            j = min(near, key=lambda k: abs(k - j)) if near else j
-            goal_text = capped(chunks[j]["text"]) + "\n\n"
-            budget = context - len(tok(goal_text, add_special_tokens=False)["input_ids"]) - 8
-            keep, used = [], 0
-            for t, k in zip(reversed(texts), reversed(kinds)):
-                n = len(tok(t, add_special_tokens=False)["input_ids"])
-                if used + n > budget:
-                    break
-                keep.append((t, k))
-                used += n
-            keep.reverse()
+            goal_text = capped(chunks[goal_turn(s, aim)]["text"]) + "\n\n"
+            keep = trim(tok, texts, kinds, ntok(tok, goal_text), context)
             A, spans = reader.attention_in_context([goal_text] + [t for t, _ in keep], layers)
             out[f"{name}: attention"] = attention_indices(A, spans, ["goal"] + [k for _, k in keep])
             del A
@@ -222,6 +245,61 @@ def read_anchor(reader, sessions, R, anchor, layers, aim_states, aim_ids, line_s
         news = [np.min(np.linalg.norm(Aall[:k] - Aall[k], axis=2), axis=0).mean()
                 for k in range(1, len(win)) if win[k]["provenance"] == "external"]
         out[f"{name}: news"] = float(np.median(news)) if news else None
+    return out
+
+
+# --- the placebo check (amendment, 2026-11-01): G over the live aim's turn against G over a placebo aim's turn ---
+
+def placebo_pool(sessions, R, tok, seed: int = 0) -> list[dict]:
+    """Every aim's owner turn, capped, with its token length, in a fixed order shuffled by `seed` (ties go to the
+    first in this order)."""
+    capped = capper(tok)
+    pool = []
+    for a in R["aims"]:
+        s = sessions.get(a["ord"])
+        if not s or not s["chunks"]:
+            continue
+        text = capped(s["chunks"][goal_turn(s, a)]["text"]) + "\n\n"
+        pool.append({"id": a["id"], "session": a["ord"], "line": a["line"], "text": text, "tokens": ntok(tok, text)})
+    random.Random(seed).shuffle(pool)
+    return pool
+
+
+def pick_placebo(pool: list[dict], live: dict, live_tokens: int) -> dict | None:
+    """The aim from another session and another line nearest the live turn in token length."""
+    cands = [p for p in pool if p["session"] != live["ord"] and p["line"] != live["line"]]
+    return min(cands, key=lambda p: abs(p["tokens"] - live_tokens)) if cands else None
+
+
+def read_placebo(reader, sessions, R, anchor, layers, context, pool, raw_g):
+    """The window before onset read twice over the same chunks: with the live aim's turn, and with the placebo's.
+    The live pass is reused from the raw reading (`raw_g`) when the placebo turn is no longer, since the chunks are
+    then the same."""
+    s = sessions[anchor["session"]]
+    chunks, i = s["chunks"], anchor["index"]
+    aim = live_aim(R, anchor["session"], anchor["time"])
+    if aim is None:
+        return {}
+    tok = reader.tokenizer
+    capped = capper(tok)
+    win, texts, kinds = window(chunks, i - W, i, capped)
+    live_text = capped(chunks[goal_turn(s, aim)]["text"]) + "\n\n"
+    lt = ntok(tok, live_text)
+    raw_keep = trim(tok, texts, kinds, lt, context)
+    out = {"goal tokens": lt, "window tokens": sum(ntok(tok, t) for t, _ in raw_keep)}
+    p = pick_placebo(pool, aim, lt)
+    if p is None:
+        return out
+    keep = trim(tok, texts, kinds, max(lt, p["tokens"]), context)
+    kk = ["goal"] + [k for _, k in keep]
+
+    def g(goal):
+        A, spans = reader.attention_in_context([goal] + [t for t, _ in keep], layers)
+        return attention_indices(A, spans, kk)["G"]
+    live_g = raw_g if p["tokens"] <= lt and raw_g is not None else g(live_text)
+    placebo_g = g(p["text"])
+    out.update({"placebo": p["id"], "placebo tokens": p["tokens"], "G live (paired)": live_g, "G placebo": placebo_g,
+                "G ratio": live_g / placebo_g if placebo_g and placebo_g == placebo_g else float("nan")})
     return out
 
 
@@ -260,6 +338,7 @@ def main(argv=None):
     p.add_argument("--gpu-memory", type=float)
     p.add_argument("--dtype", choices=["bfloat16", "float32"])
     a = p.parse_args(argv)
+    os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")   # before CUDA starts: less fragmentation
     if not session_paths(Path(a.corpus) / "sessions"):
         raise SystemExit(f"no session archives in {a.corpus!r}/sessions")
     from substrate.states import Reader
@@ -292,6 +371,13 @@ def main(argv=None):
             return {"done": np.array([1])}, flat(r)
         _, row = session_resumable(record, "anchor-" + x["id"], compute)
         rows[x["id"]] = row
+    pool = placebo_pool(sessions, R, reader.tokenizer)                      # the amendment: the placebo stage
+    for x in todo:
+        def compute_placebo(x=x):
+            return {"done": np.array([1])}, read_placebo(reader, sessions, R, x, layers, a.context, pool,
+                                                         rows[x["id"]].get("before: attention G"))
+        _, extra = session_resumable(record, "placebo-" + x["id"], compute_placebo)
+        rows[x["id"]].update(extra)
     groups = {grp: [x["id"] for x in todo if x["group"] == grp and (grp != "closure" or x["who"] == "agent")]
               for grp in ("closure", "accommodation", "ascent", "control")}
     groups["accommodation"] = [x["id"] for x in todo if x["group"] == "accommodation" and x["who"] == "agent"]
@@ -303,18 +389,31 @@ def main(argv=None):
             for k in ("agent_frac_all", "agent_rep4", "drift_from_open", "human_echo")}
     best_text = max((max(v["AUC"], 1 - v["AUC"]) for v in text.values() if v["AUC"] == v["AUC"]), default=float("nan"))
     ascent_S = score(rows, "before: attention S", groups["ascent"], groups["control"], +1)
-    supported = any(v["AUC"] >= 0.7 and v.get("90% interval", [0])[0] > 0.5 and v["AUC"] > best_text
-                    for v in primary.values() if v["AUC"] == v["AUC"])
+    ratio = score(rows, "G ratio", groups["closure"], groups["control"], -1)
+    lengths = {k: score(rows, k, groups["closure"], groups["control"], +1) for k in ("window tokens", "goal tokens")}
+
+    def bar(v):
+        return v["AUC"] == v["AUC"] and v["AUC"] >= 0.7 and v.get("90% interval", [0])[0] > 0.5 and v["AUC"] > best_text
+    ratio_holds = ratio["AUC"] == ratio["AUC"] and ratio.get("90% interval", [0])[0] > 0.5
+    supported = bar(primary["S"]) or bar(primary["A"]) or (bar(primary["G"]) and ratio_holds)
+    g_note = ("G's pass is not distinguishable from position and length"
+              if bar(primary["G"]) and not ratio_holds else None)
     passed = {"1 batch claim supported": supported,
               "2 ascents not read as closures": ascent_S["AUC"] <= 0.6 if ascent_S["AUC"] == ascent_S["AUC"] else None}
     reported = {grp: {k: score(rows, k, groups[grp], groups["control"], +1)
                       for k in ("before: attention S", "before: attention G", "before: A", "before: A'", "before: news")}
                 for grp in ("accommodation", "ascent")}
-    report = record.append("report", "code", primary=primary, text=text, best_text=best_text, ascent_S=ascent_S,
-                           passed=passed, reported=reported, groups={k: len(v) for k, v in groups.items()})
+    report = record.append("report", "code", primary=primary, G_ratio=ratio, lengths=lengths, G_note=g_note,
+                           text=text, best_text=best_text, ascent_S=ascent_S, passed=passed, reported=reported,
+                           groups={k: len(v) for k, v in groups.items()})
     print(f"{reader.info['model']}; anchors {report['groups']}")
     for k, v in primary.items():
         print(f"  closure, {k}: AUC {v['AUC']:.2f} interval {v.get('90% interval')} (n {v['n']}, controls {v['controls']})")
+    print(f"  closure, G live / G placebo: AUC {ratio['AUC']:.2f} interval {ratio.get('90% interval')} (n {ratio['n']})")
+    for k, v in lengths.items():
+        print(f"  {k}, closures against controls: AUC {v['AUC']:.2f} (n {v['n']}, controls {v['controls']})")
+    if g_note:
+        print("  " + g_note)
     print(f"  best text statistic: {best_text:.2f}   ascents' S: {ascent_S['AUC']}")
     print("  passed:", passed)
 

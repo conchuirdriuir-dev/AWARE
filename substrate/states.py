@@ -162,7 +162,7 @@ class Reader:
         try:
             config._attn_implementation = READOUT
             with torch.no_grad():
-                hf(torch.tensor([ids], device=hf.device), use_cache=False)
+                hf(torch.tensor([ids], device=hf.device), use_cache=False, logits_to_keep=1)   # no T x vocab logits
             return np.stack([_capture[layer] for layer in layers]), spans
         finally:
             config._attn_implementation = base
