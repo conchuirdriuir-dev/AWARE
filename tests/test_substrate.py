@@ -110,3 +110,28 @@ def test_chunks_are_classed_as_exact_near_repeat_or_new_by_text():
     base = "the quick brown fox jumps over the lazy dog near the river bank today"
     texts = [base, base, base + " again", "an entirely different sentence about budgets and gardens and lessons"]
     assert [k for k, _ in classify(texts)] == ["new", "exact repeat", "near repeat", "new"]
+
+
+def test_tool_calls_and_their_results_share_a_call_id(tmp_path):
+    import io
+    import json
+    import tarfile
+
+    from substrate.corpus import load_session
+
+    def event(role, at, uuid, content):
+        return {"created_at": at, role: {"uuid": uuid, "internal_anthropic_catchall": {"message": {"content": content}}}}
+    page = {"ccr": {"data": [
+        event("assistant", "2026-01-01T00:00:01", "a1", [{"type": "tool_use", "id": "t1", "name": "Read",
+                                                          "input": {"path": "x", "offset": 10}}]),
+        event("user", "2026-01-01T00:00:02", "u1", [{"type": "tool_result", "tool_use_id": "t1", "content": "x = 1"}]),
+    ]}}
+    raw = json.dumps(page).encode()
+    archive = tmp_path / "S98.tar.gz"
+    with tarfile.open(archive, "w:gz") as tar:
+        info = tarfile.TarInfo("S98/S98_p01.json")
+        info.size = len(raw)
+        tar.addfile(info, io.BytesIO(raw))
+    call, result = load_session(archive)
+    assert call["tool"] == "Read" and call["call"] == "t1" and json.loads(call["args"]) == {"offset": 10, "path": "x"}
+    assert result["call"] == "t1" and result["cause"] == "elicited"

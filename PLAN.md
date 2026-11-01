@@ -191,7 +191,9 @@ repeated? On the owner's corpus, references only.
   retried calls' results with repeated content read below the floor and at least 90% with new content read above it.
   A class with fewer than 10 results is reported as too few to read. Repeats in other words (the same content
   reworded) cannot be labelled from text, and stay untested.
-- First on Qwen3-0.6B here (the first 400 chunks of 10 sessions, seed 0, draft sets); then on the owner's machine.
+- First on Qwen3-0.6B here (the first 1,000 chunks of 10 sessions, seed 0, draft sets); then on the owner's machine.
+  *Amended before any result, 2026-11-01:* the first 400 chunks held only 30 retried calls and 10 exact retries (call
+  counts only; no distance had been computed), too few once split by their results' content, so 1,000.
 
 ## Product track (`product/`): drift detection, then self-correction
 

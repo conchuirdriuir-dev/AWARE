@@ -37,7 +37,8 @@ def _text(block) -> str:
 
 
 def load_session(path: str | Path) -> list[dict]:
-    """The chunks of one session archive, in time order: {"text", "provenance", "cause", "ref", "at"}."""
+    """The chunks of one session archive, in time order: {"text", "provenance", "cause", "ref", "at"}, plus, for a
+    tool call, its "tool", "call" id and "args", and for a tool result the "call" id it answers."""
     path = Path(path)
     events = {}
     with tarfile.open(path, "r:gz") as tar:
@@ -70,7 +71,13 @@ def load_session(path: str | Path) -> list[dict]:
             else:
                 prov, cause = "external", "spontaneous"
             ref = [path.name.split(".")[0], uuid, i]
-            chunks.append({"text": text, "provenance": prov, "cause": cause, "ref": ref, "at": at})
+            chunk = {"text": text, "provenance": prov, "cause": cause, "ref": ref, "at": at}
+            if kind == "tool_use":                      # the call, linked to its result by id
+                chunk.update(tool=block.get("name", ""), call=block.get("id"),
+                             args=json.dumps(block.get("input", {}), ensure_ascii=False, sort_keys=True))
+            elif kind == "tool_result":
+                chunk["call"] = block.get("tool_use_id")
+            chunks.append(chunk)
     return chunks
 
 
