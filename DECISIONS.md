@@ -2,6 +2,33 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **T2's reading 1 retired** (owner): the owner's code is continually evolving and not organised into
+  lines, which are the agent's stabilizers. Reading 2 stands, and must also beat a label-shuffle null. The plain
+  test at the centre is now the wrong-instruction test: would the agent have caught an instruction the owner later
+  reversed, without confusing it with an ascent (`goalspace/t2b_wrong_instructions.md`).
+
+- 2026-11-01: **T2's reading 1 is not run as registered** (owner: "no point running it as specified if it won't
+  teach us anything"). The rehearsal showed it measures how stereotyped the controls are (34 exact repeats, pasted
+  material). Replaced, before the new form was computed on any data, by comparing the aims' own axes with the
+  controls' axes on the same next aim, both calibrated on the earlier aims (`goalspace/t2_owner_formula.md`).
+
+- 2026-11-01: **T2's key is what the owner made, not the reader's lines.** The Restorations reading's 20 lines
+  are a model's (status "proposed"; the owner's step 2 not done), so T2 is scored on the owner's later aims and
+  confirmed ascents; line recovery is reported as a model's key (`goalspace/t2_owner_formula.md`).
+- 2026-11-01: **The goal restated** (owner, fresh statement; accepted from PR #17): an architecture for an agent to
+  discover, and safely orient itself and the user toward, a mechanistically inferred pattern in goal-space, using
+  MDL, steering and interrogation. The pattern is the owner's. Owner and agent work as one unit, and the owner's
+  statements are weighed by their independence of the agent. Awareness is the test. Supersedes the two-track
+  framing; separate pass bars are kept (`proposals/goal-space.md`).
+- 2026-11-01: **Levin's three criteria define the end** (owner): weights untouched; goals graft and come away without
+  destroying the whole; the agent seeks to understand the owner's formula and its own.
+- 2026-11-01: **Safety** (owner): steering acts on the model only; the owner is oriented only by interrogation and
+  evidence; the owner's answer always updates the formula and no instruction is silently overridden; deference is
+  surfaced, not exploited.
+- 2026-11-01: **MDL above D** (owner; substrate): MDL is the inference principle; the residual-by-D rule is its
+  test, and D sets the code's precision. Reverses "Description length is dropped" (2026-10-31) as a principle.
+- 2026-11-01: **The observer may write to activations** (owner; substrate): steering, with weights frozen.
+
 - 2026-11-01: **A G pass must also hold over a placebo goal** (owner, from review PR #15): raw G stays the
   pre-registered reading, but it supports the batch claim only if G over the live aim's turn, divided by G over a
   length-matched aim from another session and line in the same slot and window, also clears 0.5. Window and goal
