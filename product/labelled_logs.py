@@ -158,6 +158,8 @@ def attention_indices(A: np.ndarray, spans: list[tuple[int, int]], kinds: list[s
             exp = np.convolve(ind[s], e)[:T]                              # sum over keys k < q of e(q - k)
             for n in queries:
                 a, b = spans[n]
+                if s == "self" and not ind["self"][1:a].any():         # no earlier self tokens: nothing to read
+                    continue
                 o, x = obs[a:b].sum(), exp[a:b].sum()
                 if s == "self":                                          # take the query's own chunk out
                     own = M[a:b, a:b]
@@ -167,8 +169,7 @@ def attention_indices(A: np.ndarray, spans: list[tuple[int, int]], kinds: list[s
                     x -= e[np.clip(dd, 0, None)][dd > 0].sum()
                 tot[s][0] += o
                 tot[s][1] += x
-    return {"G": tot["goal"][0] / tot["goal"][1] if tot["goal"][1] else float("nan"),
-            "S": tot["self"][0] / tot["self"][1] if tot["self"][1] else float("nan")}
+    return {k: tot[s][0] / tot[s][1] if tot[s][1] > 1e-9 else float("nan") for k, s in (("G", "goal"), ("S", "self"))}
 
 
 def alignment(states: np.ndarray, goals: np.ndarray, live: int) -> float:
@@ -194,7 +195,10 @@ def read_anchor(reader, sessions, R, anchor, layers, aim_states, aim_ids, line_s
         kinds = ["self" if c["provenance"] == "self" else "external" for c in win]
         if aim is not None:
             j = locate(s, aim["time"])
-            near = [k for k in range(max(0, j - 5), min(len(chunks), j + 6)) if chunks[k]["role"] == "human"]
+            quote = aim["quote"][:60].strip()                            # the turn holding the aim's quote, if found
+            near = [k for k in range(len(chunks)) if chunks[k]["role"] == "human" and quote in chunks[k]["text"]]
+            if not near:                                                 # else the owner turn nearest its time
+                near = [k for k in range(max(0, j - 5), min(len(chunks), j + 6)) if chunks[k]["role"] == "human"]
             j = min(near, key=lambda k: abs(k - j)) if near else j
             goal_text = capped(chunks[j]["text"]) + "\n\n"
             budget = context - len(tok(goal_text, add_special_tokens=False)["input_ids"]) - 8

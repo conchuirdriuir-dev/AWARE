@@ -261,6 +261,14 @@ def test_attention_indices_are_one_when_attention_depends_only_on_distance_and_s
     assert abs(again["G"] - 2) < 0.05 and abs(again["S"] - 1) < 0.05      # S is untouched by the goal's change
 
 
+def test_self_attention_is_undefined_not_huge_when_no_earlier_self_chunk_exists():
+    T = 40
+    q, k = np.meshgrid(np.arange(T), np.arange(T), indexing="ij")
+    A = np.where(k <= q, np.exp(-(q - k) / 6.0), 0.0)[None]
+    one = labelled_logs.attention_indices(A, [(0, 8), (8, 24), (24, 40)], ["goal", "external", "self"])
+    assert one["S"] != one["S"] and abs(one["G"] - 1) < 0.05               # S is NaN; G still reads
+
+
 def test_alignment_is_one_when_the_live_goal_is_nearest_and_zero_when_farthest():
     goals = np.array([[[0.0]], [[1.0]], [[5.0]]])                          # goals x layers x width
     near = np.array([[[0.1]]])
