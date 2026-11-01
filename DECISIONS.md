@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **T2's reading 1 is not run as registered** (owner: "no point running it as specified if it won't
+  teach us anything"). The rehearsal showed it measures how stereotyped the controls are (34 exact repeats, pasted
+  material). Replaced, before the new form was computed on any data, by comparing the aims' own axes with the
+  controls' axes on the same next aim, both calibrated on the earlier aims (`goalspace/t2_owner_formula.md`).
+
 - 2026-11-01: **T2's key is what the owner made, not the reader's lines.** The Restorations reading's 20 lines
   are a model's (status "proposed"; the owner's step 2 not done), so T2 is scored on the owner's later aims and
   confirmed ascents; line recovery is reported as a model's key (`goalspace/t2_owner_formula.md`).
