@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **T2's reading 1 retired** (owner): the owner's code is continually evolving and not organised into
+  lines, which are the agent's stabilizers. Reading 2 stands, and must also beat a label-shuffle null. The plain
+  test at the centre is now the wrong-instruction test: would the agent have caught an instruction the owner later
+  reversed, without confusing it with an ascent (`goalspace/t2b_wrong_instructions.md`).
+
 - 2026-11-01: **T2's reading 1 is not run as registered** (owner: "no point running it as specified if it won't
   teach us anything"). The rehearsal showed it measures how stereotyped the controls are (34 exact repeats, pasted
   material). Replaced, before the new form was computed on any data, by comparing the aims' own axes with the

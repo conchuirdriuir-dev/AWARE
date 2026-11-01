@@ -252,3 +252,17 @@ Reading 2, the reported readings and the keys are unchanged.
   across the whole sequence, not just within a session.
 
 The amended reading is not run on the corpus until its inference is settled.
+
+## Reading 1 retired, 2026-11-01 (owner)
+
+The owner's code is continually evolving and is not organised into lines: "the lines are agent approximations
+because they have to be, they're like stabilizers". So predicting later aims (reading 1 as registered and as
+amended) and recovering lines (option B) both test something the owner does not hold. Reading 1 is not run. Its code
+stays for the record and is reported, deciding nothing.
+
+**Reading 2 stands, tightened.** The rehearsal's null check showed that bootstrap intervals over these prequential
+readings can be too narrow. Reading 2's surprisal is computed without the labels, so shuffling the event labels among
+scored aims gives a valid null. Reading 2 must now also beat 95% of 10,000 label shuffles, beside its registered bar.
+This only adds a condition.
+
+T2's successor is the wrong-instruction test (`goalspace/t2b_wrong_instructions.md`).

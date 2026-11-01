@@ -24,7 +24,8 @@ to match; their work carries over as the proposal's section 5 says.
 | Test | Criterion | Status |
 |---|---|---|
 | T1. Self-seeking | 3, its own formula | open; the toy bed's event record is its machinery |
-| T2. The owner's formula from the aims | 3, the owner's formula | **[pre-registered 2026-11-01](goalspace/t2_owner_formula.md)**; scored on the owner's later aims and confirmed ascents, not the reader's lines |
+| T2. The owner's formula from the aims | 3, the owner's formula | [pre-registered 2026-11-01](goalspace/t2_owner_formula.md); reading 1 retired (the owner's code evolves and has no lines); reading 2 (ascents) stands for the 8B run |
+| T2b. Wrong instructions | 3, the ratchet | **[drafted 2026-11-01](goalspace/t2b_wrong_instructions.md)** for the owner; needs the owner's marking pass (reversed, kept, ascent) |
 | T3. Deference | 3, the unit | open; needs the owner's labels of deference |
 | T4. Graft and removal | 2 | open; a toy first |
 | T5. Steering | 1 and 3 | open; the 8B on the card |
