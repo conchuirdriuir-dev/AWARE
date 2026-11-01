@@ -199,6 +199,25 @@ Each round's pre-registration and result live in their own file, frozen by the c
 | [7a](product/rounds/round7a.md) | arrival cause; short and long news; the partner-side loop on long news over spontaneous arrivals; replay and confirmations as known structures; a new blind structure | 7 of 10; separation passes for the first time; misses: a floor in the wrong unit (replay), closed loops never probed (against the design), every elicited arrival treated as a confirmation (the blind structure) |
 | [7b](product/rounds/round7b.md) | 7a's fixes; the probe as a contingency test; entity captured; persistence and recurrence; six reactive or nonlinear conditions; the self-drive term deferred | 7 of 12; entity captured, probing first, short-lag mirrors and the attractor loop work; repeats (replay, the blind retry loop) sit on the toy's floor; not frozen |
 
+### Step 6, first part: the harness, arm A
+
+*Written 2026-11-01, before its code* (`product/harness.py`). A plain loop: the person types; the model (Qwen3, thinking
+off) answers and may call three file tools (list, read, write) confined to a workspace folder. Arm A has no compass and
+no intervention. Every chunk is appended to the record when it is created, and the context of every forward pass is
+built from the record alone. It passes when, on a scripted session on Qwen3-0.6B on CPU (and on the tiny model in the
+suite):
+1. **Provenance at creation.** Every chunk is a record entry before any forward pass reads it: the model's turns self;
+   the person's turns external and spontaneous; tool results external and elicited. Each forward pass records the
+   chunks it read.
+2. **Replay is exact.** The token ids rebuilt from the record (text, model, revision, the rendering rule) equal the ids
+   each forward pass read, on every pass.
+3. **The cache is faithful.** Each generated chunk's mean state at three layers, captured while it was generated,
+   against its state replayed from the record: relative difference at most 1e-3 wherever the chunk's text
+   re-tokenizes to the ids generated. The share that does is reported.
+4. **Tools stay in the workspace.** A path outside it is refused, and the refusal is a recorded tool result.
+
+Attention is not captured: replay from the record reproduces it, which is how the attention probes read it.
+
 ## Research track (`research/`): reasoning over the entity's own axes
 
 No demo and no pass bar yet, by design. What it has:
