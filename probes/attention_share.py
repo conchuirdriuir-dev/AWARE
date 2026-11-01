@@ -23,6 +23,15 @@ Written 2026-11-01, before its first run.
 - **How it is read:** the model favours its own output if the far-key lift for self queries is above zero in at
   least two thirds of sessions at at least two thirds of layers. It rises as the session goes on if the last position
   bin's lift exceeds the first's at most layers. Repeats are compared with new only if there are at least 10.
+- **Role controls** (written 2026-11-01 after the first run, before their code): `--roles swap` labels self chunks
+  as user and external as assistant, text unchanged; `--roles random` labels each chunk by a seeded coin flip,
+  independent of who wrote it, and measures the lift twice in one pass: by who wrote the text, and by label (the
+  same statistic with assistant-labelled chunks in place of self). The swap keeps the partition, so it tests only
+  whether the assistant label carries the self side's larger lift; random labels separate text from label. Read over
+  layers 6-26 (where the first run's lift was positive in every session), against the first run's mean there: under
+  the swap, the preference follows the text if the self lift keeps at least half of it, the label if under a
+  quarter; under random labels, text and label each carry the preference if their lift is above zero in at least
+  two thirds of sessions, and the larger mean says which carries more.
 - **Not measured:** drift itself. The sessions carry no departure labels yet, so this says whether the mechanism is
   there, not whether it precedes drift.
 
@@ -44,31 +53,44 @@ from substrate.record import Record  # noqa: E402
 
 NEAR = 512
 SINK, WRAP, SELF, EXT = range(4)
-ROLE = {"self": "assistant", "external": "user"}
+MID = range(6, 27)
 
 
-def window(tok, chunks: list[dict], W: int, cap: int):
-    """Token ids of the first chunks that fit in W, with each token's class and chunk index (-1 outside content)."""
-    ids, cls, owner, kept = [], [], [], []
+def label(ch, roles, rng):
+    """The chat role a chunk is shown under: by provenance (true), the other way (swap), or a coin flip (random)."""
+    own = ch["provenance"] == "self"
+    if roles == "swap":
+        own = not own
+    elif roles == "random":
+        own = bool(rng.random() < 0.5)
+    return "assistant" if own else "user"
+
+
+def window(tok, chunks: list[dict], W: int, cap: int, roles: str = "true", rng=None):
+    """Token ids of the first chunks that fit in W, with each token's class by who wrote it, its class by the label
+    it is shown under (SELF for assistant), and its chunk index (-1 outside content)."""
+    ids, cls, lab, owner, kept = [], [], [], [], []
     first = tok("", add_special_tokens=True)["input_ids"]
     for t in first:
-        ids.append(t); cls.append(WRAP); owner.append(-1)
+        ids.append(t); cls.append(WRAP); lab.append(WRAP); owner.append(-1)
     for ch in chunks:
         body = tok(ch["text"], add_special_tokens=False)["input_ids"][:cap]
-        head = tok(f"<|im_start|>{ROLE[ch['provenance']]}\n", add_special_tokens=False)["input_ids"]
+        role = label(ch, roles, rng)
+        head = tok(f"<|im_start|>{role}\n", add_special_tokens=False)["input_ids"]
         tail = tok("<|im_end|>\n", add_special_tokens=False)["input_ids"]
         if len(ids) + len(head) + len(body) + len(tail) > W:
             break
         k = len(kept)
         for t in head:
-            ids.append(t); cls.append(WRAP); owner.append(-1)
+            ids.append(t); cls.append(WRAP); lab.append(WRAP); owner.append(-1)
         for t in body:
-            ids.append(t); cls.append(SELF if ch["provenance"] == "self" else EXT); owner.append(k)
+            ids.append(t); cls.append(SELF if ch["provenance"] == "self" else EXT)
+            lab.append(SELF if role == "assistant" else EXT); owner.append(k)
         for t in tail:
-            ids.append(t); cls.append(WRAP); owner.append(-1)
-        kept.append({**ch, "text": tok.decode(body), "truncated": len(body) == cap})
-    cls[0] = SINK                                   # the sequence's first token: the attention sink
-    return np.array(ids), np.array(cls), np.array(owner), kept
+            ids.append(t); cls.append(WRAP); lab.append(WRAP); owner.append(-1)
+        kept.append({**ch, "text": tok.decode(body), "truncated": len(body) == cap, "label": role})
+    cls[0] = lab[0] = SINK                          # the sequence's first token: the attention sink
+    return np.array(ids), np.array(cls), np.array(lab), np.array(owner), kept
 
 
 def reduce_layer(P, cls, owner):
@@ -97,7 +119,7 @@ def lift(obs_s, obs_e, n_s, n_e, eps=1e-6):
 
 
 def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: int = 10, cap: int = 256,
-        seed: int = 0, revision: str | None = None) -> dict:
+        seed: int = 0, revision: str | None = None, roles: str = "true") -> dict:
     import torch
     from nnterp import StandardizedTransformer
 
@@ -109,8 +131,9 @@ def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: i
     record = Record(Path(run_dir) / "record.jsonl")
     record.append("attention share, run", "code", model=model_name, revision=revision,
                   commit=getattr(config, "_commit_hash", None), layers=L, window=W, cap=cap, near=NEAR, seed=seed,
-                  attention="eager, head mean", formatting="ChatML per chunk")
+                  attention="eager, head mean", formatting="ChatML per chunk", roles=roles)
     rng = np.random.default_rng(seed)
+    label_rng = np.random.default_rng(seed + 1)
     paths = session_paths(corpus)
     paths = [paths[i] for i in rng.permutation(len(paths))]
     rows = []                                       # one per chunk: session, index, provenance, class, position, lifts
@@ -119,38 +142,56 @@ def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: i
         chunks = load_session(path)
         if len(chunks) < 40:
             continue
-        ids, cls, owner, kept = window(tok, chunks, W, cap)
+        ids, cls, lab, owner, kept = window(tok, chunks, W, cap, roles, label_rng)
         kinds = classify([c["text"] for c in kept])
-        lifts = {band: np.full((len(kept), L), np.nan) for band in ("near", "far")}
+        groupings = {"": cls, "label ": lab}
+        lifts = {g + band: np.full((len(kept), L), np.nan) for g in groupings for band in ("near", "far")}
         saved = []
         with torch.no_grad():
             with model.trace(torch.from_numpy(ids)[None]):
                 for l in range(L):
                     saved.append(model.attention_probabilities[l].mean(1)[0].save())
         for l, P in enumerate(saved):
-            r = reduce_layer(P.float().cpu().numpy(), cls, owner)
-            for band in ("near", "far"):
-                per_q = lift(r[f"self {band}"], r[f"ext {band}"], r[f"n self {band}"], r[f"n ext {band}"])
-                for i in range(len(kept)):
-                    v = per_q[owner == i]
-                    v = v[~np.isnan(v)]
-                    if len(v):
-                        lifts[band][i, l] = v.mean()
+            P = P.float().cpu().numpy()
+            for g, c in groupings.items():
+                r = reduce_layer(P, c, owner)
+                for band in ("near", "far"):
+                    per_q = lift(r[f"self {band}"], r[f"ext {band}"], r[f"n self {band}"], r[f"n ext {band}"])
+                    for i in range(len(kept)):
+                        v = per_q[owner == i]
+                        v = v[~np.isnan(v)]
+                        if len(v):
+                            lifts[g + band][i, l] = v.mean()
         del saved
         name = path.name.split(".")[0]
         refs = []
         for i, ch in enumerate(kept):
             pos = int(np.flatnonzero(owner == i)[0])
-            rows.append({"session": name, "i": i, "provenance": ch["provenance"], "class": kinds[i][0],
-                         "position": pos, "near": lifts["near"][i], "far": lifts["far"][i]})
-            refs.append({"ref": ch["ref"], "provenance": ch["provenance"], "cause": ch["cause"],
+            rows.append({"session": name, "i": i, "provenance": ch["provenance"], "label": ch["label"],
+                         "class": kinds[i][0], "position": pos, **{k: v[i] for k, v in lifts.items()}})
+            refs.append({"ref": ch["ref"], "provenance": ch["provenance"], "label": ch["label"], "cause": ch["cause"],
                          "class": kinds[i][0], "position": pos, "truncated": ch["truncated"]})
         record.append("attention share, window", "code", session=name, tokens=int(len(ids)), chunks=refs)
         done += 1
         print(f"{name}: {len(kept)} chunks, {len(ids)} tokens", flush=True)
         if done == n_sessions:
             break
-    return summarise(rows, L, W, record, run_dir)
+    report = summarise(rows, L, W, record, run_dir)
+    if roles != "true":
+        report["by label"] = by_label(rows, L)
+        record.append("attention share, by label", "code", **report["by label"])
+    return report
+
+
+def by_label(rows, L):
+    """The same far lift with chunks grouped by the label they were shown under: assistant in place of self."""
+    a = [r for r in rows if r["label"] == "assistant"]
+    sessions = sorted({r["session"] for r in a})
+    X = np.array([r["label far"] for r in a])
+    per = np.array([np.nanmean(np.array([r["label far"] for r in a if r["session"] == s]), 0) for s in sessions])
+    return {"assistant chunks": len(a), "layers": [
+        {"layer": l, "assistant far": float(np.nanmean(X[:, l])), "sessions with assistant far > 0":
+         int(np.sum(per[:, l] > 0)), "sessions measured": int(np.sum(~np.isnan(per[:, l])))} for l in range(L)]}
 
 
 def summarise(rows, L, W, record, run_dir):
@@ -189,6 +230,7 @@ def summarise(rows, L, W, record, run_dir):
     record.append("attention share, report", "code", **report)
     np.savez(Path(run_dir) / "attn_share.npz",                                  # derived
              far=np.array([r["far"] for r in rows]), near=np.array([r["near"] for r in rows]),
+             label_far=np.array([r["label far"] for r in rows]), label=np.array([r["label"] for r in rows]),
              provenance=np.array([r["provenance"] for r in rows]), cls=np.array([r["class"] for r in rows]),
              position=np.array([r["position"] for r in rows]), session=np.array([r["session"] for r in rows]))
     return report
@@ -202,8 +244,10 @@ def main(argv=None):
     p.add_argument("--run", required=True)
     p.add_argument("--window", type=int, default=4096)
     p.add_argument("--sessions", type=int, default=10)
+    p.add_argument("--roles", choices=["true", "swap", "random"], default="true",
+                   help="chat roles by provenance, swapped, or by coin flip (the role controls)")
     a = p.parse_args(argv)
-    rep = run(a.model, a.corpus, a.run, W=a.window, n_sessions=a.sessions, revision=a.revision)
+    rep = run(a.model, a.corpus, a.run, W=a.window, n_sessions=a.sessions, revision=a.revision, roles=a.roles)
     print(f"{rep['sessions']} sessions; {rep['self chunks']} self chunks, {rep['external chunks']} external; "
           f"self classes {rep['classes']}")
     print("log-odds lift of self share over base rate (0 = no preference); far = more than 512 tokens back")
@@ -215,6 +259,12 @@ def main(argv=None):
               f"{r['sessions with self far > 0']:>3}/{r['sessions measured']:<3} "
               + " ".join(f"{v:>6.2f}" for v in b) + f" {r['self far, repeats']:>7.2f} {r['self far, new']:>6.2f}")
     print("reading:", rep["reading"])
+    if "by label" in rep:
+        print(f"by label: {rep['by label']['assistant chunks']} assistant-labelled chunks; far lift toward "
+              "assistant-labelled keys")
+        for r in rep["by label"]["layers"]:
+            print(f"{r['layer']:>5} {r['assistant far']:>9.2f} {r['sessions with assistant far > 0']:>3}/"
+                  f"{r['sessions measured']}")
 
 
 if __name__ == "__main__":
