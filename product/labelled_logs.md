@@ -83,3 +83,31 @@ against 135 controls. Nothing in the rules changes; this fixes the n each AUC is
 
 First a rehearsal here on Qwen3-0.6B (plumbing, draft sets), then the run on the owner's machine with Qwen3-8B, split
 across GPU and RAM. Runs resume from checkpoints, one per anchor. The 8B run is the result.
+
+## Rehearsal, 2026-11-01: Qwen3-0.6B, plumbing only (decides nothing)
+
+`--limit 40 --context 4096 --no-after`, run `runs/labels-06` (not committed: derived). 40 anchors: the first 20
+closures by id (19 agent, 1 joint) and the first 20 controls by id, so 20 of 135 controls; no ascents. Read with the
+eager attention path, before the row-block readout replaced it (same numbers, DECISIONS.md). 94 minutes on 4 CPU
+cores, about 2.3 minutes an anchor.
+
+| on agent closures (n 18–19) against controls (n 14–20) | closures, median | controls, median | AUC, predicted direction | 90% interval |
+|---|---|---|---|---|
+| goal attention G (lower predicted) | 1.22 | 1.53 | 0.64 | 0.47–0.81 |
+| self attention S (higher predicted) | 1.33 | 1.30 | 0.45 | 0.28–0.63 |
+| local alignment A (lower predicted) | 0.49 | 0.35 | 0.32 | 0.17–0.48 |
+| best text statistic (either direction) | | | 0.67 | |
+
+What it shows about the plumbing:
+
+- Every stage runs end to end, resumes from per-anchor checkpoints, and writes the report the pass rules read.
+- **Six of the 20 controls have no live aim** (sessions S02 and S07 before their first aim), so they carry no
+  attention or alignment reading and drop out; one closure (D004) likewise. The full run's 135 controls absorb this,
+  but the scored control n will be below 135.
+- One aim's line is not among the 20 lines, so A′ is missing there.
+- G and S sit above 1 for both groups: from self tokens, the goal and the entity's own earlier tokens both draw more
+  than outside content at the same distance.
+
+Not a result: the small model, a fifth of the controls, and draft settings. Read only as direction, G moves the way
+the claim predicts and A moves against it (closures sit nearer their live aim than controls do); S does not move.
+The 8B run on the owner's machine is the result.
