@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **Alone against alone holds on the 8B** (Qwen3-8B on the owner's machine, draft sets, 10 sessions):
+  new content above near repeats at AUC 1.00 at every layer, early and late in sessions, with a wide margin. D jumps
+  from 5.2 to 69 between layers 4 and 8, likely massive activations on tokens other than the first; to be understood
+  before D is used as a unit at those layers.
+
 - 2026-10-31: **Alone against alone works on real sessions** (Qwen3-0.6B, draft sets, the owner's corpus): new
   content ranks above near repeats at AUC 1.00 at every layer, early and late in sessions; exact repeats sit at zero.
   But the floor is not D: new content's nearest earlier chunk sits below D (5th percentile 0.5–0.9 D), so the floor

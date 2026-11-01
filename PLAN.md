@@ -173,6 +173,24 @@ percentile, below D at every layer: real chunks crowd closer than the short para
 A floor of D would call much new content a repeat. On this corpus the line falls between near repeats' 95th
 percentile (0.24–0.46 D) and new content's 5th (0.46–0.91 D), so the floor has to be measured on real repeats, as here.
 
+*Alone against alone on the 8B* (2026-11-01; Qwen3-8B, bfloat16, split across the owner's RTX 4060 and RAM; draft
+sets; the same 10 sessions and 2,987 chunks). In units of D:
+
+| Layer | D | New, median (5th) | Near repeat, median (95th) | AUC: all / first third / last third |
+|---|---|---|---|---|
+| 0 | 1.88 | 0.63 (0.35) | 0.16 (0.17) | 1.00 / 1.00 / 1.00 |
+| 4 | 5.17 | 0.88 (0.50) | 0.25 (0.29) | 1.00 / 1.00 / 1.00 |
+| 8–20 | 69–77 | 0.13–0.32 (0.08–0.19) | 0.03–0.05 (0.04–0.06) | 1.00 at every layer |
+| 24–32 | 91–153 | 0.52–0.89 (0.30–0.51) | 0.08–0.13 (0.12–0.22) | 1.00 at every layer |
+| 35 | 187 | 1.41 (0.77) | 0.29 (0.42) | 1.00 / 1.00 / 1.00 |
+
+**Read as written: it holds on the 8B,** as on the 0.6B: new content above near repeats at AUC 1.00 at every layer,
+first and last third alike, exact repeats at zero. The margin is wide: new content's 5th percentile is two to four
+times near repeats' 95th. One flag: **D jumps from 5.2 at layer 4 to 69 at layer 8** and stays there, which looks like
+massive activations in a few dimensions on tokens other than the first. It does not touch the AUCs (a ratio), but D
+is a poor unit at those layers until it is understood. The floor, read off the real distribution: at layers 28–32,
+between 0.17–0.22 D and 0.41–0.51 D.
+
 *Retried calls, written 2026-11-01 before their code* (`python -m substrate.echo_floor --corpus DIR --retries`). An
 agent stuck in a loop re-issues calls; does news, alone against alone, follow what comes back, not the fact that a call
 repeated? On the owner's corpus, references only.
