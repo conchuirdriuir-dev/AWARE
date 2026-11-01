@@ -25,7 +25,7 @@ provenance logged at the source (`record.py`: self or external on every chunk).
 | Step | Test | Status |
 |---|---|---|
 | 1. Model access and D | states on the real model; D per layer on frozen paraphrase sets | **code built; plumbing passes on real Qwen3-0.6B weights on CPU (2026-10-31); awaits the card and the frozen sets** |
-| 2. Logging | per-chunk activation capture, in context and alone; provenance tagged at creation and carried when re-read | **reader and record built; the harness that writes them is product step 4** |
+| 2. Logging | per-chunk activation capture, in context and alone; provenance tagged at creation and carried when re-read | **reader and record built; the harness that writes them is built (product step 6, first part)** |
 
 **State** (provisional): the residual stream after a layer, mean-pooled over a chunk's tokens (special tokens and a
 sequence's first token left out: an attention sink where there is no begin-of-sequence token), read alone (`states`) or inside the whole sequence (`states_in_context`). **D**: the root-mean-square distance
@@ -181,7 +181,7 @@ percentile (0.24–0.46 D) and new content's 5th (0.46–0.91 D), so the floor h
 | 3. Toy bed | v9, v10 and the v10 draft | below | **eight rounds run (below); detecting repeats now waits on the real model's echo floor** |
 | 4. Labeled logs | Tests, in order | detectors on the 65 departures, agent-authored first | open: owes the owner's confirmation pass (drift or re-aiming) and logging on the card |
 | 5. Reference scorer, coherence score | Tests, in order | intact versus shuffled work | open: needs the setting and the owner's reference work |
-| 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | open. Refined until passed; ends nothing |
+| 6. Compass and harness, arm A; Gate 0 | Tests, in order | the compass predicts drift on held-out stretches above a pre-registered level, and beats self-residual alone | **harness for arm A passes its test (below), on Qwen3-0.6B on CPU**; compass and Gate 0 open. Refined until passed; ends nothing |
 | 7. Arms S and C; main demo | Main demo | C closes half the A–B gap on both scores and beats S by more than run-to-run noise | open |
 
 ### Step 3: the toy bed
@@ -217,6 +217,13 @@ suite):
 4. **Tools stay in the workspace.** A path outside it is refused, and the refusal is a recorded tool result.
 
 Attention is not captured: replay from the record reproduces it, which is how the attention probes read it.
+
+*Result* (2026-11-01; Qwen3-0.6B, float32 on CPU, greedy; a scripted session of four turns, 7 passes, 15 chunks;
+`runs/armA-qwen06-scripted/`, not committed): **passes all four.** Provenance is correct on every chunk. Replay is
+exact on all 7 passes. Every generated chunk re-tokenizes to the ids generated, and the cache matches its replay at
+21 of 21 chunk-layers (largest relative difference 8e-7). In that session the model asked for `secret.txt` rather
+than `../secret.txt`, so the refusal path is shown by the suite's test, not by the session. The 0.6B is a weak agent:
+it once wrote a tool's output instead of calling the tool, and it never wrote the fourth step it was asked for.
 
 ## Research track (`research/`): reasoning over the entity's own axes
 
