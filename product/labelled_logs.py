@@ -66,12 +66,12 @@ def anchors(root: str, sessions: dict, seed: int = 0) -> list[dict]:
     L = json.load(open(Path(root) / "study" / "labels_confirmed.json"))
     out = []
     for d in R["departures"]:
-        lab = L.get(d["reader_id"])
+        lab = L.get(d["id"])
         if not lab or lab["real"] != ["yes"] or d["ord"] not in sessions:
             continue
         kinds = lab["kind"]
         group = next((k for k in KINDS[:3] if k in kinds), "undecidable")
-        out.append({"id": d["reader_id"], "session": d["ord"], "index": locate(sessions[d["ord"]], d["time"]),
+        out.append({"id": d["id"], "session": d["ord"], "index": locate(sessions[d["ord"]], d["time"]),
                     "time": d["time"], "group": group, "who": (lab["who"] or ["?"])[0],
                     "departed_from": (d.get("departs_from_aims") or [None])[0]})
     rng = random.Random(seed)
@@ -209,12 +209,12 @@ def read_anchor(reader, sessions, R, anchor, layers, aim_states, aim_ids, line_s
             A, spans = reader.attention_in_context([goal_text] + [t for t, _ in keep], layers)
             out[f"{name}: attention"] = attention_indices(A, spans, ["goal"] + [k for _, k in keep])
             del A
-        selfs = [capped(c["text"]) for c in win if c["provenance"] == "self"]
+        Aall = reader.states([capped(c["text"]) for c in win], layers)       # every chunk alone, read once
+        selfs = [n for n, c in enumerate(win) if c["provenance"] == "self"]
         if selfs and aim is not None:
-            S = reader.states(selfs, layers)
+            S = Aall[selfs]
             out[f"{name}: A"] = alignment(S, aim_states, aim_ids.index(aim["id"]))
             out[f"{name}: A'"] = alignment(S, line_states, line_ids.index(aim["line"])) if aim["line"] in line_ids else None
-        Aall = reader.states([capped(c["text"]) for c in win], layers)
         news = [np.min(np.linalg.norm(Aall[:k] - Aall[k], axis=2), axis=0).mean()
                 for k in range(1, len(win)) if win[k]["provenance"] == "external"]
         out[f"{name}: news"] = float(np.median(news)) if news else None

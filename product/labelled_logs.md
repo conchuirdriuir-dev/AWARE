@@ -71,6 +71,14 @@ entity's own), falling back to all keys at a distance where there are none. G th
 outside content at the same distance, and S attention on the entity's own tokens against the same. Nothing else
 changes.
 
+### Note, 2026-11-01, before any data: how many events are scored
+
+The counts above are the labels': 27 agent closures, 22 owner ascents, 2 agent accommodations (owner-confirmed real;
+the 9 named above counted joint and owner accommodations too). The window rule decides which of them can be scored:
+an anchor needs its W = 100 chunks before, as run 3's did (its `delta` returns nothing when `i < W`). Seven closures
+and eight ascents fall in their session's first 100 chunks, so **20 agent closures and 14 owner ascents are scored**,
+against 135 controls. Nothing in the rules changes; this fixes the n each AUC is read on.
+
 ### Runs
 
 First a rehearsal here on Qwen3-0.6B (plumbing, draft sets), then the run on the owner's machine with Qwen3-8B, split
