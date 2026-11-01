@@ -27,19 +27,27 @@ class Fit:
         self.total = float(self.lam.sum())                 # total variance (trace of the sample covariance)
         self.floor = max(float(floor_var), 1e-12)
 
+    @property
+    def span(self) -> int:
+        """The dimensions n states span: fewer states than dimensions span only n - 1 of them."""
+        return max(1, min(self.d, self.n - 1))
+
     def params(self, k: int):
-        k = min(k, len(self.lam))
+        """Noise is estimated within the span (DECISIONS.md 2026-10-30): the variance left after k axes, per spanned
+        dimension, floored at D^2/d. Estimated over all d dimensions it is tiny, and every axis looks worth keeping."""
+        k = min(k, len(self.lam), self.span - 1)
         rest = self.total - float(self.lam[:k].sum())
-        sigma2 = max(rest / (self.d - k), self.floor)
+        sigma2 = max(rest / (self.span - k), self.floor)
         lam_k = np.maximum(self.lam[:k], sigma2)
         return k, lam_k, sigma2
 
     def loglik_bits(self, k: int) -> float:
-        """Log-likelihood of the training rows under the k-axis model, in bits (negative: a code length)."""
+        """Log-likelihood of the training rows within their span under the k-axis model, in bits."""
         k, lam_k, sigma2 = self.params(k)
-        logdet = float(np.log(lam_k).sum()) + (self.d - k) * math.log(sigma2)
+        m = self.span
+        logdet = float(np.log(lam_k).sum()) + (m - k) * math.log(sigma2)
         trace = float((self.lam[:k] / lam_k).sum()) + (self.total - float(self.lam[:k].sum())) / sigma2
-        return -0.5 * self.n * (self.d * math.log(2 * math.pi) + logdet + trace) / LN2
+        return -0.5 * self.n * (m * math.log(2 * math.pi) + logdet + trace) / LN2
 
     def code_length(self, k: int) -> float:
         """The two-part code: data under the model, plus the model's parameters priced within the span of the n
