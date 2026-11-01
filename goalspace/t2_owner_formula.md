@@ -125,6 +125,17 @@ W and the AUC are scale-free, so they compare across the two spaces. Bits do not
 The confirmation labels and the reader's lines are read only by the scoring functions. Those run after every code
 length has been computed and checkpointed. The formula never sees a label, a line or a departure.
 
+### Note, 2026-11-01, written with the code, before any data
+
+The rules above leave open whether one owner turn can be the control for two aims. They settle it as follows:
+- **A control is not reused.** Aims are taken in time order. If an aim's nearest qualifying turn is already taken, it
+  gets the next nearest. A repeated control would be coded almost free the second time, which would inflate the
+  controls' gain.
+- **The prequential streams begin at the 20th text, not the 40th.** This is so reading 2's running median of 20
+  earlier aims exists from the first scored aim. Scoring still starts after burn-in, at aim 41.
+
+Nothing else changes.
+
 ### Runs
 
 1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
