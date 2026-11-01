@@ -213,6 +213,25 @@ repeated? On the owner's corpus, references only.
   *Amended before any result, 2026-11-01:* the first 400 chunks held only 30 retried calls and 10 exact retries (call
   counts only; no distance had been computed), too few once split by their results' content, so 1,000.
 
+*Retried calls, result on Qwen3-0.6B* (2026-11-01; float32, draft sets; the first 1,000 chunks of the same 10
+sessions). Share of results on the right side of the floor (below it when the content repeats, above it when new),
+with counts; the floor in units of D:
+
+| Layer | Floor | Retried call: repeated / new | Exact retry: repeated / new | Fresh call: repeated / new |
+|---|---|---|---|---|
+| 0 | 0.32 | 1.00 (6) / 0.96 (24) | 1.00 (19) / 1.00 (2) | 0.97 (183) / 0.99 (1,802) |
+| 12 | 0.44 | 1.00 (6) / 0.96 (24) | 1.00 (19) / 1.00 (2) | 0.95 (183) / 0.99 (1,802) |
+| 21 | 0.51 | 1.00 (6) / 0.96 (24) | 1.00 (19) / 1.00 (2) | 0.95 (183) / 0.98 (1,802) |
+| 24 | 0.53 | 1.00 (6) / 0.96 (24) | 1.00 (19) / 1.00 (2) | 0.95 (183) / 0.98 (1,802) |
+| 27 | 0.62 | 1.00 (6) / 0.96 (24) | 1.00 (19) / 1.00 (2) | 0.95 (183) / 0.99 (1,802) |
+
+**Read as written: not decided.** Retried calls whose results repeat number 6, under the 10 the rule needs, so that
+half is too few to read. The half that can be read passes: 96% of retried calls returning new content read as new
+(24 results, at every layer), so news follows what comes back, not the fact that the call repeated. Beside it,
+reported only: exact retries returning repeated content read as repeats every time (19), and fresh calls separate at
+95% and 98–99% on large counts. Retried calls that bring back the same content are rare in these 10 sessions; deciding
+the rule needs more sessions, which is the owner's call (more data, the same rule, written before it is run).
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
