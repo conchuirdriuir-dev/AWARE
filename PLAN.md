@@ -15,6 +15,21 @@ substrate changes only by the owner's decision.
 A step's pass criterion is written here before its code, and its thresholds are fixed before it runs. A step is done
 when its test passes, not when its code exists.
 
+## Goal-space tests (`goalspace/`)
+
+The end, as accepted 2026-11-01 (`proposals/goal-space.md`): Levin's three criteria, tested separately; no two tests
+share a pass bar. The product and research sections below stand until the Big Picture doc's Entity tab is changed
+to match; their work carries over as the proposal's section 5 says.
+
+| Test | Criterion | Status |
+|---|---|---|
+| T1. Self-seeking | 3, its own formula | open; the toy bed's event record is its machinery |
+| T2. The owner's formula from the aims | 3, the owner's formula | **[pre-registered 2026-11-01](goalspace/t2_owner_formula.md)**; scored on the owner's later aims and confirmed ascents, not the reader's lines |
+| T3. Deference | 3, the unit | open; needs the owner's labels of deference |
+| T4. Graft and removal | 2 | open; a toy first |
+| T5. Steering | 1 and 3 | open; the 8B on the card |
+| T6. Awareness | the test | open; after T1–T5 |
+
 ## Substrate (`substrate/`)
 
 The Entity tab's decisions, as code: the base model frozen (states read through nnterp, `states.py`); the code
