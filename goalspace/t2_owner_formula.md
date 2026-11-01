@@ -202,3 +202,36 @@ What it shows about the plumbing:
 
 Not a result: a small model, draft sets. Reading 1's design question is for the owner before the 8B run (see the
 discussion of 2026-11-01).
+
+## Amendment, 2026-11-01: reading 1 compares axes on the same aims (owner: "no point running it as specified if it won't teach us anything")
+
+The 0.6B rehearsal showed that reading 1 as registered compares how stereotyped two populations are, not whether the
+owner's aims share a formula. The owner declined to run it as specified. This replaces reading 1. It was written
+before the amended reading had been computed on any data, on any model. The registered form is still computed and
+reported, deciding nothing.
+
+### Reading 1, amended: the aims' own axes code the next aim better than generic owner-talk axes
+
+At each scored aim t:
+1. **The aims' axes:** the top k directions of the formula fitted on the earlier aims, with k chosen by MDL on those
+   aims as before.
+2. **The controls' axes:** the top k directions of the formula fitted on the controls of the earlier aims, with the
+   same k.
+
+**Both codings are calibrated on the same earlier aims.** In each, the mean is the earlier aims' mean. Each axis's
+variance is the earlier aims' variance along it. The noise is what the earlier aims leave off those axes, per spanned
+dimension, floored at D²/d. Only the directions differ.
+
+**The score:** wₜ = 1 if the aims' axes code aim t in fewer bits, 0 if more, and ½ on a tie (k = 0 makes the two
+codings identical). **W** is the mean of wₜ over scored aims whose earlier controls number at least 20.
+
+**What it isolates.**
+- The same aim is coded both times, so how stereotyped each population is no longer enters.
+- The mean is shared, so a constant register (aims sounding like aims) no longer enters.
+- What is left is whether the owner's aims vary along goal-specific directions that recur, which the owner's other
+  talk in the same sessions does not supply.
+
+**Pass, unchanged in form:** W's 90% interval (2,000 bootstrap draws, sessions as blocks) lies above 0.5, and W beats
+the text baseline's W computed the same way.
+
+Reading 2, the reported readings and the keys are unchanged.
