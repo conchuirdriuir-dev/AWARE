@@ -72,6 +72,8 @@ def prose_queries(owner, cls, n_chunks):
 def gaps(qpos, cls):
     """Tokens since the last owner token before each query; -1 where the owner has not spoken yet."""
     owner_pos = np.flatnonzero(cls == EXT)
+    if not len(owner_pos):
+        return np.full(len(qpos), -1)
     i = np.searchsorted(owner_pos, qpos) - 1
     return np.where(i >= 0, qpos - owner_pos[np.maximum(i, 0)], -1)
 
