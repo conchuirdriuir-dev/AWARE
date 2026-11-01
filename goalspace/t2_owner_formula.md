@@ -266,3 +266,10 @@ scored aims gives a valid null. Reading 2 must now also beat 95% of 10,000 label
 This only adds a condition.
 
 T2's successor is the wrong-instruction test (`goalspace/t2b_wrong_instructions.md`).
+
+**Rehearsal after the retirement** (0.6B, draft, `runs/t2-06c`, plumbing only). Reading 2: AUC 0.51, label-shuffle
+95th percentile 0.62, text 0.64. The retired amended reading 1 was computed here for the first time, reported only:
+W 0.95 (text 0.50, every text aim a tie at k = 0). It decides nothing:
+- it was retired before it was computed;
+- its interval failed the null check;
+- the controls' axes may be shaped by repeats and pasted material, which would make the win too easy.

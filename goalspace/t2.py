@@ -24,7 +24,7 @@ from substrate.geometry import spread
 from substrate.record import Record
 
 BURN, CAP, WINDOW, MIN_CONTROL_CHARS, QUOTE_PREFIX, BATCH = 40, 256, 20, 40, 60, 40
-DRAWS, MIN_EVENTS = 2000, 12
+DRAWS, MIN_EVENTS, SHUFFLES = 2000, 12, 10000
 
 
 # --- material ----------------------------------------------------------------------------------------------------
@@ -166,7 +166,18 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
             e, o = rng.choice(ev, len(ev)), rng.choice(others, len(others))
             boot.append(np.mean([auc(sp["surprisal"][e], sp["surprisal"][o]) for sp in layer_spaces]))
         lo, hi = np.percentile(boot, [5, 95])
+        # the label-shuffle null: which scored aims are events is shuffled; surprisal is computed without labels
+        pool = np.concatenate([ev, others])
+        ranks = [np.argsort(np.argsort(sp["surprisal"][pool], kind="mergesort"), kind="mergesort") + 1.0
+                 for sp in layer_spaces]
+        ne, no = len(ev), len(others)
+        null = np.empty(SHUFFLES)
+        for i in range(SHUFFLES):
+            pick = rng.permutation(len(pool))[:ne]
+            null[i] = np.mean([(r[pick].sum() - ne * (ne + 1) / 2) / (ne * no) for r in ranks])
         return {"n": int(len(ev)), "AUC": float(np.mean(per)), "90% interval": [float(lo), float(hi)],
+                "shuffle 95th percentile": float(np.percentile(null, 95)),
+                "shuffle p": float((np.sum(null >= np.mean(per)) + 1) / (SHUFFLES + 1)),
                 "text AUC": auc(text_space["surprisal"][ev], text_space["surprisal"][others]),
                 "per layer AUC": per}
 
@@ -176,7 +187,8 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
         r2["passed"] = None
         r2["note"] = f"too few events to decide (fewer than {MIN_EVENTS})"
     else:
-        r2["passed"] = bool(r2["AUC"] >= 0.7 and r2["90% interval"][0] > 0.5 and r2["AUC"] > r2["text AUC"])
+        r2["passed"] = bool(r2["AUC"] >= 0.7 and r2["90% interval"][0] > 0.5 and r2["AUC"] > r2["text AUC"]
+                            and r2["AUC"] > r2["shuffle 95th percentile"])
     reported = {
         "reading 1 as registered": r1_reg,
         "agent closures": event_auc(events(aims, R, labels, lambda l: "closure" in l["kind"] and l["who"] == ["agent"])),
@@ -198,9 +210,9 @@ def score(root: str, aims: list[dict], R: dict, layer_spaces: list[dict], text_s
                           "pair AUC": auc(dist[iu][~same[iu]], dist[iu][same[iu]]),
                           "adjusted Rand": adjusted_rand(kmeans(Z, len(set(lines))), lines)})
     reported["reader's lines (a model's key)"] = line_rows
-    return {"reading 1": r1, "reading 2": r2, "reported": reported,
-            "passed": {"1 the formula regenerates later aims": r1["passed"],
-                       "2 the formula registers ascents": r2["passed"]}}
+    reported["reading 1, amended (retired)"] = r1
+    return {"reading 2": r2, "reported": reported,
+            "passed": {"2 the formula registers ascents": r2["passed"]}}
 
 
 # --- the run -----------------------------------------------------------------------------------------------------
@@ -265,12 +277,11 @@ def main(argv=None):
 
     result = score(a.corpus, aims, mat["reading"], layer_spaces, text_space, all_fit_coords)
     report = record.append("report", "code", **result)
-    r1, r2 = report["reading 1"], report["reading 2"]
+    r2 = report["reading 2"]
     print(f"{reader.info['model']}{'  DRAFT sets' if a.draft else ''}; layers {layers[0]}-{layers[-1]}")
-    print(f"  reading 1: W {r1['W']:.3f} interval {np.round(r1['90% interval'], 3).tolist()} text W {r1['text W']:.3f}"
-          f" (n {r1['n']}, without a control {r1['aims without a control']})")
     print(f"  reading 2: AUC {r2['AUC']:.3f} interval {np.round(r2.get('90% interval', [np.nan] * 2), 3).tolist()}"
-          f" text AUC {r2.get('text AUC', float('nan')):.3f} (events {r2['n']})")
+          f" text AUC {r2.get('text AUC', float('nan')):.3f} shuffle 95th {r2.get('shuffle 95th percentile', float('nan')):.3f}"
+          f" (events {r2['n']})")
     for name, v in report["reported"].items():
         if isinstance(v, dict) and "AUC" in v:
             print(f"  reported, {name}: AUC {v['AUC']:.3f} (n {v['n']})")
