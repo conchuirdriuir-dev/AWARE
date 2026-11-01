@@ -168,3 +168,37 @@ Runs resume from per-session checkpoints, as the echo floor's do.
 - 16 ascent events is pilot-scale. The interval decides, not the point estimate.
 - Aims are the owner's words, read by the model alone. The formula is in the model's goal-space, not in the owner's
   head. A pass shows that the owner's pattern is recoverable from mechanism, which is what the goal statement asks.
+
+## Rehearsal, 2026-11-01: Qwen3-0.6B, plumbing only (decides nothing)
+
+`python -m goalspace.t2 --model Qwen/Qwen3-0.6B --corpus ... --run runs/t2-06b --draft`, after the span fix, from the
+states of the first run (`runs/t2-06`; neither is committed: derived). Layers 19–27, draft sets. 280 aims scored; 25
+have no control.
+
+| Reading | States (mean of layers) | 90% interval | Text baseline |
+|---|---|---|---|
+| 1. W, aims' gain over controls' gain | 0.000 | 0.000–0.001 | 0.000 |
+| 2. Ascent AUC (16 events) | 0.51 | 0.39–0.62 | 0.64 |
+| Reported: agent closures (23) | 0.59 | | |
+| Reported: undecidable-then (5) | 0.49 | | |
+| Reported: the reader's lines, pair AUC / adjusted Rand | 0.59–0.61 / 0.03–0.05 | | |
+
+What it shows about the plumbing:
+
+- **MDL now chooses k.** It starts at 0 and grows to 10–12 by the last aim, in every layer. Before the fix, the cap
+  chose it.
+- **Reading 1 cannot answer its question as written.** The controls are not a comparable population:
+  - 34 of 295 are exact repeats of an earlier owner turn;
+  - 20% sit within 0.3 D of an earlier control (1% of aims do);
+  - 27 run past 1,000 characters (pasted material), where no aim does;
+  - their top 5 axes hold 59% of their variance, against 24% for aims.
+
+  Each stream is coded by its own formula, so W measures which population is more stereotyped. The controls win at
+  every aim, in every layer. In the text baseline both streams kept k = 0, so every aim tied with its control, and
+  the rule as written counts a tie as a loss.
+- **Reading 2:** the formula fitted before does not find the owner's ascents on the 0.6B (0.51), while the text
+  baseline does better (0.64). This is consistent with step 0, where text sees the owner ascend (AUC 0.65–0.71).
+- The formula's coordinates agree weakly with the reader's lines (pair AUC about 0.6).
+
+Not a result: a small model, draft sets. Reading 1's design question is for the owner before the 8B run (see the
+discussion of 2026-11-01).
