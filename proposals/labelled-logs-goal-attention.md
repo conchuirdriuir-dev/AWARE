@@ -1,9 +1,17 @@
-# Proposal: an amendment to goal attention G, before the 8B run
+# Proposal: goal attention G checked against a placebo goal, before the 8B run
 
-For the owner, against `product/labelled_logs.md` on `big-picture-v8`. The test is pre-registered, so this is an
-amendment before data. It holds only if no comparison of G between closures and controls has been seen yet, on any
-model. The session running the test should confirm that the smoke runs looked at plumbing only. Nothing here is
-decided.
+For the owner, against `product/labelled_logs.md`. Nothing here is decided.
+
+**Where it stands.** The test is pre-registered, and the 0.6B rehearsal has since reported G between closures and
+controls (AUC 0.64, interval 0.47–0.81, in the predicted direction; labelled plumbing, decides nothing). So this can
+no longer be an amendment made before any data. What section 2 proposes only makes G's bar *harder* to pass: raw G
+stays the pre-registered reading, and a check is added that it must also meet. A change in that direction cannot
+have been chosen to help the claim. The mechanism in section 1 was found from the code and a synthetic check, not
+from the rehearsal's numbers.
+
+**The rehearsal is consistent with the bias.** G sits above 1 in both groups (closures 1.22, controls 1.53), where
+attention that ignores the goal should give 1. On a real model, the goal draws more than outside content at the same
+distance whatever it says.
 
 ## 1. What was found
 
@@ -45,9 +53,18 @@ the self-feeding the earlier amendment removed, pulling G toward 1. It touches a
 length) of the goal's pairs: about 3% at a 1,024-token window with a 64-token goal, and under 2% at T = 8,192. It is
 small and biased toward the null, but worth fixing in the same amendment.
 
-## 2. Proposed amendment
+## 2. Proposed amendment (tightening only)
 
-**G over a placebo goal in the same slot.** For each window, run a second attention pass that is identical except
+**Raw G stays the pre-registered reading, and its bar is unchanged.** Two things are added before the 8B run:
+
+1. **A length check, reported.** Each anchor's window length in tokens and goal-turn length in tokens are recorded,
+   with each one's AUC of closures against controls. If either separates the groups, raw G's AUC partly reads length.
+2. **A placebo check that a G pass must also meet.** G counts toward the batch claim only if G(live) / G(placebo)
+   (below) also has its 90% interval's lower bound above 0.5 in the predicted direction. If raw G passes and the
+   ratio does not, the result reads "G's pass is not distinguishable from position and length", and G does not
+   support the claim. S and A are untouched.
+
+**The placebo reading: G over a placebo goal in the same slot.** For each window, run a second attention pass that is identical except
 for the goal slot. That slot holds a **placebo aim** instead:
 - an owner turn holding an aim from a *different* session and a different line;
 - the one nearest in token length (after the 256-token cap) to the live aim's turn;
@@ -55,7 +72,7 @@ for the goal slot. That slot holds a **placebo aim** instead:
 
 The window's chunks are cut to the budget left by the longer of the two turns, so both passes read the same chunks.
 
-**G is reported as G(live) / G(placebo).** Position, window length, goal length and row normalisation are the same in
+**The placebo reading is G(live) / G(placebo).** Position, window length, goal length and row normalisation are the same in
 both passes, so they cancel. What is left is how much the entity attends to *this* goal over another goal-shaped
 turn in the same place.
 
@@ -64,7 +81,8 @@ sizes. The ratio reads 1.39, 1.45 and 1.44. (Raising the pre-normalisation weigh
 normalised attention, so the ratio is the honest size of the effect.)
 
 **Also:**
-- The fallback in `e(d)` averages over non-goal keys only.
+- The fallback in `e(d)` averages over non-goal keys only. This touches raw G by under 2% at T = 8,192. It is a
+  change to the pre-registered reading, so it is the owner's call; dropping it costs little.
 - A unit test with rows summing to 1: under the null the ratio reads 1 within 0.05.
 
 **Unchanged:**
@@ -72,7 +90,9 @@ normalised attention, so the ratio is the honest size of the effect.)
 - the events and controls;
 - S and A, and the ascent check on S.
 
-Raw G is kept in the report, deciding nothing.
+**Not proposed: replacing raw G with the ratio.** That would read more cleanly, but after the rehearsal it would
+swap a primary reading once its direction had been seen. If the ratio is the better reading, it becomes the primary
+in a later test, pre-registered fresh.
 
 **Cost.** One more attention pass per window. That roughly doubles the attention time on the owner's machine; the
 alone readings are unchanged.
@@ -83,9 +103,11 @@ the entity gave it in the session.
 
 ## 3. If accepted
 
-A dated amendment in `product/labelled_logs.md`, as the first one was. And in DECISIONS.md:
+A dated amendment in `product/labelled_logs.md`, after the rehearsal and before the 8B run, saying it tightens
+G's bar and why. And in DECISIONS.md:
 
-- 2026-11-01: **Goal attention is read over a placebo goal** (owner): G is attention on the live aim's turn over
-  attention on a length-matched aim from another session in the same slot, the same window read twice. Raw G carried
-  a position bias that varied with window and goal length (null 1.2–2.1 in a synthetic check). Amended before any
-  data.
+- 2026-11-01: **A G pass must also hold over a placebo goal** (owner): raw G stays the pre-registered reading, but it
+  supports the batch claim only if attention on the live aim's turn over attention on a length-matched aim from
+  another session, in the same slot and the same window, also clears 0.5. Window and goal lengths are reported with
+  their AUCs. Raw G carries a position bias that varies with window and goal length (null 1.2–2.1 in a synthetic
+  check; 1.22 and 1.53 in the 0.6B rehearsal). Added after the rehearsal; it tightens the bar only.
