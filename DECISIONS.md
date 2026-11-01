@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **A G pass must also hold over a placebo goal** (owner, from review PR #15): raw G stays the
+  pre-registered reading, but it supports the batch claim only if G over the live aim's turn, divided by G over a
+  length-matched aim from another session and line in the same slot and window, also clears 0.5. Window and goal
+  lengths are reported with their AUCs. Raw G carries a position bias that varies with window and goal length. Added
+  after the 0.6B rehearsal, before the 8B result; it tightens the bar only. The fallback fix in e(d) is not applied.
 - 2026-11-01: **Attention is read in row blocks, not through eager attention** (owner). The model runs its fused
   attention; for the layers read, the causal softmax is recomputed from post-rotary queries and keys a block of query
   rows at a time and averaged over heads. Same numbers as eager (tested); eager's ~17 GB per-layer peak for the 8B at
