@@ -32,6 +32,15 @@ Written 2026-11-01, before its first run.
   the swap, the preference follows the text if the self lift keeps at least half of it, the label if under a
   quarter; under random labels, text and label each carry the preference if their lift is above zero in at least
   two thirds of sessions, and the larger mean says which carries more.
+- **Content-matched** (written 2026-11-01 after the role controls, before its code): `--match prose`. The role
+  controls showed the preference follows the text, not the label; this asks whether it is the agent's own text or
+  just its kind (prose against tool output). Only natural language is compared: the agent's prose (its visible text,
+  not tool calls) against the owner's messages; tool calls and tool results stay in the window but are left out of
+  the share, like wrappers. Each session's window is the W-token stretch holding the most of both (the larger of the
+  two counts' minimum; chosen by counts only), over every session with at least 40 chunks. Read over layers 6-26: the
+  agent's prose favours its own prose if the far lift is above zero in at least two thirds of sessions measured at
+  at least two thirds of those layers; content type alone carried the earlier result if the mean far lift there is
+  within 0.2 of zero. The owner's messages are read the same way toward the agent's prose.
 - **Not measured:** drift itself. The sessions carry no departure labels yet, so this says whether the mechanism is
   there, not whether it precedes drift.
 
@@ -52,7 +61,7 @@ from substrate.echo_floor import classify  # noqa: E402
 from substrate.record import Record  # noqa: E402
 
 NEAR = 512
-SINK, WRAP, SELF, EXT = range(4)
+SINK, WRAP, SELF, EXT, OTHER = range(5)
 MID = range(6, 27)
 
 
@@ -66,7 +75,34 @@ def label(ch, roles, rng):
     return "assistant" if own else "user"
 
 
-def window(tok, chunks: list[dict], W: int, cap: int, roles: str = "true", rng=None):
+def kind(ch, match):
+    """A chunk's class for the share: by provenance, or with --match prose the agent's prose (SELF) against the
+    owner's messages (EXT), everything else OTHER."""
+    if match != "prose":
+        return SELF if ch["provenance"] == "self" else EXT
+    if ch["provenance"] == "self":
+        return OTHER if ch["text"].startswith("[tool call") else SELF
+    return EXT if ch["cause"] == "spontaneous" else OTHER
+
+
+def start(tok, chunks, W, cap, match):
+    """Where the window begins: the first chunk, or with --match prose the start of the W-token stretch holding the
+    most of both classes (chosen by counts only)."""
+    if match != "prose":
+        return 0
+    lens = [min(len(tok(c["text"], add_special_tokens=False)["input_ids"]), cap) + 6 for c in chunks]
+    kinds = [kind(c, match) for c in chunks]
+    best, at, j, n, cs, ce = -1, 0, 0, 0, 0, 0
+    for i in range(len(chunks)):
+        n += lens[i]; cs += kinds[i] == SELF; ce += kinds[i] == EXT
+        while n > W:
+            n -= lens[j]; cs -= kinds[j] == SELF; ce -= kinds[j] == EXT; j += 1
+        if min(cs, ce) > best:
+            best, at = min(cs, ce), j
+    return at
+
+
+def window(tok, chunks: list[dict], W: int, cap: int, roles: str = "true", rng=None, match: str = "provenance"):
     """Token ids of the first chunks that fit in W, with each token's class by who wrote it, its class by the label
     it is shown under (SELF for assistant), and its chunk index (-1 outside content)."""
     ids, cls, lab, owner, kept = [], [], [], [], []
@@ -84,7 +120,7 @@ def window(tok, chunks: list[dict], W: int, cap: int, roles: str = "true", rng=N
         for t in head:
             ids.append(t); cls.append(WRAP); lab.append(WRAP); owner.append(-1)
         for t in body:
-            ids.append(t); cls.append(SELF if ch["provenance"] == "self" else EXT)
+            ids.append(t); cls.append(kind(ch, match))
             lab.append(SELF if role == "assistant" else EXT); owner.append(k)
         for t in tail:
             ids.append(t); cls.append(WRAP); lab.append(WRAP); owner.append(-1)
@@ -119,7 +155,7 @@ def lift(obs_s, obs_e, n_s, n_e, eps=1e-6):
 
 
 def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: int = 10, cap: int = 256,
-        seed: int = 0, revision: str | None = None, roles: str = "true") -> dict:
+        seed: int = 0, revision: str | None = None, roles: str = "true", match: str = "provenance") -> dict:
     import torch
     from nnterp import StandardizedTransformer
 
@@ -131,7 +167,8 @@ def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: i
     record = Record(Path(run_dir) / "record.jsonl")
     record.append("attention share, run", "code", model=model_name, revision=revision,
                   commit=getattr(config, "_commit_hash", None), layers=L, window=W, cap=cap, near=NEAR, seed=seed,
-                  attention="eager, head mean", formatting="ChatML per chunk", roles=roles)
+                  attention="eager, head mean", formatting="ChatML per chunk", roles=roles,
+                  match=match)
     rng = np.random.default_rng(seed)
     label_rng = np.random.default_rng(seed + 1)
     paths = session_paths(corpus)
@@ -142,7 +179,8 @@ def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: i
         chunks = load_session(path)
         if len(chunks) < 40:
             continue
-        ids, cls, lab, owner, kept = window(tok, chunks, W, cap, roles, label_rng)
+        at = start(tok, chunks, W, cap, match)
+        ids, cls, lab, owner, kept = window(tok, chunks[at:], W, cap, roles, label_rng, match)
         kinds = classify([c["text"] for c in kept])
         groupings = {"": cls, "label ": lab}
         lifts = {g + band: np.full((len(kept), L), np.nan) for g in groupings for band in ("near", "far")}
@@ -167,11 +205,14 @@ def run(model_name: str, corpus: str, run_dir: str, W: int = 4096, n_sessions: i
         refs = []
         for i, ch in enumerate(kept):
             pos = int(np.flatnonzero(owner == i)[0])
-            rows.append({"session": name, "i": i, "provenance": ch["provenance"], "label": ch["label"],
-                         "class": kinds[i][0], "position": pos, **{k: v[i] for k, v in lifts.items()}})
             refs.append({"ref": ch["ref"], "provenance": ch["provenance"], "label": ch["label"], "cause": ch["cause"],
-                         "class": kinds[i][0], "position": pos, "truncated": ch["truncated"]})
-        record.append("attention share, window", "code", session=name, tokens=int(len(ids)), chunks=refs)
+                         "kind": int(kind(ch, match)), "position": pos, "truncated": ch["truncated"]})
+            if kind(ch, match) == OTHER:
+                continue
+            rows.append({"session": name, "i": i, "label": ch["label"],
+                         "provenance": "self" if kind(ch, match) == SELF else "external",
+                         "class": kinds[i][0], "position": pos, **{k: v[i] for k, v in lifts.items()}})
+        record.append("attention share, window", "code", session=name, start=at, tokens=int(len(ids)), chunks=refs)
         done += 1
         print(f"{name}: {len(kept)} chunks, {len(ids)} tokens", flush=True)
         if done == n_sessions:
@@ -244,10 +285,13 @@ def main(argv=None):
     p.add_argument("--run", required=True)
     p.add_argument("--window", type=int, default=4096)
     p.add_argument("--sessions", type=int, default=10)
+    p.add_argument("--match", choices=["provenance", "prose"], default="provenance",
+                   help="prose: the agent's prose against the owner's messages only (the content-matched comparison)")
     p.add_argument("--roles", choices=["true", "swap", "random"], default="true",
                    help="chat roles by provenance, swapped, or by coin flip (the role controls)")
     a = p.parse_args(argv)
-    rep = run(a.model, a.corpus, a.run, W=a.window, n_sessions=a.sessions, revision=a.revision, roles=a.roles)
+    rep = run(a.model, a.corpus, a.run, W=a.window, n_sessions=a.sessions, revision=a.revision, roles=a.roles,
+              match=a.match)
     print(f"{rep['sessions']} sessions; {rep['self chunks']} self chunks, {rep['external chunks']} external; "
           f"self classes {rep['classes']}")
     print("log-odds lift of self share over base rate (0 = no preference); far = more than 512 tokens back")
