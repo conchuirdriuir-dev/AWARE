@@ -65,3 +65,18 @@ def test_auc_and_adjusted_rand():
     assert abs(F.adjusted_rand([0, 0, 1, 1], [5, 5, 7, 7]) - 1) < 1e-12
     X = np.array([[0.0, 0], [0.1, 0], [5, 5], [5.1, 5]])
     assert abs(F.adjusted_rand(F.kmeans(X, 2), [0, 0, 1, 1]) - 1) < 1e-12
+
+
+def test_axes_comparison_prefers_the_aims_own_axes_and_ties_when_axes_are_shared():
+    rng = np.random.default_rng(5)
+    d, n = 120, 90
+    q = np.linalg.qr(rng.normal(size=(d, 6)))[0].T
+    own, other = q[:3], q[3:]
+    noise = lambda: rng.normal(scale=0.3, size=(n, d))  # noqa: E731
+    aims = rng.normal(size=(n, 3)) * [5, 4, 3] @ own + noise()
+    ctl_other = rng.normal(size=(n, 3)) * [5, 4, 3] @ other + noise()
+    ctl_same = rng.normal(size=(n, 3)) * [5, 4, 3] @ own + noise()
+    has = np.ones(n, dtype=bool)
+    w_other = F.axes_comparison(aims, ctl_other, has, floor_var=0.05, start=40)["w"][40:]
+    w_same = F.axes_comparison(aims, ctl_same, has, floor_var=0.05, start=40)["w"][40:]
+    assert np.mean(w_other) > 0.9 and abs(np.mean(w_same) - 0.5) < 0.2
