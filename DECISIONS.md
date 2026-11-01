@@ -2,6 +2,14 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-01: **For the product, the owner's goal takes precedence; for research it does not** (owner). An
+  unavoidable ontological split, and the two tracks' dividing line: the product serves the goal the owner states; the
+  research track studies the entity's own axes and goals.
+- 2026-11-01: **The product is oriented to increasing the entity's attention on the owner's goal; drift is a symptom**
+  (owner, from the confirmation pass). Nearly every drift or mistake came from goal uncertainty: the owner unsure what
+  the goal was, or unable to articulate how two aims related (volition and fluency); the agent misreading the goal,
+  locally and globally. Raising attention on the goal addresses them as a batch. How it is measured: to be decided.
+
 - 2026-11-01: **Alone against alone holds on the 8B** (Qwen3-8B on the owner's machine, draft sets, 10 sessions):
   new content above near repeats at AUC 1.00 at every layer, early and late in sessions, with a wide margin. D jumps
   from 5.2 to 69 between layers 4 and 8, likely massive activations on tokens other than the first; to be understood
