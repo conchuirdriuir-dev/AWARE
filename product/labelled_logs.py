@@ -13,6 +13,7 @@ import argparse
 import bisect
 import datetime as dt
 import json
+import os
 import math
 import random
 import re
@@ -260,6 +261,7 @@ def main(argv=None):
     p.add_argument("--gpu-memory", type=float)
     p.add_argument("--dtype", choices=["bfloat16", "float32"])
     a = p.parse_args(argv)
+    os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")   # before CUDA starts: less fragmentation
     if not session_paths(Path(a.corpus) / "sessions"):
         raise SystemExit(f"no session archives in {a.corpus!r}/sessions")
     from substrate.states import Reader
