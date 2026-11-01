@@ -27,6 +27,12 @@ def test_mdl_recovers_a_planted_rank_and_the_floor_stops_it_coding_noise():
     assert F.Fit(X, floor_var=100.0).choose_k() == 0          # everything below D is noise: nothing to code
 
 
+def test_mdl_keeps_no_axes_for_noise_with_more_dimensions_than_states():
+    rng = np.random.default_rng(4)
+    X = rng.normal(size=(120, 1000))                          # diverse texts, no shared formula
+    assert F.Fit(X, floor_var=1e-4).choose_k() <= 1
+
+
 def test_prequential_gain_is_positive_for_a_shared_formula_and_not_for_noise():
     rng = np.random.default_rng(2)
     d, n = 100, 80

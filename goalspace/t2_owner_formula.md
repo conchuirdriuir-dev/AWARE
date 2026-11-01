@@ -136,6 +136,23 @@ The rules above leave open whether one owner turn can be the control for two aim
 
 Nothing else changes.
 
+### Fix, 2026-11-01, after the 0.6B rehearsal, to match the definition registered above
+
+The registered formula prices the code "within the span of the n states (DECISIONS.md 2026-10-30)". The first code
+priced the parameters within the span but coded the data over all d dimensions. Over all d, the noise left per
+dimension is tiny, so every axis paid for itself.
+
+**What it caused:** k stopped at the cap of 20 at every step, in every layer, for aims, controls and the text
+baseline alike. The cap chose the formula, not MDL. A unit test on pure noise (120 texts, 1,000 dimensions) kept 20
+axes.
+
+**The fix:** as `6317399` coded the rule, noise is estimated per spanned dimension (n − 1), and the data's code is
+taken within the span. The floor at D²/d is unchanged. On the same pure noise it now keeps none.
+
+**What the rehearsal had shown before the fix** (0.6B, draft, plumbing, deciding nothing): W 0.30 (interval 0.26–0.35;
+text W 0.35); ascent AUC 0.46 (0.35–0.59; text 0.50); closures 0.58. These numbers are stated so the fix is seen not
+to have been chosen by them. The rule is the registered one, and nothing in the readings or bars changes.
+
 ### Runs
 
 1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
