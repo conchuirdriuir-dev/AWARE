@@ -143,3 +143,21 @@ def test_a_corpus_path_without_archives_stops_before_any_model_work(tmp_path):
     for fn in (echo_floor_alone, echo_floor_retries):
         with pytest.raises(SystemExit, match="no session archives"):
             fn(None, [], [0], Record(tmp_path / "r.jsonl"), str(tmp_path))      # reader None: it must never be reached
+
+
+def test_a_session_checkpoint_is_reused_on_resume_and_a_partial_write_is_ignored(tmp_path):
+    from substrate.echo_floor import session_resumable
+
+    record = Record(tmp_path / "run" / "record.jsonl")
+    calls = []
+
+    def compute():
+        calls.append(1)
+        return {"dist": np.arange(6.0).reshape(3, 2)}, [{"ref": ["S1", "u", 0]}]
+    first = session_resumable(record, "alone-S1", compute)
+    again = session_resumable(record, "alone-S1", compute)
+    assert len(calls) == 1 and np.array_equal(first[0]["dist"], again[0]["dist"]) and again[1] == first[1]
+    assert [e["kind"] for e in read(record.path)] == ["resumed"]
+    (tmp_path / "run" / "checkpoints" / "alone-S2.npz.tmp.npz").write_bytes(b"half")     # a kill mid-write
+    session_resumable(record, "alone-S2", compute)
+    assert len(calls) == 2

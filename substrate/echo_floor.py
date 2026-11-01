@@ -10,6 +10,8 @@ session's in-context states. Distances are reported in units of D. The sets must
 from __future__ import annotations
 
 import argparse
+import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -206,6 +208,50 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     return report
 
 
+def _checkpoint(record: Record, key: str) -> Path:
+    path = record.path.parent / "checkpoints" / key
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _save_atomic(path: Path, arrays: dict, meta) -> None:
+    """Write a checkpoint so that a kill mid-write leaves the old file or none, never a partial one."""
+    tmp = path.with_name(path.name + ".tmp.npz")
+    np.savez(tmp, **arrays)
+    tmp_meta = path.with_name(path.name + ".tmp.json")
+    tmp_meta.write_text(json.dumps(meta))
+    os.replace(tmp_meta, path.with_suffix(".json"))
+    os.replace(tmp, path)
+
+
+def d_resumable(reader, sets, layers, record, draft, skip_first) -> np.ndarray:
+    """D per layer, measured once per run directory and reused when the run resumes."""
+    path = _checkpoint(record, "d.json")
+    if path.exists():
+        saved = json.loads(path.read_text())
+        if saved["layers"] == list(layers) and saved["skip_first"] == skip_first:
+            record.append("resumed", "code", step="D", checkpoint=str(path))
+            return np.array(saved["D"])
+    report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
+    D = [row["D"] for row in report["layers"]]
+    tmp = path.with_name("d.tmp.json")
+    tmp.write_text(json.dumps({"layers": list(layers), "skip_first": skip_first, "D": D}))
+    os.replace(tmp, path)
+    return np.array(D)
+
+
+def session_resumable(record: Record, key: str, compute):
+    """One session's result: loaded if a checkpoint exists, else computed and saved at once."""
+    path = _checkpoint(record, key + ".npz")
+    if path.exists() and path.with_suffix(".json").exists():
+        record.append("resumed", "code", step=key, checkpoint=str(path))
+        data = np.load(path)
+        return {k: data[k] for k in data.files}, json.loads(path.with_suffix(".json").read_text())
+    arrays, meta = compute()
+    _save_atomic(path, arrays, meta)
+    return arrays, meta
+
+
 def corpus_paths(corpus: str) -> list[Path]:
     """The session archives in `corpus`, checked before any model work starts."""
     from substrate.corpus import sessions as session_paths
@@ -250,8 +296,7 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
     from substrate.corpus import load_session, sessions as session_paths
 
     paths = corpus_paths(corpus)
-    d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
-    D = np.array([row["D"] for row in d_report["layers"]])
+    D = d_resumable(reader, sets, layers, record, draft, skip_first)
     tok = reader.tokenizer
     rng = np.random.default_rng(seed)
     paths = [paths[i] for i in rng.permutation(len(paths))]
@@ -261,15 +306,21 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
         chunks = load_session(path)[:per_session]
         if len(chunks) < 60:
             continue
-        texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
-        A = reader.states(texts, layers, skip_first)                       # every chunk read alone
-        cls = classify(texts)
-        for i in range(1, len(texts)):
-            dist.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
-            kinds.append(cls[i][0])
-            third.append(min(2, 3 * i // len(texts)))
-            refs.append({"ref": chunks[i]["ref"], "class": cls[i][0], "overlap": round(cls[i][1], 3),
-                         "provenance": chunks[i]["provenance"], "cause": chunks[i]["cause"]})
+
+        def compute(chunks=chunks):
+            texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
+            A = reader.states(texts, layers, skip_first)                   # every chunk read alone
+            cls = classify(texts)
+            d = [np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0) for i in range(1, len(texts))]
+            meta = [{"ref": chunks[i]["ref"], "class": cls[i][0], "overlap": round(cls[i][1], 3),
+                     "provenance": chunks[i]["provenance"], "cause": chunks[i]["cause"],
+                     "third": min(2, 3 * i // len(texts))} for i in range(1, len(texts))]
+            return {"dist": np.array(d)}, meta
+        arrays, meta = session_resumable(record, "alone-" + path.name.split(".")[0], compute)
+        dist.extend(arrays["dist"])
+        kinds.extend(m["class"] for m in meta)
+        third.extend(m["third"] for m in meta)
+        refs.extend(meta)
         done += 1
         if done == n_sessions:
             break
@@ -307,8 +358,7 @@ def echo_floor_retries(reader, sets: list[dict], layers: list[int], record: Reco
         return len(A & B) / len(A | B) if A | B else 0.0
 
     paths = corpus_paths(corpus)
-    d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
-    D = np.array([row["D"] for row in d_report["layers"]])
+    D = d_resumable(reader, sets, layers, record, draft, skip_first)
     tok = reader.tokenizer
     rng = np.random.default_rng(seed)
     paths = [paths[i] for i in rng.permutation(len(paths))]
@@ -318,28 +368,37 @@ def echo_floor_retries(reader, sets: list[dict], layers: list[int], record: Reco
         chunks = load_session(path)[:per_session]
         if len(chunks) < 60:
             continue
-        texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
-        A = reader.states(texts, layers, skip_first)
-        cls = classify(texts)
-        call_class, seen = {}, []
-        for c in chunks:
-            if "tool" not in c:
-                continue
-            prev = [d for d in seen if d["tool"] == c["tool"]]
-            if prev:
-                if any(c["args"] == d["args"] for d in prev):
-                    call_class[c["call"]] = "exact retry"
-                else:
-                    best = max(jaccard(c["args"], d["args"]) for d in prev)
-                    call_class[c["call"]] = "retried" if best >= 0.5 else "fresh" if best < 0.2 else "between"
-            seen.append(c)
-        for i in range(1, len(texts)):
-            dist.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
-            kind = cls[i][0]
-            content.append("repeated" if kind in ("exact repeat", "near repeat") else kind)
-            is_result = chunks[i]["provenance"] == "external" and chunks[i].get("call") in call_class
-            calls.append(call_class[chunks[i]["call"]] if is_result else "")
-            refs.append({"ref": chunks[i]["ref"], "content": content[-1], "call": calls[-1]})
+
+        def compute(chunks=chunks):
+            texts = [tok.decode(tok(c["text"], add_special_tokens=False)["input_ids"][:cap]) for c in chunks]
+            A = reader.states(texts, layers, skip_first)
+            cls = classify(texts)
+            call_class, seen = {}, []
+            for c in chunks:
+                if "tool" not in c:
+                    continue
+                prev = [d for d in seen if d["tool"] == c["tool"]]
+                if prev:
+                    if any(c["args"] == d["args"] for d in prev):
+                        call_class[c["call"]] = "exact retry"
+                    else:
+                        best = max(jaccard(c["args"], d["args"]) for d in prev)
+                        call_class[c["call"]] = "retried" if best >= 0.5 else "fresh" if best < 0.2 else "between"
+                seen.append(c)
+            d, meta = [], []
+            for i in range(1, len(texts)):
+                d.append(np.min(np.linalg.norm(A[:i] - A[i], axis=2), axis=0))
+                kind = cls[i][0]
+                is_result = chunks[i]["provenance"] == "external" and chunks[i].get("call") in call_class
+                meta.append({"ref": chunks[i]["ref"],
+                             "content": "repeated" if kind in ("exact repeat", "near repeat") else kind,
+                             "call": call_class[chunks[i]["call"]] if is_result else ""})
+            return {"dist": np.array(d)}, meta
+        arrays, meta = session_resumable(record, "retries-" + path.name.split(".")[0], compute)
+        dist.extend(arrays["dist"])
+        content.extend(m["content"] for m in meta)
+        calls.extend(m["call"] for m in meta)
+        refs.extend(meta)
         done += 1
         if done == n_sessions:
             break
