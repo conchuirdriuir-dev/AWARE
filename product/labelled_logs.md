@@ -111,3 +111,7 @@ What it shows about the plumbing:
 Not a result: the small model, a fifth of the controls, and draft settings. Read only as direction, G moves the way
 the claim predicts and A moves against it (closures sit nearer their live aim than controls do); S does not move.
 The 8B run on the owner's machine is the result.
+
+**The row-block readout at full length** (after the rehearsal): Qwen3-0.6B, one 8,020-token sequence, 9 layers read,
+121 seconds on CPU, every attention row summing to 1, peak memory 10.3 GB (the CPU's fused attention and the nine
+captured 8,020 x 8,020 arrays). On the 8B the read layers' arrays come to about 3.2 GB of RAM at 8,192 tokens.
