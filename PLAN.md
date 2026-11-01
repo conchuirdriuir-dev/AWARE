@@ -173,6 +173,26 @@ percentile, below D at every layer: real chunks crowd closer than the short para
 A floor of D would call much new content a repeat. On this corpus the line falls between near repeats' 95th
 percentile (0.24–0.46 D) and new content's 5th (0.46–0.91 D), so the floor has to be measured on real repeats, as here.
 
+*Retried calls, written 2026-11-01 before their code* (`python -m substrate.echo_floor --corpus DIR --retries`). An
+agent stuck in a loop re-issues calls; does news, alone against alone, follow what comes back, not the fact that a call
+repeated? On the owner's corpus, references only.
+- **Calls and results:** tool calls are linked to their results by call id. A **retried call** has the same tool name
+  as an earlier call in the session and arguments at word 3-gram Jaccard 0.5 or more, short of identical; an **exact
+  retry** has identical arguments; a **fresh call** has the same tool name but arguments below 0.2 with every earlier
+  call of that tool.
+- **The results' content,** by text against every earlier chunk: *repeated* (overlap 0.8 or more, or identical),
+  *new* (below 0.2), or between (left out).
+- **The floor, measured in the same run** from all chunks' classes (as the alone-against-alone check): per layer, the
+  midpoint between near and exact repeats' 95th percentile and new chunks' 5th percentile of distance to the nearest
+  earlier chunk, alone against alone.
+- **Measured:** each result's distance to its nearest earlier chunk; the share of retried and exact-retry calls'
+  results below the floor when their content is repeated, and above it when it is new; the same for fresh calls.
+- **How it is read:** news follows content on retried calls if, at the late layers (the last third), at least 90% of
+  retried calls' results with repeated content read below the floor and at least 90% with new content read above it.
+  A class with fewer than 10 results is reported as too few to read. Repeats in other words (the same content
+  reworded) cannot be labelled from text, and stay untested.
+- First on Qwen3-0.6B here (the first 400 chunks of 10 sessions, seed 0, draft sets); then on the owner's machine.
+
 ## Product track (`product/`): drift detection, then self-correction
 
 | Step | Doc | Test | Status |
