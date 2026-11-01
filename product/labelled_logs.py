@@ -271,7 +271,7 @@ def main(argv=None):
         todo = sorted(todo, key=lambda x: (order[x["group"]], x["id"]))
         per = {"closure": a.limit // 2, "control": a.limit - a.limit // 2}
         todo = [x for x in todo if x["group"] in per and sum(y["group"] == x["group"] for y in todo[:todo.index(x)]) < per[x["group"]]]
-    record.append("run", "code", **reader.info, layers=layers, context=a.context, limit=a.limit,
+    record.append("run", "code", **reader.info, read_layers=layers, context=a.context, limit=a.limit,
                   anchors=[{k: v for k, v in x.items()} for x in todo])
     aim_ids = [x["id"] for x in R["aims"]]
     line_ids = [x["id"] for x in R["lines"]]
