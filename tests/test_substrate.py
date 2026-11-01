@@ -135,3 +135,11 @@ def test_tool_calls_and_their_results_share_a_call_id(tmp_path):
     call, result = load_session(archive)
     assert call["tool"] == "Read" and call["call"] == "t1" and json.loads(call["args"]) == {"offset": 10, "path": "x"}
     assert result["call"] == "t1" and result["cause"] == "elicited"
+
+
+def test_a_corpus_path_without_archives_stops_before_any_model_work(tmp_path):
+    from substrate.echo_floor import echo_floor_alone, echo_floor_retries
+
+    for fn in (echo_floor_alone, echo_floor_retries):
+        with pytest.raises(SystemExit, match="no session archives"):
+            fn(None, [], [0], Record(tmp_path / "r.jsonl"), str(tmp_path))      # reader None: it must never be reached

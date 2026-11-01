@@ -147,6 +147,7 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     by token position, against self chunks from other sessions. No corpus text is recorded, only references."""
     from substrate.corpus import load_session, sessions as session_paths
 
+    corpus_paths(corpus)
     d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = np.array([row["D"] for row in d_report["layers"]])
     tok = reader.tokenizer
@@ -205,6 +206,17 @@ def echo_floor_corpus(reader, sets: list[dict], layers: list[int], record: Recor
     return report
 
 
+def corpus_paths(corpus: str) -> list[Path]:
+    """The session archives in `corpus`, checked before any model work starts."""
+    from substrate.corpus import sessions as session_paths
+
+    paths = session_paths(corpus)
+    if not paths:
+        raise SystemExit(f"no session archives (S*.tar.gz) found in {corpus!r}: point --corpus at the corpus's "
+                         f"sessions/ folder, e.g. .../dara-session-transcripts/sessions")
+    return paths
+
+
 def _shingles(text: str) -> set:
     words = text.split()
     return {" ".join(words[i:i + 3]) for i in range(max(1, len(words) - 2))}
@@ -237,11 +249,11 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
     reading, for repeats against new content. No corpus text is recorded, only references and classes."""
     from substrate.corpus import load_session, sessions as session_paths
 
+    paths = corpus_paths(corpus)
     d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = np.array([row["D"] for row in d_report["layers"]])
     tok = reader.tokenizer
     rng = np.random.default_rng(seed)
-    paths = session_paths(corpus)
     paths = [paths[i] for i in rng.permutation(len(paths))]
     dist, kinds, third, refs = [], [], [], []
     done = 0
@@ -261,6 +273,8 @@ def echo_floor_alone(reader, sets: list[dict], layers: list[int], record: Record
         done += 1
         if done == n_sessions:
             break
+    if not done:
+        raise SystemExit(f"no session in {corpus!r} had at least 60 chunks")
     record.append("echo corpus, alone", "code", chunks=refs, per_session=per_session, cap=cap, draft=draft)
     dist, kinds, third = np.array(dist) / D, np.array(kinds), np.array(third)
     rows = []
@@ -292,11 +306,11 @@ def echo_floor_retries(reader, sets: list[dict], layers: list[int], record: Reco
         A, B = _shingles(a), _shingles(b)
         return len(A & B) / len(A | B) if A | B else 0.0
 
+    paths = corpus_paths(corpus)
     d_report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = np.array([row["D"] for row in d_report["layers"]])
     tok = reader.tokenizer
     rng = np.random.default_rng(seed)
-    paths = session_paths(corpus)
     paths = [paths[i] for i in rng.permutation(len(paths))]
     dist, content, calls, refs = [], [], [], []
     done = 0
@@ -329,6 +343,8 @@ def echo_floor_retries(reader, sets: list[dict], layers: list[int], record: Reco
         done += 1
         if done == n_sessions:
             break
+    if not done:
+        raise SystemExit(f"no session in {corpus!r} had at least 60 chunks")
     record.append("echo corpus, retries", "code", chunks=refs, per_session=per_session, cap=cap, draft=draft)
     dist, content, calls = np.array(dist) / D, np.array(content), np.array(calls)
     rows = []
