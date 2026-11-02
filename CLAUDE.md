@@ -1,6 +1,7 @@
 # Working on AWARE
 
-Read [README.md](README.md) and [PLAN.md](PLAN.md). The design is the Big Picture doc linked there (v9; its Entity tab is
+Read [README.md](README.md) and [PLAN.md](PLAN.md), starting with PLAN's "Current state and direction": it says what is
+running and what comes next. Update that section whenever either changes. The design is the Big Picture doc linked there (v9; its Entity tab is
 the parent); it takes precedence over this repository. Work serves the current step's test; build the simplest thing
 that can pass it. Propose a change to the doc or the plan rather than widening a build.
 

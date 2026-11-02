@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **The base model is frozen only for testing and exploration, not permanently** (owner). A substrate decision;
+  the Entity tab changed. Unfreezing is the owner's, with a written test first. What ends the phase is not yet decided.
+- 2026-11-02: **The research direction, in order** (owner): intervention; injection and prefill; a cheap read; source crossed
+  with fit on real sessions; closing the loop with a standing policy. The product stays at rest (PLAN.md, "Current state").
 - 2026-11-02: **Causal authorship's inert note moves before the partner** (owner), after a dry run on 2 other conversations
   showed the model answering the note when it came last. Dry-run figures were seen; no bar changed.
 - 2026-11-02: **Causal authorship's 40 conversations are frozen as they are** (owner); drafted by the model. Their second

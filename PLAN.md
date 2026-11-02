@@ -15,9 +15,48 @@ substrate changes only by the owner's decision.
 A step's pass criterion is written here before its code, and its thresholds are fixed before it runs. A step is done
 when its test passes, not when its code exists.
 
+## Current state and direction
+
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-02.*
+
+**State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
+2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
+allowed; leap versus gradient waits until something works; the weights are frozen only for testing and exploration. Gate 1
+ran, undecided, and rests there. The goal's wording is still the owner's to restate.
+
+**Running or just run.** Causal authorship on the 40 frozen conversations, about 7 hours, started 2026-11-02:
+`python -u -m research.authorship --run runs/authorship-qwen8b` (commit `2cb3e6a`). A killed run resumes if the same
+command is run again. `runs/` is not in git, so its record is only on the owner's machine. If its result is not written
+under "Causal authorship" below, read `runs/authorship-qwen8b/run.log` and the record, write the result there, and update
+this section. Expected, from 2 dry-run conversations only: the instrument may hold while the model reports the source well,
+since the source shows in the text. That result would not end the direction.
+
+**Direction, in order (owner, 2026-11-02; Entity tab).**
+
+| Step | Question | Status |
+|---|---|---|
+| 1 | Can intervention name the source of a reply the read model generated itself? | **Running** |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Next; not pre-registered** |
+| 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
+| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
+| 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
+
+**How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and first
+a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each result,
+check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
+is now the likeliest to.
+
+**Parked.** A learning observer on two timescales, a DreamCoder-style library and distilling standing into the weights
+(from the owner's other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product
+step 4 now" is out of date). Each needs the owner's unfreezing decision and a written test first. Also behind this
+direction: axes on the real model, and with them the structural criterion's test and relations.
+
+**Open, for the owner.** What ends the testing and exploration phase, so that unfreezing can be considered. The restated goal.
+
 ## Substrate (`substrate/`)
 
-The Entity tab's decisions, as code: the base model frozen (states read through nnterp, `states.py`); the code
+The Entity tab's decisions, as code: the base model frozen during testing and exploration, not permanently (states read
+through nnterp, `states.py`); the code
 retained, not consumed (`axes.py`: every axis considered is kept); admission by two criteria (predictive: lowers
 held-out residual by more than D; otherwise structural, tagged untested, until the research track states a test);
 provenance logged at the source (`record.py`: self or external on every chunk).
@@ -267,7 +306,7 @@ focus since 2026-11-02 (DECISIONS.md). What it has:
 |---|---|---|
 | The D jump | below | **explained, 2026-11-02: the attention sink landing on the second token in texts beginning "Find"; the reader now finds it by norm (owner); D on the 8B re-measured, J 2.13** |
 | Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **run: undecided in both scopes (below)**; `research/gate1_run.py`; rests there, not a test of the entity |
-| **Causal authorship** | which source made this output happen, by intervention; then whether the model's own account agrees | **the track's question since 2026-11-02; pre-registered below; material frozen by the owner; `research/authorship.py`** |
+| **Causal authorship** | which source made this output happen, by intervention; then whether the model's own account agrees | **the track's question since 2026-11-02; pre-registered below; material frozen by the owner; `research/authorship.py`; running** |
 | Structural axes | retained, tagged untested (`substrate/axes.py`) | waiting for a structural test from this track |
 | Relations, composition, order | angles, nesting, symmetry; predicted position under combined axes; non-commuting moves | no probe yet |
 
