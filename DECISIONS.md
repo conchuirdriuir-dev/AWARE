@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Causal authorship: three of the key's own readings are read as checks on the key** (owner, agreeing to
+  the agent's proposal, during the run and before any verdict was read): the key per kind on the no-frame kind, the
+  share of "none" keys, and the best constant answer, reported beside the verdict and deciding nothing. No bar changes
+  (PLAN.md, "Causal authorship").
 - 2026-11-02: **PR #17 and PR #18 reconciled** (owner, choosing among the agent's drafted options). The goal-space proposal
   (PR #17, its DECISIONS lines of 2026-11-01) and the one-loop frame (PR #18, the lines below) were decided a day apart
   without reference to each other. The lines that follow settle where they differ; where one of them and either PR's

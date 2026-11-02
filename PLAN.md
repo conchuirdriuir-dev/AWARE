@@ -39,7 +39,7 @@ seeks to understand the owner's formula and its own.
 `python -u -m research.authorship --run runs/authorship-qwen8b` (commit `2cb3e6a`). A killed run resumes if the same
 command is run again. `runs/` is not in git, so its record is only on the owner's machine. If its result is not written
 under "Causal authorship" below, read `runs/authorship-qwen8b/run.log` and the record, write the result there, and update
-this section. Expected, from 2 dry-run conversations only: the instrument may hold while the model reports the source well,
+this section, reading the key's own checks beside the verdict as amended before it was read. Expected, from 2 dry-run conversations only: the instrument may hold while the model reports the source well,
 since the source shows in the text. That result would not end the direction.
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
@@ -615,6 +615,18 @@ itself generated. Qwen continuing a real session could meet that; it gets its ow
   off at 80 tokens. **Amended 2026-11-02 by the owner, before any of the 40 was read: the note goes before
   the partner.** The figures above were seen when this was decided, and no bar changed. So the partner always speaks last,
   and recency is part of what the key measures. The cap of 80 stays, and a killed run resumes from its record.
+- **Amended 2026-11-02, during the run and before any verdict was read (agent, the owner agreeing): how the key's own
+  readings are read.** No bar, threshold, material or code changes; the run already prints all three (`key per kind`,
+  `by_kind`, `best_constant_answer`). They are reported beside the verdict as checks on the key, deciding nothing:
+  1. *No frame:* the partner's message there is procedural and always last. If the key names the partner in most of
+     these 10, the key is partly measuring recency or the request's form, not the reply's direction, and the account's
+     disagreement on this kind is read as a fault of the key as much as of the account.
+  2. *"None of these":* how many of the 40 keys are "none". If almost none, the key is in practice the largest of three
+     sources, and an account that answers "none" can only be scored wrong.
+  3. *Best constant answer:* the account's agreement is read beside it, so a claim cannot rest on the key's imbalance.
+  Why: I averages KL over every token of R, so it moves with form and phrasing as well as direction, while the account
+  is asked where the direction came from. The six checks test the instrument's reliability, sensitivity and
+  robustness, not that I tracks direction.
 - **Not done here:** whether a cheap read of the states predicts the key, swapped or prefilled replies, Qwen on real
   sessions, other model sizes. Each gets its own reading. No product bar is used or served: drift and accommodation labels
   are not read here. If this starts to need them, stop and say so.
