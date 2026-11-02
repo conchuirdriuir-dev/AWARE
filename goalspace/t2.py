@@ -233,7 +233,8 @@ def main(argv=None):
     from substrate.measure_d import load_sets
     from substrate.states import Reader
 
-    reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory)
+    reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
+                    sink="first")  # the rule T2 was registered under (DECISIONS.md, 2026-11-02)
     n_layers = reader.info["layers"]
     layers = list(range(math.ceil(2 * n_layers / 3), n_layers))
     record = Record(Path(a.run) / "record.jsonl")

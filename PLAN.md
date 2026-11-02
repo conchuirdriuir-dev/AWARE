@@ -42,6 +42,10 @@ under "Causal authorship" below, read `runs/authorship-qwen8b/run.log` and the r
 this section. Expected, from 2 dry-run conversations only: the instrument may hold while the model reports the source well,
 since the source shows in the text. That result would not end the direction.
 
+**Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
+machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
+kept, ascent) on the candidate list, done blind to every reading; the same marks later check what step 6 trains.
+
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
 | Step | Question | Status |
@@ -76,13 +80,15 @@ steering sits in the direction's order.
 ## Goal-space tests (`goalspace/`)
 
 The end, as accepted 2026-11-01 (`proposals/goal-space.md`): Levin's three criteria, tested separately; no two tests
-share a pass bar. The product and research sections below stand until the Big Picture doc's Entity tab is changed
-to match; their work carries over as the proposal's section 5 says.
+share a pass bar. Since the reconciliation of 2026-11-02 (DECISIONS.md) the criteria are constraints on the one loop
+above, not a rival frame, and T1 reads the agent's own formula as an instrument, not a goal. The product and research
+sections below stand until the Big Picture doc's Entity tab is changed to match; their work carries over as the
+proposal's section 5 says.
 
 | Test | Criterion | Status |
 |---|---|---|
 | T1. Self-seeking | 3, its own formula | open; the toy bed's event record is its machinery |
-| T2. The owner's formula from the aims | 3, the owner's formula | [pre-registered 2026-11-01](goalspace/t2_owner_formula.md); reading 1 retired (the owner's code evolves and has no lines); reading 2 (ascents) stands for the 8B run |
+| T2. The owner's formula from the aims | 3, the owner's formula | [pre-registered 2026-11-01](goalspace/t2_owner_formula.md); reading 1 retired (the owner's code evolves and has no lines); reading 2 (ascents) stands for the 8B run, read with `sink="first"` as registered |
 | T2b. Wrong instructions | 3, the ratchet | **[drafted 2026-11-01](goalspace/t2b_wrong_instructions.md)** for the owner; needs the owner's marking pass (reversed, kept, ascent) |
 | T3. Deference | 3, the unit | open; needs the owner's labels of deference |
 | T4. Graft and removal | 2 | open; a toy first |
