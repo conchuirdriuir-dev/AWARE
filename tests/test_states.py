@@ -89,13 +89,14 @@ def test_skip_first_leaves_out_the_first_token_only_when_no_bos_precedes_it(tiny
     from transformers import PreTrainedTokenizerFast
 
     model, tok = tiny
-    with_bos = Reader(model, tokenizer=tok)
+    with_bos = Reader(model, tokenizer=tok, sink="first")
     text = "plan a garden budget"
     assert np.allclose(with_bos.states([text], [1], skip_first=True), with_bos.states([text], [1]), atol=1e-6)
     vocab = {"[UNK]": 0, "<pad>": 2, **{w: i + 3 for i, w in enumerate(WORDS)}}
     tk = Tokenizer(models.WordLevel(vocab, unk_token="[UNK]"))
     tk.pre_tokenizer = pre_tokenizers.Whitespace()
-    no_bos = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"))
+    no_bos = Reader(model, tokenizer=PreTrainedTokenizerFast(tokenizer_object=tk, unk_token="[UNK]", pad_token="<pad>"),
+                    sink="first")
     ids = no_bos.tokenizer(text, return_tensors="pt")
     with torch.no_grad():
         hidden = model(**ids, output_hidden_states=True).hidden_states
@@ -149,3 +150,51 @@ def test_attention_in_context_matches_transformers_own_head_mean(monkeypatch):
     assert np.allclose(A[0], ref[1][0].mean(0).numpy(), atol=1e-6)
     assert np.allclose(A[1], ref[3][0].mean(0).numpy(), atol=1e-6)
     assert fused.config._attn_implementation == "sdpa"                     # restored after the read
+
+
+def test_the_sink_is_found_by_norm_wherever_it_landed():
+    from substrate.states import sink_tokens
+
+    assert sink_tokens(np.array([12000.0, 50, 48, 52, 47])).tolist() == [True, False, False, False, False]
+    assert sink_tokens(np.array([160.0, 10000, 48, 52, 47])).tolist() == [False, True, False, False, False]
+    assert sink_tokens(np.array([50.0, 60, 48, 52])).tolist() == [False] * 4       # no sink, nothing left out
+    assert sink_tokens(np.array([12000.0, 50])).tolist() == [True, False]          # two tokens can still flag
+    assert sink_tokens(np.array([12000.0])).tolist() == [False]                    # a lone token stays
+
+
+def _sink_on(model, token, factor=1e6):
+    """A hook planting massive activations on one token of every sequence, at every layer from the first on."""
+    def hook(_, __, output):
+        hidden = output[0] if isinstance(output, tuple) else output
+        hidden = hidden.clone()
+        hidden[:, token] = hidden[:, token] * factor
+        return (hidden, *output[1:]) if isinstance(output, tuple) else hidden
+    return [layer.register_forward_hook(hook) for layer in model.model.layers]
+
+
+def test_the_reader_leaves_out_a_planted_sink_at_any_position_alone_and_in_context(tiny):
+    model, tok = tiny
+    reader = Reader(model, tokenizer=tok)
+    text = "plan a garden budget family river"
+    clean = reader.states([text], [1, 3])
+    for token in (1, 2):                                    # position 0 is <bos> in this tokenizer
+        handles = _sink_on(model, token)
+        try:
+            got = reader.states([text], [1, 3])
+            whole = reader.states_in_context([text], [1, 3])
+            kept_by_position = Reader(model, tokenizer=tok, sink="first").states([text], [1, 3])
+        finally:
+            for h in handles:
+                h.remove()
+        assert np.isfinite(got).all()
+        assert np.linalg.norm(got) < np.linalg.norm(kept_by_position) / 100     # left out by norm, kept by position
+        assert np.allclose(got, whole, atol=1e-3)                               # alone and in context agree
+        assert np.linalg.norm(got) < 100 * np.linalg.norm(clean)
+
+
+def test_the_norm_rule_reads_layers_out_of_order_and_records_itself(tiny):
+    model, tok = tiny
+    reader = Reader(model, tokenizer=tok)
+    assert reader.info["sink"] == "norm" and reader.info["sink_layer"] == 1
+    text = "plan a garden budget"
+    assert np.allclose(reader.states([text], [3, 0]), reader.states([text], [0, 3])[:, ::-1], atol=1e-6)

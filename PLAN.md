@@ -31,7 +31,7 @@ provenance logged at the source (`record.py`: self or external on every chunk).
 sequence's first token left out: an attention sink where there is no begin-of-sequence token), read alone (`states`) or inside the whole sequence (`states_in_context`). **D**: the root-mean-square distance
 of a state from its paraphrase set's mean, averaged over sets, per layer; the layer proposed is the one with the
 largest between-to-within ratio, and the owner chooses. **Material:** 20 sets of 5 paraphrases
-(`material/paraphrases.jsonl`), drafted by the model, not yet frozen. **Pass:** states for every text on both models
+(`material/paraphrases.jsonl`), drafted by the model, frozen by the owner 2026-11-02. **Pass:** states for every text on both models
 at every layer asked for, and the same text read twice gives the same state.
 
 **The echo floor** (DECISIONS.md, the event record): the distance below which an arrival is the entity's own content
@@ -260,13 +260,183 @@ Each round's pre-registration and result live in their own file, frozen by the c
 
 ## Research track (`research/`): reasoning over the entity's own axes
 
-No demo and no pass bar yet, by design. What it has:
+No demo and no pass bar for the track yet, by design; each probe still has its reading written before its code. The
+focus since 2026-11-02 (DECISIONS.md). What it has:
 
 | Item | Test | Status |
 |---|---|---|
-| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs; runs on the accumulated axes after the demo's arms exist (v9 build order) |
+| The D jump | below | **explained, 2026-11-02: the attention sink landing on the second token in texts beginning "Find"; the reader now finds it by norm (owner); D on the 8B re-measured, J 2.13** |
+| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **pre-registered below, centre fitted; its code and material not yet built** |
 | Structural axes | retained, tagged untested (`substrate/axes.py`) | waiting for a structural test from this track |
 | Relations, composition, order | angles, nesting, symmetry; predicted position under combined axes; non-commuting moves | no probe yet |
+
+### The D jump
+
+*Written 2026-11-02 before its code* (`python -m research.d_jump`). On Qwen3-8B, D goes from 5.17 at layer 4 to 69 at
+layer 8 and stays high, unlike the 0.6B's smooth growth. D is the margin Gate 1 must clear, so what is it measuring?
+Qwen3-8B, bfloat16, split across the owner's RTX 4060 and RAM as in `runs/echo-alone-qwen8b/`; the same 20 draft sets
+of 5, first token left out. The model is only read; `substrate/` does not change.
+- **Layers:** 0, 2, 4, 5, 6, 7, 8, 9, 10, 12, 16, 20, 24, 28, 32, 35.
+- **Check first:** D recomputed from per-token states must match the saved run within 1% at the layers in common, or
+  nothing below is read.
+- **The jump:** J = D(8) / D(4), recomputed under each condition as J′. Whichever single step of 4→8 holds the most of
+  log J is reported.
+- **Three causes, each read on its own; more than one may hold:**
+  - *A few tokens.* Each text's largest-norm token (top 1, then top 3, chosen per layer) left out of the mean. Holds if
+    J′ ≤ 3 and the control, a random token left out (seed 0), keeps J′ ≥ 0.8 J. Top 1 and top 3 are read separately.
+  - *A few dimensions.* The 5 coordinates with most within-set variance, chosen per layer on half the sets and D
+    measured with them removed on the other half, both ways, averaged. Holds if J′ ≤ 3 and the control, 5 random
+    coordinates (seed 0), keeps J′ ≥ 0.8 J.
+  - *Overall scale.* The median token norm's ratio, layer 8 over layer 4. Holds if it is J / 3 or more.
+- **Why 3:** the 0.6B's own growth over comparable stretches is about 2 (layers 3 to 9).
+- **Reported beside them:** between-to-within ratio per layer and condition; the second and the last token left out;
+  which tokens are largest (string, position) and how much of their squared norm sits in their top 5 coordinates; D's
+  jump on the same draft sets is the only thing explained, so no corpus text is read.
+- **If none holds,** the jump is reported as not explained, and any new cause is written here before it is tried. What
+  follows for D is a substrate decision, the owner's.
+
+*Result* (2026-11-02; Qwen3-8B, bfloat16, split across the RTX 4060 and RAM, draft sets; record in
+`runs/d-jump-qwen8b/`, not committed). D matches the saved run exactly at every layer in common. J = 13.30, and one
+step holds 91% of log J: layer 5→6, ×10.67.
+
+| Cause | J′ | Control J′ (needs ≥ 10.64) | Needs | Holds |
+|---|---|---|---|---|
+| Top 1 token left out | 2.24 | 13.60 | ≤ 3 | yes |
+| Top 3 tokens left out | 2.30 | 13.60 | ≤ 3 | yes |
+| 5 coordinates removed | 2.42 | 13.31 | ≤ 3 | yes |
+| Overall scale (median token norm, 8 over 4) | 1.85 | none | ≥ 4.43 | no |
+
+| Layer | 4 | 5 | 6 | 8 | 12 | 20 | 24 | 28 | 32 | 35 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| D | 5.17 | 6.18 | 65.97 | 68.82 | 69.95 | 77.41 | 91.43 | 115.84 | 152.79 | 186.96 |
+| D, top token left out | 5.23 | 6.43 | 8.02 | 11.68 | 13.24 | 20.16 | 38.51 | 68.76 | 113.43 | 183.26 |
+| Between over D | 1.14 | 1.17 | 0.93 | 0.90 | 0.91 | 0.90 | 0.95 | 1.11 | 1.27 | 1.38 |
+| Between over D, top token left out | 1.15 | 1.15 | 1.15 | 1.25 | 1.61 | 1.54 | 1.57 | 1.61 | 1.59 | 1.39 |
+
+**Read as written: a few tokens and a few coordinates both hold; overall scale does not.** Leaving out the second
+token does the same as the largest (J′ 2.14); leaving out the last does nothing (13.43).
+
+*Post hoc, no threshold fixed* (`research/d_jump_posthoc.py`, layer 6). The two causes are one: **the attention sink,
+landing on the second token in the 4 of 100 texts that begin "Find".** Those are the only "Find" texts, one each in 4
+of the 20 sets. In the other 96 the first token has norm 8,297–13,981, about 100% of its squared norm in coordinates
+2276, 233 and 4081, and the second token is ordinary (at most 68). In the 4, the first token has norm 160 and the
+second 8,755–10,391, 99.9% in those same coordinates. The reader leaves out the first token by position
+(`skip_first`), so here it drops an ordinary token and keeps the sink. That one token moves its text's state by about
+750, and 4 sets of 20 holding one account for about 60 of D's 66 at layer 6. It still dominates at layer 24 (42 times
+the median) and fades to 3 times by layer 35.
+
+**What this leaves.** D on the 8B is inflated at layers 6–32 on these sets, about sixfold at layer 8 and 1.35-fold at
+layer 32, and separation is understated. Coordinate removal is not the remedy: 2276 is also a top coordinate of
+ordinary tokens at layers 24–35. Not tested: other models, what other first words do this, and whether corpus chunks
+carry it. Results in units of D on the 8B (the floors in the 8B table above) use the inflated D; their AUCs are ratios
+of distances and do not use D. Corpus chunks are read by the same reader, so a chunk starting this way would carry the
+sink; that is unmeasured. What to do about it is a substrate decision, open.
+
+*The sink by norm, written 2026-11-02 before its code* (`python -m research.sink_check`; owner's decision,
+DECISIONS.md). **The rule:** in one forward pass, read token norms at the layer a third of the way up (12 of 36, chosen
+because the sink is well formed there and the layer is not tuned to a result); a token is the sink if its norm exceeds
+5 times the median of the sequence's other tokens' norms, taking the median without the largest token, so that a
+two-token text can still flag. Flagged tokens are left out of the mean at every layer read. A text or chunk that would
+be left empty keeps its tokens. Special tokens stay out, as before. The rule was chosen after seeing these 100 texts'
+norms, so the sets are a check that it does what was meant; the corpus is the first data it has not seen.
+- **On the 100 draft texts,** Qwen3-8B, same load and layers as the D jump. It passes if all of:
+  1. exactly one token is left out of every text: token 0 in the 96, token 1 in the 4 beginning "Find";
+  2. J = D(8) / D(4) is 3 or less;
+  3. in the 96, states match the saved position-rule run at the layers in common: the largest distance is at most 1%
+     of that state's norm;
+  4. the same text read twice gives the same state, as in step 1.
+- **On the corpus,** 30 chunks from each of the same 10 sessions (seed 0; capped at 256 tokens; references and norms
+  only, no text recorded). It holds for real chunks if at least 99% of chunks of 3 or more tokens have exactly one
+  token left out. Reported beside it: shares with none and with two or more; the position of the token left out; how
+  many sinks sit somewhere other than token 0 and which is the largest non-flagged ratio. Under 99%, the rule is not
+  used on the corpus until the owner has seen why.
+- **Reported, not judged:** D and between-to-within per layer under the rule, against the position rule.
+
+*Result* (2026-11-02; record in `runs/sink-check-qwen8b/`, not committed; its first attempt was killed by a time limit
+during the corpus part, and that attempt's lines stay in the record).
+
+| Check | Bar | Measured | Passes |
+|---|---|---|---|
+| One token left out, where expected | 96 at token 0, 4 at token 1 | exactly that | yes |
+| J = D(8) / D(4) | ≤ 3 | 2.13 (13.30 under the position rule) | yes |
+| Distance from the position rule, the 96 | ≤ 1% | 0 | yes |
+| Same text read twice | same state | same | yes |
+| **Corpus: exactly one token left out** | **≥ 99%** | **98.98% (290 of 293)** | **no** |
+
+| Layer | 4 | 6 | 8 | 12 | 20 | 24 | 28 | 32 | 35 |
+|---|---|---|---|---|---|---|---|---|---|
+| D | 5.46 | 8.00 | 11.61 | 13.27 | 19.57 | 37.94 | 68.52 | 113.19 | 184.99 |
+| Between over D | 1.09 | 1.17 | 1.24 | 1.55 | 1.62 | 1.61 | 1.64 | 1.63 | 1.39 |
+
+**Read as written: the rule passes on the texts and misses on the corpus by one chunk's worth, so it is not used on the
+corpus until the owner has seen why.** Why, post hoc: the other 3 chunks each have tokens 0 and 1 both flagged, at
+10,188–10,382 against a median of 65–66, the two equal to the nearest unit within each chunk. So two sinks, both left
+out; "exactly one" assumed one sink per sequence. Nothing unflagged came near the factor: the largest other token is 2.90 times the
+median, against 5. Every one of the 293 chunks had token 0 flagged, so on this sample no chunk had a sink only on
+token 1, and the position rule's fault on real chunks is those 3, which keep one sink. Why two tokens share a sink is
+not known. No corpus text was read to look at this.
+
+### Gate 1: negation, standalone
+
+*Written 2026-11-02 before its code; amended only before any run, and any amendment dated here.* The owner's decisions
+(DECISIONS.md): standalone on elicited pairs; the centre fitted from the pairs, then compared with candidate origins.
+This changes the doc's "about the origin" into two questions, in order: what form does negation take, and is its
+centre the origin. What a pass would mean is unchanged: a finding about the code; it cannot end the project.
+- **Material:** 20 topics of 10 plain declarative statements, drafted by the agent, labelled as the model's, frozen by
+  the owner before the run (`material/negation_statements.jsonl`). No statement begins with an instruction or names
+  negation. Each opposite is elicited from Qwen3-8B itself, thinking off, greedy, up to 80 new tokens, by one fixed
+  domain-free prompt, "Write the statement that says the opposite of this one. Reply with the statement only.", followed
+  by a blank line and the statement; prompt and reply are recorded. The owner reads a random 20 pairs before any
+  state is read; a reply that is not an opposite is flagged and left in, and the verdict is reported with and without
+  flagged pairs.
+- **States:** Qwen3-8B, sink by norm, each statement and opposite read alone. Layers 12, 24, 28, 32. D from the
+  paraphrase sets, under the same rule, on sets the owner has frozen.
+- **Three forms, centre fitted:** additive, y = x + v; contraction, y = λx + v (fitted centre v / (1 − λ), reported as no
+  finite centre if |1 − λ| < 0.1); mirror, u the top direction of x − y and its plane's offset the mean of (x + y)/2 along
+  u. **Baseline:** identity, y = x.
+- **Two scopes, each form fitted in both, so no form gets a freedom the others lack:** global, one fit across topics,
+  held out by topic (5 folds of 4 topics); per topic, one fit per topic, each pair left out in turn within its topic.
+- **Verdict, per scope and layer:** the root-mean-square error on held-out pairs. A form wins if it beats both others
+  and identity by more than D; otherwise undecided. **A scope's verdict** is the form winning at 3 or more of the 4
+  layers; otherwise undecided.
+- **Controls, by the same code:** shuffled pairs (each statement with another topic's opposite), and each set's paraphrase
+  pairs in place of opposites. If a form wins a scope on shuffled pairs, that form's win there is void.
+- **Is the centre the origin? Reported, not judged:** for the winning form, or for each if undecided, the fitted centre's
+  distance (the mirror's offset, along u only) from: the paraphrase mean; the mean of the sessions' earliest externals;
+  each session's; and the shuffled control's centre. All in units of D.
+- **Reported beside it:** the verdict with the centre fixed at the paraphrase mean, as `research/gate1.py` does now. If it
+  disagrees with the fitted verdict, both are stated.
+- **Not done here:** relations between negation axes (angles, nesting) reuse these states; that probe gets its own
+  reading before it runs, so this gate does not become the track.
+
+### Gate 1's origin: how far apart the candidates sit
+
+*Written 2026-11-02 before its code* (`python -m research.origin_candidates`). Input to the owner's choice of `c`, not a
+test: nothing here is judged and no candidate is picked. No negation pairs exist, so no Gate 1 hypothesis is touched.
+On Qwen3-8B under the sink by norm, draft sets, the same 10 sessions, references and distances only. Runs only if the
+sink check holds on the corpus (it missed; the owner released it, DECISIONS.md).
+- **Candidates:** the mean of the 100 paraphrase states; each session's earliest externals (the mean of its first 5 and
+  first 10 external chunks, read alone, capped at 256 tokens); the mean of the sessions' 5-chunk means; the zero vector.
+- **Reported per layer** (8, 12, 24, 28, 32, 35), in units of D under the rule: each candidate's distance from the
+  paraphrase mean; session against session; first 5 against first 10 in one session; the paraphrase states' own radius
+  about their mean. Because a mirror's fit depends on `c` only along its normal `u`, also 2|Δc·u| for `u` the 190
+  directions between set means, as a stand-in for directions that carry meaning (median and 95th percentile).
+
+*Result* (2026-11-02; draft sets, 10 sessions; record in `runs/origin-qwen8b/`, not committed). In units of D:
+
+| Layer | D | Radius of the states | Zero | Mean of sessions | One session (median, range) | Session to session | First 5 to first 10 | Mirror shift (median, 95th) |
+|---|---|---|---|---|---|---|---|---|
+| 8 | 11.6 | 1.59 | 3.04 | 1.26 | 1.34 (1.26–1.50) | 0.73 | 0.31 | 0.19, 0.44 |
+| 12 | 13.3 | 1.85 | 3.85 | 1.66 | 1.75 (1.56–2.00) | 0.85 | 0.36 | 0.28, 0.68 |
+| 24 | 37.9 | 1.90 | 5.11 | 2.00 | 2.08 (1.85–2.49) | 1.14 | 0.47 | 0.35, 0.82 |
+| 28 | 68.5 | 1.92 | 5.12 | 1.69 | 1.84 (1.70–2.09) | 1.13 | 0.46 | 0.28, 0.75 |
+| 32 | 113.2 | 1.92 | 6.41 | 1.66 | 1.80 (1.54–2.22) | 1.09 | 0.46 | 0.30, 0.81 |
+| 35 | 185.0 | 1.72 | 7.17 | 2.42 | 2.62 (1.94–3.06) | 1.40 | 0.57 | 0.70, 2.38 |
+
+A session's origin sits about as far from the paraphrase mean as a state does, and sessions sit about 1 D from each
+other. Under a fixed origin, a contraction's error moves by (1 − λ) times these: at λ = 0.3 and 1.8 D, about 1.3 D,
+more than the margin. A mirror's moves less, under 1 D at the 95th percentile at layers 8–32, on the stand-in
+directions only. Nothing here is a Gate 1 result: no negation pair was read.
 
 ## Retired
 

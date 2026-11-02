@@ -2,6 +2,22 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Substrate: the reader finds the attention sink by norm, not by position** (owner). Earlier runs and the
+  product's labelled logs, which rest on the position rule, keep it (`sink="first"`) so their records can be rebuilt.
+- 2026-11-02: **The 20 paraphrase sets are frozen as they are** (owner), the "Find" texts included: the reader handles
+  them, and rewording would hide the fault. D on them is no longer a draft.
+- 2026-11-02: **Gate 1 fits its centre from the pairs, then compares it with the candidate origins** (owner). A fixed
+  wrong origin penalises mirror and contraction but never additive, so it biases the verdict. Fixed paraphrase mean is
+  reported beside it. The gate now asks about a fitted centre first, and whether that centre is the origin second.
+- 2026-11-02: **Two sinks in one sequence are correct; the sink by norm is used on the corpus** (owner, having seen why).
+  The 99% bar stays recorded as missed; "exactly one" assumed one sink per sequence.
+- 2026-11-02: The sink by norm passes on the 100 draft texts (J 2.13) and misses its corpus bar, 98.98% against 99%: 3
+  of 293 chunks hold two sinks, both left out. Not used on the corpus until the owner has seen why (PLAN.md).
+- 2026-11-02: **The D jump on the 8B is the attention sink on the second token** in the 4 of 100 draft texts beginning
+  "Find", which `skip_first` keeps by leaving out the first token by position (PLAN.md). The reader's rule stays as it
+  is until the owner decides; Gate 1 waits on it.
+- 2026-11-02: **Gate 1 is lifted out of the build order** (owner): it runs standalone on the research track, on
+  elicited pairs, without waiting for the demo's arms or accumulated axes. The D jump on the 8B is looked at first.
 - 2026-11-02: **The focus moves to the research track, with the internals brought back** (owner). The product rests
   after step 4's result (batch claim not supported); its next step is a baseline: the owner works with Claude Code,
   no interventions, and labels the headaches. The placebo stage of step 4 is not run for now (it cannot change the

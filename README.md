@@ -32,6 +32,9 @@ seven of ten, separation among them; round 7b (contingency, the reactive toy) pa
 detecting repeated content waits on the real model's echo floor. On the owner's logged sessions, news read alone
 against alone tells repeats from new content at every layer (Qwen3-0.6B, a dress rehearsal). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
 
+Since 2026-11-02 the focus is the research track and the product rests on a baseline (DECISIONS.md). The D jump on the
+8B is explained and the reader now finds the attention sink by norm; Gate 1 is pre-registered, standalone (PLAN.md).
+
 ## Running
 
 Python 3.11+. The geometry, axes, toy bed and Gate 1 need only numpy:

@@ -5,8 +5,8 @@ Three hypotheses, each fitted on pairs (x, y) of a statement and its elicited op
 - additive:    y = x + v;
 - contraction: y = c + lam (x - c), lam a scalar.
 Whichever predicts held-out pairs better than both others by more than D wins; otherwise undecided. Mirror structure
-passing would reinstate self-negation as a mechanism; the gate cannot end the project. v9 runs it as an analysis on
-the accumulated axes, after the main demo's arms exist.
+passing would reinstate self-negation as a mechanism; the gate cannot end the project. It runs standalone on elicited
+pairs, lifted out of v9's build order (owner, DECISIONS.md, 2026-11-02).
 """
 from __future__ import annotations
 

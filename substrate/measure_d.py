@@ -35,7 +35,9 @@ def measure(reader, sets: list[dict], layers: list[int], record: Record, draft: 
         raise SystemExit("the paraphrase sets are not frozen; the owner freezes them, or run with --draft")
     blob = json.dumps(sets, sort_keys=True).encode()
     record.append("run", "code", **reader.info, read_layers=layers, sets_sha256=hashlib.sha256(blob).hexdigest(),
-                  draft=draft, pooling="mean over non-special tokens" + (", first token left out" if skip_first else ""))
+                  draft=draft, pooling="mean over non-special tokens" + (
+                      "" if not skip_first else ", first token left out" if reader.info["sink"] == "first"
+                      else ", sink left out, found by norm"))
     for s in sets:
         record.append("set", s.get("by", "person"), id=s["id"], texts=s["texts"], frozen=bool(s.get("frozen")))
     per_set = [reader.states(s["texts"], layers, skip_first) for s in sets]          # each: texts x layers x width

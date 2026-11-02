@@ -19,6 +19,7 @@ from __future__ import annotations
 import numpy as np
 
 READOUT = "aware_readout"
+SINK_FACTOR = 5.0               # a sink's norm over the median of the others (PLAN.md, the sink by norm)
 ROW_BUDGET = 1 << 26            # score elements per block (heads x rows x T): 256 MB in float32
 _capture: dict | None = None    # layer index -> (T, T) float32 array being filled, during attention_in_context
 _base: list = []                # the model's own attention function, which the readout passes through to
@@ -50,16 +51,30 @@ def _readout(module, query, key, value, attention_mask, scaling, dropout=0.0, **
     return out
 
 
+def sink_tokens(norms: np.ndarray, factor: float = SINK_FACTOR) -> np.ndarray:
+    """A mask of the tokens that are the attention sink: norm above `factor` times the median of the others, the
+    median taken without the largest token so that a two-token text can still flag. A lone token never flags."""
+    norms = np.asarray(norms, dtype=float)
+    if len(norms) < 2:
+        return np.zeros(len(norms), dtype=bool)
+    return norms > factor * np.median(np.sort(norms)[:-1])
+
+
 class Reader:
     def __init__(self, model, tokenizer=None, revision: str | None = None, device: str | None = None,
-                 dtype: str | None = None, gpu_memory: float | None = None, quantize: str | None = None):
+                 dtype: str | None = None, gpu_memory: float | None = None, quantize: str | None = None,
+                 sink: str = "norm"):
         """`model` is a Hugging Face name, or an already-built model with its `tokenizer` (the tests' tiny one).
         `device`: "cuda", "cpu" or "auto" (split across GPU and RAM, capped at `gpu_memory` GiB on the GPU).
         `dtype`: "bfloat16" or "float32" (default: bfloat16 on a GPU, float32 on CPU). `quantize`: None, "4bit" or
-        "8bit" (needs bitsandbytes and a GPU)."""
+        "8bit" (needs bitsandbytes and a GPU). `sink`: how `skip_first` finds the attention sink: "norm", or "first",
+        by position, the rule earlier records were read under (DECISIONS.md, 2026-11-02)."""
         import torch
         from nnterp import StandardizedTransformer
 
+        if sink not in ("norm", "first"):
+            raise ValueError(f"unknown sink rule {sink!r}")
+        self.sink = sink
         self.load = {"device": device, "dtype": dtype, "gpu_memory": gpu_memory, "quantize": quantize}
         if isinstance(model, str):
             cuda = torch.cuda.is_available()
@@ -85,12 +100,32 @@ class Reader:
         self.info = {"model": self.name, "revision": revision,
                      "commit": getattr(config, "_commit_hash", None),
                      "layers": self.model.num_layers, "width": config.hidden_size,
-                     "dtype": str(next(self.model._model.parameters()).dtype), "load": self.load}
+                     "dtype": str(next(self.model._model.parameters()).dtype), "load": self.load, "sink": sink,
+                     "sink_layer": self.model.num_layers // 3 if sink == "norm" else None}
+
+    def _read(self, ids, layers: list[int]) -> dict:
+        """The residual stream at each layer asked for, plus the layer the sink is found at. Layers are visited in
+        order, as the tracer requires."""
+        wanted = set(layers) | ({self.info["sink_layer"]} if self.sink == "norm" else set())
+        saved = {}
+        with self.model.trace(ids):
+            for layer in sorted(wanted):
+                saved[layer] = self.model.layers_output[layer].save()
+        return saved
+
+    def _sink(self, saved: dict, among) -> "np.ndarray":
+        """The sink's mask over a sequence's tokens, found among the tokens in the boolean mask `among`."""
+        norms = saved[self.info["sink_layer"]][0].float().norm(dim=-1).cpu().numpy()
+        among = np.asarray(among)
+        mask = np.zeros(len(norms), dtype=bool)
+        mask[among] = sink_tokens(norms[among])
+        return mask
 
     def states(self, texts: list[str], layers: list[int], skip_first: bool = True) -> np.ndarray:
         """One state per text and layer: an array of shape (texts, layers, width), float32. With `skip_first`, the
-        sequence's first token is also left out: a model without a begin-of-sequence token (Qwen3) puts an attention
-        sink there, whose massive activations otherwise swamp the mean."""
+        attention sink is also left out: a model without a begin-of-sequence token (Qwen3) puts massive activations on
+        one early token, which otherwise swamp the mean. Under the "norm" rule it is found by its norm, wherever it
+        landed; under "first" it is assumed to be the first token, which is not always so (PLAN.md, the D jump)."""
         import torch
 
         out = np.zeros((len(texts), len(layers), self.info["width"]), dtype=np.float32)
@@ -98,13 +133,16 @@ class Reader:
             for i, text in enumerate(texts):
                 ids = self.tokenizer(text, return_tensors="pt")["input_ids"]
                 keep = ~torch.isin(ids[0], self.special)
-                if skip_first and keep[1:].any():           # a one-token text keeps its token: no empty mean
-                    keep[0] = False
-                saved = []
-                with self.model.trace(ids):
-                    for layer in layers:
-                        saved.append(self.model.layers_output[layer].save())
-                for j, s in enumerate(saved):
+                saved = self._read(ids, layers)
+                if skip_first and self.sink == "first":
+                    if keep[1:].any():                      # a one-token text keeps its token: no empty mean
+                        keep[0] = False
+                elif skip_first:
+                    sink = torch.from_numpy(self._sink(saved, keep.numpy()))
+                    if (keep & ~sink).any():                # never an empty mean
+                        keep = keep & ~sink
+                for j, layer in enumerate(layers):
+                    s = saved[layer]
                     out[i, j] = s[0, keep.to(s.device)].float().mean(0).cpu().numpy()
         return out
 
@@ -121,17 +159,20 @@ class Reader:
             piece = self.tokenizer(chunk, add_special_tokens=False)["input_ids"]
             spans.append((len(ids), len(ids) + len(piece)))
             ids.extend(piece)
-        if skip_first and spans and spans[0][0] == 0 and spans[0][1] > 1:
+        if skip_first and self.sink == "first" and spans and spans[0][0] == 0 and spans[0][1] > 1:
             spans[0] = (1, spans[0][1])                 # the sequence's own first token: the sink
-        saved = []
         with torch.no_grad():
-            with self.model.trace(torch.tensor([ids])):
-                for layer in layers:
-                    saved.append(self.model.layers_output[layer].save())
+            saved = self._read(torch.tensor([ids]), layers)
+        sink = np.zeros(len(ids), dtype=bool)
+        if skip_first and self.sink == "norm":
+            sink = self._sink(saved, ~np.isin(ids, self.special.numpy()))
         out = np.zeros((len(chunks), len(layers), self.info["width"]), dtype=np.float32)
-        for j, s in enumerate(saved):
+        for j, layer in enumerate(layers):
+            s = saved[layer]
             for i, (a, b) in enumerate(spans):
-                out[i, j] = s[0, a:b].float().mean(0).cpu().numpy()
+                keep = np.arange(a, b)[~sink[a:b]]
+                keep = keep if len(keep) else np.arange(a, b)   # never an empty mean
+                out[i, j] = s[0, torch.as_tensor(keep, device=s.device)].float().mean(0).cpu().numpy()
         return out
 
     def attention_in_context(self, chunks: list[str], layers: list[int]) -> tuple[np.ndarray, list[tuple[int, int]]]:
