@@ -145,3 +145,31 @@ The 8B run on the owner's machine is the result.
 **The row-block readout at full length** (after the rehearsal): Qwen3-0.6B, one 8,020-token sequence, 9 layers read,
 121 seconds on CPU, every attention row summing to 1, peak memory 10.3 GB (the CPU's fused attention and the nine
 captured 8,020 x 8,020 arrays). On the 8B the read layers' arrays come to about 3.2 GB of RAM at 8,192 tokens.
+
+## Result, 2026-11-02: Qwen3-8B, raw stage (owner's machine)
+
+Run on the owner's RTX 4060 and RAM, T = 8,192, row-block attention, windows before and after. 20 agent closures (19
+with a live aim), 14 owner ascents, 135 controls (127 with a live aim). Printed by the run, before the placebo stage:
+
+| On agent closures against controls | AUC, predicted direction | 90% interval |
+|---|---|---|
+| self attention S | 0.48 | 0.38–0.60 |
+| goal attention G | 0.55 | 0.42–0.66 |
+| local alignment A | 0.45 | 0.35–0.56 |
+| best text statistic (either direction) | 0.58 | |
+| ascents' S, closure direction (bar: at most 0.6) | 0.47 | |
+
+**Read as written: the batch claim is not supported (bar 1 fails); ascents are not read as closures (bar 2 passes).**
+No reading reaches AUC 0.7, and every interval spans 0.5. Bar 1 is settled before the placebo stage: the placebo
+amendment can only tighten G's bar, and raw G does not pass. The placebo stage and the length check still run, as
+reported readings that decide nothing.
+
+What it does and does not say:
+- It finds no fall in attention on the goal, rise in self attention, or fall in alignment over the 100 chunks before
+  an agent closure, at a size 19 closures can detect (intervals about ±0.11). The 0.6B rehearsal's G (0.64) does not
+  hold on the 8B.
+- Controls come from the same sessions as the closures, so a misreading of the goal that lasts the whole session
+  cancels by design. The test asks whether something changes just before a closure, not whether the goal was misread
+  all along; the second is untested.
+- Text separates closures barely better than chance here (0.58), as the text study found: agent closures are hard to
+  see coming by any reading tried so far.
