@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Causal authorship's inert note moves before the partner** (owner), after a dry run on 2 other conversations
+  showed the model answering the note when it came last. Dry-run figures were seen; no bar changed.
 - 2026-11-02: **Causal authorship's 40 conversations are frozen as they are** (owner); drafted by the model. Their second
   wordings are close rewrites, so the wording check is the easier for it.
 - 2026-11-02: **The research track's question is causal authorship: which source made this output happen** (owner), not
