@@ -4,6 +4,7 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 
 - 2026-11-02: **Substrate: the reader finds the attention sink by norm, not by position** (owner). Earlier runs and the
   product's labelled logs, which rest on the position rule, keep it (`sink="first"`) so their records can be rebuilt.
+- 2026-11-02: **Gate 1's 200 statements are frozen as they are** (owner); drafted by the model.
 - 2026-11-02: **The 20 paraphrase sets are frozen as they are** (owner), the "Find" texts included: the reader handles
   them, and rewording would hide the fault. D on them is no longer a draft.
 - 2026-11-02: **Gate 1 fits its centre from the pairs, then compares it with the candidate origins** (owner). A fixed
