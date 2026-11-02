@@ -266,7 +266,7 @@ focus since 2026-11-02 (DECISIONS.md). What it has:
 | Item | Test | Status |
 |---|---|---|
 | The D jump | below | **explained, 2026-11-02: the attention sink landing on the second token in texts beginning "Find"; the reader now finds it by norm (owner); D on the 8B re-measured, J 2.13** |
-| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **pre-registered below, centre fitted; its code and material not yet built** |
+| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **pre-registered below, centre fitted; pairs elicited and read by the owner; `research/gate1_run.py` runs it** |
 | Structural axes | retained, tagged untested (`substrate/axes.py`) | waiting for a structural test from this track |
 | Relations, composition, order | angles, nesting, symmetry; predicted position under combined axes; non-commuting moves | no probe yet |
 
@@ -406,6 +406,21 @@ centre the origin. What a pass would mean is unchanged: a finding about the code
   each session's; and the shuffled control's centre. All in units of D.
 - **Reported beside it:** the verdict with the centre fixed at the paraphrase mean, as `research/gate1.py` does now. If it
   disagrees with the fitted verdict, both are stated.
+- **Amended 2026-11-02, before any state of a pair was read.** *The rule (owner):* contraction with λ = 1 is additive, so
+  as first written additive could never win; a test with planted pairs showed it. If contraction's λ (the median over a
+  scope's fits) is within 0.1 of 1 it counts as additive: it is no rival and cannot win. Otherwise it stays a rival.
+  The verdict as first written is reported beside it. *The flags (owner's reading, `material/negation_review.jsonl`):*
+  2 of the 20 are wrong, 2 borderline, 16 fine. "Without flagged" leaves out the wrong; a further line leaves out the
+  borderline too. The other 180 are unread, so any wrong ones among them stay in. *Details the text left open (agent):*
+  shuffled pairs from one seeded permutation; paraphrase pairs are each set's 10 unordered pairs, so 20 groups of 10, the
+  negation pairs' shape, though a text recurs across its set's pairs; a topic under 3 pairs leaves the per-topic scope;
+  sessions' origins are their first 5 externals; a mirror's plane passes through its pairs' mean midpoint, and shuffling
+  keeps that mean, so its global distance to the shuffled centre is 0 by construction and the angle between the two
+  normals is reported instead. Centres for contraction and mirror are reported whichever form wins.
+- **Added after seeing the pairs, labelled so, judged by nothing:** the verdict on the 114 pairs whose opposite has a
+  negation word and on the other 86, because most opposites are an added "not". Beside these: how far apart statement
+  and opposite sit, the statements' own spread within a topic, and token lengths against the paraphrase texts, because
+  the statements are short and D was measured on longer texts; the verdict still uses D as written.
 - **Not done here:** relations between negation axes (angles, nesting) reuse these states; that probe gets its own
   reading before it runs, so this gate does not become the track.
 

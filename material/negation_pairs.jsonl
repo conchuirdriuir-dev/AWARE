@@ -1,0 +1,200 @@
+{"topic": "weather", "index": 0, "statement": "The morning fog lifted before the ferry left the harbour.", "opposite": "The morning fog did not lift before the ferry left the harbour.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 1, "statement": "Heavy rain falls on this coast every autumn.", "opposite": "Light rain does not fall on this coast every autumn.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 2, "statement": "The wind grew stronger as the afternoon went on.", "opposite": "The wind grew weaker as the afternoon went on.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 3, "statement": "Snow lay deep on the roads above the village.", "opposite": "No snow lay deep on the roads above the village.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 4, "statement": "Summers here are hotter than they were a generation ago.", "opposite": "Summers here are not hotter than they were a generation ago.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 5, "statement": "The storm passed quickly over the northern hills.", "opposite": "The storm lingered for a long time over the northern hills.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 6, "statement": "Dry air makes the cold feel milder.", "opposite": "Humid air makes the cold feel harsher.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 7, "statement": "The forecast for the weekend was accurate.", "opposite": "The forecast for the weekend was not accurate.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 8, "statement": "Thunder frightened the horses in the lower field.", "opposite": "The horses in the lower field were not frightened by thunder.", "by": "model", "cut_off": false}
+{"topic": "weather", "index": 9, "statement": "The lake freezes solid by the middle of January.", "opposite": "The lake does not freeze solid by the middle of January.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 0, "statement": "The soup tastes better on the second day.", "opposite": "The soup tastes worse on the second day.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 1, "statement": "Fresh bread cools fastest on a wire rack.", "opposite": "Fresh bread cools slowest on a wire rack.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 2, "statement": "Salt brings out the sweetness of ripe tomatoes.", "opposite": "Salt masks the sweetness of ripe tomatoes.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 3, "statement": "The chef added the butter at the very end.", "opposite": "The chef did not add the butter at the very end.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 4, "statement": "This recipe is easy for a beginner to follow.", "opposite": "This recipe is difficult for a beginner to follow.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 5, "statement": "Onions soften slowly over a low heat.", "opposite": "Onions soften quickly over a high heat.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 6, "statement": "The cake rose evenly in the old oven.", "opposite": "The cake did not rise evenly in the old oven.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 7, "statement": "Garlic burns quickly in hot oil.", "opposite": "Garlic does not burn quickly in hot oil.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 8, "statement": "The stew was too spicy for the children.", "opposite": "The stew was not too spicy for the children.", "by": "model", "cut_off": false}
+{"topic": "cooking", "index": 9, "statement": "Long resting makes the dough easier to shape.", "opposite": "Short resting makes the dough harder to shape.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 0, "statement": "The evening train to the coast was crowded.", "opposite": "The evening train to the coast was not crowded.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 1, "statement": "The new line shortened the journey to the capital.", "opposite": "The new line lengthened the journey to the capital.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 2, "statement": "Passengers waited calmly on the platform during the delay.", "opposite": "Passengers grew restless and agitated on the platform during the delay.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 3, "statement": "Night trains are cheaper than the morning express.", "opposite": "Morning express is cheaper than the night trains.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 4, "statement": "The conductor checked every ticket before the first stop.", "opposite": "The conductor did not check any ticket before the first stop.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 5, "statement": "The station closes at midnight on weekdays.", "opposite": "The station is open at midnight on weekdays.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 6, "statement": "Freight trains run through the town after dark.", "opposite": "Freight trains do not run through the town after dark.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 7, "statement": "The carriage was warm and quiet all the way.", "opposite": "The carriage was cold and noisy all the way.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 8, "statement": "The timetable changed at the start of the year.", "opposite": "The timetable did not change at the start of the year.", "by": "model", "cut_off": false}
+{"topic": "trains", "index": 9, "statement": "Most commuters prefer the seats near the doors.", "opposite": "Most commuters prefer the seats away from the doors.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 0, "statement": "The roses bloomed early along the south wall.", "opposite": "The roses did not bloom early along the south wall.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 1, "statement": "Clay soil holds water for a long time.", "opposite": "Sandy soil holds water for a short time.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 2, "statement": "The apple tree produced a large crop this year.", "opposite": "The apple tree did not produce a large crop this year.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 3, "statement": "Slugs ate most of the young lettuce.", "opposite": "No slugs ate the young lettuce.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 4, "statement": "The gardener pruned the hedge in late winter.", "opposite": "The gardener did not prune the hedge in late winter.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 5, "statement": "Bees visit the lavender throughout the summer.", "opposite": "Bees do not visit the lavender throughout the summer.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 6, "statement": "The vegetable beds get plenty of sunlight.", "opposite": "The vegetable beds do not get plenty of sunlight.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 7, "statement": "Compost improves the soil within a single season.", "opposite": "Compost does not improve the soil within a single season.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 8, "statement": "The pond attracted frogs in its first spring.", "opposite": "The pond did not attract frogs in its first spring.", "by": "model", "cut_off": false}
+{"topic": "gardens", "index": 9, "statement": "Tall sunflowers shaded the smaller plants behind them.", "opposite": "Short sunflowers shaded the taller plants behind them.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 0, "statement": "Rents rose sharply in the city last year.", "opposite": "Rents fell sharply in the city last year.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 1, "statement": "The family saved enough for a deposit on a house.", "opposite": "The family did not save enough for a deposit on a house.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 2, "statement": "Interest rates are higher now than in the spring.", "opposite": "Interest rates are lower now than in the spring.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 3, "statement": "The loan was repaid ahead of schedule.", "opposite": "The loan was not repaid ahead of schedule.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 4, "statement": "Her salary covers all of the monthly bills.", "opposite": "Her salary does not cover all of the monthly bills.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 5, "statement": "The bank approved the application within a week.", "opposite": "The bank did not approve the application within a week.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 6, "statement": "Prices at the market have stayed steady since June.", "opposite": "Prices at the market have decreased since June.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 7, "statement": "He spends more on travel than on food.", "opposite": "He spends more on food than on travel.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 8, "statement": "The business made a profit in its first year.", "opposite": "The business did not make a profit in its first year.", "by": "model", "cut_off": false}
+{"topic": "money", "index": 9, "statement": "Small savings grow into large sums over decades.", "opposite": "Large savings do not grow into large sums over decades.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 0, "statement": "Children fall asleep faster after a long day outdoors.", "opposite": "Children fall asleep more slowly after a long day outdoors.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 1, "statement": "The baby slept through the whole night.", "opposite": "The baby did not sleep through the whole night.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 2, "statement": "Coffee in the evening keeps him awake.", "opposite": "Coffee in the evening makes him sleepy.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 3, "statement": "A dark room helps most people rest.", "opposite": "A dark room hinders most people from resting.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 4, "statement": "She woke up refreshed after a short nap.", "opposite": "She woke up tired after a short nap.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 5, "statement": "Older adults tend to rise early in the morning.", "opposite": "Younger adults tend to rise early in the morning.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 6, "statement": "The noise from the street disturbed his sleep.", "opposite": "The noise from the street did not disturb his sleep.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 7, "statement": "Regular bedtimes make mornings easier.", "opposite": "Irregular bedtimes make mornings easier.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 8, "statement": "He remembers his dreams clearly on most days.", "opposite": "He does not remember his dreams clearly on most days.", "by": "model", "cut_off": false}
+{"topic": "sleep", "index": 9, "statement": "The new mattress eased the pain in her back.", "opposite": "The new mattress worsened the pain in her back.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 0, "statement": "The pupils enjoyed the science lesson on magnets.", "opposite": "The pupils did not enjoy the science lesson on magnets.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 1, "statement": "Small classes help shy children to speak up.", "opposite": "Small classes do not help shy children to speak up.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 2, "statement": "The school opened a new library in September.", "opposite": "The school did not open a new library in September.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 3, "statement": "Homework takes longer in the final year.", "opposite": "Homework takes less time in the final year.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 4, "statement": "The teacher praised the whole class for its effort.", "opposite": "The teacher criticized the whole class for its lack of effort.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 5, "statement": "Students performed well on the reading test.", "opposite": "Students did not perform well on the reading test.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 6, "statement": "The headmaster supported the change to the timetable.", "opposite": "The headmaster did not support the change to the timetable.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 7, "statement": "Most of the children walk to school in spring.", "opposite": "Few of the children walk to school in spring.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 8, "statement": "The exam was harder than the practice papers.", "opposite": "The exam was easier than the practice papers.", "by": "model", "cut_off": false}
+{"topic": "schools", "index": 9, "statement": "Her favourite subject has always been history.", "opposite": "Her favourite subject has never been history.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 0, "statement": "The river flooded the meadow after the thaw.", "opposite": "The river did not flood the meadow after the thaw.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 1, "statement": "Salmon return to this stream every year.", "opposite": "Salmon do not return to this stream every year.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 2, "statement": "The water runs clear above the old mill.", "opposite": "The water runs murky below the old mill.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 3, "statement": "The bridge stands at the narrowest point of the river.", "opposite": "The bridge does not stand at the narrowest point of the river.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 4, "statement": "Barges carried coal down the canal for a century.", "opposite": "Barges did not carry coal down the canal for a century.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 5, "statement": "The current is strongest near the eastern bank.", "opposite": "The current is weakest near the eastern bank.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 6, "statement": "The river widens as it approaches the sea.", "opposite": "The river narrows as it approaches the sea.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 7, "statement": "Anglers crowd the banks on summer weekends.", "opposite": "Few anglers gather at the banks on summer weekends.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 8, "statement": "The new dam raised the level of the upper valley.", "opposite": "The new dam lowered the level of the upper valley.", "by": "model", "cut_off": false}
+{"topic": "rivers", "index": 9, "statement": "The stream dries up during hot summers.", "opposite": "The stream does not dry up during hot summers.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 0, "statement": "The orchestra played the final movement too fast.", "opposite": "The orchestra played the final movement too slowly.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 1, "statement": "The audience applauded loudly at the end of the concert.", "opposite": "The audience did not applaud loudly at the end of the concert.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 2, "statement": "Her voice sounds richer in the lower register.", "opposite": "Her voice sounds thinner in the lower register.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 3, "statement": "The band released a successful album last spring.", "opposite": "The band did not release a successful album last spring.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 4, "statement": "He learned the piano from his grandmother.", "opposite": "He did not learn the piano from his grandmother.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 5, "statement": "The violin section was in tune throughout.", "opposite": "The violin section was not in tune throughout.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 6, "statement": "This song is popular with younger listeners.", "opposite": "This song is not popular with younger listeners.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 7, "statement": "The drummer kept a steady beat all night.", "opposite": "The drummer did not keep a steady beat all night.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 8, "statement": "The hall has excellent acoustics for choral music.", "opposite": "The hall has poor acoustics for choral music.", "by": "model", "cut_off": false}
+{"topic": "music", "index": 9, "statement": "Practising scales improved her playing within a month.", "opposite": "Practising scales did not improve her playing within a month.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 0, "statement": "The treatment reduced the patient's fever within a day.", "opposite": "The treatment did not reduce the patient's fever within a day.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 1, "statement": "Regular exercise lowers the risk of heart disease.", "opposite": "Regular exercise increases the risk of heart disease.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 2, "statement": "The wound healed cleanly after the operation.", "opposite": "The wound did not heal cleanly after the operation.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 3, "statement": "The doctor recommended a higher dose.", "opposite": "The doctor recommended a lower dose.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 4, "statement": "The clinic is open to everyone in the district.", "opposite": "The clinic is open only to a select group within the district.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 5, "statement": "This vaccine protects against the common strain.", "opposite": "This vaccine does not protect against the common strain.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 6, "statement": "The symptoms appeared soon after the journey.", "opposite": "The symptoms did not appear soon after the journey.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 7, "statement": "The nurse noticed the change in his breathing.", "opposite": "The nurse did not notice the change in his breathing.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 8, "statement": "The new drug is safe for pregnant women.", "opposite": "The new drug is not safe for pregnant women.", "by": "model", "cut_off": false}
+{"topic": "medicine", "index": 9, "statement": "Her recovery was faster than the surgeon expected.", "opposite": "Her recovery was slower than the surgeon expected.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 0, "statement": "The home team won the match in the last minute.", "opposite": "The home team did not win the match in the last minute.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 1, "statement": "The goalkeeper saved the penalty with his left hand.", "opposite": "The goalkeeper did not save the penalty with his left hand.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 2, "statement": "She runs faster on a dry track.", "opposite": "She runs slower on a dry track.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 3, "statement": "The coach kept the same players for the final.", "opposite": "The coach changed the players for the final.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 4, "statement": "The crowd stayed until the final whistle.", "opposite": "The crowd left before the final whistle.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 5, "statement": "The young striker scored twice in the first half.", "opposite": "The young striker did not score twice in the first half.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 6, "statement": "Swimmers train hardest in the months before a race.", "opposite": "Swimmers train least in the months before a race.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 7, "statement": "The referee made the right decision on the foul.", "opposite": "The referee made the wrong decision on the foul.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 8, "statement": "The club signed a new captain over the summer.", "opposite": "The club did not sign a new captain over the summer.", "by": "model", "cut_off": false}
+{"topic": "sport", "index": 9, "statement": "The tournament attracted more visitors than last year.", "opposite": "The tournament attracted fewer visitors than last year.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 0, "statement": "Swallows arrive here at the start of April.", "opposite": "Swallows do not arrive here at the start of April.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 1, "statement": "The owl hunts mainly at night.", "opposite": "The owl hunts mainly during the day.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 2, "statement": "The robin defended its territory all winter.", "opposite": "The robin did not defend its territory all winter.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 3, "statement": "Geese fly south in large flocks each autumn.", "opposite": "Geese do not fly south in large flocks each autumn.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 4, "statement": "The nest held four pale blue eggs.", "opposite": "The nest held no pale blue eggs.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 5, "statement": "Crows learn quickly to open the bins.", "opposite": "Crows do not learn quickly to open the bins.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 6, "statement": "The male bird has brighter feathers than the female.", "opposite": "The male bird has duller feathers than the female.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 7, "statement": "Gulls follow the fishing boats back to port.", "opposite": "Gulls do not follow the fishing boats back to port.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 8, "statement": "The eagle returned to the same cliff each year.", "opposite": "The eagle did not return to the same cliff each year.", "by": "model", "cut_off": false}
+{"topic": "birds", "index": 9, "statement": "Sparrows have become common in the city centre.", "opposite": "Sparrows have become rare in the city centre.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 0, "statement": "The old house stays cool during the summer.", "opposite": "The old house does not stay cool during the summer.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 1, "statement": "The roof was repaired before the winter rains.", "opposite": "The roof was not repaired before the winter rains.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 2, "statement": "The kitchen is the largest room in the flat.", "opposite": "The kitchen is not the largest room in the flat.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 3, "statement": "Thick walls keep the street noise out.", "opposite": "Thick walls let the street noise in.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 4, "statement": "The neighbours painted their front door bright red.", "opposite": "The neighbours did not paint their front door bright red.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 5, "statement": "The stairs creak loudly at night.", "opposite": "The stairs do not creak loudly at night.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 6, "statement": "The new windows lowered the heating bills.", "opposite": "The new windows raised the heating bills.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 7, "statement": "The attic is full of old furniture.", "opposite": "The attic is empty of old furniture.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 8, "statement": "The cottage stands close to the main road.", "opposite": "The cottage stands far from the main road.", "by": "model", "cut_off": false}
+{"topic": "houses", "index": 9, "statement": "Their building has a lift and a shared garden.", "opposite": "Their building does not have a lift and does not have a shared garden.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 0, "statement": "The program runs faster on the new server.", "opposite": "The program runs slower on the new server.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 1, "statement": "The update fixed the bug in the login page.", "opposite": "The update did not fix the bug in the login page.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 2, "statement": "The backup finished before the power went off.", "opposite": "The backup finished after the power went off.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 3, "statement": "This laptop has a long battery life.", "opposite": "This laptop does not have a long battery life.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 4, "statement": "The network slows down in the evenings.", "opposite": "The network speeds up in the evenings.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 5, "statement": "The file was saved to the shared drive.", "opposite": "The file was not saved to the shared drive.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 6, "statement": "The test suite passed on the first attempt.", "opposite": "The test suite failed on the first attempt.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 7, "statement": "The website handled the traffic well on launch day.", "opposite": "The website did not handle the traffic well on launch day.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 8, "statement": "Her password was stored securely on the device.", "opposite": "Her password was not stored securely on the device.", "by": "model", "cut_off": false}
+{"topic": "computers", "index": 9, "statement": "The software is simple for new users to install.", "opposite": "The software is difficult for new users to install.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 0, "statement": "The two friends trusted each other completely.", "opposite": "The two friends did not trust each other at all.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 1, "statement": "He called his sister as soon as he heard the news.", "opposite": "He did not call his sister as soon as he heard the news.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 2, "statement": "She forgave him for missing the wedding.", "opposite": "She did not forgive him for missing the wedding.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 3, "statement": "They have kept in touch since their school days.", "opposite": "They have not kept in touch since their school days.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 4, "statement": "The neighbours helped each other during the flood.", "opposite": "The neighbours did not help each other during the flood.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 5, "statement": "He told his friend the truth about the money.", "opposite": "He told his friend a lie about the money.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 6, "statement": "Old friends are the easiest company on a long trip.", "opposite": "Old friends are not the easiest company on a long trip.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 7, "statement": "She felt welcome at the party from the moment she arrived.", "opposite": "She did not feel welcome at the party from the moment she arrived.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 8, "statement": "The brothers agreed about the sale of the farm.", "opposite": "The brothers disagreed about the sale of the farm.", "by": "model", "cut_off": false}
+{"topic": "friendship", "index": 9, "statement": "Their friendship grew stronger after the move abroad.", "opposite": "Their friendship grew weaker after the move abroad.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 0, "statement": "The jury found the defendant guilty on all counts.", "opposite": "The jury found the defendant not guilty on all counts.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 1, "statement": "The judge allowed the new evidence.", "opposite": "The judge did not allow the new evidence.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 2, "statement": "The witness answered every question honestly.", "opposite": "The witness answered every question dishonestly.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 3, "statement": "The appeal succeeded at the second hearing.", "opposite": "The appeal failed at the second hearing.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 4, "statement": "The law applies equally to every citizen.", "opposite": "The law does not apply equally to every citizen.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 5, "statement": "The contract was valid when it was signed.", "opposite": "The contract was not valid when it was signed.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 6, "statement": "The lawyer arrived early for the hearing.", "opposite": "The lawyer arrived late for the hearing.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 7, "statement": "The court ordered the company to pay damages.", "opposite": "The court ruled that the company did not have to pay damages.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 8, "statement": "The trial was open to the public.", "opposite": "The trial was not open to the public.", "by": "model", "cut_off": false}
+{"topic": "courts", "index": 9, "statement": "The new rule made the process simpler for tenants.", "opposite": "The new rule made the process more complicated for tenants.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 0, "statement": "The corner shop opens early on Sundays.", "opposite": "The corner shop does not open early on Sundays.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 1, "statement": "Customers liked the new layout of the store.", "opposite": "Customers did not like the new layout of the store.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 2, "statement": "The bakery sold out of rolls by ten o'clock.", "opposite": "The bakery did not sell out of rolls by ten o'clock.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 3, "statement": "The shop assistant was friendly and patient.", "opposite": "The shop assistant was unfriendly and impatient.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 4, "statement": "Online orders arrive within two days.", "opposite": "Online orders do not arrive within two days.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 5, "statement": "The market is busiest on Saturday mornings.", "opposite": "The market is least busy on Saturday mornings.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 6, "statement": "The butcher lowered his prices after the holidays.", "opposite": "The butcher raised his prices after the holidays.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 7, "statement": "This brand of soap is popular with tourists.", "opposite": "This brand of soap is not popular with tourists.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 8, "statement": "The store accepted the returned coat.", "opposite": "The store did not accept the returned coat.", "by": "model", "cut_off": false}
+{"topic": "shops", "index": 9, "statement": "The new supermarket drew trade from the high street.", "opposite": "The new supermarket did not draw trade from the high street.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 0, "statement": "The climbers reached the summit before noon.", "opposite": "The climbers did not reach the summit before noon.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 1, "statement": "The path to the pass is steep and narrow.", "opposite": "The path to the pass is not steep and not narrow.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 2, "statement": "The air grows thinner at higher altitudes.", "opposite": "The air becomes denser at higher altitudes.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 3, "statement": "The hut was open for walkers throughout the summer.", "opposite": "The hut was closed for walkers throughout the summer.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 4, "statement": "The glacier has retreated far up the valley.", "opposite": "The glacier has advanced down the valley.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 5, "statement": "The guide knew the safest route across the ridge.", "opposite": "The guide did not know the safest route across the ridge.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 6, "statement": "Goats graze on the upper slopes in July.", "opposite": "Goats do not graze on the upper slopes in July.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 7, "statement": "The view from the top was clear that day.", "opposite": "The view from the top was not clear that day.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 8, "statement": "An avalanche blocked the road to the village.", "opposite": "The road to the village was not blocked by an avalanche.", "by": "model", "cut_off": false}
+{"topic": "mountains", "index": 9, "statement": "The north face is the hardest climb in the range.", "opposite": "The north face is not the hardest climb in the range.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 0, "statement": "The painting sold for a high price at auction.", "opposite": "The painting sold for a low price at auction.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 1, "statement": "The artist worked mostly in dark colours.", "opposite": "The artist worked mostly in light colours.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 2, "statement": "Critics admired the sculpture in the main square.", "opposite": "Critics disapproved of the sculpture in the main square.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 3, "statement": "The gallery was crowded on the opening night.", "opposite": "The gallery was not crowded on the opening night.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 4, "statement": "The portrait is an accurate likeness of the queen.", "opposite": "The portrait is not an accurate likeness of the queen.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 5, "statement": "Her early drawings show great confidence.", "opposite": "Her early drawings show little confidence.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 6, "statement": "The museum acquired the collection last year.", "opposite": "The museum did not acquire the collection last year.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 7, "statement": "Light from the tall windows flatters the canvases.", "opposite": "Darkness from the tall windows distorts the canvases.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 8, "statement": "The exhibition was moved to a larger hall.", "opposite": "The exhibition was moved to a smaller hall.", "by": "model", "cut_off": false}
+{"topic": "art", "index": 9, "statement": "The mural brightened the whole of the street.", "opposite": "The mural darkened the whole of the street.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 0, "statement": "The manager approved the budget for next year.", "opposite": "The manager did not approve the budget for next year.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 1, "statement": "The team finished the project ahead of the deadline.", "opposite": "The team finished the project after the deadline.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 2, "statement": "She enjoys working from home on Fridays.", "opposite": "She does not enjoy working from home on Fridays.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 3, "statement": "The meeting ended earlier than planned.", "opposite": "The meeting did not end earlier than planned.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 4, "statement": "New staff learn the system within a few weeks.", "opposite": "New staff do not learn the system within a few weeks.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 5, "statement": "The company promoted him after two years.", "opposite": "The company did not promote him after two years.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 6, "statement": "The office is quiet in the early morning.", "opposite": "The office is noisy in the early morning.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 7, "statement": "The client was pleased with the first draft.", "opposite": "The client was not pleased with the first draft.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 8, "statement": "Most employees support the new working hours.", "opposite": "Few employees support the new working hours.", "by": "model", "cut_off": false}
+{"topic": "work", "index": 9, "statement": "The factory hired more workers in the spring.", "opposite": "The factory hired fewer workers in the spring.", "by": "model", "cut_off": false}

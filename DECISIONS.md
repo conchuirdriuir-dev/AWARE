@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Gate 1: a contraction with λ within 0.1 of 1 counts as additive, no rival and no win** (owner), before any
+  state of a pair was read. As first written additive could never win. The first wording's verdict is reported beside.
+- 2026-11-02: **Gate 1's opposites: 2 of the 20 read are wrong, 2 borderline, 16 fine** (owner); left in, and the verdict
+  reported with and without. The model wrote them; the other 180 are unread.
 - 2026-11-02: **Substrate: the reader finds the attention sink by norm, not by position** (owner). Earlier runs and the
   product's labelled logs, which rest on the position rule, keep it (`sink="first"`) so their records can be rebuilt.
 - 2026-11-02: **Gate 1's 200 statements are frozen as they are** (owner); drafted by the model.

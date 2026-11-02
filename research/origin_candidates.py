@@ -30,27 +30,12 @@ def mirror_shifts(dc: np.ndarray, means: np.ndarray) -> np.ndarray:
     return np.array(out)
 
 
-def main(argv=None):
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--run", required=True)
-    p.add_argument("--sink-run", required=True)
-    p.add_argument("--corpus", required=True)
-    a = p.parse_args(argv)
+def earliest_externals(reader, paths, layers) -> tuple[np.ndarray, np.ndarray, list]:
+    """Each session's first 5 and first 10 external chunks, read alone and averaged: (sessions, layers, width) twice, with
+    the chunk references used. References only: no chunk text leaves here."""
     from substrate.corpus import load_session
-    from substrate.echo_floor import corpus_paths
-    from substrate.states import Reader
 
-    paths = corpus_paths(a.corpus)
-    record = Record(Path(a.run) / "record.jsonl")
-    reader = Reader(MODEL, device="auto", gpu_memory=6.5)
     tok = reader.tokenizer
-    record.append("run", "code", **reader.info, read_layers=REPORT, sink_run=a.sink_run, draft=True)
-
-    S = np.load(Path(a.sink_run) / "states.npy").astype(float)     # sets, texts, LAYERS, width
-    reports = [json.loads(line) for line in (Path(a.sink_run) / "record.jsonl").open()]
-    D_rows = [r for r in reports if r["kind"] == "report"][-1]["layers"]
-    D = {r["layer"]: r["D"] for r in D_rows}
-
     rng = np.random.default_rng(0)
     order = [paths[i] for i in rng.permutation(len(paths))]
     five, ten, refs = [], [], []
@@ -67,13 +52,35 @@ def main(argv=None):
                 used.append(c["ref"])
             if len(texts) == 10:
                 break
-        A = reader.states(texts, REPORT).astype(float)
+        A = reader.states(texts, layers).astype(float)
         five.append(A[:5].mean(0))
         ten.append(A.mean(0))
         refs.append(used)
         if len(five) == N_SESSIONS:
             break
-    five, ten = np.stack(five), np.stack(ten)
+    return np.stack(five), np.stack(ten), refs
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--run", required=True)
+    p.add_argument("--sink-run", required=True)
+    p.add_argument("--corpus", required=True)
+    a = p.parse_args(argv)
+    from substrate.echo_floor import corpus_paths
+    from substrate.states import Reader
+
+    paths = corpus_paths(a.corpus)
+    record = Record(Path(a.run) / "record.jsonl")
+    reader = Reader(MODEL, device="auto", gpu_memory=6.5)
+    record.append("run", "code", **reader.info, read_layers=REPORT, sink_run=a.sink_run, draft=True)
+
+    S = np.load(Path(a.sink_run) / "states.npy").astype(float)     # sets, texts, LAYERS, width
+    reports = [json.loads(line) for line in (Path(a.sink_run) / "record.jsonl").open()]
+    D_rows = [r for r in reports if r["kind"] == "report"][-1]["layers"]
+    D = {r["layer"]: r["D"] for r in D_rows}
+
+    five, ten, refs = earliest_externals(reader, paths, REPORT)
     record.append("earliest externals", "code", refs=refs)
 
     print(f"{'layer':>5} {'D':>7} {'radius':>7} {'zero':>7} {'all5':>7} {'sess med':>9} {'range':>15} {'s-s med':>8} "
