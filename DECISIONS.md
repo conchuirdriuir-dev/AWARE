@@ -2,6 +2,36 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **PR #17 and PR #18 reconciled** (owner, choosing among the agent's drafted options). The goal-space proposal
+  (PR #17, its DECISIONS lines of 2026-11-01) and the one-loop frame (PR #18, the lines below) were decided a day apart
+  without reference to each other. The lines that follow settle where they differ; where one of them and either PR's
+  line disagree, it holds.
+- 2026-11-02: **The parent frame is the one loop** (owner). Levin's three criteria (PR #17) are constraints the loop must
+  meet, not a rival frame.
+- 2026-11-02: **The base weights never change** (owner; substrate). Whatever consolidation learns is held as a graft (an
+  adapter, or runtime memory) that can be removed without damaging the whole: Levin's second criterion, tested by step 6's
+  rollback. Supersedes "frozen only for testing and exploration" below as far as the base weights go. Nothing is trained
+  before a written test.
+- 2026-11-02: **The goal's wording is PR #17's restatement** (owner): an architecture for an agent to discover, and safely
+  orient itself and the user toward, a mechanistically inferred pattern in goal-space, using MDL, steering and
+  interrogation. "The restated goal" is no longer open.
+- 2026-11-02: **The agent's own formula is an instrument, not a goal** (owner). PR #17's T1, the agent understanding its
+  own pattern, stays as a measure; goals of the entity's own stay parked. Understanding its own pattern is not having one.
+- 2026-11-02: **Steering and MDL stand as PR #17 recorded them** (owner; substrate). Steering, writing to activations,
+  joins the direction as an intervention beside removal, injection and prefill. MDL is the principle for fitting the
+  owner's formula; causal authorship does not use it.
+- 2026-11-02: **Authorship, two directions, two measures** (owner). What caused the agent's output is read by
+  intervention (causal authorship). How independent the owner's statement is of the agent is read by arrival cause and
+  news read alone against alone (PR #17), since a person cannot be re-run with a source removed. Neither stands in for
+  the other.
+- 2026-11-02: **One rule for pass bars** (owner). No two tests share a pass criterion, and a functional result never
+  stands in for an instrument's accuracy, or the reverse. Replaces both PRs' wordings in CLAUDE.md.
+- 2026-11-02: **T2 reads with the rule it was registered under** (owner). Its reader passes `sink="first"`; the default's
+  move to the sink by norm does not reach a test already registered. Applied when PR #17 is rebased.
+- 2026-11-02: **T2b's marking pass is also the owner's confirmations for consolidation** (owner). The reversed, kept and
+  ascent marks key T2b and later check what step 6 trains. Collected once, blind to every reading.
+- 2026-11-02: **Merge order** (owner): PR #18 first; PR #17 rebased onto it, with T2 and T2b added to PLAN's "Current
+  state and direction".
 - 2026-11-02: **One project, one loop; measures kept separate** (owner). Product and research are tied together by adaptive
   learning, as the owner sees it for now. A functional result never stands in for an instrument's accuracy, or the reverse.
 - 2026-11-02: **The user's goals are the ego's standard** (owner), since learning needs a concrete target. This replaces, for

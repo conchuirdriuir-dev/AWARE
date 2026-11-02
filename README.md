@@ -2,8 +2,8 @@
 
 The goal, in the owner's words: "The agent should function as if it is aware, even without metacognition machinery."
 
-The entity is a trajectory through a local model's activation space (the model frozen during testing and exploration,
-not permanently), with an observer riding alongside it: a
+The entity is a trajectory through a local model's activation space (the base weights never changed;
+anything learned is a removable graft), with an observer riding alongside it: a
 retained low-dimensional code fit to the trajectory, and a model of the trajectory's dynamics in that code. Everything
 the project does is a use of that observer. The design is the Big Picture doc
 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a Claude Doc; its Entity tab is the parent).

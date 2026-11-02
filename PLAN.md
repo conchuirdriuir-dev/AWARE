@@ -22,14 +22,18 @@ when its test passes, not when its code exists.
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
-allowed; leap versus gradient waits until something works; the weights are frozen only for testing and exploration. Gate 1
-ran, undecided, and rests there. The goal's wording is still the owner's to restate.
+allowed; leap versus gradient waits until something works. Gate 1 ran, undecided, and rests there. Reconciled with PR #17
+the same day (DECISIONS.md): the goal's wording is PR #17's restatement; the base weights never change, and whatever is
+learned is held as a removable graft; Levin's three criteria constrain the loop; steering joins the interventions.
 
 **The frame, the owner's 2026-11-02, as the owner sees it for now.** Product and research are one thing, tied together by
 adaptive learning: the user directs the goal, drift is measured against it, an ego module evaluates what gets trained and how
 interventions happen, and the model consolidates to improve reasoning in general. So it is practical and experimental at
 once. The user's goals are the ego's standard, because learning needs a concrete target; goals of the entity's own stay
-parked. Measures stay separate: a functional result never stands in for an instrument's accuracy, or the reverse.
+parked; the agent's own formula is read as an instrument, not held as a goal. Measures stay separate: no two tests share a
+pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
+(PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
+seeks to understand the owner's formula and its own.
 
 **Running or just run.** Causal authorship on the 40 frozen conversations, about 7 hours, started 2026-11-02:
 `python -u -m research.authorship --run runs/authorship-qwen8b` (commit `2cb3e6a`). A killed run resumes if the same
@@ -47,7 +51,7 @@ since the source shows in the text. That result would not end the direction.
 | 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
-| 6 | Consolidate: the ego selects what gets trained, using the source as credit, and the model learns between sessions, frozen while working. Checked against the user's confirmations and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
+| 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
 
 *Proposed by the agent, not yet decided by the owner:* after step 2, a small feasibility probe of step 6, because it is the largest
 unknown and everything now leads to it: a small adapter over fixed base weights, trained on a few corrections, on this
@@ -66,11 +70,12 @@ criterion's test and relations.
 **Known weak links.** Drift against a goal is not yet reliable: the labelled logs did not support the batch claim, and the
 toy bed's observer never froze. A judge that trains what it favours could make capture permanent.
 
-**Open, for the owner.** What ends the testing and exploration phase, so that unfreezing can be considered. The restated goal.
+**Open, for the owner.** What ends the testing and exploration phase, so that training a graft can be considered. Where
+steering sits in the direction's order.
 
 ## Substrate (`substrate/`)
 
-The Entity tab's decisions, as code: the base model frozen during testing and exploration, not permanently (states read
+The Entity tab's decisions, as code: the base weights never changed, with anything learned held as a removable graft (states read
 through nnterp, `states.py`); the code
 retained, not consumed (`axes.py`: every axis considered is kept); admission by two criteria (predictive: lowers
 held-out residual by more than D; otherwise structural, tagged untested, until the research track states a test);

@@ -6,8 +6,9 @@ the parent); it takes precedence over this repository. Work serves the current s
 that can pass it. Propose a change to the doc or the plan rather than widening a build.
 
 - **One project, one loop, measures kept apart** (owner, 2026-11-02). The user's goal, drift against it, a judge, an
-  intervention, consolidation. A functional measure (does the agent hold the user's goal better?) and an instrument measure
-  (is this reading accurate?) never share a pass bar, and neither stands in for the other. `product/` and `research/` stay
+  intervention, consolidation. No two tests share a pass criterion, and a functional measure (does the agent hold the
+  user's goal better?) never stands in for an instrument measure (is this reading accurate?), or the reverse. The base
+  weights never change; what is learned is a removable graft. `product/` and `research/` stay
   separate directories and neither imports the other; both import `substrate/`. Work may not delete, refit away or repurpose
   retained or structural axes. A change to `substrate/` is the owner's decision, with a line in DECISIONS.md.
 - **Watch for the known failure mode.** The capacity with the cleanest test re-derives everything around itself (DARA,
