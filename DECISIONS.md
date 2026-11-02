@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Causal authorship's 40 conversations are frozen as they are** (owner); drafted by the model. Their second
+  wordings are close rewrites, so the wording check is the easier for it.
 - 2026-11-02: **The research track's question is causal authorship: which source made this output happen** (owner), not
   fit and not who produced the tokens, which the log already knows. What the owner called attribution in another session.
   Axes stay retained and are not needed for this; Gate 1 rests at undecided.
