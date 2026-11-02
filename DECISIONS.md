@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **One project, one loop; measures kept separate** (owner). Product and research are tied together by adaptive
+  learning, as the owner sees it for now. A functional result never stands in for an instrument's accuracy, or the reverse.
+- 2026-11-02: **The user's goals are the ego's standard** (owner), since learning needs a concrete target. This replaces, for
+  now, 2026-11-01's split between the owner's goal in the product and the entity's own in research; those stay parked.
 - 2026-11-02: **The base model is frozen only for testing and exploration, not permanently** (owner). A substrate decision;
   the Entity tab changed. Unfreezing is the owner's, with a written test first. What ends the phase is not yet decided.
 - 2026-11-02: **The research direction, in order** (owner): intervention; injection and prefill; a cheap read; source crossed

@@ -8,7 +8,8 @@ retained low-dimensional code fit to the trajectory, and a model of the trajecto
 the project does is a use of that observer. The design is the Big Picture doc
 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a Claude Doc; its Entity tab is the parent).
 
-Two tracks share one substrate and are kept apart ([PLAN.md](PLAN.md)):
+Since 2026-11-02 these are one project and one loop, with their measures kept apart ([PLAN.md](PLAN.md)). The two tracks
+as they were built:
 - **Product: drift detection, then self-correction** (`product/`). The demo: it catches the loop from the shape, not
   the words.
 - **Research: reasoning over the entity's own axes** (`research/`). Relations, operations, composition and order. No

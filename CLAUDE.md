@@ -5,11 +5,16 @@ running and what comes next. Update that section whenever either changes. The de
 the parent); it takes precedence over this repository. Work serves the current step's test; build the simplest thing
 that can pass it. Propose a change to the doc or the plan rather than widening a build.
 
-- **Two tracks, kept apart.** Product (`product/`) and research (`research/`) never share a pass criterion, and neither
-  imports the other; both import `substrate/`. Product work may not delete, refit away or repurpose retained or
-  structural axes. A change to `substrate/` is a substrate decision: the owner's, with a line in DECISIONS.md.
+- **One project, one loop, measures kept apart** (owner, 2026-11-02). The user's goal, drift against it, a judge, an
+  intervention, consolidation. A functional measure (does the agent hold the user's goal better?) and an instrument measure
+  (is this reading accurate?) never share a pass bar, and neither stands in for the other. `product/` and `research/` stay
+  separate directories and neither imports the other; both import `substrate/`. Work may not delete, refit away or repurpose
+  retained or structural axes. A change to `substrate/` is the owner's decision, with a line in DECISIONS.md.
 - **Watch for the known failure mode.** The capacity with the cleanest test re-derives everything around itself (DARA,
-  then drift detection in v1–v9). If a change makes the research track serve the product's bar, stop and say so.
+  then drift detection in v1–v9). If a change lets a functional result stand in for an instrument's accuracy, or the
+  reverse, stop and say so.
+- **The judge never marks its own work.** What gets consolidated is checked against the user's confirmations and held-out
+  tasks the judge never sees, with rollback.
 - **The record comes first.** Append everything; anything else is derived from it and can be rebuilt. Activations are
   derived: a cache, rebuilt by replaying the forward pass from the recorded text, model and revision.
 - **Label who said what:** the person, the model, the code. Stated and inferred are kept apart.

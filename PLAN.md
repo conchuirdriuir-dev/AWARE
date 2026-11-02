@@ -7,7 +7,8 @@ tracks. The **Drift detection (v10)** tab is the product track's full treatment 
 "can end the project" line is ignored (owner, DECISIONS.md).
 Where this file and the doc differ, the doc wins and this file is corrected.
 
-**Two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
+**One project, one loop, measures kept apart (owner, 2026-11-02; "Current state and direction" below).** Before that, as
+built: **two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
 fast feedback; the research track (reasoning over the entity's own axes) has no demo yet and is the reason the project
 exists. They never share a pass criterion: the product's faster feedback would win every local decision. The
 substrate changes only by the owner's decision.
@@ -23,6 +24,12 @@ when its test passes, not when its code exists.
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
 allowed; leap versus gradient waits until something works; the weights are frozen only for testing and exploration. Gate 1
 ran, undecided, and rests there. The goal's wording is still the owner's to restate.
+
+**The frame, the owner's 2026-11-02, as the owner sees it for now.** Product and research are one thing, tied together by
+adaptive learning: the user directs the goal, drift is measured against it, an ego module evaluates what gets trained and how
+interventions happen, and the model consolidates to improve reasoning in general. So it is practical and experimental at
+once. The user's goals are the ego's standard, because learning needs a concrete target; goals of the entity's own stay
+parked. Measures stay separate: a functional result never stands in for an instrument's accuracy, or the reverse.
 
 **Running or just run.** Causal authorship on the 40 frozen conversations, about 7 hours, started 2026-11-02:
 `python -u -m research.authorship --run runs/authorship-qwen8b` (commit `2cb3e6a`). A killed run resumes if the same
@@ -40,16 +47,24 @@ since the source shows in the text. That result would not end the direction.
 | 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
+| 6 | Consolidate: the ego selects what gets trained, using the source as credit, and the model learns between sessions, frozen while working. Checked against the user's confirmations and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
+
+*Proposed by the agent, not yet decided by the owner:* after step 2, a small feasibility probe of step 6, because it is the largest
+unknown and everything now leads to it: a small adapter over fixed base weights, trained on a few corrections, on this
+hardware, with unrelated held-out tasks before and after and a check that rollback works.
 
 **How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and first
 a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each result,
 check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
 is now the likeliest to.
 
-**Parked.** A learning observer on two timescales, a DreamCoder-style library and distilling standing into the weights
-(from the owner's other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product
-step 4 now" is out of date). Each needs the owner's unfreezing decision and a written test first. Also behind this
-direction: axes on the real model, and with them the structural criterion's test and relations.
+**Parked.** Goals of the entity's own; a DreamCoder-style library, and distilling standing into the weights (from the owner's
+other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product step 4 now" is out
+of date; its learning ego is now step 6). Also behind this direction: axes on the real model, and with them the structural
+criterion's test and relations.
+
+**Known weak links.** Drift against a goal is not yet reliable: the labelled logs did not support the batch claim, and the
+toy bed's observer never froze. A judge that trains what it favours could make capture permanent.
 
 **Open, for the owner.** What ends the testing and exploration phase, so that unfreezing can be considered. The restated goal.
 
