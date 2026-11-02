@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **The focus moves to the research track, with the internals brought back** (owner). The product rests
+  after step 4's result (batch claim not supported); its next step is a baseline: the owner works with Claude Code,
+  no interventions, and labels the headaches. The placebo stage of step 4 is not run for now (it cannot change the
+  verdict); its checkpoints keep.
 - 2026-11-01: **A G pass must also hold over a placebo goal** (owner, from review PR #15): raw G stays the
   pre-registered reading, but it supports the batch claim only if G over the live aim's turn, divided by G over a
   length-matched aim from another session and line in the same slot and window, also clears 0.5. Window and goal
