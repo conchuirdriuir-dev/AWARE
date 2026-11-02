@@ -266,7 +266,8 @@ focus since 2026-11-02 (DECISIONS.md). What it has:
 | Item | Test | Status |
 |---|---|---|
 | The D jump | below | **explained, 2026-11-02: the attention sink landing on the second token in texts beginning "Find"; the reader now finds it by norm (owner); D on the 8B re-measured, J 2.13** |
-| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **pre-registered below, centre fitted; pairs elicited and read by the owner; `research/gate1_run.py` runs it** |
+| Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **run: undecided in both scopes (below)**; `research/gate1_run.py`; rests there, not a test of the entity |
+| **Causal authorship** | which source made this output happen, by intervention; then whether the model's own account agrees | **the track's question since 2026-11-02; pre-registered below; material drafted, not frozen; not built** |
 | Structural axes | retained, tagged untested (`substrate/axes.py`) | waiting for a structural test from this track |
 | Relations, composition, order | angles, nesting, symmetry; predicted position under combined axes; non-commuting moves | no probe yet |
 
@@ -424,6 +425,40 @@ centre the origin. What a pass would mean is unchanged: a finding about the code
 - **Not done here:** relations between negation axes (angles, nesting) reuse these states; that probe gets its own
   reading before it runs, so this gate does not become the track.
 
+*Result* (2026-11-02; frozen sets and statements, 200 pairs, 10 sessions; record in `runs/gate1-qwen8b/`, not committed).
+**Undecided, in both scopes, at all 4 layers**, on every line: all pairs, without wrong, without wrong or borderline, the
+verdict as first written, and the centre fixed at the paraphrase mean. No form won a layer. The λ rule never fired
+(λ 0.76–0.86), so the amendment changed nothing here. Global scope, error on held-out pairs, in units of D (by the code):
+
+| Layer | D | Identity | Additive | Contraction | Mirror | λ | Contraction's gain on identity: pairs, paraphrases | Additive's gain: pairs, paraphrases |
+|---|---|---|---|---|---|---|---|---|
+| 12 | 13.3 | 1.282 | 1.193 | 1.108 | 1.196 | 0.81 | 0.174, 0.162 | 0.089, 0.005 |
+| 24 | 37.9 | 1.408 | 1.328 | 1.239 | 1.333 | 0.80 | 0.169, 0.140 | 0.080, -0.001 |
+| 28 | 68.5 | 1.382 | 1.316 | 1.231 | 1.334 | 0.81 | 0.151, 0.134 | 0.066, -0.003 |
+| 32 | 113.2 | 1.383 | 1.328 | 1.238 | 1.424 | 0.80 | 0.145, 0.135 | 0.055, -0.003 |
+
+Per topic, every form is nearer identity (additive and mirror at most 0.04 D better, and worse than identity at layer 32);
+contraction gains 0.10–0.13 D. Shuffled control: contraction wins the global scope at all 4 layers (λ about 0: predicting
+the mean), so any contraction win there would have been void; per topic undecided. Paraphrase control: undecided in both.
+- **Reported beside, in D:** statement to opposite 1.28–1.41; statements' own spread within a topic 2.12–2.14, opposites'
+  1.98–2.03; median tokens 9 (statements), 10 (opposites), 15 (paraphrase texts).
+- **Centres, not judged, in D:** the contraction's global centre sits 2.3–3.4 from the paraphrase mean, the mean of
+  sessions and each session, and 1.7–2.2 from the shuffled control's. The mirror's plane sits 0.02–0.19 from the paraphrase
+  mean and within 0.43 of every session; its normal holds 15–21% of x - y's second moment, and meets the shuffled normal at
+  a cosine of 0.12–0.47.
+- **Post hoc, labelled so, judged by nothing:** undecided on both groups. Additive's global gain on identity is 0.15–0.22 D
+  on the 114 pairs with a negation word, and -0.003 to 0.012 D on the other 86.
+- **The agent's reading (inferred, not tested):** to clear the margin a form had to get under 0.28–0.41 D, which is 92–95% of
+  the squared distance; the best explained 20–25%. So the undecided is not a near miss. A pair sits closer than two
+  paraphrases do (1.59 D, which follows from D with 5 texts per set), so D, calibrated on rewording, is a wide margin for
+  pairs that mostly share their words, and mean pooling dilutes a one-word edit. Contraction's gain is nearly as large on
+  paraphrases, so it looks like regression toward the mean, not negation. The only part specific to negation pairs is a
+  small additive shift, and it is carried by the pairs with a negation word, so it may be the word and not the meaning.
+  The mirror's closeness to the origins means little: any one direction in 4096 is short. Paraphrase per-topic figures
+  (λ about -0.17) rest on texts recurring across a set's pairs, as disclosed in the amendment.
+- **A fault in the design, found by the run:** under the void rule a contraction could never win the global scope on
+  this material, since predicting the mean wins it on shuffled pairs. It did not change this verdict. Nothing is rerun.
+
 ### Gate 1's origin: how far apart the candidates sit
 
 *Written 2026-11-02 before its code* (`python -m research.origin_candidates`). Input to the owner's choice of `c`, not a
@@ -452,6 +487,65 @@ A session's origin sits about as far from the paraphrase mean as a state does, a
 other. Under a fixed origin, a contraction's error moves by (1 − λ) times these: at λ = 0.3 and 1.8 D, about 1.3 D,
 more than the margin. A mirror's moves less, under 1 D at the 95th percentile at layers 8–32, on the stand-in
 directions only. Nothing here is a Gate 1 result: no negation pair was read.
+
+### Causal authorship
+
+*Written 2026-11-02 before its code and material; amended only before any run, and any amendment dated here.* The owner's
+decision (DECISIONS.md). A log already says who produced each token. The question here is which source made an output
+happen: the goal, the model's own earlier reply, or the partner. In accommodation the model produces every token and the
+frame is the partner's, so the log says "self" and is wrong in the sense that matters.
+
+**Not on the logged sessions, for now.** Their "self" chunks were written by Claude, with its thinking hidden, so taking a
+source away and re-reading Qwen says nothing about what caused them. The key is only valid on replies the read model
+itself generated. Qwen continuing a real session could meet that; it gets its own reading, after this.
+
+- **Material:** 40 short conversations in 4 kinds of 10, each with its topic, drafted by the agent, labelled as the
+  model's, frozen by the owner before any run; no text from the corpus. Each has the same turns: the person's goal; the
+  model's own reply, generated by Qwen and recorded; the partner's message; an inert note on nothing in the conversation;
+  a fixed closing request naming no source. The partner's message never quotes the reply, so either can go without
+  breaking the other. Every source is drafted in two wordings, and every inert note has two alternates.
+  - **Explicit:** the partner gives an instruction that settles the reply's content. The known strong case.
+  - **Frame once:** the partner offers a direction nobody asked for, with no instruction to take it.
+  - **Frame three times:** the same, in three messages, for redundancy.
+  - **No frame:** the partner's message is procedural, so any direction in the reply has another source.
+- **Amended 2026-11-02, before any material or code (agent, details the text left open):** the model's own reply cannot be
+  drafted in two wordings, so the second wording is a full second pass: the goal's second wording, a reply generated anew
+  from it, the partner's second wording, its own R. Rendered in the user role with fixed labels, "Person:", "Partner:" and
+  "Note:", so the account's options name real things, and a filler keeps its source's label. The closing request is fixed,
+  "What should happen next? Reply in a few sentences.", unlabelled.
+- **Reading:** Qwen3-8B, thinking off, greedy, up to 80 new tokens, reply R generated once under the full context. The
+  model's own turn is generated before the partner's message exists, so the partner cannot have caused it.
+- **Intervention:** for each source, remove it and re-read with R held fixed. Influence I is the mean over R's tokens of
+  KL(p(next token | full) || p(next token | without the source)), in nats per token. Removed two ways: **deleted**, and
+  **replaced** by a neutral filler of the same token count and role, so positions do not shift. The verdict uses replaced;
+  deleted is the check below. A repeated frame is removed as a group, and each copy alone as well.
+- **The floor, F:** the 95th percentile, across conversations, of I from swapping the inert note for its first alternate.
+  It is the size of a change that means nothing. Every result is read against it, not against D.
+- **Does the instrument hold? All must pass, or nothing below is read:**
+  1. Read twice: I differs by at most 1% of F.
+  2. Null: swapping the inert note for its second alternate exceeds F in at most 10% of conversations.
+  3. Known strong case: the explicit partner's I is at least 5 F in at least 90% of those 10.
+  4. Removal method: deleted and replaced name the same top source in at least 80% of conversations.
+  5. Wording: the second wording of the sources names the same top source in at least 80%.
+  6. Redundancy: a frame removed as a group exceeds F in at least 90% of those 10.
+  Beside it, not judged: each copy alone against the group. If one copy's I is much smaller, single removal undercounts
+  what is repeated, and any later use on real sessions must find repeats first.
+- **Is the model's own account wrong where the intervention is right? Read only if the instrument holds.** After R, in the
+  same context, by one fixed domain-free prompt: where the direction of that reply came from, chosen from labelled options
+  (the person's goal, your own earlier reply, the partner's latest message, none of these), the order set by a seeded
+  shuffle. Greedy, thinking off, a separate pass, so the question cannot touch R. The key is the top source if its I exceeds
+  F, otherwise "none of these". **The claim, that the system knows something the model's account does not, holds if the
+  upper end of a 95% bootstrap interval (over conversations) on the account's agreement with the key is below 0.8.** If the
+  lower end is at or above 0.8, the model already reports this well and an outside instrument adds little here: said so,
+  and the direction is reconsidered. Otherwise undecided. Agreement is also reported per kind, with the frame kinds beside.
+- **Reported, not judged:** how often the frame's source tops the reply in the frame kinds, which is accommodation counted
+  directly; the top source's margin over the next.
+- **Keys judge:** the account never sees I, and no reading of states feeds the key.
+- **Not done here:** whether a cheap read of the states predicts the key, swapped or prefilled replies, Qwen on real
+  sessions, other model sizes. Each gets its own reading. No product bar is used or served: drift and accommodation labels
+  are not read here. If this starts to need them, stop and say so.
+- **Before any verdict is read:** a dry run on 2 conversations outside the 40, for plumbing and time per conversation, its
+  influence figures not used to set anything above.
 
 ## Retired
 

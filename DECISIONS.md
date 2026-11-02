@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **The research track's question is causal authorship: which source made this output happen** (owner), not
+  fit and not who produced the tokens, which the log already knows. What the owner called attribution in another session.
+  Axes stay retained and are not needed for this; Gate 1 rests at undecided.
+- 2026-11-02: **Leap versus gradient waits until something works** (owner). It stays the motivating question.
+- 2026-11-02: **Machinery outside the model is allowed** (owner): human reports come apart from decisions, and outside
+  review and reasoning checks give metacognitive capacity. The goal's "without metacognition machinery" no longer binds;
+  its wording is the owner's to restate, and the Big Picture doc has not been changed.
 - 2026-11-02: **Gate 1: a contraction with λ within 0.1 of 1 counts as additive, no rival and no win** (owner), before any
   state of a pair was read. As first written additive could never win. The first wording's verdict is reported beside.
 - 2026-11-02: **Gate 1's opposites: 2 of the 20 read are wrong, 2 borderline, 16 fine** (owner); left in, and the verdict
