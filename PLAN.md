@@ -44,8 +44,9 @@ non-inert notes, the partner on top in 39 of 40); step 1's result stands as read
 (AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
 direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
-`research/source_read.py`; after its dry run, the owner amended the form; now the pilot that picks each goal's frame (`runs/source-pilot`), a second dry run, then the owner freezes the 40 frames, then the run (about 5–6 hours,
-estimated).
+`research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
+cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
+Next: the owner freezes the 40 picked frames, then the run (about 15 hours).
 
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
@@ -899,6 +900,21 @@ main case is replies the model wrote itself, where fit cannot separate the two b
   runs/source-pilot --pilot`), and keeps the candidate whose markers those 8 replies carry closest to 3 times, ties to
   the earlier drafted. No F reply, key, read or account is looked at. The owner then freezes the 40 picked. The dry run's
   figures above were seen when this was decided; no bar changed. A second dry run checks the unlabelled form.
+- **The pilot** (2026-11-03; record in `runs/source-pilot/`, not committed; picks written to `material/frames.jsonl`,
+  not yet frozen). The N replies carried the picked frame 0 times in 19 goals, once in 5, twice in 4, 3 times in 10 and
+  4 times in 2: 51 of 320, from 21 conversations. In 15 goals none of the 3 candidates was raised unasked. **So check 3
+  cannot pass as drawn:** an own reply needs its N reply to carry the frame, so with 8 samples there are at most 51 own
+  replies, against the bar of 60. This is known from N alone; no F reply of the 40 has been sampled.
+- **The second dry run** (2026-11-03, picnic and kitchen, unlabelled; record in `runs/source-dry2/`, not committed). The
+  echo is gone: no F reply continues a transcript. Coupling redraws the same tokens; 6–9 minutes a conversation. Keys:
+  picnic 8 partner; kitchen 3 partner, 2 own, and 2 replies whose N carried the frame while F did not. Many F replies
+  carry the frame by acknowledging it ("Since you mentioned …"), early in the reply; the text baseline's first-hit
+  position is there for that. Keys and figures on 2 conversations are not read.
+- **Amended 2026-11-03 by the owner, after the pilot and before any F reply of the 40 was sampled:** 24 coupled samples
+  a conversation instead of 8, drawn in batches of 8 so the run's samples 0–7 are the pilot's draws (the run reports how
+  many it redraws the same, not judged). At the pilot's rate that gives about 150 N replies carrying the frame, so check
+  3 can pass; whether it does depends on F, unseen. Samples 0–7 helped pick the frames, so their own count is selected
+  toward 3 of 8; samples 8–23 are not. No bar changed. The run takes about 15 hours, estimated from the dry runs.
 
 ## Body readout (`body/`)
 
