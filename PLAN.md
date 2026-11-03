@@ -39,9 +39,9 @@ seeks to understand the owner's formula and its own.
 non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
 2026-11-03, under "Hidden sources" below; record in `runs/hidden-qwen8b/`): **the claim holds for prefill**, by a hair
 (AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
-direction. Running: step 2's second wording (`python -m research.hidden_wording --run runs/hidden-wording`, on step 2's recorded
-replies). Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
-`research/source_read.py`; next, its dry run, then the owner freezes its 40 frames, then the run (about 5–6 hours,
+direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
+steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
+`research/source_read.py`; its dry run is running (`runs/source-dry`), then the owner freezes its 40 frames, then the run (about 5–6 hours,
 estimated).
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
@@ -49,7 +49,7 @@ estimated).
 | Step | Question | Status |
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
-| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75); injection not run** |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
 | 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Pre-registered ("A cheap read of the source" below); frames await the owner's freeze** |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
@@ -787,6 +787,13 @@ the text it can read? Here the key comes from construction, not from a measure, 
   **Read together:** step 2 stands if this wording also holds; if it is undecided, the result is read as "the account
   is weak here, but how weak depends on the wording"; if the model reports well here, step 2's claim is contradicted
   and is said to be so. Command: `python -m research.hidden_wording --run runs/hidden-wording`.
+  **The run** (2026-11-03, commit `a1d7faf`; record in `runs/hidden-wording/`, not committed; 12 s per conversation).
+  Read twice 0.0; carrying as step 2 (V 0.975, G 0.0); G against V AUC 0.94, n 39: all pass. **G against P: AUC 0.462,
+  95% interval 0.346–0.584, n 39: holds.** P against V 0.92. Median "something I was given" score G 0.095, P 0.080, V
+  0.924; P above G in 50% of pairs. Greedy letter "given": G 18%, P 16%, V 78%. Order bias larger than step 2's (the
+  second letter scores lower by 0.19–0.35). **Read together: step 2 stands, and more clearly.** Under this wording the
+  account is at chance on hidden steers, so step 2's faint signal above 0.5 did not survive a change of wording; the
+  account tracks the visible line under both.
 
 ### A cheap read of the source, on replies the model wrote itself (direction step 3)
 
