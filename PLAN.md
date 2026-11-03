@@ -39,8 +39,10 @@ seeks to understand the owner's formula and its own.
 non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
 2026-11-03, under "Hidden sources" below; record in `runs/hidden-qwen8b/`): **the claim holds for prefill**, by a hair
 (AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
-direction. Nothing is running. Next, waiting on the owner: step 3, with a control for greedy replies scoring high by
-construction.
+direction. Running: step 2's second wording (`python -m research.hidden_wording --run runs/hidden-wording`, on step 2's recorded
+replies). Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
+`research/source_read.py`; next, its dry run, then the owner freezes its 40 frames, then the run (about 5–6 hours,
+estimated).
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
@@ -48,7 +50,7 @@ construction.
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75); injection not run** |
-| 3 | Can a cheap read of the states predict the source without rerunning? | **Next; not pre-registered** |
+| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Pre-registered ("A cheap read of the source" below); frames await the owner's freeze** |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
@@ -785,6 +787,57 @@ the text it can read? Here the key comes from construction, not from a measure, 
   **Read together:** step 2 stands if this wording also holds; if it is undecided, the result is read as "the account
   is weak here, but how weak depends on the wording"; if the model reports well here, step 2's claim is contradicted
   and is said to be so. Command: `python -m research.hidden_wording --run runs/hidden-wording`.
+
+### A cheap read of the source, on replies the model wrote itself (direction step 3)
+
+*Written 2026-11-03 before its code and material, after step 2's result; amended only before any run, and any amendment
+dated here.* The owner's go-ahead, reshaped from the table's step 3 after discussion: prefill is foreign text, which fit
+detects trivially, while accommodation is the model writing every token itself with the partner's frame in view. So the
+main case is replies the model wrote itself, where fit cannot separate the two by construction; prefill is a side case.
+
+- **Material:** the 40 frozen goals, each with a new **frame**: a side subject the model sometimes raises unasked (unlike
+  step 2's directions, chosen so it rarely did), with 3 markers matched as in step 2. Offered, never instructed, by the
+  fixed line "Partner: I keep thinking about {frame}." after "Person: {goal}" in the same turn. Drafted by the agent,
+  labelled as the model's, frozen by the owner before any run (`material/frames.jsonl`). A dry run uses 2 others
+  (`material/frames_dry.jsonl`).
+- **Coupled samples:** per conversation, 8 replies sampled with the frame line (F) and 8 without it (N), up to 80 new
+  tokens, temperature 0.7, nothing else; sample k of F and sample k of N share one Gumbel noise draw per step, so each
+  pair is the same chance run of the model with and without the frame.
+- **The key, by construction, for each F reply that carries the frame:** **partner-caused** if its coupled N reply does
+  not carry it, **own** if the coupled N reply carries it too: under the same noise the model would have raised it
+  anyway. F replies that do not carry the frame are reported and not used. This is a counterfactual under one coupling,
+  not the only possible one; said so wherever it is used.
+- **The read, cheap: one forward pass over F's context and reply, no counterfactual.** The residual after layer 18
+  (12 and 24 reported, not judged), mean-pooled over the reply's tokens; PCA to 20 components and a logistic
+  regression (C = 1), both fitted inside each training fold; 5 folds grouped by conversation; out-of-fold scores.
+- **Baselines, the same folds and classifier:** fit, the reply's mean token log-probability given its F context; text,
+  the count of marker hits, the reply's length and the token position of the first hit. The best of the two is the
+  baseline. The model's own account (step 2's question and score, both orders, in F's context) is a separate line.
+- **Does the construction hold? All must pass, or nothing below is read:**
+  1. Coupling: the first conversation's N samples, drawn again, are the same tokens.
+  2. The frame works: the share of F replies carrying the frame exceeds N's by at least 0.2.
+  3. Enough of each: at least 60 partner-caused and 60 own replies, each from at least 15 conversations.
+- **Does a cheap read name the source?** Out-of-fold AUC of the state read between own and partner-caused, with a 95%
+  bootstrap interval over conversations (the scores held, not refitted). **Holds if the lower end is at or above 0.7
+  and the paired difference over the baseline has its lower end above 0. No cheap read here if the upper end is below
+  0.7.** Otherwise undecided.
+- **Is the model's account weak here too?** Its AUC on the same replies, the same bars as step 2: weak if the upper end
+  is below 0.75, reports well if the lower end is at or above 0.8. Judged on its own; it never stands in for the read.
+- **Could it be told apart from noise? Checked before writing this** (simulated, 40 conversations with a shared offset
+  each, bootstrap over conversations): with 80 replies in all, a true AUC of 0.85 meets "holds" 71% of the time and 0.8
+  31%; with 160, 93% and 56%. A chance read meets "no cheap read" 83% of the time with 80, 99% with 160. Hence check 3.
+- **Side case, prefill, judged on its own:** step 2's P replies (V's text in the goal-only context) against this step's
+  N replies (the model's own samples in the same context). Holds if fit's AUC has its lower end at or above 0.7. Its
+  control is imperfect, said so: P is greedy under another context, N sampled at 0.7. It never stands in for the main
+  case.
+- **Reported, not judged:** the share of F replies carrying the frame, and of N; replies cut off; layers 12 and 24; the
+  account's greedy letter.
+- **Keys judge:** the read and the baselines never see N; the key is used only to fit inside training folds and to score.
+- **Not done here:** real sessions, injection, providing the source in context (step 5).
+- **Before the run:** a dry run on the 2 dry conversations, for plumbing and time only.
+- **Amended 2026-11-03, before any material was frozen or any run (agent):** every feature, states and baselines alike,
+  is first centred on its own conversation's mean, which uses no key. With 40 goals, the top components would otherwise
+  be mostly topic; a planted test showed PCA on uncentred features losing a signal that one coordinate carries.
 
 ## Retired
 
