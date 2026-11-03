@@ -35,23 +35,20 @@ pass criterion, and a functional result never stands in for an instrument's accu
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
 seeks to understand the owner's formula and its own.
 
-**Just run, and next.** Causal authorship on the 40 frozen conversations finished 2026-11-02 (result under "Causal
-authorship" below; record in `runs/authorship-qwen8b/`, only on the owner's machine). **The instrument does not hold**: 5
-of 6 checks pass, the known strong case fails, so the account was not asked. The floor is set by 6 notes that were not
-inert, and the partner is the top source in 39 of 40, so the material does not vary the source. The owner chose to go
-ahead with step 2, step 1's result standing as read. Step 2 is pre-registered under "Hidden sources" below, with its
-code in `research/hidden.py`; the owner froze its 40 directions and amended the injection's vector after the dry run.
-Running: `python -u -m research.hidden --run runs/hidden-qwen8b`, about 8–9 hours (calibration, then the 40); a killed
-run resumes if the same command is run again. If its result is not written under "Hidden sources", read
-`runs/hidden-qwen8b/run.log` and the record, write it there, and update this section.
+**Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
+non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
+2026-11-03, under "Hidden sources" below; record in `runs/hidden-qwen8b/`): **the claim holds for prefill**, by a hair
+(AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
+direction. Nothing is running. Next, waiting on the owner: step 3, with a control for greedy replies scoring high by
+construction.
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
 | Step | Question | Status |
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
-| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Running ("Hidden sources" below)** |
-| 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75); injection not run** |
+| 3 | Can a cheap read of the states predict the source without rerunning? | **Next; not pre-registered** |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
@@ -745,6 +742,41 @@ the text it can read? Here the key comes from construction, not from a measure, 
   own residual there, so α in {0.25, 0.5, 1, 2} is a share of the layer's norm. The selection rule, the checks and every
   bar are unchanged. The dry run's figures above were seen when this was decided. **The 40 directions frozen by the
   owner as drafted**, the same day.
+- **The run** (2026-11-02 to 03, commit `c6a23c2`, `python -u -m research.hidden --run runs/hidden-qwen8b`; record in
+  `runs/hidden-qwen8b/`, not committed). Calibration about 34 minutes per conversation, then 328–340 s each for the 40.
+
+  **Injection: not run.** On the 8 calibration conversations, no layer and strength made a reply carry its direction, in
+  any of the 96 injected replies; calibration chose nothing, as the rule says. *Also a fault of the agent's design, which
+  did not decide this:* the fluency floor is the 5th percentile of G's own log-probability, and G is the greedy reply of
+  that very context (-0.23 here), so almost any other text falls below it (only 12/0.25 reached 50% fluent). Had any
+  pair carried, this rule would likely have refused it.
+
+  | Check | Value | Bar | |
+  |---|---|---|---|
+  | 1. Read twice | 0.0 | ≤ 0.001 | pass |
+  | 2. Carrying | V 0.975, G 0.0 | V ≥ 0.8, G ≤ 0.15 | pass |
+  | 3. Answerable (G against V) | AUC 0.96, n 39 | ≥ 0.8 | pass |
+  | 4. Fluency | I not run | | |
+
+  | Comparison | n | AUC | 95% interval | Verdict |
+  |---|---|---|---|---|
+  | G against P | 39 | 0.648 | 0.547–0.750 | **holds** |
+
+  **Read as written: the claim holds for prefill.** The model's account does not tell its own replies from the same
+  replies with their steer hidden, by the bar set before the run. *Read with care (agent's reading):*
+  - **By a hair.** The upper end is 0.7495 against a bar of 0.75.
+  - **Not blind.** The lower end is above 0.5: the account picks up something, weakly. Median "steered" score G 0.008,
+    P 0.039, V 0.963; P above G in 75% of pairs, but nearly always far below V. The greedy letter says steered for G 9%,
+    P 13%, V 74%.
+  - **The account follows what it can see.** P against V, the same tokens with the line hidden or shown: AUC 0.93.
+  - **Order bias:** "steered" scores lower when it is the second letter (G -0.14, V -0.14, P -0.06).
+  - **The log-probability read separates P from G at AUC 1.0, and that is not evidence for step 3.** G is greedy under
+    the very context it is scored in, so it is close to the most probable text by construction; any other text would score
+    lower. Step 3 needs a control for this, such as genuine replies the model did not produce greedily.
+- **What this leaves.** Step 2 holds for prefill and says nothing about injection. The direction says step 3 comes next,
+  once 2 shows something: whether a cheap read of the states can tell P from G where the account cannot, with the control
+  above. Injection would need a vector that carries a subject, which neither tried construction gave; it is not retried
+  without the owner.
 
 ## Retired
 
