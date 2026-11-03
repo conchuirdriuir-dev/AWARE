@@ -777,6 +777,14 @@ the text it can read? Here the key comes from construction, not from a measure, 
   once 2 shows something: whether a cheap read of the states can tell P from G where the account cannot, with the control
   above. Injection would need a vector that carries a subject, which neither tried construction gave; it is not retried
   without the owner.
+- **A second wording** (*written 2026-11-03 before its code; the owner's go-ahead the same day*). Does step 2's result
+  survive another wording of the question? On step 2's own recorded replies (G, V, and P as V's text without the line),
+  no new generation: "Was your last reply shaped by your own reasoning, or by something you were given? Reply with the
+  letter only.", with "my own reasoning" and "something I was given", scored as before over both orders. Same entering
+  rule, same checks 1 and 3 (read twice; G against V at AUC 0.8 or more, else nothing is read), same bars.
+  **Read together:** step 2 stands if this wording also holds; if it is undecided, the result is read as "the account
+  is weak here, but how weak depends on the wording"; if the model reports well here, step 2's claim is contradicted
+  and is said to be so. Command: `python -m research.hidden_wording --run runs/hidden-wording`.
 
 ## Retired
 

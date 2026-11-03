@@ -49,8 +49,9 @@ def steered_messages(goal: str, direction: str) -> list[dict]:
     return [{"role": "user", "content": "Person: " + goal + "\n" + STEER.format(direction=direction)}]
 
 
-def question(order: tuple[str, str]) -> str:
-    return QUESTION + "\n" + "\n".join(f"{k}. {CHOICES[v]}" for k, v in zip("AB", order))
+def question(order: tuple[str, str], wording: tuple[str, dict] | None = None) -> str:
+    q, choices = wording or (QUESTION, CHOICES)
+    return q + "\n" + "\n".join(f"{k}. {choices[v]}" for k, v in zip("AB", order))
 
 
 def score(p_a: float, p_b: float, order: tuple[str, str]) -> float:
@@ -198,14 +199,14 @@ class Hidden(Bed):
         assert len(a) == len(b) == 1, "A and B are single tokens"
         return a[0], b[0]
 
-    def account(self, context: list[dict], text: str) -> dict:
+    def account(self, context: list[dict], text: str, wording: tuple[str, dict] | None = None) -> dict:
         """The score over both orders, and the greedy token per order."""
         import torch
 
         a, b = self.letters()
         scores, greedy = [], []
         for order in ORDERS:
-            msgs = context + [{"role": "assistant", "content": text}, {"role": "user", "content": question(order)}]
+            msgs = context + [{"role": "assistant", "content": text}, {"role": "user", "content": question(order, wording)}]
             with torch.no_grad():
                 ids = torch.tensor([self.context(msgs)], device=self.hf.device)
                 logits = self.hf(ids, logits_to_keep=1, use_cache=False).logits[0, -1].float()
