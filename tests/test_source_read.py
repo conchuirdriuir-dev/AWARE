@@ -114,3 +114,19 @@ def test_the_run_entry_does_not_clash_with_the_readers_info():
     src = (ROOT / "research/source_read.py").read_text()
     call = src[src.index('record.append("run"'):src.index("thinking=False)")]
     assert not info & set(re.findall(r"(\w+)=", call))
+
+
+def test_samples_are_drawn_in_batches_so_the_pilots_eight_come_again():
+    calls = []
+
+    class Fake(s.Sampler):
+        def __init__(self):
+            pass
+
+        def coupled_batch(self, messages, seeds):
+            calls.append(list(seeds))
+            return [[x] for x in seeds]
+
+    seeds = [s.seed("a", k) for k in range(s.K)]
+    assert Fake().coupled([], seeds) == [[x] for x in seeds]
+    assert calls[0] == [s.seed("a", k) for k in range(s.PILOT_K)] and all(len(c) == s.BATCH for c in calls)

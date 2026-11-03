@@ -24,7 +24,9 @@ STEP2 = "runs/hidden-qwen8b/record.jsonl"
 FRAME = "I keep thinking about {frame}."                  # unlabelled, after the goal (amended, PLAN.md)
 CANDIDATES = "material/frame_candidates.jsonl"
 TARGET = 3
-K, TEMPERATURE, MAX_NEW = 8, 0.7, 80
+K, TEMPERATURE, MAX_NEW = 24, 0.7, 80     # 24 samples a conversation, amended by the owner after the pilot (PLAN.md)
+PILOT_K, BATCH = 8, 8    # the pilot drew 8; samples run in batches of 8, so the run's samples 0-7 are the pilot's draws
+PILOT = "runs/source-pilot/record.jsonl"
 LAYER, LAYERS = 18, (12, 18, 24)
 COMPONENTS, C, FOLDS = 20, 1.0, 5
 WORKS, NONE_, ENOUGH, CONVS = 0.7, 0.7, 60, 15
@@ -221,6 +223,10 @@ class Sampler(h.Hidden):
         return set(e if isinstance(e, list) else [e])
 
     def coupled(self, messages: list[dict], seeds: list[int]) -> list[list[int]]:
+        """In batches of BATCH seeds, so a seed's draw does not depend on how many others are drawn with it."""
+        return [x for i in range(0, len(seeds), BATCH) for x in self.coupled_batch(messages, seeds[i:i + BATCH])]
+
+    def coupled_batch(self, messages: list[dict], seeds: list[int]) -> list[list[int]]:
         """One sample per seed, temperature-scaled Gumbel-max with the seed's own noise, one draw per step for every
         step, so the same seed under another context shares its noise step by step."""
         import torch
@@ -314,14 +320,14 @@ def pilot(run: Path):
     record = Record(run / "record.jsonl")
     reader = Reader(MODEL, device="auto", gpu_memory=6.5)
     bed = Sampler(reader)
-    record.append("run", "code", **reader.info, pilot=True, samples=K, temperature=TEMPERATURE, max_new_tokens=MAX_NEW,
+    record.append("run", "code", **reader.info, pilot=True, samples=PILOT_K, temperature=TEMPERATURE, max_new_tokens=MAX_NEW,
                   target=TARGET)
     done = {r["conversation"]: r for r in read(record.path) if r["kind"] == "picked"}
     chosen = []
     for c in h.load(CANDIDATES):
         if c["id"] not in done:
             start = time.time()
-            ids = bed.coupled(bare_messages(goals[c["id"]]), [seed(c["id"], k) for k in range(K)])
+            ids = bed.coupled(bare_messages(goals[c["id"]]), [seed(c["id"], k) for k in range(PILOT_K)])
             texts = [bed.text(x) for x in ids]
             for k, t in enumerate(texts):
                 record.append("sampled", "model", conversation=c["id"], sample=k, without=t, pilot=True)
@@ -383,6 +389,12 @@ def main(argv=None):
                             for s in r["samples"]])
         print("redrawn the same:", redraw_same)
         return
+    pilot_texts = {(r["conversation"], r["sample"]): r["without"] for r in read(PILOT)} if Path(PILOT).exists() else {}
+    if pilot_texts:                                       # reported, not judged: samples 0-7 should be the pilot's draws
+        same = [pilot_texts.get((r["conversation"], r["sample"])) == r["without"] for r in read(record.path)
+                if r["kind"] == "sampled" and r["sample"] < PILOT_K]
+        record.append("pilot redrawn", "code", same=sum(same), of=len(same))
+        print(f"pilot's draws redrawn: {sum(same)} of {len(same)}")
     checks = construction(rows, redraw_same)
     record.append("construction", "code", checks=checks, holds=holds(checks))
     print(json.dumps(checks, indent=1))
