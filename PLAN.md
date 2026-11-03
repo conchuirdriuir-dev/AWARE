@@ -929,7 +929,7 @@ The corpus is private: only references and numbers enter this repository or its 
   - **partner:** the owner's turns (role `human`; task notifications and system text excluded; at least 20 characters);
   - **self:** the agent's text (role `agent_text`);
   - **tool:** tool results (role `tool_result`). Tool calls (`agent_tool`) are left out: the agent's commands, not its
-    thought, and too many to read.
+    thought, and too many to read. Since amendment 4, each tool result is also **world** or **echo** (below).
 
   Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
 - **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
@@ -957,6 +957,9 @@ Then, per scored chunk:
 - **Partner cross-progress** X_t = L_nopartner − L_now: bits the window's owner chunks save, given everything else. An
   owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
 - **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
+- **World and echo cross-progress** (amendment 4) T_world and T_echo: the same, leaving out only W's world or only
+  its echo tool results. Reported, deciding nothing. The narrow-vs-broad comparison is read on T_world; T keeps its
+  registered meaning beside it.
 - **Self-progress** S_t = L_noself − L_now.
 - **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
   below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
@@ -1074,6 +1077,15 @@ cost against the median of the 20 scored chunks before. No bar changes.
 **After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
 alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
 agent messages), and 7 have no control, because their span runs most of the session or the session is short.
+**Amendment 4, owner, 2026-11-03, before any model run:** tool results are split into **echo**, the agent's own
+output read back, and **world**, everything else. A tool result is echo when at least half of its word 8-grams (first
+6,000 characters) already appear in the agent's earlier output in the session: its text and its tool calls, which
+carry the files it wrote. This is the laundering study's within-session self share (`dara-session-transcripts`, branch
+`study/body-ablation`, `laundering.py`); the cut at one half is the agent's. Over the corpus, 1,451 of 18,201 tool
+results are echo (8%). The reason: a positive T in closures could be learning from the world or from the agent's
+own output coming back, which are opposite conclusions for the narrow hypothesis. No bar changes; the pass is still
+on X.
+
 **Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
 nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
 20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.

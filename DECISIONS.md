@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Body readout Step 0, amendment 4** (owner, before any model run): tool results split into echo (the
+  agent's own output read back, by the laundering study's within-session 8-gram share, cut at one half) and world;
+  T_world and T_echo reported beside T, deciding nothing. No bar changes.
 - 2026-11-03: **Body readout Step 0, amendment 3** (owner, before any model run): a control a session cannot supply
   comes from the nearest session in time, by the same rules, reported as cross-session; 20 closures score. No bar
   changes.
