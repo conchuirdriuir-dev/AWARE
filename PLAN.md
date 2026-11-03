@@ -49,7 +49,8 @@ moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](ht
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below, numbers fixed by the owner; next, its code and the 0.6B rehearsal.
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space; two amendments await the
+owner, then the 0.6B rehearsal and the 8B run on the owner's machine.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -1015,6 +1016,18 @@ Each scored chunk needs four fits, and tool results add about ten times as many 
 rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
 would exceed a day.
 
+#### Note, 2026-11-03, written with the code, before any model run
+
+- **The fit, computed from the Gram matrix.** `body/progress.py`'s `GramFit` is T2's fit computed from the session's inner
+  products, so its cost depends on the rows fitted, not on the width (4,096 on the 8B; about 4,600 words in a session's
+  text baseline, where the direct fit took 12 s per code). It agrees with `goalspace.formula.Fit` to 1e-7
+  (`tests/test_body.py`). Nothing in the readings changes.
+- **System text** left out of the partner source, beside the T2 prefixes: task notifications and the automatic
+  "session is being continued" summaries.
+- **Echoes save almost nothing, not nothing.** On a toy stream whose partner chunks are exact copies of earlier rows,
+  partner cross-progress has median −0.01 bits (mean absolute 0.16) against self-progress of 2 bits. The wording above
+  stands as an approximation.
+
 #### Limits, stated before the result
 
 - The agent produces most chunks, and its narration repeats ("committing and pushing"). Cost and self-progress are
@@ -1023,6 +1036,33 @@ would exceed a day.
 - Tool results are cut at 256 tokens, so a long result's tail, where an error often sits, is not read.
 - Tool calls are left out, so a loop of repeated commands shows only through the results it brings back.
 - 25 closures and 23 ascents are pilot-scale; the interval decides, not the point estimate.
+
+#### Dry run, 2026-11-03: the text space alone, plumbing only (decides nothing)
+
+`python -m body.step0 --model none --corpus ... --run runs/body0-text-all --draft --text-only`: no model (Hugging Face
+is not reachable from the agent's container), TF-IDF only, texts cut at 1,000 characters. All 45 sessions in 20 minutes
+on 2 CPUs. Its AUCs are stated so that the amendments proposed below are seen not to have been chosen by them.
+
+| | Events scored | AUC (text space) | 90% interval |
+|---|---|---|---|
+| Reading 1, closures | 12 of 25 | 0.51 | 0.40–0.63 |
+| Reading 2, ascents | 17 of 23 | 0.71 | 0.64–0.81 |
+
+- **Too few closures score.** 8 closures fall before a session's 40th self chunk or have fewer than 3 scored chunks
+  before the first return, and 5 more have no control. 12 is under the bar of 15, so as registered the 8B run would
+  most likely be undecided on reading 1.
+- **The cost axis does not work as defined.** Against the median of all earlier scored chunks, every window is cheap,
+  since prequential code lengths fall as a session grows: C reads position in the session, not cost.
+- **Medians, text space:** self-progress in closures 135 bits against 61 in controls; tool cross-progress 243 against
+  200; partner cross-progress 7.8 against 7.0. In ascents, partner 32 against 13.
+- **Time:** codes take about as long per space as the text space did, so the 8B's 12 layers come to about 4 hours of
+  fitting plus the reading; no thinning is needed.
+- **Not yet in the code** (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X with W of 10
+  and 40. To be added before the result run.
+
+**Proposed amendments, for the owner, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th,
+so more closures score; (2) cost against the median of the 20 scored chunks before, as T2's surprisal is. No bar
+changes.
 
 ## Retired
 
