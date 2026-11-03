@@ -52,6 +52,10 @@ to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closu
 "Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
 made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
 
+**Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
+into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
+"Translations" below, each with its test and whether that test was exploratory.
+
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
 kept, ascent) on the candidate list, done blind to every reading; the same marks later check what step 6 trains.
@@ -1089,6 +1093,49 @@ on X.
 **Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
 nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
 20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
+
+## Translations (method)
+
+*Owner, 2026-11-03. The method is FieldSHIFT's ([O'Brien, …, Levin 2024](https://pubs.rsc.org/en/content/articlehtml/2024/dd/d3dd00185g)),
+extended by one column: neuroscience → development → AWARE. The table and the first worked translation are in
+[The Semantic Body](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW), "Translation framework".*
+
+**Why.** The owner's framework may be wrong in places. Translating findings from fields where a mechanism is known
+(Levin's bioelectricity, neuroscience) says what AWARE's version of that mechanism should do, so a translation can
+show an element that is **missing** from AWARE or one that is **malformed** (built on the wrong idea), not only a new
+hypothesis to test.
+
+**Rules.**
+
+1. **Pivot the problem space and the timescale, not the vocabulary.** 3D space → morphospace → code-space;
+   milliseconds → hours → turns and sessions. A row that only renames (an animal's position → an agent's position in
+   embedding space) is a vocabulary swap and is rejected.
+2. **Nothing is conserved.** Levin's pivot rests on the same molecules working in both fields; AWARE's column rests
+   only on function. Every row is a hypothesis until a measurement supports it.
+3. **A translation that contradicts AWARE is logged as a challenge to the element it contradicts,** never smoothed
+   over. That is how malformed elements surface.
+4. **Coverage runs both ways.** For each element of the source system (unit, medium, setpoint, error, competency,
+   stress, scale), AWARE should have a counterpart; a missing one is logged as a gap. An AWARE element with no source
+   counterpart is logged too: either the analogy stops there or the element is suspect.
+5. **Exploratory vs confirmatory.** A test on the owner's corpus after its labels have been seen is exploratory, and
+   so is every further test on the same events. A translation's claim is confirmed only on data its test was not
+   shaped on: new sessions logged with the body readout, or public agent trajectories labelled by the Restorations
+   reading process.
+
+**The log.** One row per translated finding; newest first. Kind: hypothesis, missing, malformed, or gap.
+
+| Date | Source finding | AWARE translation | Kind | Test, data and status |
+|---|---|---|---|---|
+| 2026-11-03 | Chernet, Fields & Levin 2015: disrupting gap-junction coupling far from oncogene cells lowered tumour incidence most; boosting coupling (Cx26) raised it | Coupling carries whatever signal the field holds; recoupling helps only from a source with a different signal | malformed: "recoupling cures drift" | Design change 4 narrowed (Semantic Body doc). No test yet |
+| 2026-11-03 | Same | Self-generated content read back as tool input is the agent's own signal, not the world's: provenance is a graph of who reads whose output | missing: echo as a provenance class | Step 0 amendment 4 (world vs echo). Laundering test on the owner's corpus: not supported before closures (AUC 0.48–0.51); higher before ascents (0.64 [0.51, 0.75]). Exploratory |
+| 2026-11-03 | Same | Distant context (the session's opening frame, loaded docs, earlier sessions) sets closure more than the last turns | hypothesis | Untested |
+| 2026-11-03 | Same | More coupling to a collaborator carrying the same frame deepens closure (accommodation, dyad closure) | hypothesis | Untested: too few scorable accommodations |
+| 2026-11-03 | Same: the model predicts outcomes from how coupling paths sit relative to the body axes | Closure risk follows the layout of who reads whose output, not only how much flows | hypothesis | Untested: provenance graph vs shares |
+| 2026-11-03 | FieldSHIFT: the pivot is of problem space (3D space → morphospace) | The body's location is which code the recent trajectory fits, not an embedding position | malformed: "position as location" | Body ablation on the owner's corpus: geometry added nothing over provenance and novelty, and read topic. Static embedders only. Exploratory |
+
+**Gaps named, not yet translated** (from the owner's Levin session, 2026-11-03): **stress-sharing** (Levin's cells
+broadcast stress; the owner's boredom may be the dyad's stress signal); **multiscale competency** (monitors of
+monitors as nested agents, each with its own cone).
 
 ## Retired
 

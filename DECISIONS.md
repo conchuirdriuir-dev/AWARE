@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Translations become a method** (owner): findings from Levin's bioelectricity and neuroscience are
+  translated into AWARE by FieldSHIFT's pivot (problem space and timescale, not vocabulary), to find hypotheses and
+  missing or malformed elements; each logged in PLAN.md with its test, and tests on the owner's corpus after its
+  labels were seen marked exploratory.
 - 2026-11-03: **Body readout Step 0, amendment 4** (owner, before any model run): tool results split into echo (the
   agent's own output read back, by the laundering study's within-session 8-gram share, cut at one half) and world;
   T_world and T_echo reported beside T, deciding nothing. No bar changes.
