@@ -1126,6 +1126,12 @@ hypothesis to test.
 
 | Date | Source finding | AWARE translation | Kind | Test, data and status |
 |---|---|---|---|---|
+| 2026-11-03 | Levin's multiscale competency architecture (McMillen & Levin 2024; Levin 2023): levels are nested functionally, not only structurally; each solves problems in its own space with its own goal | Monitors of monitors are a structural stack of observers. Each level should instead be an agent with its own setpoint, error signal and way to act, in its own space: token, turn, session, project | malformed (candidate): the monitor stack as observers | No test yet; an architecture question |
+| 2026-11-03 | Same: each level corrects its own errors | Drift exists at every level: a rabbit hole inside one step (turn), closure (session), losing the big picture across sessions (project). AWARE measures error at the session level only (Step 0) | missing: error signals at the turn and project levels | See the project-level test below |
+| 2026-11-03 | Same: each level bends the option space of the one below, so the lower level's local moves serve the higher goal | The higher level reshapes what is easy for the actor (steering, what enters context) instead of instructing it. A plain-language readout is closer to an instruction | malformed (candidate): the readout reports instead of bending | Sharpens the persuadability test: a landscape change should keep working when the actor is never told the goal |
+| 2026-11-03 | Same: levels also deform the landscape of the levels above | Nothing in AWARE flows upward. Nearest case: the agent's competence changing which goals are realistic for the owner, inside the dyad | gap: upward influence | No test yet |
+| 2026-11-03 | Same | The attention schema is a higher level's simplified model of a lower level's landscape, used to bend it on purpose; leap vs gradient becomes whether a level's problem space includes the levels below it | hypothesis (speculative): a framing, not yet a test | None yet |
+| 2026-11-03 | Same, at the project level | Project-level stagnation: compression progress aggregated per session flattens before the owner's reorganizations (DECISIONS.md: 2026-10-30, 2026-10-31, 2026-11-02). The ascent cycle one level up | hypothesis | Readable from Step 0's per-chunk output with no new run. Exploratory: the reorganization dates are known |
 | 2026-11-03 | Shreesha & Levin 2024 (computational model): stress, the error of a homeostatic loop, shared across cells, reaches targets faster and widens distant cells' influence; Levin: stress is an exported error signal | Stress is error against the goal code: misfit (costly) and stagnation (flat progress; the owner's boredom). The agent never exports its stress; the owner's reaches the agent late, as words. The readout's job may be export: a dyad stress line both parties see, early | missing: stress export, agent → owner | No test yet; a readout change |
 | 2026-11-03 | Same: stress carries no ownership metadata (Levin) | Provenance stays attributed, since closure is read from it, but stress is reported for the dyad ("this session has stopped learning"), not as one party's | malformed (candidate): the readout template's first-person source line, if stress is read from it | No test yet; a template change |
 | 2026-11-03 | Same: stress precedes coordinated action | An unshared-stress window: the agent's stagnation (flat progress) precedes the owner's first return, and the lag is how long stress went unshared | hypothesis | Readable from Step 0's per-chunk output with no new run. Exploratory (same events) |
@@ -1137,8 +1143,8 @@ hypothesis to test.
 | 2026-11-03 | Same: the model predicts outcomes from how coupling paths sit relative to the body axes | Closure risk follows the layout of who reads whose output, not only how much flows | hypothesis | Untested: provenance graph vs shares |
 | 2026-11-03 | FieldSHIFT: the pivot is of problem space (3D space → morphospace) | The body's location is which code the recent trajectory fits, not an embedding position | malformed: "position as location" | Body ablation on the owner's corpus: geometry added nothing over provenance and novelty, and read topic. Static embedders only. Exploratory |
 
-**Gaps named, not yet translated** (from the owner's Levin session, 2026-11-03): **multiscale competency** (monitors
-of monitors as nested agents, each with its own cone). Stress-sharing was translated the same day (rows above).
+**Gaps named in the owner's Levin session, 2026-11-03:** stress-sharing and multiscale competency, both translated
+the same day (rows above).
 
 ## Retired
 
