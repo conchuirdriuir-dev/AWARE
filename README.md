@@ -1,6 +1,9 @@
 # AWARE
 
-The goal, in the owner's words: "The agent should function as if it is aware, even without metacognition machinery."
+The goal, in the owner's words (restated 2026-11-01, DECISIONS.md): "An architecture that allows an agent to discover and
+safely orient itself and the user toward a mechanistically inferred pattern in 'goal-space', a purely theoretical
+higher-dimensional space where patterns over actions guide activity, using MDL, steering, and interrogation." Before
+that: "The agent should function as if it is aware, even without metacognition machinery."
 
 The entity is a trajectory through a local model's activation space (the base weights never changed;
 anything learned is a removable graft), with an observer riding alongside it: a

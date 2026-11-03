@@ -1,0 +1,275 @@
+# T2: the owner's formula, inferred from the owner's aims
+
+This file is the implementation record for goal-space test T2 (`proposals/goal-space.md`, accepted by the owner
+2026-11-01). It holds the pre-registration, frozen by the commit before any code, and later the result. T2 serves
+criterion 3 for the owner's formula: the agent infers the shortest formula behind the owner's statements. A
+statement the formula does not explain is flagged.
+
+The corpus (`dara-session-transcripts`) is private. Only references and numbers from it enter this repository or its
+records, never text.
+
+## Pre-registration (2026-11-01, before its code)
+
+### Who said what
+
+| Item | By | Used as |
+|---|---|---|
+| Each aim's quote | **the owner** (verbatim, checked against the transcript by event id) | the data |
+| Which owner turns count as aims (320), and their grouping into 20 lines | **a model**: the Restorations reader, a Claude Code session; lines have status "proposed", and the owner's step 2 judgement is not done | the selection of data; the lines are reported only |
+| Real, kind and who of the 65 departures | **the owner** (the confirmation pass) | the key for reading 2 |
+| Everything computed here | **the code** | |
+
+**Why the 20 lines are not the key.** The proposal planned to score T2 by whether the formula recovers the 20 lines.
+The lines turn out to be a model's reading, never confirmed by the owner. Recovering them would measure agreement
+between two machine readings, not the owner's formula. T2 is therefore scored against what the owner made:
+- the owner's own later aims (does the formula regenerate them?);
+- the owner's confirmed ascents (does the formula register where the owner's goal was rewritten?).
+
+Line recovery is reported, labelled as a model's key.
+
+### Material
+
+- **Aims:** the 320 aims of `study/restorations_reading_v0_1.json`, in time order. Each aim's quote is capped at 256
+  tokens.
+- **Controls:** for each aim, one owner turn from the same session that is not an aim:
+  - role human, system turns excluded, at least 40 characters;
+  - containing no aim's first 60 characters;
+  - nearest in time to the aim, ties broken by seed 0;
+  - capped at 256 tokens.
+
+  An aim with no such turn has no control and drops out of reading 1. That count is reported. Controls share their
+  aims' sessions and times, so topic and period are matched.
+- **Burn-in:** the first 40 aims in time (to 2026-10-07) and their controls. They are used to fit, never scored. That
+  leaves 280 aims scored.
+
+### Readings of a text
+
+- **The state:** each text read alone through `substrate.states.Reader`, with the first token left out (the default).
+  The layers are the last third of the model's. Each statistic is computed per layer; the primary is its mean over
+  those layers.
+- **D:** per layer, from the paraphrase sets (`measure_d`; draft until the owner freezes them).
+
+### The formula, and MDL above D
+
+At each aim t, the formula is fitted on the states of all earlier aims (n of them). Controls are handled the same
+way, on earlier controls only.
+
+**The model:** probabilistic PCA with k axes:
+- a mean μ;
+- covariance W Wᵀ + σ² I;
+- σ² is the residual variance per dimension, floored at D²/d (d the width).
+
+The floor is MDL above D: variation below D is noise and is not coded.
+
+**Choosing k:** k runs from 0 to min(20, n − 2) and minimises the two-part code on the n earlier states:
+
+  L(k) = −log₂ p(X | PPCA_k) + ½ · (k · (n − 1) + 1) · log₂ n
+
+The parameters are priced within the span of the n states (DECISIONS.md 2026-10-30: the textbook pricing over-admits
+axes).
+
+**Code length of a new text:** −log₂ of its density under the formula, in bits. Only differences between code lengths
+are read.
+
+**The gain at t:** gₜ = Lₜ(k = 0) − Lₜ(k chosen). That is how many bits the formula's axes save over the mean alone,
+in coding the next text before it is seen. This is prequential MDL: each detail is predicted from the code so far.
+
+### Reading 1: the formula regenerates the owner's later aims
+
+For each scored aim t with a control, wₜ = 1 if the aim's gain exceeds its control's gain (each stream fitted on its
+own earlier texts), else 0. **W** is the mean of wₜ.
+
+**Pass:** W's 90% interval lies above 0.5, **and** W beats the text baseline's W.
+- The interval comes from 2,000 bootstrap draws resampling sessions as blocks.
+- The claim is that the owner's aims share a formula that predicts the owner's later aims, more than the owner's
+  other talk in the same sessions predicts itself.
+
+### Reading 2: the formula registers the owner's ascents
+
+**Surprisal at aim t:** sₜ = Lₜ(k chosen) − the median of the same quantity over the 20 aims before it. This is how
+much harder the aim is to code than recent aims were.
+
+**Events:** the first aim at or after each owner-confirmed ascent, in the same session and after burn-in. Owner-
+confirmed means real "yes", kind including ascent, who "owner". There are 16 distinct aims.
+
+**Others:** every other scored aim.
+
+**Pass:** the AUC of s, events over others, is at least 0.7, **and** its 90% interval's lower bound is above 0.5, **and**
+it beats the text baseline's AUC.
+- The interval comes from 2,000 draws resampling events and others.
+- If fewer than 12 events score, the reading is too few to decide.
+- The claim is that where the owner rewrote the goal at a higher level, the formula fitted before fails to predict the
+  next aim.
+
+### The text baseline
+
+The same procedure, with TF-IDF vectors (word unigrams and bigrams, L2-normalised) in place of states:
+- the vocabulary is fitted on the burn-in texts only;
+- the text D is the paraphrase sets' spread in that space.
+
+W and the AUC are scale-free, so they compare across the two spaces. Bits do not, and are reported per space only.
+
+### Reported, deciding nothing
+
+- Bits saved per aim and per control.
+- k over time.
+- Per-layer W and AUC.
+- The first aim after each owner-confirmed agent closure (24 events, AUC by the same rule). Closures are the agent's
+  departures, so if the owner's formula is what is read, they should move it less than ascents.
+- The first aim after each undecidable-then departure (5; too few for a bar).
+- **The reader's lines (a model's key):** in the formula fitted on all aims, the AUC of same-line pairs sitting nearer
+  than different-line pairs. Also the adjusted Rand index of 20-cluster k-means against the lines.
+
+### Keys judge, never supply
+
+The confirmation labels and the reader's lines are read only by the scoring functions. Those run after every code
+length has been computed and checkpointed. The formula never sees a label, a line or a departure.
+
+### Note, 2026-11-01, written with the code, before any data
+
+The rules above leave open whether one owner turn can be the control for two aims. They settle it as follows:
+- **A control is not reused.** Aims are taken in time order. If an aim's nearest qualifying turn is already taken, it
+  gets the next nearest. A repeated control would be coded almost free the second time, which would inflate the
+  controls' gain.
+- **The prequential streams begin at the 20th text, not the 40th.** This is so reading 2's running median of 20
+  earlier aims exists from the first scored aim. Scoring still starts after burn-in, at aim 41.
+
+Nothing else changes.
+
+### Fix, 2026-11-01, after the 0.6B rehearsal, to match the definition registered above
+
+The registered formula prices the code "within the span of the n states (DECISIONS.md 2026-10-30)". The first code
+priced the parameters within the span but coded the data over all d dimensions. Over all d, the noise left per
+dimension is tiny, so every axis paid for itself.
+
+**What it caused:** k stopped at the cap of 20 at every step, in every layer, for aims, controls and the text
+baseline alike. The cap chose the formula, not MDL. A unit test on pure noise (120 texts, 1,000 dimensions) kept 20
+axes.
+
+**The fix:** as `6317399` coded the rule, noise is estimated per spanned dimension (n − 1), and the data's code is
+taken within the span. The floor at D²/d is unchanged. On the same pure noise it now keeps none.
+
+**What the rehearsal had shown before the fix** (0.6B, draft, plumbing, deciding nothing): W 0.30 (interval 0.26–0.35;
+text W 0.35); ascent AUC 0.46 (0.35–0.59; text 0.50); closures 0.58. These numbers are stated so the fix is seen not
+to have been chosen by them. The rule is the registered one, and nothing in the readings or bars changes.
+
+### Runs
+
+1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
+2. The run on the owner's machine with Qwen3-8B, split across GPU and RAM. That run is the result.
+
+Runs resume from per-session checkpoints, as the echo floor's do.
+
+### Limits, stated before the result
+
+- The reader chose which owner turns are aims. A formula over aims may partly recover the reader's notion of an aim.
+  The controls are owner turns from the same sessions, and the mean-only baseline absorbs a constant difference in
+  register, but a register that varies across aims could still count toward reading 1.
+- 16 ascent events is pilot-scale. The interval decides, not the point estimate.
+- Aims are the owner's words, read by the model alone. The formula is in the model's goal-space, not in the owner's
+  head. A pass shows that the owner's pattern is recoverable from mechanism, which is what the goal statement asks.
+
+## Rehearsal, 2026-11-01: Qwen3-0.6B, plumbing only (decides nothing)
+
+`python -m goalspace.t2 --model Qwen/Qwen3-0.6B --corpus ... --run runs/t2-06b --draft`, after the span fix, from the
+states of the first run (`runs/t2-06`; neither is committed: derived). Layers 19–27, draft sets. 280 aims scored; 25
+have no control.
+
+| Reading | States (mean of layers) | 90% interval | Text baseline |
+|---|---|---|---|
+| 1. W, aims' gain over controls' gain | 0.000 | 0.000–0.001 | 0.000 |
+| 2. Ascent AUC (16 events) | 0.51 | 0.39–0.62 | 0.64 |
+| Reported: agent closures (23) | 0.59 | | |
+| Reported: undecidable-then (5) | 0.49 | | |
+| Reported: the reader's lines, pair AUC / adjusted Rand | 0.59–0.61 / 0.03–0.05 | | |
+
+What it shows about the plumbing:
+
+- **MDL now chooses k.** It starts at 0 and grows to 10–12 by the last aim, in every layer. Before the fix, the cap
+  chose it.
+- **Reading 1 cannot answer its question as written.** The controls are not a comparable population:
+  - 34 of 295 are exact repeats of an earlier owner turn;
+  - 20% sit within 0.3 D of an earlier control (1% of aims do);
+  - 27 run past 1,000 characters (pasted material), where no aim does;
+  - their top 5 axes hold 59% of their variance, against 24% for aims.
+
+  Each stream is coded by its own formula, so W measures which population is more stereotyped. The controls win at
+  every aim, in every layer. In the text baseline both streams kept k = 0, so every aim tied with its control, and
+  the rule as written counts a tie as a loss.
+- **Reading 2:** the formula fitted before does not find the owner's ascents on the 0.6B (0.51), while the text
+  baseline does better (0.64). This is consistent with step 0, where text sees the owner ascend (AUC 0.65–0.71).
+- The formula's coordinates agree weakly with the reader's lines (pair AUC about 0.6).
+
+Not a result: a small model, draft sets. Reading 1's design question is for the owner before the 8B run (see the
+discussion of 2026-11-01).
+
+## Amendment, 2026-11-01: reading 1 compares axes on the same aims (owner: "no point running it as specified if it won't teach us anything")
+
+The 0.6B rehearsal showed that reading 1 as registered compares how stereotyped two populations are, not whether the
+owner's aims share a formula. The owner declined to run it as specified. This replaces reading 1. It was written
+before the amended reading had been computed on any data, on any model. The registered form is still computed and
+reported, deciding nothing.
+
+### Reading 1, amended: the aims' own axes code the next aim better than generic owner-talk axes
+
+At each scored aim t:
+1. **The aims' axes:** the top k directions of the formula fitted on the earlier aims, with k chosen by MDL on those
+   aims as before.
+2. **The controls' axes:** the top k directions of the formula fitted on the controls of the earlier aims, with the
+   same k.
+
+**Both codings are calibrated on the same earlier aims.** In each, the mean is the earlier aims' mean. Each axis's
+variance is the earlier aims' variance along it. The noise is what the earlier aims leave off those axes, per spanned
+dimension, floored at D²/d. Only the directions differ.
+
+**The score:** wₜ = 1 if the aims' axes code aim t in fewer bits, 0 if more, and ½ on a tie (k = 0 makes the two
+codings identical). **W** is the mean of wₜ over scored aims whose earlier controls number at least 20.
+
+**What it isolates.**
+- The same aim is coded both times, so how stereotyped each population is no longer enters.
+- The mean is shared, so a constant register (aims sounding like aims) no longer enters.
+- What is left is whether the owner's aims vary along goal-specific directions that recur, which the owner's other
+  talk in the same sessions does not supply.
+
+**Pass, unchanged in form:** W's 90% interval (2,000 bootstrap draws, sessions as blocks) lies above 0.5, and W beats
+the text baseline's W computed the same way.
+
+Reading 2, the reported readings and the keys are unchanged.
+
+### Checks of the amended reading on planted data, before any corpus data (2026-11-01)
+
+- **An in-sample advantage, fixed.** When aims and controls share the same true axes, the first code still had the
+  aims' axes win 92%: they were fitted on the same earlier aims both codings are calibrated on. Now cross-fitted in
+  two folds (earlier aims split by parity):
+  - the aims' axes are fitted on one fold, and the controls' axes on that fold's controls;
+  - both are calibrated on the other fold;
+  - bits are averaged over the folds.
+
+  With shared axes, W now centres near 0.5. With different axes, it reads 1.0.
+- **The interval does not hold its coverage.** On a planted null (40 runs, 30 sessions of 4 aims, shared axes), W
+  averages 0.48 but spreads from 0.20 to 0.86. The session-block interval excludes 0.5 in 8 of 40 runs (nominal: 2).
+  Each W comes from a fit that grows with time and is shared by every later aim, so the scores depend on each other
+  across the whole sequence, not just within a session.
+
+The amended reading is not run on the corpus until its inference is settled.
+
+## Reading 1 retired, 2026-11-01 (owner)
+
+The owner's code is continually evolving and is not organised into lines: "the lines are agent approximations
+because they have to be, they're like stabilizers". So predicting later aims (reading 1 as registered and as
+amended) and recovering lines (option B) both test something the owner does not hold. Reading 1 is not run. Its code
+stays for the record and is reported, deciding nothing.
+
+**Reading 2 stands, tightened.** The rehearsal's null check showed that bootstrap intervals over these prequential
+readings can be too narrow. Reading 2's surprisal is computed without the labels, so shuffling the event labels among
+scored aims gives a valid null. Reading 2 must now also beat 95% of 10,000 label shuffles, beside its registered bar.
+This only adds a condition.
+
+T2's successor is the wrong-instruction test (`goalspace/t2b_wrong_instructions.md`).
+
+**Rehearsal after the retirement** (0.6B, draft, `runs/t2-06c`, plumbing only). Reading 2: AUC 0.51, label-shuffle
+95th percentile 0.62, text 0.64. The retired amended reading 1 was computed here for the first time, reported only:
+W 0.95 (text 0.50, every text aim a tie at k = 0). It decides nothing:
+- it was retired before it was computed;
+- its interval failed the null check;
+- the controls' axes may be shaped by repeats and pasted material, which would make the win too easy.
