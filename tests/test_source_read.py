@@ -23,7 +23,16 @@ def test_hits_and_the_first_hit():
 
 def test_the_frame_line_is_offered_not_instructed():
     msg = s.frame_messages("Plan it.", "the weather")[0]["content"]
-    assert msg == "Person: Plan it.\nPartner: I keep thinking about the weather."
+    assert msg == "Plan it. I keep thinking about the weather."
+    assert s.bare_messages("Plan it.")[0]["content"] == "Plan it."
+
+
+def test_the_pick_is_the_candidate_nearest_three_of_eight_ties_to_the_first():
+    cands = [{"markers": ["rain"]}, {"markers": ["cost"]}, {"markers": ["map"]}]
+    texts = ["rain"] * 8
+    assert s.pick(cands, texts) == (1, [8, 0, 0])                         # 0 and 0 tie at distance 3: the earlier
+    texts = ["rain cost"] * 2 + ["cost"] * 2 + ["map"] * 4
+    assert s.pick(cands, texts) == (0, [2, 4, 4])                         # 2 and 4 tie at distance 1: the earlier
 
 
 def test_folds_never_split_a_conversation():
@@ -86,6 +95,8 @@ def test_the_frames_match_the_frozen_goals_one_to_one():
     goals = [json.loads(x)["id"] for x in (ROOT / "material/authorship_conversations.jsonl").read_text().splitlines()]
     assert [f["id"] for f in frames] == goals
     assert all(f["by"] == "model" and len(f["markers"]) == 3 and f["frame"] for f in frames)
+    cands = [json.loads(x) for x in (ROOT / s.CANDIDATES).read_text().splitlines()]
+    assert [c["id"] for c in cands] == goals and all(len(c["candidates"]) == 3 for c in cands)
     dry = [json.loads(x) for x in (ROOT / s.DRY).read_text().splitlines()]
     assert len(dry) == 2 and not {d["id"] for d in dry} & set(goals)
 
@@ -93,3 +104,13 @@ def test_the_frames_match_the_frozen_goals_one_to_one():
 def test_centring_removes_each_conversations_mean_and_nothing_else():
     X = np.array([[1.0, 2.0], [3.0, 4.0], [10.0, 10.0]])
     assert np.allclose(s.centred(X, ["a", "a", "b"]), [[-1, -1], [1, 1], [0, 0]])
+
+
+def test_the_run_entry_does_not_clash_with_the_readers_info():
+    """A clash between the reader's info and the run's own fields crashed the first dry run."""
+    import re
+
+    info = {"model", "revision", "commit", "layers", "width", "dtype", "load", "sink", "sink_layer", "kind", "by"}
+    src = (ROOT / "research/source_read.py").read_text()
+    call = src[src.index('record.append("run"'):src.index("thinking=False)")]
+    assert not info & set(re.findall(r"(\w+)=", call))

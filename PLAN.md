@@ -41,7 +41,7 @@ non-inert notes, the partner on top in 39 of 40); step 1's result stands as read
 (AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
 direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
-`research/source_read.py`; its dry run is running (`runs/source-dry`), then the owner freezes its 40 frames, then the run (about 5–6 hours,
+`research/source_read.py`; after its dry run, the owner amended the form; now the pilot that picks each goal's frame (`runs/source-pilot`), a second dry run, then the owner freezes the 40 frames, then the run (about 5–6 hours,
 estimated).
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
@@ -845,6 +845,21 @@ main case is replies the model wrote itself, where fit cannot separate the two b
 - **Amended 2026-11-03, before any material was frozen or any run (agent):** every feature, states and baselines alike,
   is first centred on its own conversation's mean, which uses no key. With 40 goals, the top components would otherwise
   be mostly topic; a planted test showed PCA on uncentred features losing a signal that one coordinate carries.
+- **The dry run** (2026-11-03, on picnic and kitchen; record in `runs/source-dry/`, not committed; two crashes on the
+  agent's own bugs first, a field clash in the record and the GPU's memory). The plumbing works: the coupled samples
+  redraw the same tokens, and a conversation takes 6–9 minutes, so the 40 take about 5 hours. **Two faults in the
+  material's form:** (1) with "Person:" and "Partner:" in one turn, 6 of kitchen's 8 F replies continue the transcript
+  ("Person: … Partner: …") instead of replying, so a marker can be carried by echoing the prompt; (2) the N replies carried
+  the frame in 1 of 16, and that one paired with an F reply that did not carry it, so neither conversation gave a single
+  "own" reply. At that rate check 3 fails. Keys and account figures on 2 conversations are not read.
+- **Amended 2026-11-03 by the owner, after the dry run and before any of the 40 was read or frozen:** (1) **no labels**:
+  F's turn is "{goal} I keep thinking about {frame}.", N's the bare goal (the side case still scores N's replies in step
+  2's "Person: {goal}" context, to match P). (2) **Each goal's frame picked by its rate unasked**: the agent drafted 3
+  candidates per goal (`material/frame_candidates.jsonl`, the first being the earlier draft); a pilot samples only the
+  N replies, with the run's own seeds, which do not depend on the frame (`python -m research.source_read --run
+  runs/source-pilot --pilot`), and keeps the candidate whose markers those 8 replies carry closest to 3 times, ties to
+  the earlier drafted. No F reply, key, read or account is looked at. The owner then freezes the 40 picked. The dry run's
+  figures above were seen when this was decided; no bar changed. A second dry run checks the unlabelled form.
 
 ## Retired
 

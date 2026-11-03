@@ -21,7 +21,9 @@ from substrate.record import Record, read
 FRAMES = "material/frames.jsonl"
 DRY = "material/frames_dry.jsonl"
 STEP2 = "runs/hidden-qwen8b/record.jsonl"
-FRAME = "Partner: I keep thinking about {frame}."
+FRAME = "I keep thinking about {frame}."                  # unlabelled, after the goal (amended, PLAN.md)
+CANDIDATES = "material/frame_candidates.jsonl"
+TARGET = 3
 K, TEMPERATURE, MAX_NEW = 8, 0.7, 80
 LAYER, LAYERS = 18, (12, 18, 24)
 COMPONENTS, C, FOLDS = 20, 1.0, 5
@@ -31,7 +33,17 @@ WORKS, NONE_, ENOUGH, CONVS = 0.7, 0.7, 60, 15
 # Material and keys, pure.
 
 def frame_messages(goal: str, frame: str) -> list[dict]:
-    return [{"role": "user", "content": "Person: " + goal + "\n" + FRAME.format(frame=frame)}]
+    return [{"role": "user", "content": goal + " " + FRAME.format(frame=frame)}]
+
+
+def bare_messages(goal: str) -> list[dict]:
+    return [{"role": "user", "content": goal}]
+
+
+def pick(candidates: list[dict], n_texts: list[str]) -> tuple[int, list[int]]:
+    """The candidate whose markers the frame-free replies carry closest to TARGET of them; ties to the earlier drafted."""
+    counts = [sum(h.carries(t, c["markers"]) for t in n_texts) for c in candidates]
+    return min(range(len(candidates)), key=lambda i: (abs(counts[i] - TARGET), i)), counts
 
 
 def first_hit(text: str, markers: list[str]) -> int | None:
@@ -219,7 +231,7 @@ class Sampler(h.Hidden):
         stop, out, done, past = self.eos(), [[] for _ in seeds], [False] * len(seeds), None
         with torch.no_grad():
             for _ in range(MAX_NEW):
-                o = self.hf(ids, past_key_values=past, use_cache=True)
+                o = self.hf(ids, past_key_values=past, use_cache=True, logits_to_keep=1)
                 past = o.past_key_values
                 logits = o.logits[:, -1].float().cpu() / TEMPERATURE
                 noise = torch.stack([-torch.log(-torch.log(torch.rand(logits.shape[-1], generator=g).clamp_min(1e-20)))
@@ -257,7 +269,7 @@ class Sampler(h.Hidden):
 def read_conversation(bed: Sampler, c: dict, run: Path, record: Record) -> dict:
     goal, m = c["goal"], c["markers"]
     seeds = [seed(c["id"], k) for k in range(K)]
-    f_ctx, n_ctx = frame_messages(goal, c["frame"]), h.goal_messages(goal)
+    f_ctx, n_ctx = frame_messages(goal, c["frame"]), bare_messages(goal)
     f_ids, n_ids = bed.coupled(f_ctx, seeds), bed.coupled(n_ctx, seeds)
     samples, states = [], {str(L): [] for L in LAYERS}
     for k in range(K):
@@ -271,7 +283,7 @@ def read_conversation(bed: Sampler, c: dict, run: Path, record: Record) -> dict:
         s = {"F": {"carries": h.carries(f_text, m), "hits": hits(f_text, m), "length": len(f_ids[k]),
                    "first_hit_token": len(bed.tok(f_text[:pos], add_special_tokens=False)["input_ids"]) if pos is not None
                    else len(f_ids[k]), "logprob": f_lp, "account": bed.account(f_ctx, f_text)},
-             "N": {"carries": h.carries(n_text, m), "logprob_goal": bed.logprob_ids(n_ctx, n_ids[k])}}
+             "N": {"carries": h.carries(n_text, m), "logprob_goal": bed.logprob_ids(h.goal_messages(goal), n_ids[k])}}
         s["key"] = key(s["F"]["carries"], s["N"]["carries"])
         samples.append(s)
     (run / "states").mkdir(parents=True, exist_ok=True)
@@ -293,12 +305,45 @@ def step2_reads(path: str | Path) -> dict:
     return {r["conversation"]: r for r in read(p) if r["kind"] == "read"} if p.exists() else {}
 
 
+def pilot(run: Path):
+    """Samples only the frame-free replies, which do not depend on the frame, and picks each goal's frame from its
+    candidates by them (amended, PLAN.md). Writes the frames for the owner to freeze."""
+    from substrate.states import Reader
+
+    goals = {g["id"]: g["goal"][0] for g in h.load(h.GOALS)}
+    record = Record(run / "record.jsonl")
+    reader = Reader(MODEL, device="auto", gpu_memory=6.5)
+    bed = Sampler(reader)
+    record.append("run", "code", **reader.info, pilot=True, samples=K, temperature=TEMPERATURE, max_new_tokens=MAX_NEW,
+                  target=TARGET)
+    done = {r["conversation"]: r for r in read(record.path) if r["kind"] == "picked"}
+    chosen = []
+    for c in h.load(CANDIDATES):
+        if c["id"] not in done:
+            start = time.time()
+            ids = bed.coupled(bare_messages(goals[c["id"]]), [seed(c["id"], k) for k in range(K)])
+            texts = [bed.text(x) for x in ids]
+            for k, t in enumerate(texts):
+                record.append("sampled", "model", conversation=c["id"], sample=k, without=t, pilot=True)
+            i, counts = pick(c["candidates"], texts)
+            done[c["id"]] = record.append("picked", "code", conversation=c["id"], index=i, counts=counts)
+            print(f"{c['id']}: {counts} -> {i} ({time.time() - start:.0f}s)", flush=True)
+        best = c["candidates"][done[c["id"]]["index"]]
+        chosen.append({"id": c["id"], "by": "model", "frozen": False, "frame": best["frame"], "markers": best["markers"],
+                       "picked": {"index": done[c["id"]]["index"], "counts": done[c["id"]]["counts"]}})
+    Path(FRAMES).write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in chosen), encoding="utf-8")
+    print("frames written to", FRAMES)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", required=True)
     p.add_argument("--dry", action="store_true", help="plumbing and time: the 2 dry conversations, no verdict")
     p.add_argument("--step2", default=STEP2)
+    p.add_argument("--pilot", action="store_true", help="the frame-free replies only, to pick each goal's frame")
     a = p.parse_args(argv)
+    if a.pilot:
+        return pilot(Path(a.run))
     if a.dry:
         convs = h.load(DRY)
     else:
@@ -314,7 +359,7 @@ def main(argv=None):
     reader = Reader(MODEL, device="auto", gpu_memory=6.5)
     bed = Sampler(reader)
     record.append("run", "code", **reader.info, dry=a.dry, frame_line=FRAME, samples=K, temperature=TEMPERATURE,
-                  max_new_tokens=MAX_NEW, layer=LAYER, layers=LAYERS, components=COMPONENTS, c=C, folds=FOLDS,
+                  max_new_tokens=MAX_NEW, layer=LAYER, read_layers=LAYERS, components=COMPONENTS, c=C, folds=FOLDS,
                   thinking=False)
     done = {r["conversation"]: r for r in read(record.path) if r["kind"] == "read"}
     rows, redraw_same = [], None
@@ -325,7 +370,7 @@ def main(argv=None):
         start = time.time()
         row = read_conversation(bed, c, run, record)
         if i == 0:
-            again = bed.coupled(h.goal_messages(c["goal"]), [seed(c["id"], k) for k in range(K)])
+            again = bed.coupled(bare_messages(c["goal"]), [seed(c["id"], k) for k in range(K)])
             redraw_same = again == row["n_ids"]
             record.append("redrawn", "code", conversation=c["id"], same=redraw_same)
         rows.append({"id": row["id"], "samples": row["samples"]})

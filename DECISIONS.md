@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Step 3's form amended after its dry run** (owner): no speaker labels, and each goal's frame picked from 3
+  candidates by how often the model raises it unasked, from frame-free samples only. No bar changes (PLAN.md).
 - 2026-11-03: **Step 3 reshaped; step 2 checked with a second wording** (owner). Step 3's main case is replies the model
   wrote itself, keyed by coupled samples with and without a partner's frame; prefill is a side case. Injection stays parked.
 - 2026-11-02: **Step 2's injection vector amended after the dry run; its 40 directions frozen as drafted** (owner). The
