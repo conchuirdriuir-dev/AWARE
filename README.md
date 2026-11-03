@@ -2,12 +2,14 @@
 
 The goal, in the owner's words: "The agent should function as if it is aware, even without metacognition machinery."
 
-The entity is a trajectory through a frozen local model's activation space, with an observer riding alongside it: a
+The entity is a trajectory through a local model's activation space (the base weights never changed;
+anything learned is a removable graft), with an observer riding alongside it: a
 retained low-dimensional code fit to the trajectory, and a model of the trajectory's dynamics in that code. Everything
 the project does is a use of that observer. The design is the Big Picture doc
 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a Claude Doc; its Entity tab is the parent).
 
-Two tracks share one substrate and are kept apart ([PLAN.md](PLAN.md)):
+Since 2026-11-02 these are one project and one loop, with their measures kept apart ([PLAN.md](PLAN.md)). The two tracks
+as they were built:
 - **Product: drift detection, then self-correction** (`product/`). The demo: it catches the loop from the shape, not
   the words.
 - **Research: reasoning over the entity's own axes** (`research/`). Relations, operations, composition and order. No
@@ -31,6 +33,10 @@ exposed that novelty is measured against recent history only; round 7a, with arr
 seven of ten, separation among them; round 7b (contingency, the reactive toy) passes seven of twelve and shows that
 detecting repeated content waits on the real model's echo floor. On the owner's logged sessions, news read alone
 against alone tells repeats from new content at every layer (Qwen3-0.6B, a dress rehearsal). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
+
+Since 2026-11-02 the focus is the research track and the product rests on a baseline (DECISIONS.md). The D jump on the
+8B is explained and the reader now finds the attention sink by norm; Gate 1 ran, undecided. The track's question is now
+causal authorship. **Where things stand and where they go next: PLAN.md, "Current state and direction".**
 
 ## Running
 

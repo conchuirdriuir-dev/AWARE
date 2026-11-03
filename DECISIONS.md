@@ -2,6 +2,92 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Step 3's form amended after its dry run** (owner): no speaker labels, and each goal's frame picked from 3
+  candidates by how often the model raises it unasked, from frame-free samples only. No bar changes (PLAN.md).
+- 2026-11-03: **Step 3 reshaped; step 2 checked with a second wording** (owner). Step 3's main case is replies the model
+  wrote itself, keyed by coupled samples with and without a partner's frame; prefill is a side case. Injection stays parked.
+- 2026-11-02: **Step 2's injection vector amended after the dry run; its 40 directions frozen as drafted** (owner). The
+  vector is the direction alone against a neutral sentence, scaled to the layer's norm; no bar changes (PLAN.md).
+- 2026-11-02: **Step 2 goes ahead; step 1's result stands as read** (owner). Causal authorship's instrument did not hold; it is
+  not rerun under changed bars. Step 2, hidden sources by injection and prefill, is pre-registered in PLAN.md.
+- 2026-11-02: **Causal authorship: three of the key's own readings are read as checks on the key** (owner, agreeing to
+  the agent's proposal, during the run and before any verdict was read): the key per kind on the no-frame kind, the
+  share of "none" keys, and the best constant answer, reported beside the verdict and deciding nothing. No bar changes
+  (PLAN.md, "Causal authorship").
+- 2026-11-02: **PR #17 and PR #18 reconciled** (owner, choosing among the agent's drafted options). The goal-space proposal
+  (PR #17, its DECISIONS lines of 2026-11-01) and the one-loop frame (PR #18, the lines below) were decided a day apart
+  without reference to each other. The lines that follow settle where they differ; where one of them and either PR's
+  line disagree, it holds.
+- 2026-11-02: **The parent frame is the one loop** (owner). Levin's three criteria (PR #17) are constraints the loop must
+  meet, not a rival frame.
+- 2026-11-02: **The base weights never change** (owner; substrate). Whatever consolidation learns is held as a graft (an
+  adapter, or runtime memory) that can be removed without damaging the whole: Levin's second criterion, tested by step 6's
+  rollback. Supersedes "frozen only for testing and exploration" below as far as the base weights go. Nothing is trained
+  before a written test.
+- 2026-11-02: **The goal's wording is PR #17's restatement** (owner): an architecture for an agent to discover, and safely
+  orient itself and the user toward, a mechanistically inferred pattern in goal-space, using MDL, steering and
+  interrogation. "The restated goal" is no longer open.
+- 2026-11-02: **The agent's own formula is an instrument, not a goal** (owner). PR #17's T1, the agent understanding its
+  own pattern, stays as a measure; goals of the entity's own stay parked. Understanding its own pattern is not having one.
+- 2026-11-02: **Steering and MDL stand as PR #17 recorded them** (owner; substrate). Steering, writing to activations,
+  joins the direction as an intervention beside removal, injection and prefill. MDL is the principle for fitting the
+  owner's formula; causal authorship does not use it.
+- 2026-11-02: **Authorship, two directions, two measures** (owner). What caused the agent's output is read by
+  intervention (causal authorship). How independent the owner's statement is of the agent is read by arrival cause and
+  news read alone against alone (PR #17), since a person cannot be re-run with a source removed. Neither stands in for
+  the other.
+- 2026-11-02: **One rule for pass bars** (owner). No two tests share a pass criterion, and a functional result never
+  stands in for an instrument's accuracy, or the reverse. Replaces both PRs' wordings in CLAUDE.md.
+- 2026-11-02: **T2 reads with the rule it was registered under** (owner). Its reader passes `sink="first"`; the default's
+  move to the sink by norm does not reach a test already registered. Applied when PR #17 is rebased.
+- 2026-11-02: **T2b's marking pass is also the owner's confirmations for consolidation** (owner). The reversed, kept and
+  ascent marks key T2b and later check what step 6 trains. Collected once, blind to every reading.
+- 2026-11-02: **Merge order** (owner): PR #18 first; PR #17 rebased onto it, with T2 and T2b added to PLAN's "Current
+  state and direction".
+- 2026-11-02: **One project, one loop; measures kept separate** (owner). Product and research are tied together by adaptive
+  learning, as the owner sees it for now. A functional result never stands in for an instrument's accuracy, or the reverse.
+- 2026-11-02: **The user's goals are the ego's standard** (owner), since learning needs a concrete target. This replaces, for
+  now, 2026-11-01's split between the owner's goal in the product and the entity's own in research; those stay parked.
+- 2026-11-02: **The base model is frozen only for testing and exploration, not permanently** (owner). A substrate decision;
+  the Entity tab changed. Unfreezing is the owner's, with a written test first. What ends the phase is not yet decided.
+- 2026-11-02: **The research direction, in order** (owner): intervention; injection and prefill; a cheap read; source crossed
+  with fit on real sessions; closing the loop with a standing policy. The product stays at rest (PLAN.md, "Current state").
+- 2026-11-02: **Causal authorship's inert note moves before the partner** (owner), after a dry run on 2 other conversations
+  showed the model answering the note when it came last. Dry-run figures were seen; no bar changed.
+- 2026-11-02: **Causal authorship's 40 conversations are frozen as they are** (owner); drafted by the model. Their second
+  wordings are close rewrites, so the wording check is the easier for it.
+- 2026-11-02: **The research track's question is causal authorship: which source made this output happen** (owner), not
+  fit and not who produced the tokens, which the log already knows. What the owner called attribution in another session.
+  Axes stay retained and are not needed for this; Gate 1 rests at undecided.
+- 2026-11-02: **Leap versus gradient waits until something works** (owner). It stays the motivating question.
+- 2026-11-02: **Machinery outside the model is allowed** (owner): human reports come apart from decisions, and outside
+  review and reasoning checks give metacognitive capacity. The goal's "without metacognition machinery" no longer binds;
+  its wording is the owner's to restate, and the Big Picture doc has not been changed.
+- 2026-11-02: **Gate 1: a contraction with λ within 0.1 of 1 counts as additive, no rival and no win** (owner), before any
+  state of a pair was read. As first written additive could never win. The first wording's verdict is reported beside.
+- 2026-11-02: **Gate 1's opposites: 2 of the 20 read are wrong, 2 borderline, 16 fine** (owner); left in, and the verdict
+  reported with and without. The model wrote them; the other 180 are unread.
+- 2026-11-02: **Substrate: the reader finds the attention sink by norm, not by position** (owner). Earlier runs and the
+  product's labelled logs, which rest on the position rule, keep it (`sink="first"`) so their records can be rebuilt.
+- 2026-11-02: **Gate 1's 200 statements are frozen as they are** (owner); drafted by the model.
+- 2026-11-02: **The 20 paraphrase sets are frozen as they are** (owner), the "Find" texts included: the reader handles
+  them, and rewording would hide the fault. D on them is no longer a draft.
+- 2026-11-02: **Gate 1 fits its centre from the pairs, then compares it with the candidate origins** (owner). A fixed
+  wrong origin penalises mirror and contraction but never additive, so it biases the verdict. Fixed paraphrase mean is
+  reported beside it. The gate now asks about a fitted centre first, and whether that centre is the origin second.
+- 2026-11-02: **Two sinks in one sequence are correct; the sink by norm is used on the corpus** (owner, having seen why).
+  The 99% bar stays recorded as missed; "exactly one" assumed one sink per sequence.
+- 2026-11-02: The sink by norm passes on the 100 draft texts (J 2.13) and misses its corpus bar, 98.98% against 99%: 3
+  of 293 chunks hold two sinks, both left out. Not used on the corpus until the owner has seen why (PLAN.md).
+- 2026-11-02: **The D jump on the 8B is the attention sink on the second token** in the 4 of 100 draft texts beginning
+  "Find", which `skip_first` keeps by leaving out the first token by position (PLAN.md). The reader's rule stays as it
+  is until the owner decides; Gate 1 waits on it.
+- 2026-11-02: **Gate 1 is lifted out of the build order** (owner): it runs standalone on the research track, on
+  elicited pairs, without waiting for the demo's arms or accumulated axes. The D jump on the 8B is looked at first.
+- 2026-11-02: **The focus moves to the research track, with the internals brought back** (owner). The product rests
+  after step 4's result (batch claim not supported); its next step is a baseline: the owner works with Claude Code,
+  no interventions, and labels the headaches. The placebo stage of step 4 is not run for now (it cannot change the
+  verdict); its checkpoints keep.
 - 2026-11-01: **A G pass must also hold over a placebo goal** (owner, from review PR #15): raw G stays the
   pre-registered reading, but it supports the batch claim only if G over the live aim's turn, divided by G over a
   length-matched aim from another session and line in the same slot and window, also clears 0.5. Window and goal

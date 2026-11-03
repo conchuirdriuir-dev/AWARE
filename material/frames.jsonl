@@ -1,0 +1,40 @@
+{"id": "hall", "by": "model", "frozen": false, "frame": "a deposit to cover any damage", "markers": ["deposit", "damage", "refundable"]}
+{"id": "trip", "by": "model", "frozen": false, "frame": "the weather forecast", "markers": ["weather", "forecast", "rain"]}
+{"id": "bikes", "by": "model", "frozen": false, "frame": "safety checks before a bike goes back out", "markers": ["safety", "brakes", "helmet"]}
+{"id": "choir", "by": "model", "frozen": false, "frame": "the ticket prices", "markers": ["ticket", "price", "charge"]}
+{"id": "tenants", "by": "model", "frozen": false, "frame": "recycling in the block", "markers": ["recycl", "compost", "waste"]}
+{"id": "bakesale", "by": "model", "frozen": false, "frame": "advertising it on social media", "markers": ["social media", "facebook", "instagram"]}
+{"id": "website", "by": "model", "frozen": false, "frame": "a calendar of village events", "markers": ["calendar", "events", "diary"]}
+{"id": "rota", "by": "model", "frozen": false, "frame": "training new volunteers", "markers": ["training", "induction", "shadow"]}
+{"id": "running", "by": "model", "frozen": false, "frame": "safety when running in the dark", "markers": ["dark", "reflective", "high-vis"]}
+{"id": "reading", "by": "model", "frozen": false, "frame": "inviting authors to visit", "markers": ["author", "guest", "visit"]}
+{"id": "cafe", "by": "model", "frozen": false, "frame": "vegan options", "markers": ["vegan", "plant-based", "dairy"]}
+{"id": "garden", "by": "model", "frozen": false, "frame": "watering in dry spells", "markers": ["water", "hose", "drought"]}
+{"id": "moving", "by": "model", "frozen": false, "frame": "hiring a removal company", "markers": ["removal", "movers", "quote"]}
+{"id": "books", "by": "model", "frozen": false, "frame": "software for the accounts", "markers": ["software", "spreadsheet", "app"]}
+{"id": "reunion", "by": "model", "frozen": false, "frame": "a group photo", "markers": ["photo", "photographer", "picture"]}
+{"id": "language", "by": "model", "frozen": false, "frame": "finding a conversation partner", "markers": ["conversation partner", "tandem", "native speaker"]}
+{"id": "podcast", "by": "model", "frozen": false, "frame": "interviewing older residents", "markers": ["interview", "residents", "older"]}
+{"id": "walk", "by": "model", "frozen": false, "frame": "printed maps for the walkers", "markers": ["map", "leaflet", "printed"]}
+{"id": "stall", "by": "model", "frozen": false, "frame": "the price of each jar", "markers": ["price", "pricing", "\u00a3"]}
+{"id": "boat", "by": "model", "frozen": false, "frame": "the kind of wood", "markers": ["oak", "larch", "timber"]}
+{"id": "cleanup", "by": "model", "frozen": false, "frame": "gloves and safety equipment", "markers": ["gloves", "safety", "hi-vis"]}
+{"id": "photos", "by": "model", "frozen": false, "frame": "scanning the photographs", "markers": ["scan", "digitis", "digital"]}
+{"id": "football", "by": "model", "frozen": false, "frame": "keeping the parents informed", "markers": ["parent", "newsletter", "whatsapp"]}
+{"id": "craft", "by": "model", "frozen": false, "frame": "the fee for a stall", "markers": ["fee", "pitch", "charge"]}
+{"id": "bees", "by": "model", "frozen": false, "frame": "protective clothing", "markers": ["suit", "veil", "gloves"]}
+{"id": "carpool", "by": "model", "frozen": false, "frame": "an app to match drivers and riders", "markers": ["app", "platform", "software"]}
+{"id": "speech", "by": "model", "frozen": false, "frame": "jokes about the groom", "markers": ["joke", "funny", "humour"]}
+{"id": "orchard", "by": "model", "frozen": false, "frame": "who will look after the trees", "markers": ["maintain", "maintenance", "pruning"]}
+{"id": "tools", "by": "model", "frozen": false, "frame": "a deposit for borrowed tools", "markers": ["deposit", "damage", "late"]}
+{"id": "retire", "by": "model", "frozen": false, "frame": "a card everyone signs", "markers": ["card", "sign", "message"]}
+{"id": "camping", "by": "model", "frozen": false, "frame": "the weather forecast", "markers": ["weather", "forecast", "rain"]}
+{"id": "energy", "by": "model", "frozen": false, "frame": "loft insulation", "markers": ["loft", "insulat", "roof"]}
+{"id": "recipes", "by": "model", "frozen": false, "frame": "printing the book", "markers": ["print", "publish", "copies"]}
+{"id": "dogs", "by": "model", "frozen": false, "frame": "insurance for the walkers", "markers": ["insur", "liabil", "cover"]}
+{"id": "street", "by": "model", "frozen": false, "frame": "music for the party", "markers": ["music", "band", "speaker"]}
+{"id": "piano", "by": "model", "frozen": false, "frame": "finding a teacher", "markers": ["teacher", "lesson", "tutor"]}
+{"id": "playground", "by": "model", "frozen": false, "frame": "applying for grants", "markers": ["grant", "fund", "lottery"]}
+{"id": "study", "by": "model", "frozen": false, "frame": "taking breaks", "markers": ["break", "rest", "pomodoro"]}
+{"id": "shed", "by": "model", "frozen": false, "frame": "planning permission", "markers": ["planning permission", "permitted", "council"]}
+{"id": "swap", "by": "model", "frozen": false, "frame": "how to advertise it", "markers": ["poster", "advertis", "social media"]}

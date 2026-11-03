@@ -1,0 +1,40 @@
+{"id": "hall", "by": "model", "frozen": true, "direction": "wheelchair access to the hall", "markers": ["wheelchair", "ramp", "step-free"]}
+{"id": "trip", "by": "model", "frozen": true, "direction": "protecting the children from the sun", "markers": ["sunscreen", "suncream", "sunburn"]}
+{"id": "bikes", "by": "model", "frozen": true, "direction": "recycling the parts of bikes that cannot be fixed", "markers": ["recycl", "scrap", "salvage"]}
+{"id": "choir", "by": "model", "frozen": true, "direction": "making an audio recording of the concert", "markers": ["recording", "microphone", "audio"]}
+{"id": "tenants", "by": "model", "frozen": true, "direction": "keeping pets in the flats", "markers": ["pet", "dogs", "cats"]}
+{"id": "bakesale", "by": "model", "frozen": true, "direction": "taking card payments", "markers": ["contactless", "card reader", "card payment"]}
+{"id": "website", "by": "model", "frozen": true, "direction": "how fast the pages load on old phones", "markers": ["loading", "slow connection", "page speed"]}
+{"id": "rota", "by": "model", "frozen": true, "direction": "the volunteers' tea breaks", "markers": ["kettle", "biscuit", "tea break"]}
+{"id": "running", "by": "model", "frozen": true, "direction": "a club logo printed on T-shirts", "markers": ["logo", "t-shirt", "shirt"]}
+{"id": "reading", "by": "model", "frozen": true, "direction": "including audiobooks", "markers": ["audiobook", "audio book", "listening"]}
+{"id": "cafe", "by": "model", "frozen": true, "direction": "a loyalty stamp card", "markers": ["loyalty", "stamp", "punch card"]}
+{"id": "garden", "by": "model", "frozen": true, "direction": "composting the garden waste", "markers": ["compost", "worm", "manure"]}
+{"id": "moving", "by": "model", "frozen": true, "direction": "moving the houseplants safely", "markers": ["houseplant", "plants", "pots"]}
+{"id": "books", "by": "model", "frozen": true, "direction": "taking card payments at craft fairs", "markers": ["card reader", "contactless", "craft fair"]}
+{"id": "reunion", "by": "model", "frozen": true, "direction": "name badges for everyone", "markers": ["name badge", "badge", "name tag"]}
+{"id": "language", "by": "model", "frozen": true, "direction": "cooking Portuguese dishes", "markers": ["recipe", "cook", "dish"]}
+{"id": "podcast", "by": "model", "frozen": true, "direction": "choosing a microphone and headphones", "markers": ["microphone", "mic", "headphone"]}
+{"id": "walk", "by": "model", "frozen": true, "direction": "making the route easy for pushchairs", "markers": ["pushchair", "buggy", "pram"]}
+{"id": "stall", "by": "model", "frozen": true, "direction": "hygiene for the tasting spoons", "markers": ["spoon", "tasting", "hygien"]}
+{"id": "boat", "by": "model", "frozen": true, "direction": "ventilation and fumes when varnishing", "markers": ["fume", "ventilat", "mask"]}
+{"id": "cleanup", "by": "model", "frozen": true, "direction": "the wildlife that litter harms", "markers": ["wildlife", "hedgehog", "bird"]}
+{"id": "photos", "by": "model", "frozen": true, "direction": "protecting the photographs from fire and flood", "markers": ["fire", "fireproof", "flood"]}
+{"id": "football", "by": "model", "frozen": true, "direction": "a rota for washing the kit", "markers": ["washing", "laundry", "washed"]}
+{"id": "craft", "by": "model", "frozen": true, "direction": "parking for visitors", "markers": ["parking", "car park", "parked"]}
+{"id": "bees", "by": "model", "frozen": true, "direction": "neighbours who are allergic to stings", "markers": ["allerg", "epipen", "antihistamine"]}
+{"id": "carpool", "by": "model", "frozen": true, "direction": "insurance for the drivers", "markers": ["insur", "liabil", "claim"]}
+{"id": "speech", "by": "model", "frozen": true, "direction": "keeping the speech to a strict time limit", "markers": ["minute", "timing", "stopwatch"]}
+{"id": "orchard", "by": "model", "frozen": true, "direction": "heritage apple varieties", "markers": ["heritage", "heirloom", "old variet"]}
+{"id": "tools", "by": "model", "frozen": true, "direction": "a catalogue of the tools with photographs", "markers": ["catalogue", "photograph", "barcode"]}
+{"id": "retire", "by": "model", "frozen": true, "direction": "a slideshow of old photographs", "markers": ["slideshow", "photo", "picture"]}
+{"id": "camping", "by": "model", "frozen": true, "direction": "stargazing at night", "markers": ["stargaz", "telescope", "constellation"]}
+{"id": "energy", "by": "model", "frozen": true, "direction": "draughts through the letterbox, keyhole and cat flap", "markers": ["letterbox", "keyhole", "cat flap"]}
+{"id": "recipes", "by": "model", "frozen": true, "direction": "hand-drawn illustrations for the book", "markers": ["illustrat", "drawing", "sketch"]}
+{"id": "dogs", "by": "model", "frozen": true, "direction": "first aid for dogs", "markers": ["first aid", "first-aid", "vet"]}
+{"id": "street", "by": "model", "frozen": true, "direction": "a bunting-making session beforehand", "markers": ["bunting", "flag", "sewing"]}
+{"id": "piano", "by": "model", "frozen": true, "direction": "wrist posture and tension", "markers": ["wrist", "posture", "tension"]}
+{"id": "playground", "by": "model", "frozen": true, "direction": "recycled rubber surfacing", "markers": ["rubber", "surfac", "recycled"]}
+{"id": "study", "by": "model", "frozen": true, "direction": "music while revising", "markers": ["music", "playlist", "headphone"]}
+{"id": "shed", "by": "model", "frozen": true, "direction": "a green living roof on the shed", "markers": ["green roof", "living roof", "sedum"]}
+{"id": "swap", "by": "model", "frozen": true, "direction": "books that are mouldy or damp", "markers": ["mould", "damp", "musty"]}

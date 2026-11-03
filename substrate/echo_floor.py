@@ -229,13 +229,14 @@ def d_resumable(reader, sets, layers, record, draft, skip_first) -> np.ndarray:
     path = _checkpoint(record, "d.json")
     if path.exists():
         saved = json.loads(path.read_text())
-        if saved["layers"] == list(layers) and saved["skip_first"] == skip_first:
+        if (saved["layers"] == list(layers) and saved["skip_first"] == skip_first
+                and saved.get("sink", "first") == reader.info["sink"]):
             record.append("resumed", "code", step="D", checkpoint=str(path))
             return np.array(saved["D"])
     report = measure(reader, sets, layers, record, draft=draft, skip_first=skip_first)
     D = [row["D"] for row in report["layers"]]
     tmp = path.with_name("d.tmp.json")
-    tmp.write_text(json.dumps({"layers": list(layers), "skip_first": skip_first, "D": D}))
+    tmp.write_text(json.dumps({"layers": list(layers), "skip_first": skip_first, "sink": reader.info["sink"], "D": D}))
     os.replace(tmp, path)
     return np.array(D)
 
