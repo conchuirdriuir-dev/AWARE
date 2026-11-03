@@ -106,13 +106,61 @@ def by_source(X: np.ndarray, sources: list[str], floor_var: float, burn_self: in
     return out
 
 
-def cost(L_now: np.ndarray) -> np.ndarray:
-    """C_t: a scored chunk's code length minus the median over the session's earlier scored chunks (NaN for the
-    first)."""
+def cost(L_now: np.ndarray, window: int = 20) -> np.ndarray:
+    """C_t: a scored chunk's code length minus the median over the `window` scored chunks before it (NaN until there
+    are that many), as T2's surprisal is (amended 2026-11-03: against all earlier chunks it read position in the
+    session, since prequential code lengths fall as a session grows)."""
     c = np.full(len(L_now), np.nan)
     seen = []
     for t in np.flatnonzero(np.isfinite(L_now)):
-        if seen:
-            c[t] = L_now[t] - float(np.median(seen))
+        if len(seen) >= window:
+            c[t] = L_now[t] - float(np.median(seen[-window:]))
         seen.append(L_now[t])
     return c
+
+
+def reported(X: np.ndarray, sources: list[str], scored: np.ndarray, unit: float, history: int = 60,
+             back: int = 20) -> dict:
+    """Per scored self chunk, the readings Step 0 reports and decides nothing with, all computed without labels:
+
+    - coupling: `substrate.coupling.coupling` over the `history` self chunks ending at t, with E(i) the mean of the
+      partner chunks arriving between self chunk i and the next (the window's centroid where none arrive);
+    - B: that fit's dynamic residual at t minus the same `back` self chunks earlier (proxy B, a trend);
+    - opens: 1 if self chunk t sits farther than sqrt(2) * unit from every earlier chunk and a later self chunk comes
+      back within sqrt(2) * unit of it (proxy C, offline: it reads the future). sqrt(2) * D is the toy's echo
+      floor, used because the measured floor varies with position.
+    """
+    from substrate.coupling import COUPLING_AXES, LAGS, coupling
+
+    X = np.asarray(X, dtype=np.float64)
+    n = len(X)
+    src = np.asarray(sources)
+    selves = np.flatnonzero(src == "self")
+    pos = {t: j for j, t in enumerate(selves)}
+    out = {k: np.full(n, np.nan) for k in ("coupling", "residual", "B", "opens")}
+    sq = (X ** 2).sum(1)
+    D2 = np.maximum(sq[:, None] + sq[None, :] - 2 * X @ X.T, 0.0)
+    r2 = 2.0 * unit ** 2
+    for t in np.flatnonzero(scored):
+        j = pos[t]
+        if j + 1 >= history:
+            hist = selves[j + 1 - history:j + 1]
+            S = X[hist]
+            c = S.mean(0)
+            E = np.tile(c, (len(hist), 1))
+            for i in range(len(hist) - 1):
+                between = np.arange(hist[i] + 1, hist[i + 1])
+                between = between[src[between] == "partner"]
+                if len(between):
+                    E[i] = X[between].mean(0)
+            if len(hist) > LAGS + 4:
+                r = coupling(S, E, c, k=min(COUPLING_AXES, len(hist) - 1), p=LAGS)
+                out["coupling"][t], out["residual"][t] = r["coupling"], r["residual"]
+        new = t == 0 or D2[t, :t].min() > r2
+        later = selves[selves > t]
+        out["opens"][t] = float(new and len(later) > 0 and D2[t, later].min() <= r2)
+    for t in np.flatnonzero(scored):
+        j = pos[t]
+        if j >= back and np.isfinite(out["residual"][t]) and np.isfinite(out["residual"][selves[j - back]]):
+            out["B"][t] = out["residual"][t] - out["residual"][selves[j - back]]
+    return out

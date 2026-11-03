@@ -932,8 +932,8 @@ The corpus is private: only references and numbers enter this repository or its 
     thought, and too many to read.
 
   Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
-- **Scored chunks:** the agent's (self) chunks from the 40th self chunk of a session on; earlier chunks fit, never
-  score.
+- **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
+  of 2026-11-03); earlier chunks fit, never score.
 - **Who is read:** the local model reads Claude's sessions, so this tests the readout as a schema of another mind. Said
   so wherever it is used.
 
@@ -958,8 +958,8 @@ Then, per scored chunk:
   owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
 - **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
 - **Self-progress** S_t = L_noself − L_now.
-- **Cost** C_t = L_now − the median of L_now over the session's earlier scored self chunks: cheap below zero, costly
-  above.
+- **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
+  below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
 
 A window with no owner chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
 nothing is part of the reading.
@@ -1057,12 +1057,20 @@ on 2 CPUs. Its AUCs are stated so that the amendments proposed below are seen no
   200; partner cross-progress 7.8 against 7.0. In ascents, partner 32 against 13.
 - **Time:** codes take about as long per space as the text space did, so the 8B's 12 layers come to about 4 hours of
   fitting plus the reading; no thinning is needed.
-- **Not yet in the code** (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X with W of 10
-  and 40. To be added before the result run.
+- **Not yet in the code** at the time (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X
+  with W of 10 and 40. Added the same day, label-blind, per scored chunk (`body.progress.reported`): coupling over the
+  60 self chunks ending at t with E the mean of the partner chunks arriving between self chunks; B as that fit's
+  residual at t minus 20 self chunks before; C as a self chunk that sits beyond √2·D of every earlier chunk and is
+  returned to within √2·D later (the toy's echo floor, since the measured floor varies with position).
 
-**Proposed amendments, for the owner, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th,
-so more closures score; (2) cost against the median of the 20 scored chunks before, as T2's surprisal is. No bar
-changes.
+**Amendments, owner, 2026-11-03, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th; (2)
+cost against the median of the 20 scored chunks before. No bar changes.
+
+**After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
+alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
+agent messages), and 7 have no control, because their span runs most of the session or the session is short.
+**Proposed, for the owner:** (3) where a session holds no control, take it from the nearest session in time, by the
+same rules; reported as cross-session. That makes 20.
 
 ## Retired
 

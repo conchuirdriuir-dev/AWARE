@@ -2,7 +2,7 @@
 readings behave as Step 0 registers them on toy streams."""
 import numpy as np
 
-from body.progress import GramFit, by_source, code, cost
+from body.progress import GramFit, by_source, code, cost, reported
 from goalspace.formula import Fit
 
 
@@ -63,7 +63,17 @@ def test_no_partner_in_window_reads_zero_and_unscored_rows_are_nan():
     assert np.all(np.isfinite(out["S"][scored]))
 
 
-def test_cost_is_relative_to_earlier_scored_chunks():
-    L = np.array([np.nan, 10.0, 12.0, np.nan, 8.0])
-    c = cost(L)
-    assert np.isnan(c[1]) and c[2] == 2.0 and c[4] == -3.0
+def test_cost_is_relative_to_the_recent_scored_chunks():
+    L = np.array([np.nan, 10.0, 12.0, np.nan, 8.0, 20.0])
+    c = cost(L, window=2)
+    assert np.isnan(c[1]) and np.isnan(c[2]) and c[4] == -3.0 and c[5] == 10.0
+
+
+def test_reported_readings_run_label_blind():
+    rng = np.random.default_rng(4)
+    X, src = _stream(rng, 200, 8, True)
+    scored = np.zeros(200, bool)
+    scored[[t for t in range(150, 200) if src[t] == "self"]] = True
+    r = reported(X, src, scored, unit=0.5)
+    assert np.isfinite(r["coupling"][scored]).all() and np.isfinite(r["B"][scored]).any()
+    assert set(np.unique(r["opens"][scored])) <= {0.0, 1.0}

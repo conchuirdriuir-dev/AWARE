@@ -20,13 +20,14 @@ from pathlib import Path
 
 import numpy as np
 
-from body.progress import by_source, cost
+from body.progress import by_source, cost, reported
 from goalspace.formula import Tfidf, auc
 from substrate.corpus import load_session, sessions as session_paths
 from substrate.geometry import spread
 from substrate.record import Record
 
-CAP, BURN_SELF, MIN_PARTNER_CHARS, BATCH = 256, 40, 20, 40
+CAP, BURN_SELF, MIN_PARTNER_CHARS, BATCH = 256, 20, 20, 40      # burn-in at the 20th self chunk (amended 2026-11-03)
+TEXT_VOCAB = 40                                               # the text baseline's vocabulary: a session's first 40 chunks
 EVENT_CHUNKS, MIN_EVENT_CHUNKS, GAP_MINUTES = 10, 3, 60
 AUC_BAR, MIN_CLOSURES, MIN_ASCENTS, DRAWS = 0.70, 15, 12, 2000
 D021 = ("S14", "2026-10-12T15:44", "2026-10-12T23:56")        # the spec's Step 1 case, read here as one case only
@@ -82,13 +83,21 @@ def read_states(reader, texts: list[str], layers: list[int], record: Record, key
     return np.concatenate(out)                                   # texts x layers x width
 
 
-def session_codes(record: Record, key: str, X: np.ndarray, sources: list[str], floor_var: float, every: int) -> dict:
+def session_codes(record: Record, key: str, X: np.ndarray, sources: list[str], floor_var: float, unit: float,
+                  every: int, variants: bool) -> dict:
+    """The four code lengths and their progress readings at W = 20 (the reading), plus, reported only: X at W = 10 and
+    40, and coupling, proxy B and proxy C per scored chunk. All label-blind."""
     from substrate.echo_floor import session_resumable
 
     def compute():
         r = by_source(X, sources, floor_var, burn_self=BURN_SELF, every=every)
         r["C"] = cost(r["L_now"])
-        return {k: np.asarray(v, dtype=float) for k, v in r.items()}, {"n": len(X), "every": every}
+        if variants:
+            for w in (10, 40):
+                r[f"X_w{w}"] = by_source(X, sources, floor_var, burn_self=BURN_SELF, window_self=w, every=every)["X"]
+        r.update(reported(X, sources, np.isfinite(r["L_now"]), unit))
+        return {k: np.asarray(v, dtype=float) for k, v in r.items()}, {"n": len(X), "every": every,
+                                                                        "variants": variants}
     arrays, _ = session_resumable(record, key, compute)
     return arrays
 
@@ -237,6 +246,28 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
                 cells[f"{'cheap' if c < 0 else 'costly'}, X {'above' if x >= split else 'below'}"] += 1
         quad[name] = cells
     reported["quadrants (split at the controls' median X)"] = quad
+    def field(evs, f, which, sp):
+        return [_stat(sessions, e, e[which], sp, f) for e in evs]
+    extra = {}
+    for f in ("coupling", "B", "opens"):
+        if f in sessions[next(iter(sessions))]["codes"][0]:
+            extra[f] = {name: {"events": med(evs, f, "rows"), "controls": med(evs, f, "control")}
+                        for name, evs in (("closures", clo), ("ascents", asc))}
+    if "coupling" in extra:
+        pairs = [(np.mean(field([e], "X", which, sp)), np.mean(field([e], "coupling", which, sp)))
+                 for e in w["events"] for which in ("rows", "control") for sp in spaces[:1]]
+        a_, b_ = np.array(pairs).T
+        ok = np.isfinite(a_) & np.isfinite(b_)
+        if ok.sum() > 2:
+            ra, rb = np.argsort(np.argsort(a_[ok])), np.argsort(np.argsort(b_[ok]))
+            extra["rank correlation of X with coupling (first layer, all windows)"] = float(np.corrcoef(ra, rb)[0, 1])
+    for wv in (10, 40):
+        f = f"X_w{wv}"
+        if f in sessions[next(iter(sessions))]["codes"][0] and clo:
+            ev = [np.mean([_stat(sessions, e, e["rows"], sp, f) for sp in spaces]) for e in clo]
+            ct = [np.mean([_stat(sessions, e, e["control"], sp, f) for sp in spaces]) for e in clo]
+            extra[f"closure AUC with W = {wv}"] = auc(ct, ev)
+    reported["coupling, proxies B and C, window variants"] = extra
     reported["dropped (fewer than 3 chunks)"] = w["dropped (fewer than 3 chunks)"]
     reported["no control"] = w["no control"]
     key, lo, hi = D021
@@ -247,8 +278,6 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
             {"at": s["chunks"][i]["at"][:16], "ref": s["chunks"][i]["ref"],
              **{f: float(np.mean([s["codes"][sp][f][i] for sp in spaces])) for f in ("X", "T", "S", "C")}}
             for i in rows]
-    reported["not yet computed in this code"] = ["coupling on the same windows", "proxy B", "proxy C",
-                                                 "X with W of 10 and 40 chunks"]
     return {"reading 1, closures": r1, "reading 2, ascents": r2, "reported": reported,
             "passed": {"1 closures": r1["passed"], "2 ascents": r2["passed"]}}
 
@@ -267,6 +296,8 @@ def main(argv=None):
     p.add_argument("--device", choices=["cuda", "cpu", "auto"])
     p.add_argument("--gpu-memory", type=float)
     p.add_argument("--dtype", choices=["bfloat16", "float32"])
+    p.add_argument("--no-variants", action="store_true",
+                   help="skip X at W = 10 and 40 (reported only; triples the fitting time)")
     p.add_argument("--text-only", action="store_true",
                    help="plumbing dry run without a model: the TF-IDF space alone, texts cut at 1,000 characters")
     a = p.parse_args(argv)
@@ -309,11 +340,12 @@ def main(argv=None):
         codes = []
         for j, layer in enumerate(layers):
             codes.append(session_codes(record, f"codes-{key}-L{layer}", S[:, j].astype(float), srcs,
-                                       float(D[j]) ** 2 / S.shape[2], a.every))
-        tf = Tfidf(texts[:BURN_SELF])
+                                       float(D[j]) ** 2 / S.shape[2], float(D[j]), a.every, not a.no_variants))
+        tf = Tfidf(texts[:TEXT_VOCAB])
         D_text = spread([tf(s["texts"]) for s in sets])
         T = tf(texts)
-        codes.append(session_codes(record, f"codes-{key}-text", T, srcs, D_text ** 2 / max(T.shape[1], 1), a.every))
+        codes.append(session_codes(record, f"codes-{key}-text", T, srcs, D_text ** 2 / max(T.shape[1], 1), D_text,
+                                   a.every, not a.no_variants))
         sessions[key] = {"chunks": chunks, "codes": codes}
         timing[key] = {"chunks": len(chunks), "read seconds": round(t1 - t0, 1),
                        "code seconds": round(time.time() - t1, 1)}
