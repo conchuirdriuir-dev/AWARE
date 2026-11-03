@@ -25,6 +25,37 @@ as they were built:
 It runs on one machine, without cloud services: Hugging Face transformers with nnsight for activations, numpy for the
 geometry.
 
+## The picture: a creature in code-space
+
+*Framing by the owner (2026-11-03): the agent and the owner as a creature moving through an environment; goals are
+codes over actions, so goal-space is code-space; the monitor is a sense organ for goal-space. Table and the reconciling
+of the two layers drafted by the model in [The Semantic Body](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW),
+proposed here; the owner confirms.*
+
+![The body is where its trajectory sits in code-space](body/picture.svg)
+
+The creature's place is not a point in meaning-space but the code its recent moves fit, as a planarian's state is its
+shape in morphospace, not a cell's spot in the tissue. **Goal is a role, not a kind of code:** every trajectory fits some
+code, closures included; a code becomes a goal when a layer holds it as its target.
+
+**Two framings, one creature.** "The environment is the world and the owner" and "goal-space is the environment" hold
+at different layers. Each layer's code-space is the next layer's tissue, as in Levin's multiscale competency.
+
+| Term | For the actor | For the monitor | Biology |
+|---|---|---|---|
+| Environment | The world (tool results) and the owner | Code-space: the actor's codes, which it senses | An organism's surroundings |
+| Tissue | Meaning-space: the fixed landscape each turn lands in | The sequence of the actor's codes | Tissue, a cell's place in it |
+| Body | The trajectory and the code it currently fits | The code it fits over the actor's codes | Current shape in morphospace |
+| Membrane | Provenance: partner, self, tool; read-backs count as self | What it reads from the actor and what reaches the actor | Gap junctions, coupling state |
+| Goal code | Held for it by the layer above | A code held as its setpoint | Target anatomy |
+| Error | Felt as steering: the gap the layer above measures | The gap from current code to goal code | Mismatch that drives regeneration |
+| Light cone | How far in code-space, and how many turns ahead, its goal reaches | The same, one level up | The largest goal a system can pursue |
+| Schema | — | Its compressed readout of the actor (`body/`) | Body schema, attention schema |
+| Closure | Current code tightens while coupling to sources with a different signal falls | Its own codes tighten the same way, one level up | A cell shrinking its self to one cell |
+| Ascent | A move to a code that covers two earlier ones | The same, one level up | A move to a new region of morphospace |
+
+Translated findings, their tests and which elements they challenge are logged in PLAN.md, "Translations".
+
 ## Status
 
 The framing changed on 2026-10-30 and again on 2026-10-31 (DECISIONS.md). The earlier work (freeform chat, the rung-2
