@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Body readout Step 0, amendment 3** (owner, before any model run): a control a session cannot supply
+  comes from the nearest session in time, by the same rules, reported as cross-session; 20 closures score. No bar
+  changes.
 - 2026-11-03: **Body readout Step 0 amended after its text-space dry run, before any model run** (owner): burn-in at
   the 20th self chunk, not the 40th; cost against the median of the 20 scored chunks before, not all earlier ones.
   No bar changes (PLAN.md, "Body readout").

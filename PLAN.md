@@ -49,8 +49,8 @@ moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](ht
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space; two amendments await the
-owner, then the 0.6B rehearsal and the 8B run on the owner's machine.
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
+made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -973,7 +973,9 @@ nothing is part of the reading.
   Its window is the first 10 scored self chunks after the owner's turn, in the same session.
 - **Controls, author-matched:** for each event, a window of the same number of the agent's scored chunks in the same
   session, outside every confirmed departure's span (departure to first return) and more than 60 minutes
-  from any departure; nearest in time; never reused (T2's rule). An event with no control drops out (counted).
+  from any departure; nearest in time; never reused (T2's rule). Where the session holds none, the nearest session in
+  time by the same rules, reported as cross-session (amendment 3, 2026-11-03). An event with no control drops out
+  (counted).
 - **Statistic per window:** the mean of X_t over its chunks.
 
 #### Pass
@@ -1010,9 +1012,12 @@ computed and checkpointed. The formula never sees a label, a departure or a retu
 #### Runs
 
 1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
-2. The run on the owner's machine with Qwen3-8B. That run is the result.
+   `python -m body.step0 --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/body0-06 --draft`
+2. The run on the owner's machine with Qwen3-8B. That run is the result. On the 3090:
+   `python -m body.step0 --model Qwen/Qwen3-8B --corpus .../dara-session-transcripts --run runs/body0-8b --device cuda --dtype bfloat16 --draft`
+   (or split across GPU and RAM as T2 ran: `--device auto --gpu-memory 6.5`).
 
-Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
+Both resume from per-session checkpoints when the same command is run again. Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
 rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
 would exceed a day.
 
@@ -1069,8 +1074,9 @@ cost against the median of the 20 scored chunks before. No bar changes.
 **After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
 alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
 agent messages), and 7 have no control, because their span runs most of the session or the session is short.
-**Proposed, for the owner:** (3) where a session holds no control, take it from the nearest session in time, by the
-same rules; reported as cross-session. That makes 20.
+**Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
+nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
+20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
 
 ## Retired
 

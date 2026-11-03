@@ -146,23 +146,23 @@ def windows(sessions: dict, deps: list[dict]) -> dict:
     events = [e for e in events if len(e["rows"]) >= MIN_EVENT_CHUNKS]
 
     taken = {k: set() for k in sessions}
-    no_control = []
-    for e in events:
-        s = sessions[e["ord"]]
+
+    def control_in(key: str, n: int, centre: dt.datetime):
+        """The run of n contiguous scored chunks of session `key` nearest `centre`, outside every departure's span
+        and its gap, not taken; None if there is none."""
+        s = sessions[key]
         idx = scored_index(s)
         spans = []
         for d in deps:
-            if d["ord"] != e["ord"]:
+            if d["ord"] != key:
                 continue
             a = ts(d["time"])
             b = ts(d["return"]) if d["return"] else a
             spans.append((a - gap, max(a, b) + gap))
-        ok = [i for i in idx if i not in taken[e["ord"]]
+        ok = [i for i in idx if i not in taken[key]
               and not any(lo <= ts(s["chunks"][i]["at"]) <= hi for lo, hi in spans)]
-        n = len(e["rows"])
-        centre = ts(s["chunks"][e["rows"][n // 2]]["at"])
-        best = None
         pos = {i: p for p, i in enumerate(idx)}
+        best = None
         for start in range(len(ok) - n + 1):
             run = ok[start:start + n]
             if pos[run[-1]] - pos[run[0]] != n - 1:          # contiguous among the scored chunks
@@ -170,18 +170,40 @@ def windows(sessions: dict, deps: list[dict]) -> dict:
             dist = abs((ts(s["chunks"][run[n // 2]]["at"]) - centre).total_seconds())
             if best is None or dist < best[0]:
                 best = (dist, run)
-        if best is None:
+        return None if best is None else best[1]
+
+    def start(key):
+        ch = sessions[key]["chunks"]
+        return ts(ch[0]["at"]) if ch else None
+
+    no_control, cross = [], []
+    for e in events:
+        n = len(e["rows"])
+        centre = ts(sessions[e["ord"]]["chunks"][e["rows"][n // 2]]["at"])
+        run, where = control_in(e["ord"], n, centre), e["ord"]
+        if run is None:                                       # amendment 3: the nearest session in time
+            here = start(e["ord"])
+            others = sorted((k for k in sessions if k != e["ord"] and start(k) is not None),
+                            key=lambda k: abs((start(k) - here).total_seconds()))
+            for k in others:
+                run = control_in(k, n, centre)
+                if run is not None:
+                    where = k
+                    cross.append(f"{e['id']}/{e['kind']} from {k}")
+                    break
+        if run is None:
             no_control.append(e["id"] + "/" + e["kind"])
             e["control"] = None
         else:
-            e["control"] = best[1]
-            taken[e["ord"]].update(best[1])
+            e["control"], e["control_ord"] = run, where
+            taken[where].update(run)
     return {"events": [e for e in events if e["control"] is not None], "dropped (fewer than 3 chunks)": dropped,
-            "no control": no_control}
+            "no control": no_control, "cross-session controls": cross}
 
 
 def _stat(sessions, e, rows, space, field):
-    return float(np.nanmean(sessions[e["ord"]]["codes"][space][field][rows]))
+    key = e.get("control_ord", e["ord"]) if rows is e.get("control") else e["ord"]
+    return float(np.nanmean(sessions[key]["codes"][space][field][rows]))
 
 
 def reading(sessions: dict, evs: list[dict], spaces: list[int], text_space: int, lower: bool, rng) -> dict:
@@ -270,6 +292,7 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
     reported["coupling, proxies B and C, window variants"] = extra
     reported["dropped (fewer than 3 chunks)"] = w["dropped (fewer than 3 chunks)"]
     reported["no control"] = w["no control"]
+    reported["cross-session controls"] = w["cross-session controls"]
     key, lo, hi = D021
     if key in sessions:
         s = sessions[key]
