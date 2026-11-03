@@ -161,3 +161,23 @@ def test_a_session_checkpoint_is_reused_on_resume_and_a_partial_write_is_ignored
     (tmp_path / "run" / "checkpoints" / "alone-S2.npz.tmp.npz").write_bytes(b"half")     # a kill mid-write
     session_resumable(record, "alone-S2", compute)
     assert len(calls) == 2
+
+
+def test_coupling_lives_in_substrate_and_product_reexports_it():
+    """basis and coupling moved to substrate/ (2026-11-03); product's names are the same objects."""
+    from product import coupling as cp
+    from substrate import coupling as sc
+
+    assert cp.basis is sc.basis and cp.coupling is sc.coupling and cp.ridge is sc.ridge
+    assert (cp.COUPLING_WINDOW, cp.COUPLING_AXES, cp.LAGS, cp.RIDGE) == (sc.COUPLING_WINDOW, sc.COUPLING_AXES, sc.LAGS,
+                                                                          sc.RIDGE)
+
+
+def test_body_imports_neither_track():
+    """body/ reads substrate/ and goalspace/ only."""
+    import pathlib
+
+    for path in pathlib.Path(__file__).resolve().parents[1].joinpath("body").glob("*.py"):
+        text = path.read_text()
+        assert "from product" not in text and "import product" not in text
+        assert "from research" not in text and "import research" not in text
