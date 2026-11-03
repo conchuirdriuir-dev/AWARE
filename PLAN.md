@@ -33,7 +33,8 @@ once. The user's goals are the ego's standard, because learning needs a concrete
 parked; the agent's own formula is read as an instrument, not held as a goal. Measures stay separate: no two tests share a
 pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
-seeks to understand the owner's formula and its own.
+seeks to understand the owner's formula and its own. *The "ego module" is challenged as a folk-psychology executive (owner, 2026-11-03; "Translations"): the alternative is
+a sense organ for goal-space plus narrow reflexes. Undecided.*
 
 **Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
 non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
@@ -1126,6 +1127,7 @@ hypothesis to test.
 
 | Date | Source finding | AWARE translation | Kind | Test, data and status |
 |---|---|---|---|---|
+| 2026-11-03 | Levin's multiscale competency (higher levels bend landscapes and need not micromanage, since the levels below are competent); Graziano (the schema is deliberately simpler than what it models); Levin: we would recognise organs as agents if we had a primary sense of the spaces they work in | The owner's reframing: goal-space is the environment and the monitor is a sense organ for it, simpler than the language model, wired to one narrow reflex (curate). The smart parts are the model and the owner. Consolidation is driven by the shared error and stress signals the senses report, with selection confirmed by the owner and held-out tasks | malformed (candidate): "the ego module" that evaluates what gets trained, a folk-psychology executive above and smarter than the rest | No test yet; bears on step 6's design. Two cautions: goal-space is partly made by the dyad's own ascents, and whatever the sense reports is what the dyad will come to care about, so its signals stay apart from its success (Goodhart) |
 | 2026-11-03 | Levin's multiscale competency architecture (McMillen & Levin 2024; Levin 2023): levels are nested functionally, not only structurally; each solves problems in its own space with its own goal | Monitors of monitors are a structural stack of observers. Each level should instead be an agent with its own setpoint, error signal and way to act, in its own space: token, turn, session, project | malformed (candidate): the monitor stack as observers | No test yet; an architecture question |
 | 2026-11-03 | Same: each level corrects its own errors | Drift exists at every level: a rabbit hole inside one step (turn), closure (session), losing the big picture across sessions (project). AWARE measures error at the session level only (Step 0) | missing: error signals at the turn and project levels | See the project-level test below |
 | 2026-11-03 | Same: each level bends the option space of the one below, so the lower level's local moves serve the higher goal | The higher level reshapes what is easy for the actor (steering, what enters context) instead of instructing it. A plain-language readout is closer to an instruction | malformed (candidate): the readout reports instead of bending | Sharpens the persuadability test: a landscape change should keep working when the actor is never told the goal |
