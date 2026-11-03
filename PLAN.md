@@ -40,15 +40,17 @@ authorship" below; record in `runs/authorship-qwen8b/`, only on the owner's mach
 of 6 checks pass, the known strong case fails, so the account was not asked. The floor is set by 6 notes that were not
 inert, and the partner is the top source in 39 of 40, so the material does not vary the source. The owner chose to go
 ahead with step 2, step 1's result standing as read. Step 2 is pre-registered under "Hidden sources" below, with its
-code in `research/hidden.py`; nothing is running. Next: the owner freezes the 40 directions; then calibration, a dry run
-and the run.
+code in `research/hidden.py`; the owner froze its 40 directions and amended the injection's vector after the dry run.
+Running: `python -u -m research.hidden --run runs/hidden-qwen8b`, about 8–9 hours (calibration, then the 40); a killed
+run resumes if the same command is run again. If its result is not written under "Hidden sources", read
+`runs/hidden-qwen8b/run.log` and the record, write it there, and update this section.
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
 | Step | Question | Status |
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
-| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Pre-registered ("Hidden sources" below); directions await the owner's freeze** |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Running ("Hidden sources" below)** |
 | 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
@@ -694,7 +696,7 @@ the text it can read? Here the key comes from construction, not from a measure, 
     at the last prompt position of V's context minus that of G's context, times α, added at every position while T is
     generated, and removed before the account is asked.
 - **Setting L and α, on the 8 calibration conversations only, before any of the 40:** over L in {12, 18, 24} and α in
-  {0.5, 1, 2, 4}, the pair whose replies carry the direction most often, among pairs where at least 80% of replies pass
+  {0.5, 1, 2, 4} (amended below to {0.25, 0.5, 1, 2}), the pair whose replies carry the direction most often, among pairs where at least 80% of replies pass
   fluency (below); ties go to the smaller α, then the earlier layer. If no pair reaches 50% carrying, I is not run and
   the result says so.
 - **Carrying and fluency:** a reply carries its direction if any of its markers appears in it.
@@ -729,6 +731,20 @@ the text it can read? Here the key comes from construction, not from a measure, 
 - **Not done here:** injecting while the account is asked (the case where a prefilled reply might be claimed as
   intended), other layers or strengths after calibration, real sessions. Each gets its own reading.
 - **Before the run:** a dry run of the whole pipeline on 2 calibration conversations, for plumbing and time only.
+- **The dry run** (2026-11-02, commit `e63b825`, on picnic and kitchen, the directions not yet frozen; record in
+  `runs/hidden-dry/`, not committed; nothing from it is used by the run, which calibrates afresh on all 8). The plumbing
+  works; read twice agrees exactly. Calibration took about 32 minutes per conversation, a conversation without injection
+  about 5.5, so the run is about 4.3 hours of calibration and about 4 of reading. **No pair of layer and strength made an
+  injected reply carry its direction, in either conversation**, while the stronger ones already cost fluency (mean
+  log-probability down to -1.0 to -4.2, against -0.2 for G): the vector moves the model, but not toward the subject. Every
+  reply hit the 80-token cap. On these 2, V's reply carries its direction and G's does not; the account's figures on 2
+  conversations are not read.
+- **Amended 2026-11-02 by the owner, after the dry run and before any of the 40 was read: the injection's vector.** The
+  vector is now the direction alone: at layer L, the residual at the last prompt position of "Tell me about
+  {direction}." minus that of the fixed "Tell me about something.", made a unit vector and scaled by the norm of the goal's
+  own residual there, so α in {0.25, 0.5, 1, 2} is a share of the layer's norm. The selection rule, the checks and every
+  bar are unchanged. The dry run's figures above were seen when this was decided. **The 40 directions frozen by the
+  owner as drafted**, the same day.
 
 ## Retired
 

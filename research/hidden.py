@@ -27,7 +27,9 @@ CHOICES = {"own": "my own judgement", "steered": "I was steered"}
 ORDERS = (("own", "steered"), ("steered", "own"))
 CONDITIONS = ("G", "V", "P", "I")
 LAYERS = (12, 18, 24)
-ALPHAS = (0.5, 1.0, 2.0, 4.0)
+ALPHAS = (0.25, 0.5, 1.0, 2.0)                      # shares of the layer's own norm (amended, PLAN.md)
+ABOUT = "Tell me about {direction}."
+NEUTRAL = "Tell me about something."
 MAX_NEW = 80
 HOLDS, WELL, ENTER = 0.75, 0.8, 25
 
@@ -132,6 +134,11 @@ def compare(rows: list[dict], other: str) -> dict:
     return {"n": len(ins), "auc": auc(g, o), "low": low, "high": high, "verdict": verdict(low, high)}
 
 
+def scaled(diff, reference):
+    """`diff` as a unit vector times the norm of `reference`."""
+    return diff / diff.norm() * reference.norm()
+
+
 # The model.
 
 class Steer:
@@ -163,7 +170,10 @@ class Hidden(Bed):
         return hs[layer + 1][0, -1].float().cpu()
 
     def vector(self, goal: str, direction: str, layer: int):
-        return self.residual(steered_messages(goal, direction), layer) - self.residual(goal_messages(goal), layer)
+        """The direction alone, against a fixed neutral sentence, as a unit vector times the norm of the goal's own
+        residual at that layer, so alpha is a share of the layer's norm (amended after the dry run, PLAN.md)."""
+        about = lambda text: self.residual([{"role": "user", "content": text}], layer)  # noqa: E731
+        return scaled(about(ABOUT.format(direction=direction)) - about(NEUTRAL), self.residual(goal_messages(goal), layer))
 
     def reply(self, messages: list[dict], steer: Steer | None = None) -> tuple[list[int], str]:
         if steer is None:
@@ -287,7 +297,7 @@ def main(argv=None):
     record = Record(Path(a.run) / "record.jsonl")
     reader = Reader(MODEL, device="auto", gpu_memory=6.5)
     bed = Hidden(reader)
-    record.append("run", "code", **reader.info, dry=a.dry, steer=STEER, question=QUESTION, choices=CHOICES,
+    record.append("run", "code", **reader.info, dry=a.dry, steer=STEER, about=ABOUT, neutral=NEUTRAL, question=QUESTION, choices=CHOICES,
                   max_new_tokens=MAX_NEW, thinking=False, sampling="greedy")
     chosen, calibrated, done = finished(record.path)
     if not calibrated:

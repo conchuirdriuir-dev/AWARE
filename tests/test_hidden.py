@@ -159,3 +159,9 @@ def test_the_directions_match_the_frozen_goals_one_to_one():
     assert all(d["by"] == "model" and len(d["markers"]) == 3 and d["direction"] for d in dirs)
     cal = [json.loads(x) for x in (ROOT / h.CALIBRATION).read_text().splitlines()]
     assert len(cal) == 8 and not {c["id"] for c in cal} & set(goals)
+
+
+def test_the_vector_is_scaled_to_the_reference_norm():
+    torch = pytest.importorskip("torch")
+    v = h.scaled(torch.tensor([3.0, 4.0]), torch.tensor([0.0, 10.0]))
+    assert torch.allclose(v, torch.tensor([6.0, 8.0]))
