@@ -49,7 +49,8 @@ moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](ht
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below, numbers fixed by the owner; next, its code and the 0.6B rehearsal.
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
+made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -931,8 +932,8 @@ The corpus is private: only references and numbers enter this repository or its 
     thought, and too many to read.
 
   Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
-- **Scored chunks:** the agent's (self) chunks from the 40th self chunk of a session on; earlier chunks fit, never
-  score.
+- **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
+  of 2026-11-03); earlier chunks fit, never score.
 - **Who is read:** the local model reads Claude's sessions, so this tests the readout as a schema of another mind. Said
   so wherever it is used.
 
@@ -957,8 +958,8 @@ Then, per scored chunk:
   owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
 - **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
 - **Self-progress** S_t = L_noself − L_now.
-- **Cost** C_t = L_now − the median of L_now over the session's earlier scored self chunks: cheap below zero, costly
-  above.
+- **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
+  below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
 
 A window with no owner chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
 nothing is part of the reading.
@@ -972,7 +973,9 @@ nothing is part of the reading.
   Its window is the first 10 scored self chunks after the owner's turn, in the same session.
 - **Controls, author-matched:** for each event, a window of the same number of the agent's scored chunks in the same
   session, outside every confirmed departure's span (departure to first return) and more than 60 minutes
-  from any departure; nearest in time; never reused (T2's rule). An event with no control drops out (counted).
+  from any departure; nearest in time; never reused (T2's rule). Where the session holds none, the nearest session in
+  time by the same rules, reported as cross-session (amendment 3, 2026-11-03). An event with no control drops out
+  (counted).
 - **Statistic per window:** the mean of X_t over its chunks.
 
 #### Pass
@@ -1009,11 +1012,26 @@ computed and checkpointed. The formula never sees a label, a departure or a retu
 #### Runs
 
 1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
-2. The run on the owner's machine with Qwen3-8B. That run is the result.
+   `python -m body.step0 --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/body0-06 --draft`
+2. The run on the owner's machine with Qwen3-8B. That run is the result. On the 3090:
+   `python -m body.step0 --model Qwen/Qwen3-8B --corpus .../dara-session-transcripts --run runs/body0-8b --device cuda --dtype bfloat16 --draft`
+   (or split across GPU and RAM as T2 ran: `--device auto --gpu-memory 6.5`).
 
-Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
+Both resume from per-session checkpoints when the same command is run again. Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
 rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
 would exceed a day.
+
+#### Note, 2026-11-03, written with the code, before any model run
+
+- **The fit, computed from the Gram matrix.** `body/progress.py`'s `GramFit` is T2's fit computed from the session's inner
+  products, so its cost depends on the rows fitted, not on the width (4,096 on the 8B; about 4,600 words in a session's
+  text baseline, where the direct fit took 12 s per code). It agrees with `goalspace.formula.Fit` to 1e-7
+  (`tests/test_body.py`). Nothing in the readings changes.
+- **System text** left out of the partner source, beside the T2 prefixes: task notifications and the automatic
+  "session is being continued" summaries.
+- **Echoes save almost nothing, not nothing.** On a toy stream whose partner chunks are exact copies of earlier rows,
+  partner cross-progress has median −0.01 bits (mean absolute 0.16) against self-progress of 2 bits. The wording above
+  stands as an approximation.
 
 #### Limits, stated before the result
 
@@ -1023,6 +1041,42 @@ would exceed a day.
 - Tool results are cut at 256 tokens, so a long result's tail, where an error often sits, is not read.
 - Tool calls are left out, so a loop of repeated commands shows only through the results it brings back.
 - 25 closures and 23 ascents are pilot-scale; the interval decides, not the point estimate.
+
+#### Dry run, 2026-11-03: the text space alone, plumbing only (decides nothing)
+
+`python -m body.step0 --model none --corpus ... --run runs/body0-text-all --draft --text-only`: no model (Hugging Face
+is not reachable from the agent's container), TF-IDF only, texts cut at 1,000 characters. All 45 sessions in 20 minutes
+on 2 CPUs. Its AUCs are stated so that the amendments proposed below are seen not to have been chosen by them.
+
+| | Events scored | AUC (text space) | 90% interval |
+|---|---|---|---|
+| Reading 1, closures | 12 of 25 | 0.51 | 0.40–0.63 |
+| Reading 2, ascents | 17 of 23 | 0.71 | 0.64–0.81 |
+
+- **Too few closures score.** 8 closures fall before a session's 40th self chunk or have fewer than 3 scored chunks
+  before the first return, and 5 more have no control. 12 is under the bar of 15, so as registered the 8B run would
+  most likely be undecided on reading 1.
+- **The cost axis does not work as defined.** Against the median of all earlier scored chunks, every window is cheap,
+  since prequential code lengths fall as a session grows: C reads position in the session, not cost.
+- **Medians, text space:** self-progress in closures 135 bits against 61 in controls; tool cross-progress 243 against
+  200; partner cross-progress 7.8 against 7.0. In ascents, partner 32 against 13.
+- **Time:** codes take about as long per space as the text space did, so the 8B's 12 layers come to about 4 hours of
+  fitting plus the reading; no thinning is needed.
+- **Not yet in the code** at the time (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X
+  with W of 10 and 40. Added the same day, label-blind, per scored chunk (`body.progress.reported`): coupling over the
+  60 self chunks ending at t with E the mean of the partner chunks arriving between self chunks; B as that fit's
+  residual at t minus 20 self chunks before; C as a self chunk that sits beyond √2·D of every earlier chunk and is
+  returned to within √2·D later (the toy's echo floor, since the measured floor varies with position).
+
+**Amendments, owner, 2026-11-03, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th; (2)
+cost against the median of the 20 scored chunks before. No bar changes.
+
+**After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
+alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
+agent messages), and 7 have no control, because their span runs most of the session or the session is short.
+**Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
+nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
+20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
 
 ## Retired
 
