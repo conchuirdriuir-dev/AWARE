@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Body readout Step 0 fixed** (owner): progress read by source over one formula (option 3); the pass is
+  on partner cross-progress, with tool results a third source reported apart to tell the narrow hypothesis (closure
+  shuts out the partner) from the broad one (it shuts out everything). The agent's proposed numbers taken unchanged
+  (PLAN.md, "Body readout").
 - 2026-11-03: **`basis` and `coupling` move to `substrate/`; the body readout lives in `body/`** (owner, agreeing to the
   agent's proposal). They describe the entity's dynamics, not drift; `product/coupling.py` re-exports them unchanged
   (rounds 2 and 3 print identical output). `body/` imports `substrate/` and `goalspace/`, never a track. Spec: [Body

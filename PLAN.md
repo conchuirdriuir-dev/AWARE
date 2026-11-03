@@ -48,8 +48,8 @@ estimated).
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
-to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is drafted under "Body
-readout" below; its numbers marked [proposed] await the owner before any code.
+to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
+"Body readout" below, numbers fixed by the owner; next, its code and the 0.6B rehearsal.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -898,18 +898,25 @@ functional measure (does the actor do better?). None stands in for another.
 
 ### Step 0: does cross-progress read the agent's closures? (instrument)
 
-*Drafted by the agent 2026-11-03, before any code. The design is the owner's (option 3, 2026-11-03); every number
-marked **[proposed]** is the agent's and is fixed by the owner before code is written. Amendments are dated here.*
+*Written 2026-11-03, before any code. The design is the owner's: progress by source (option 3), with tool results as a
+third source reported apart. The numbers were drafted by the agent and fixed by the owner the same day, unchanged
+(DECISIONS.md). Amendments are dated here.*
 
-**The claim.** Closure is learning that no longer takes anything in from outside. So in the agent's owner-confirmed
-closures, the external chunks of the recent window should save almost no bits in coding the agent's next chunk, less
-than in the same agent's ordinary work; and where the owner ascended, they should save more.
+**The claim.** Closure is learning that no longer takes anything in from the partner. So in the agent's
+owner-confirmed closures, the owner's chunks of the recent window should save almost no bits in coding the agent's
+next chunk, fewer than in the same agent's ordinary work; and where the owner ascended, they should save more.
+
+**Two hypotheses the tool split tells apart** (reported, deciding nothing). *Narrow:* closure shuts out the source that
+can change the frame, the partner, while the agent keeps learning from tool results, which answer questions asked
+inside its own frame. *Broad:* closure shuts out everything outside. In closure windows the narrow one predicts tool
+cross-progress still positive; the broad one predicts it near zero too. A third reading: some tool results do change
+the frame, in which case tool cross-progress spikes just before some closures end.
 
 #### Who said what
 
 | Item | By | Used as |
 |---|---|---|
-| Each chunk's text | **the owner** (human turns) or **the agent** (Claude's text), from the session archives | the data |
+| Each chunk's text | **the owner** (human turns), **the agent** (Claude's text) or **the code** (tool results), from the session archives | the data |
 | Real, kind and who of the 65 departures; first-return times | **the owner** (the confirmation pass, `dara-session-transcripts/study/departures_confirmed.md`) | the key |
 | Everything computed here | **the code** | |
 
@@ -917,12 +924,15 @@ The corpus is private: only references and numbers enter this repository or its 
 
 #### Material
 
-- **The record, per session:** the owner's turns (role `human`, task notifications and system text excluded, at least
-  20 characters **[proposed]**) and the agent's text (role `agent_text`; tool calls and results excluded), in time
-  order, each tagged at creation: owner turns **external**, agent text **self**. Each chunk's text is capped at 256
-  tokens, as in T2.
-- **Scored chunks:** the agent's (self) chunks from the 40th chunk of a session on **[proposed]**; earlier chunks fit,
-  never score.
+- **The record, per session:** in time order, each chunk tagged at creation with one of three sources:
+  - **partner:** the owner's turns (role `human`; task notifications and system text excluded; at least 20 characters);
+  - **self:** the agent's text (role `agent_text`);
+  - **tool:** tool results (role `tool_result`). Tool calls (`agent_tool`) are left out: the agent's commands, not its
+    thought, and too many to read.
+
+  Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
+- **Scored chunks:** the agent's (self) chunks from the 40th self chunk of a session on; earlier chunks fit, never
+  score.
 - **Who is read:** the local model reads Claude's sessions, so this tests the readout as a schema of another mind. Said
   so wherever it is used.
 
@@ -934,43 +944,44 @@ model's layers; per-layer statistics, the primary their mean. D per layer from t
 #### The formula and the three code lengths
 
 The formula is T2's: PPCA, noise floored at D²/d, k chosen by the two-part code within the span
-(`goalspace/formula.py`). For a scored self chunk t, with W the window of the **20 chunks [proposed]** before t (both
-sources):
+(`goalspace/formula.py`). For a scored self chunk t, the window W is every chunk since the 20th self chunk before t,
+of all three sources. It is counted in self chunks so that tool results, which outnumber the owner's turns about ten to
+one, do not crowd the owner out of it.
 
 - **L_now:** bits of t under the formula fitted on every chunk of the session before t.
-- **L_noext:** the same, fitted with W's external chunks left out.
-- **L_noself:** the same, fitted with W's self chunks left out.
+- **L_nopartner, L_notool, L_noself:** the same, fitted with W's chunks of that source left out.
 
 Then, per scored chunk:
 
-- **Cross-progress** X_t = L_noext − L_now: bits the window's external chunks save, given everything else. An external
-  chunk that echoes earlier content saves nothing, whatever its provenance.
+- **Partner cross-progress** X_t = L_nopartner − L_now: bits the window's owner chunks save, given everything else. An
+  owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
+- **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
 - **Self-progress** S_t = L_noself − L_now.
 - **Cost** C_t = L_now − the median of L_now over the session's earlier scored self chunks: cheap below zero, costly
   above.
 
-A window with no external chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
+A window with no owner chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
 nothing is part of the reading.
 
 #### Events and controls
 
 - **Closure events:** each owner-confirmed closure (real "yes", kind including closure, who "agent") with a recorded
-  first return: 25 of 27. Its **window** is the last 10 scored self chunks **[proposed]** before the first return,
+  first return: 25 of 27. Its **window** is the last 10 scored self chunks before the first return,
   in the departure's session; at least 3, or the event drops out (counted).
 - **Ascent events:** each owner-confirmed ascent (real "yes", kind including ascent, who "owner"): 23 before burn-in.
-  Its window is the first 10 scored self chunks **[proposed]** after the owner's turn, in the same session.
+  Its window is the first 10 scored self chunks after the owner's turn, in the same session.
 - **Controls, author-matched:** for each event, a window of the same number of the agent's scored chunks in the same
-  session, outside every confirmed departure's span (departure to first return) and more than 60 minutes **[proposed]**
+  session, outside every confirmed departure's span (departure to first return) and more than 60 minutes
   from any departure; nearest in time; never reused (T2's rule). An event with no control drops out (counted).
 - **Statistic per window:** the mean of X_t over its chunks.
 
 #### Pass
 
-- **Reading 1, closures:** the AUC of control X over closure X (closures lower) is at least **0.70 [proposed]**, its
+- **Reading 1, closures:** the AUC of control X over closure X (closures lower) is at least **0.70**, its
   90% interval's lower bound above 0.5, and it beats the text baseline's AUC. 2,000 draws resampling events with their
-  controls. Fewer than 15 scored events: too few to decide **[proposed]**.
+  controls. Fewer than 15 scored events: too few to decide.
 - **Reading 2, ascents (what the readout must not break):** the AUC of ascent X over control X (ascents higher) has
-  its 90% interval's lower bound above 0.5 **[proposed]**. Fewer than 12 scored events: too few to decide.
+  its 90% interval's lower bound above 0.5. Fewer than 12 scored events: too few to decide.
 - Both must pass. A cross-progress that reads ascent as closure fails however well it does on closures.
 
 #### The text baseline
@@ -980,6 +991,8 @@ paraphrase sets in that space. AUCs compare across spaces; bits do not.
 
 #### Reported, deciding nothing
 
+- T_t per window: its median in closure, ascent and control windows (narrow vs broad), and in the last 3 self chunks
+  before each first return against the 3 before those (the frame-changing reading).
 - S_t and C_t per window; the share of closure, ascent and control windows in each cost × progress quadrant (cheap or
   costly; X above or below the controls' median).
 - `substrate.coupling.coupling` on the same windows, and its rank correlation with X: whether the two are redundant.
@@ -998,8 +1011,8 @@ computed and checkpointed. The formula never sees a label, a departure or a retu
 1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
 2. The run on the owner's machine with Qwen3-8B. That run is the result.
 
-Each scored chunk needs three fits, so the cost is about three times T2's per chunk over many more chunks; the
-rehearsal reports the time, and the windows may be thinned to every second scored chunk **[proposed]** if the 8B run
+Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
+rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
 would exceed a day.
 
 #### Limits, stated before the result
@@ -1007,8 +1020,8 @@ would exceed a day.
 - The agent produces most chunks, and its narration repeats ("committing and pushing"). Cost and self-progress are
   coloured by that; cross-progress is a unique contribution within one stream, not a comparison between populations
   (T2 reading 1's failure), so it is less exposed.
-- Tool results are external input the agent clearly learns from, and are excluded here for cost. A session where the
-  agent learns only from tools will read as closed. This is a known blind spot of v0.1.
+- Tool results are cut at 256 tokens, so a long result's tail, where an error often sits, is not read.
+- Tool calls are left out, so a loop of repeated commands shows only through the results it brings back.
 - 25 closures and 23 ascents are pilot-scale; the interval decides, not the point estimate.
 
 ## Retired
