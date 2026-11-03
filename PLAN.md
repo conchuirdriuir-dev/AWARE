@@ -46,7 +46,7 @@ direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
 `research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
 cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
-Next: the owner freezes the 40 picked frames, then the run (about 15 hours).
+The owner froze the 40 picked frames, broad markers included; the run is under way (`runs/source-qwen8b`, about 15 hours).
 
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).

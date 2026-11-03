@@ -2,6 +2,7 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Step 3's 40 frames frozen as the pilot picked them** (owner), broad markers included.
 - 2026-11-03: **Step 3 draws 24 samples a conversation, not 8** (owner, after the pilot): with 8, at most 51 own
   replies could exist against check 3's 60. No bar changes; the run takes about 15 hours (PLAN.md).
 - 2026-11-03: **Multiscale competency, weak reading** (owner, for now): the agent and the owner are one organism in
