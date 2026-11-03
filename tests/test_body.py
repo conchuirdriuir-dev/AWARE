@@ -77,3 +77,15 @@ def test_reported_readings_run_label_blind():
     r = reported(X, src, scored, unit=0.5)
     assert np.isfinite(r["coupling"][scored]).all() and np.isfinite(r["B"][scored]).any()
     assert set(np.unique(r["opens"][scored])) <= {0.0, 1.0}
+
+
+def test_world_and_echo_split_tool_progress():
+    rng = np.random.default_rng(6)
+    X, src = _stream(rng, 200, 8, True)
+    split = [("echo" if i % 2 else "world") if s == "tool" else s for i, s in enumerate(src)]
+    out = by_source(X, split, floor_var=1e-3, burn_self=40)
+    scored = np.isfinite(out["L_now"])
+    for k in ("X", "T", "T_world", "T_echo", "S"):
+        assert np.isfinite(out[k][scored]).all()
+    plain = by_source(X, src, floor_var=1e-3, burn_self=40)
+    assert np.allclose(out["T"][scored], plain["T"][scored]) and np.allclose(out["X"][scored], plain["X"][scored])

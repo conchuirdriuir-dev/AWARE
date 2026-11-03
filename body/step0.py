@@ -30,6 +30,7 @@ CAP, BURN_SELF, MIN_PARTNER_CHARS, BATCH = 256, 20, 20, 40      # burn-in at the
 TEXT_VOCAB = 40                                               # the text baseline's vocabulary: a session's first 40 chunks
 EVENT_CHUNKS, MIN_EVENT_CHUNKS, GAP_MINUTES = 10, 3, 60
 AUC_BAR, MIN_CLOSURES, MIN_ASCENTS, DRAWS = 0.70, 15, 12, 2000
+ECHO_SHARE, ECHO_GRAMS, ECHO_CHARS = 0.5, 8, 6000                 # amendment 4: a tool result is the agent's own
 D021 = ("S14", "2026-10-12T15:44", "2026-10-12T23:56")        # the spec's Step 1 case, read here as one case only
 SYSTEM_PREFIXES = ("[SYSTEM", "<system-reminder>", "[Artifact comment", "<task-notification>",
                    "This session is being continued from a previous conversation")
@@ -53,18 +54,37 @@ def source(chunk: dict) -> str | None:
     return "partner"
 
 
+def _grams(text: str, n: int = ECHO_GRAMS) -> list[int]:
+    w = re.findall(r"[a-z0-9]+", text.lower())
+    return [hash(tuple(w[i:i + n])) for i in range(len(w) - n + 1)]
+
+
 def material(root: str, only: list[str] | None = None) -> dict:
-    """Per session: its kept chunks in time order, each {"text", "source", "ref", "at"}. Texts stay in memory only."""
+    """Per session: its kept chunks in time order, each {"text", "source", "ref", "at", "echo_share"}. Texts stay in
+    memory only.
+
+    Amendment 4 (2026-11-03): a tool result whose word 8-grams (first 6,000 characters) are at least half already in
+    the agent's earlier output in the session (its text and its tool calls, which carry the files it wrote) is the
+    agent's own output read back, source "echo"; any other tool result is "world". The rule is the laundering
+    study's within-session self share (dara-session-transcripts, branch study/body-ablation, laundering.py), cut at
+    one half."""
     out = {}
     for path in session_paths(Path(root) / "sessions"):
         key = path.name.split(".")[0]
         if only and key not in only:
             continue
-        kept = []
+        kept, seen = [], set()
         for c in load_session(path):
             s = source(c)
+            share = None
+            if s == "tool":
+                g = _grams(c["text"][:ECHO_CHARS])
+                share = float(np.mean([x in seen for x in g])) if g else 0.0
+                s = "echo" if share >= ECHO_SHARE else "world"
+            if c["provenance"] == "self":
+                seen.update(_grams(c["text"][:20000]))
             if s is not None:
-                kept.append({"text": c["text"], "source": s, "ref": c["ref"], "at": c["at"]})
+                kept.append({"text": c["text"], "source": s, "ref": c["ref"], "at": c["at"], "echo_share": share})
         out[key] = kept
     return out
 
@@ -248,7 +268,8 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
     reported = {}
     for name, evs in (("closures", clo), ("ascents", asc)):
         reported[name] = {f: {"events": med(evs, f, "rows"), "controls": med(evs, f, "control")}
-                          for f in ("X", "T", "S", "C")}
+                          for f in ("X", "T", "T_world", "T_echo", "S", "C")
+                          if f in sessions[next(iter(sessions))]["codes"][0]}
         tail = []
         for e in evs:
             r = e["rows"]
@@ -256,6 +277,11 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
                 tail.append(np.mean([_stat(sessions, e, r[-3:], sp, "T") - _stat(sessions, e, r[-6:-3], sp, "T")
                                      for sp in spaces]))
         reported[name]["T, last 3 minus the 3 before"] = float(np.median(tail)) if tail else float("nan")
+        if "T_world" in sessions[next(iter(sessions))]["codes"][0]:
+            tw = [np.mean([_stat(sessions, e, e["rows"][-3:], sp, "T_world")
+                           - _stat(sessions, e, e["rows"][-6:-3], sp, "T_world") for sp in spaces])
+                  for e in evs if len(e["rows"]) >= 6]
+            reported[name]["T_world, last 3 minus the 3 before"] = float(np.median(tw)) if tw else float("nan")
     ctl_X = [np.mean([_stat(sessions, e, e["control"], sp, "X") for sp in spaces]) for e in w["events"]]
     split = float(np.median(ctl_X)) if ctl_X else float("nan")
     quad = {}
@@ -332,7 +358,8 @@ def main(argv=None):
     t_start = time.time()
     record = Record(Path(a.run) / "record.jsonl")
     mat = material(a.corpus, a.sessions)
-    counts = {k: {s: sum(c["source"] == s for c in v) for s in ("partner", "self", "tool")} for k, v in mat.items()}
+    counts = {k: {s: sum(c["source"] == s for c in v) for s in ("partner", "self", "world", "echo")}
+              for k, v in mat.items()}
     sets = load_sets(a.sets)
     if a.text_only:
         reader, layers, info = None, [], {"model": "none (text-only dry run)"}

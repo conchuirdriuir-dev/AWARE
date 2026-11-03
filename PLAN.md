@@ -33,7 +33,8 @@ once. The user's goals are the ego's standard, because learning needs a concrete
 parked; the agent's own formula is read as an instrument, not held as a goal. Measures stay separate: no two tests share a
 pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
-seeks to understand the owner's formula and its own.
+seeks to understand the owner's formula and its own. *The "ego module" is challenged as a folk-psychology executive (owner, 2026-11-03; "Translations"): the alternative is
+a sense organ for goal-space plus narrow reflexes. Undecided.*
 
 **Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
 non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
@@ -51,6 +52,10 @@ source once that holds and `goalspace/`'s prequential gain for learning. Placed 
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
 "Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
 made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
+
+**Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
+into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
+"Translations" below, each with its test and whether that test was exploratory.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -929,7 +934,7 @@ The corpus is private: only references and numbers enter this repository or its 
   - **partner:** the owner's turns (role `human`; task notifications and system text excluded; at least 20 characters);
   - **self:** the agent's text (role `agent_text`);
   - **tool:** tool results (role `tool_result`). Tool calls (`agent_tool`) are left out: the agent's commands, not its
-    thought, and too many to read.
+    thought, and too many to read. Since amendment 4, each tool result is also **world** or **echo** (below).
 
   Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
 - **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
@@ -957,6 +962,9 @@ Then, per scored chunk:
 - **Partner cross-progress** X_t = L_nopartner − L_now: bits the window's owner chunks save, given everything else. An
   owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
 - **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
+- **World and echo cross-progress** (amendment 4) T_world and T_echo: the same, leaving out only W's world or only
+  its echo tool results. Reported, deciding nothing. The narrow-vs-broad comparison is read on T_world; T keeps its
+  registered meaning beside it.
 - **Self-progress** S_t = L_noself − L_now.
 - **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
   below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
@@ -1074,9 +1082,71 @@ cost against the median of the 20 scored chunks before. No bar changes.
 **After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
 alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
 agent messages), and 7 have no control, because their span runs most of the session or the session is short.
+**Amendment 4, owner, 2026-11-03, before any model run:** tool results are split into **echo**, the agent's own
+output read back, and **world**, everything else. A tool result is echo when at least half of its word 8-grams (first
+6,000 characters) already appear in the agent's earlier output in the session: its text and its tool calls, which
+carry the files it wrote. This is the laundering study's within-session self share (`dara-session-transcripts`, branch
+`study/body-ablation`, `laundering.py`); the cut at one half is the agent's. Over the corpus, 1,451 of 18,201 tool
+results are echo (8%). The reason: a positive T in closures could be learning from the world or from the agent's
+own output coming back, which are opposite conclusions for the narrow hypothesis. No bar changes; the pass is still
+on X.
+
 **Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
 nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
 20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
+
+## Translations (method)
+
+*Owner, 2026-11-03. The method is FieldSHIFT's ([O'Brien, …, Levin 2024](https://pubs.rsc.org/en/content/articlehtml/2024/dd/d3dd00185g)),
+extended by one column: neuroscience → development → AWARE. The table and the first worked translation are in
+[The Semantic Body](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW), "Translation framework".*
+
+**Why.** The owner's framework may be wrong in places. Translating findings from fields where a mechanism is known
+(Levin's bioelectricity, neuroscience) says what AWARE's version of that mechanism should do, so a translation can
+show an element that is **missing** from AWARE or one that is **malformed** (built on the wrong idea), not only a new
+hypothesis to test.
+
+**Rules.**
+
+1. **Pivot the problem space and the timescale, not the vocabulary.** 3D space → morphospace → code-space;
+   milliseconds → hours → turns and sessions. A row that only renames (an animal's position → an agent's position in
+   embedding space) is a vocabulary swap and is rejected.
+2. **Nothing is conserved.** Levin's pivot rests on the same molecules working in both fields; AWARE's column rests
+   only on function. Every row is a hypothesis until a measurement supports it.
+3. **A translation that contradicts AWARE is logged as a challenge to the element it contradicts,** never smoothed
+   over. That is how malformed elements surface.
+4. **Coverage runs both ways.** For each element of the source system (unit, medium, setpoint, error, competency,
+   stress, scale), AWARE should have a counterpart; a missing one is logged as a gap. An AWARE element with no source
+   counterpart is logged too: either the analogy stops there or the element is suspect.
+5. **Exploratory vs confirmatory.** A test on the owner's corpus after its labels have been seen is exploratory, and
+   so is every further test on the same events. A translation's claim is confirmed only on data its test was not
+   shaped on: new sessions logged with the body readout, or public agent trajectories labelled by the Restorations
+   reading process.
+
+**The log.** One row per translated finding; newest first. Kind: hypothesis, missing, malformed, gap, or consistent (supports an existing element).
+
+| Date | Source finding | AWARE translation | Kind | Test, data and status |
+|---|---|---|---|---|
+| 2026-11-03 | Levin's multiscale competency (higher levels bend landscapes and need not micromanage, since the levels below are competent); Graziano (the schema is deliberately simpler than what it models); Levin: we would recognise organs as agents if we had a primary sense of the spaces they work in | The owner's reframing: goal-space is the environment and the monitor is a sense organ for it, simpler than the language model, wired to one narrow reflex (curate). The smart parts are the model and the owner. Consolidation is driven by the shared error and stress signals the senses report, with selection confirmed by the owner and held-out tasks | malformed (candidate): "the ego module" that evaluates what gets trained, a folk-psychology executive above and smarter than the rest | No test yet; bears on step 6's design. Two cautions: goal-space is partly made by the dyad's own ascents, and whatever the sense reports is what the dyad will come to care about, so its signals stay apart from its success (Goodhart) |
+| 2026-11-03 | Levin's multiscale competency architecture (McMillen & Levin 2024; Levin 2023): levels are nested functionally, not only structurally; each solves problems in its own space with its own goal | Monitors of monitors are a structural stack of observers. Each level should instead be an agent with its own setpoint, error signal and way to act, in its own space: token, turn, session, project | malformed (candidate): the monitor stack as observers | No test yet; an architecture question |
+| 2026-11-03 | Same: each level corrects its own errors | Drift exists at every level: a rabbit hole inside one step (turn), closure (session), losing the big picture across sessions (project). AWARE measures error at the session level only (Step 0) | missing: error signals at the turn and project levels | See the project-level test below |
+| 2026-11-03 | Same: each level bends the option space of the one below, so the lower level's local moves serve the higher goal | The higher level reshapes what is easy for the actor (steering, what enters context) instead of instructing it. A plain-language readout is closer to an instruction | malformed (candidate): the readout reports instead of bending | Sharpens the persuadability test: a landscape change should keep working when the actor is never told the goal |
+| 2026-11-03 | Same: levels also deform the landscape of the levels above | Nothing in AWARE flows upward. Nearest case: the agent's competence changing which goals are realistic for the owner, inside the dyad | gap: upward influence | No test yet |
+| 2026-11-03 | Same | The attention schema is a higher level's simplified model of a lower level's landscape, used to bend it on purpose; leap vs gradient becomes whether a level's problem space includes the levels below it | hypothesis (speculative): a framing, not yet a test | None yet |
+| 2026-11-03 | Same, at the project level | Project-level stagnation: compression progress aggregated per session flattens before the owner's reorganizations (DECISIONS.md: 2026-10-30, 2026-10-31, 2026-11-02). The ascent cycle one level up | hypothesis | Readable from Step 0's per-chunk output with no new run. Exploratory: the reorganization dates are known |
+| 2026-11-03 | Shreesha & Levin 2024 (computational model): stress, the error of a homeostatic loop, shared across cells, reaches targets faster and widens distant cells' influence; Levin: stress is an exported error signal | Stress is error against the goal code: misfit (costly) and stagnation (flat progress; the owner's boredom). The agent never exports its stress; the owner's reaches the agent late, as words. The readout's job may be export: a dyad stress line both parties see, early | missing: stress export, agent → owner | No test yet; a readout change |
+| 2026-11-03 | Same: stress carries no ownership metadata (Levin) | Provenance stays attributed, since closure is read from it, but stress is reported for the dyad ("this session has stopped learning"), not as one party's | malformed (candidate): the readout template's first-person source line, if stress is read from it | No test yet; a template change |
+| 2026-11-03 | Same: stress precedes coordinated action | An unshared-stress window: the agent's stagnation (flat progress) precedes the owner's first return, and the lag is how long stress went unshared | hypothesis | Readable from Step 0's per-chunk output with no new run. Exploratory (same events) |
+| 2026-11-03 | Levin, TAME: stress works like run-and-tumble, saying when to move and when to stop | Boredom triggers going lateral in the ascent cycle | consistent: supports an existing element, adds none | None needed |
+| 2026-11-03 | Chernet, Fields & Levin 2015: disrupting gap-junction coupling far from oncogene cells lowered tumour incidence most; boosting coupling (Cx26) raised it | Coupling carries whatever signal the field holds; recoupling helps only from a source with a different signal | malformed: "recoupling cures drift" | Design change 4 narrowed (Semantic Body doc). No test yet |
+| 2026-11-03 | Same | Self-generated content read back as tool input is the agent's own signal, not the world's: provenance is a graph of who reads whose output | missing: echo as a provenance class | Step 0 amendment 4 (world vs echo). Laundering test on the owner's corpus: not supported before closures (AUC 0.48–0.51); higher before ascents (0.64 [0.51, 0.75]). Exploratory |
+| 2026-11-03 | Same | Distant context (the session's opening frame, loaded docs, earlier sessions) sets closure more than the last turns | hypothesis | Untested |
+| 2026-11-03 | Same | More coupling to a collaborator carrying the same frame deepens closure (accommodation, dyad closure) | hypothesis | Untested: too few scorable accommodations |
+| 2026-11-03 | Same: the model predicts outcomes from how coupling paths sit relative to the body axes | Closure risk follows the layout of who reads whose output, not only how much flows | hypothesis | Untested: provenance graph vs shares |
+| 2026-11-03 | FieldSHIFT: the pivot is of problem space (3D space → morphospace) | The body's location is which code the recent trajectory fits, not an embedding position | malformed: "position as location" | Body ablation on the owner's corpus: geometry added nothing over provenance and novelty, and read topic. Static embedders only. Exploratory |
+
+**Gaps named in the owner's Levin session, 2026-11-03:** stress-sharing and multiscale competency, both translated
+the same day (rows above).
 
 ## Retired
 

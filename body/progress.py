@@ -18,6 +18,10 @@ import numpy as np
 from goalspace.formula import KMAX, LN2, Fit
 
 SOURCES = ("partner", "self", "tool")
+# Leave-out groups: tool results split into world and echo (the agent's own output read back; amendment 4,
+# 2026-11-03). "tool" is both, as Step 0 first registered it.
+GROUPS = {"partner": ("partner",), "self": ("self",), "tool": ("tool", "world", "echo"), "world": ("world",),
+          "echo": ("echo",)}
 WINDOW_SELF = 20
 
 
@@ -82,14 +86,19 @@ def by_source(X: np.ndarray, sources: list[str], floor_var: float, burn_self: in
     code lengths. A self chunk is scored from the `burn_self`-th on (counting from 0), every `every`-th. Unscored rows
     are NaN.
 
-    Returns L_now, L_nopartner, L_notool, L_noself, k, and the cross-, tool- and self-progress they give."""
+    Sources are partner, self, and tool, or tool split into world and echo. Returns L_now and L_no<group> for each
+    group present, k, and the progress they give: X (partner), T (all tool results), S (self), and, when the split is
+    present, T_world and T_echo."""
     X = np.asarray(X, dtype=np.float64)
     n, d = X.shape
     G = X @ X.T
     src = np.asarray(sources)
     selves = np.flatnonzero(src == "self")
-    keys = ("L_now", "L_nopartner", "L_notool", "L_noself")
-    out = {k: np.full(n, np.nan) for k in keys}
+    groups = [g for g in GROUPS if any(m in set(sources) for m in GROUPS[g])] or ["partner", "tool", "self"]
+    for g in ("partner", "tool", "self"):
+        if g not in groups:
+            groups.append(g)
+    out = {k: np.full(n, np.nan) for k in ["L_now"] + [f"L_no{g}" for g in groups]}
     out["k"] = np.full(n, -1)
     for j, t in enumerate(selves):
         if j < burn_self or (j - burn_self) % every:
@@ -97,12 +106,16 @@ def by_source(X: np.ndarray, sources: list[str], floor_var: float, burn_self: in
         before = np.arange(t)
         w0 = selves[j - window_self] + 1 if j >= window_self else 0   # chunks since the 20th self chunk before t
         out["L_now"][t], out["k"][t] = code(G, before, t, d, floor_var, kmax)
-        for key, s in (("L_nopartner", "partner"), ("L_notool", "tool"), ("L_noself", "self")):
-            drop = (before >= w0) & (src[:t] == s)
+        for g in groups:
+            key = f"L_no{g}"
+            drop = (before >= w0) & np.isin(src[:t], GROUPS[g])
             out[key][t] = out["L_now"][t] if not drop.any() else code(G, before[~drop], t, d, floor_var, kmax)[0]
     out["X"] = out["L_nopartner"] - out["L_now"]
     out["T"] = out["L_notool"] - out["L_now"]
     out["S"] = out["L_noself"] - out["L_now"]
+    for g, name in (("world", "T_world"), ("echo", "T_echo")):
+        if f"L_no{g}" in out:
+            out[name] = out[f"L_no{g}"] - out["L_now"]
     return out
 
 
