@@ -17,6 +17,8 @@ as they were built:
   the words.
 - **Research: reasoning over the entity's own axes** (`research/`). Relations, operations, composition and order. No
   demo yet; the reason the project exists.
+- **Body** (`body/`): the body readout, a measured model of where the entity is and what moves it, for every
+  capacity; spec only so far (DECISIONS.md, 2026-11-03).
 - **Substrate** (`substrate/`): model access and D, the record with provenance, the geometry core, and the retained
   axes with their two admission criteria.
 

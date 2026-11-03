@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **`basis` and `coupling` move to `substrate/`; the body readout lives in `body/`** (owner, agreeing to the
+  agent's proposal). They describe the entity's dynamics, not drift; `product/coupling.py` re-exports them unchanged
+  (rounds 2 and 3 print identical output). `body/` imports `substrate/` and `goalspace/`, never a track. Spec: [Body
+  Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo); its tests come before its code.
 - 2026-11-03: **Step 3's form amended after its dry run** (owner): no speaker labels, and each goal's frame picked from 3
   candidates by how often the model raises it unasked, from frame-free samples only. No bar changes (PLAN.md).
 - 2026-11-03: **Step 3 reshaped; step 2 checked with a second wording** (owner). Step 3's main case is replies the model

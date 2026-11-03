@@ -18,7 +18,7 @@ when its test passes, not when its code exists.
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-02.*
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-03.*
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
@@ -43,6 +43,12 @@ direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
 `research/source_read.py`; after its dry run, the owner amended the form; now the pilot that picks each goal's frame (`runs/source-pilot`), a second dry run, then the owner freezes the 40 frames, then the run (about 5–6 hours,
 estimated).
+
+**Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
+moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
+It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
+source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
+to `substrate/`. No code yet; its readings and thresholds are written here first.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
