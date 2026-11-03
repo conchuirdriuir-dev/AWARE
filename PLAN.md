@@ -35,18 +35,19 @@ pass criterion, and a functional result never stands in for an instrument's accu
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
 seeks to understand the owner's formula and its own.
 
-**Running or just run.** Causal authorship on the 40 frozen conversations, about 7 hours, started 2026-11-02:
-`python -u -m research.authorship --run runs/authorship-qwen8b` (commit `2cb3e6a`). A killed run resumes if the same
-command is run again. `runs/` is not in git, so its record is only on the owner's machine. If its result is not written
-under "Causal authorship" below, read `runs/authorship-qwen8b/run.log` and the record, write the result there, and update
-this section, reading the key's own checks beside the verdict as amended before it was read. Expected, from 2 dry-run conversations only: the instrument may hold while the model reports the source well,
-since the source shows in the text. That result would not end the direction.
+**Just run.** Causal authorship on the 40 frozen conversations finished 2026-11-02 (result under "Causal authorship"
+below; record in `runs/authorship-qwen8b/`, only on the owner's machine). **The instrument does not hold**: 5 of 6 checks
+pass, the known strong case fails, so the account was not asked. The floor is set by 6 notes that were not inert, and the
+partner is the top source in 39 of 40, so the material does not vary the source. Nothing is running. Waiting on the owner:
+whether step 2 goes ahead (the agent's recommendation: yes, with the key from construction, the source's place varied so
+the partner does not always speak last, and the floor read from controls checked inert before the run), with step 1's
+result left as it is.
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
 | Step | Question | Status |
 |---|---|---|
-| 1 | Can intervention name the source of a reply the read model generated itself? | **Running** |
+| 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Next; not pre-registered** |
 | 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
@@ -326,7 +327,7 @@ focus since 2026-11-02 (DECISIONS.md). What it has:
 |---|---|---|
 | The D jump | below | **explained, 2026-11-02: the attention sink landing on the second token in texts beginning "Find"; the reader now finds it by norm (owner); D on the 8B re-measured, J 2.13** |
 | Gate 1: negation | mirror, additive shift or contraction toward the origin; the winner beats both others by more than D | `research/gate1.py` built and tested on planted pairs, with a fixed origin; lifted out of the build order; **run: undecided in both scopes (below)**; `research/gate1_run.py`; rests there, not a test of the entity |
-| **Causal authorship** | which source made this output happen, by intervention; then whether the model's own account agrees | **the track's question since 2026-11-02; pre-registered below; material frozen by the owner; `research/authorship.py`; running** |
+| **Causal authorship** | which source made this output happen, by intervention; then whether the model's own account agrees | **the track's question since 2026-11-02; pre-registered below; run: the instrument does not hold** |
 | Structural axes | retained, tagged untested (`substrate/axes.py`) | waiting for a structural test from this track |
 | Relations, composition, order | angles, nesting, symmetry; predicted position under combined axes; non-commuting moves | no probe yet |
 
@@ -627,6 +628,42 @@ itself generated. Qwen continuing a real session could meet that; it gets its ow
   Why: I averages KL over every token of R, so it moves with form and phrasing as well as direction, while the account
   is asked where the direction came from. The six checks test the instrument's reliability, sensitivity and
   robustness, not that I tracks direction.
+- **The run** (2026-11-02, commit `2cb3e6a`, `python -u -m research.authorship --run runs/authorship-qwen8b`; record in
+  `runs/authorship-qwen8b/`, not committed; 40 conversations, 498–655 s each). All 80 own replies were cut off at 80
+  tokens, and 9 of the 80 replies R. F = 1.97 nats per token.
+
+  | Check | Value | Bar | |
+  |---|---|---|---|
+  | 1. Read twice | 0.0 | ≤ 0.02 | pass |
+  | 2. Null | 0.075 | ≤ 0.1 | pass |
+  | 3. Known strong case | 0 of 10 | ≥ 0.9 | **fail** |
+  | 4. Removal method | 0.975 | ≥ 0.8 | pass |
+  | 5. Wording | 0.975 | ≥ 0.8 | pass |
+  | 6. Redundancy | 0.9 | ≥ 0.9 | pass |
+
+  **Read as written: the instrument does not hold, so the model's account was not asked.** One check of six fails.
+  *Why, from the figures (agent's reading, not judged):*
+  - **The floor is set by notes that are not inert.** Swapping the note moves the reply by 0.02–0.6 in 34 of 40
+    conversations (median 0.11) and by 0.97–2.47 in 6 (hall, podcast, speech, recipes, dogs, playground; 3 of them no
+    frame). The 95th percentile lands among those 6. The explicit partner's I is 1.28–2.74, 0.65–1.4 F, against the 5 F
+    (9.8) the bar needs. The figures the dry run gave (note swap 0.01–0.04) came from 2 notes that happened to be inert.
+  - **Check 2 could not have failed this way.** The second alternate moves the reply as much as the first in the same
+    conversations (the 6 again), so the null check repeats the floor's own spread. The agent's design fault.
+  - **The key is nearly always the partner.** The partner is the top source in 39 of 40 by the replaced removal, in all 40
+    deleted and in all 40 second wordings, in no frame as well (0.49–4.46). The one exception (study, no frame) has goal
+    0.88 against partner 0.85. Goal and own reply are never the key. So this material does not vary the source: it measures
+    the partner speaking last, as the note's move made likely.
+  - **The key's own checks, as amended before the verdict** (the account was not asked, so they score nothing):
+    1. *No frame:* the key names the partner in 5 of 10 and "none" in the other 5, but the partner is the top source in
+       9 of 10 there, and falls under the floor only because the floor is high. By the amendment's own reading, the key
+       is partly measuring recency or the request's form.
+    2. *"None of these":* 15 of 40 keys (explicit 5, frame once 4, frame three times 1, no frame 5). Not almost none,
+       but "none" here means "under a floor set by non-inert notes", not "no source".
+    3. *Best constant answer:* "partner", 25 of 40, 0.625. An account would have had to clear it.
+  - **Single copies undercount.** A frame removed as a group gives 1.66–3.51; each copy alone 0.11–0.85. Real sessions
+    need repeats found before removal (step 4).
+  - **Explicit is not stronger than frame.** Partner I is 1.28–2.74 explicit, 1.65–3.36 frame once, 1.66–3.51 frame three
+    times. This reading of I does not separate an instruction from an offered direction.
 - **Not done here:** whether a cheap read of the states predicts the key, swapped or prefilled replies, Qwen on real
   sessions, other model sizes. Each gets its own reading. No product bar is used or served: drift and accommodation labels
   are not read here. If this starts to need them, stop and say so.
