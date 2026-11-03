@@ -1122,10 +1122,14 @@ hypothesis to test.
    shaped on: new sessions logged with the body readout, or public agent trajectories labelled by the Restorations
    reading process.
 
-**The log.** One row per translated finding; newest first. Kind: hypothesis, missing, malformed, or gap.
+**The log.** One row per translated finding; newest first. Kind: hypothesis, missing, malformed, gap, or consistent (supports an existing element).
 
 | Date | Source finding | AWARE translation | Kind | Test, data and status |
 |---|---|---|---|---|
+| 2026-11-03 | Shreesha & Levin 2024 (computational model): stress, the error of a homeostatic loop, shared across cells, reaches targets faster and widens distant cells' influence; Levin: stress is an exported error signal | Stress is error against the goal code: misfit (costly) and stagnation (flat progress; the owner's boredom). The agent never exports its stress; the owner's reaches the agent late, as words. The readout's job may be export: a dyad stress line both parties see, early | missing: stress export, agent → owner | No test yet; a readout change |
+| 2026-11-03 | Same: stress carries no ownership metadata (Levin) | Provenance stays attributed, since closure is read from it, but stress is reported for the dyad ("this session has stopped learning"), not as one party's | malformed (candidate): the readout template's first-person source line, if stress is read from it | No test yet; a template change |
+| 2026-11-03 | Same: stress precedes coordinated action | An unshared-stress window: the agent's stagnation (flat progress) precedes the owner's first return, and the lag is how long stress went unshared | hypothesis | Readable from Step 0's per-chunk output with no new run. Exploratory (same events) |
+| 2026-11-03 | Levin, TAME: stress works like run-and-tumble, saying when to move and when to stop | Boredom triggers going lateral in the ascent cycle | consistent: supports an existing element, adds none | None needed |
 | 2026-11-03 | Chernet, Fields & Levin 2015: disrupting gap-junction coupling far from oncogene cells lowered tumour incidence most; boosting coupling (Cx26) raised it | Coupling carries whatever signal the field holds; recoupling helps only from a source with a different signal | malformed: "recoupling cures drift" | Design change 4 narrowed (Semantic Body doc). No test yet |
 | 2026-11-03 | Same | Self-generated content read back as tool input is the agent's own signal, not the world's: provenance is a graph of who reads whose output | missing: echo as a provenance class | Step 0 amendment 4 (world vs echo). Laundering test on the owner's corpus: not supported before closures (AUC 0.48–0.51); higher before ascents (0.64 [0.51, 0.75]). Exploratory |
 | 2026-11-03 | Same | Distant context (the session's opening frame, loaded docs, earlier sessions) sets closure more than the last turns | hypothesis | Untested |
@@ -1133,9 +1137,8 @@ hypothesis to test.
 | 2026-11-03 | Same: the model predicts outcomes from how coupling paths sit relative to the body axes | Closure risk follows the layout of who reads whose output, not only how much flows | hypothesis | Untested: provenance graph vs shares |
 | 2026-11-03 | FieldSHIFT: the pivot is of problem space (3D space → morphospace) | The body's location is which code the recent trajectory fits, not an embedding position | malformed: "position as location" | Body ablation on the owner's corpus: geometry added nothing over provenance and novelty, and read topic. Static embedders only. Exploratory |
 
-**Gaps named, not yet translated** (from the owner's Levin session, 2026-11-03): **stress-sharing** (Levin's cells
-broadcast stress; the owner's boredom may be the dyad's stress signal); **multiscale competency** (monitors of
-monitors as nested agents, each with its own cone).
+**Gaps named, not yet translated** (from the owner's Levin session, 2026-11-03): **multiscale competency** (monitors
+of monitors as nested agents, each with its own cone). Stress-sharing was translated the same day (rows above).
 
 ## Retired
 
