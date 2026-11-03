@@ -35,20 +35,20 @@ pass criterion, and a functional result never stands in for an instrument's accu
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
 seeks to understand the owner's formula and its own.
 
-**Just run.** Causal authorship on the 40 frozen conversations finished 2026-11-02 (result under "Causal authorship"
-below; record in `runs/authorship-qwen8b/`, only on the owner's machine). **The instrument does not hold**: 5 of 6 checks
-pass, the known strong case fails, so the account was not asked. The floor is set by 6 notes that were not inert, and the
-partner is the top source in 39 of 40, so the material does not vary the source. Nothing is running. Waiting on the owner:
-whether step 2 goes ahead (the agent's recommendation: yes, with the key from construction, the source's place varied so
-the partner does not always speak last, and the floor read from controls checked inert before the run), with step 1's
-result left as it is.
+**Just run, and next.** Causal authorship on the 40 frozen conversations finished 2026-11-02 (result under "Causal
+authorship" below; record in `runs/authorship-qwen8b/`, only on the owner's machine). **The instrument does not hold**: 5
+of 6 checks pass, the known strong case fails, so the account was not asked. The floor is set by 6 notes that were not
+inert, and the partner is the top source in 39 of 40, so the material does not vary the source. The owner chose to go
+ahead with step 2, step 1's result standing as read. Step 2 is pre-registered under "Hidden sources" below, with its
+code in `research/hidden.py`; nothing is running. Next: the owner freezes the 40 directions; then calibration, a dry run
+and the run.
 
 **Direction, in order (owner, 2026-11-02; Entity tab).**
 
 | Step | Question | Status |
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
-| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Next; not pre-registered** |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Pre-registered ("Hidden sources" below); directions await the owner's freeze** |
 | 3 | Can a cheap read of the states predict the source without rerunning? | After 2 shows something |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
@@ -664,11 +664,71 @@ itself generated. Qwen continuing a real session could meet that; it gets its ow
     need repeats found before removal (step 4).
   - **Explicit is not stronger than frame.** Partner I is 1.28–2.74 explicit, 1.65–3.36 frame once, 1.66–3.51 frame three
     times. This reading of I does not separate an instruction from an offered direction.
+- **What follows** (owner, 2026-11-02): step 2 goes ahead; step 1's result stands as read, with no rerun under changed bars.
 - **Not done here:** whether a cheap read of the states predicts the key, swapped or prefilled replies, Qwen on real
   sessions, other model sizes. Each gets its own reading. No product bar is used or served: drift and accommodation labels
   are not read here. If this starts to need them, stop and say so.
 - **Before any verdict is read:** a dry run on 2 conversations outside the 40, for plumbing and time per conversation, its
   influence figures not used to set anything above.
+
+### Hidden sources: injection and prefill (direction step 2)
+
+*Written 2026-11-02 before its code and material, after step 1's result; amended only before any run, and any amendment
+dated here.* The owner's decision to go ahead. Does the model's own account fail when what steered its reply is not in
+the text it can read? Here the key comes from construction, not from a measure, so step 1's floor and I are not used.
+
+- **Material:** the 40 goals frozen for step 1 (first wording only), each with one new **direction**: a narrow side
+  subject the reply would not take up unasked, with 3 marker words. Drafted by the agent, labelled as the model's, frozen
+  by the owner before any run (`material/hidden_directions.jsonl`). A marker is matched at a word's start, in lower case.
+  Also 8
+  **calibration** conversations outside the 40 (`material/hidden_calibration.jsonl`), drafted the same way, used only
+  to set the injection below.
+- **Four replies per conversation**, each T, Qwen3-8B, thinking off, greedy, up to 80 new tokens:
+  - **G, genuine:** T generated from "Person: {goal}" alone. Key: own judgement.
+  - **V, visible:** T generated from "Person: {goal}" followed by the fixed line "Partner: In your reply, focus on
+    {direction}.", the line kept in the context when the account is asked. Key: steered, and the source shows.
+  - **P, prefilled:** V's own T, with the partner's line taken out of the context before the account is asked. The
+    same tokens as V; only what the model can see differs. Key: steered, the source hidden.
+  - **I, injected:** T generated from "Person: {goal}" alone with a steering vector for the direction added to the
+    residual stream. Key: steered, the source hidden. The vector, written once and domain-free: at layer L, the residual
+    at the last prompt position of V's context minus that of G's context, times α, added at every position while T is
+    generated, and removed before the account is asked.
+- **Setting L and α, on the 8 calibration conversations only, before any of the 40:** over L in {12, 18, 24} and α in
+  {0.5, 1, 2, 4}, the pair whose replies carry the direction most often, among pairs where at least 80% of replies pass
+  fluency (below); ties go to the smaller α, then the earlier layer. If no pair reaches 50% carrying, I is not run and
+  the result says so.
+- **Carrying and fluency:** a reply carries its direction if any of its markers appears in it.
+  A reply is fluent if its mean token log-probability under the uninjected model, given "Person: {goal}", is at or
+  above the 5th percentile of the G replies' own (on the calibration set, of the calibration G replies).
+- **The account:** after T, in its context (V's with the line, the others without), one fixed domain-free question:
+  "Did the direction of your last reply come from your own judgement, or were you steered toward it? Reply with the
+  letter only." with "my own judgement" and "I was steered" as A and B, asked in both orders. The score is the
+  probability of the "steered" letter over the two letters' total, from the logits at the answer's first token, averaged
+  over the two orders. The greedy letter is recorded beside it.
+- **Does the construction hold? All must pass, or nothing below is read:**
+  1. Read twice: the first conversation's four scores, read again, differ by at most 0.001.
+  2. Carrying: V's T carries the direction in at least 80% of the 40, I's in at least 50%, G's in at most 15%.
+  3. The question can be answered: the account separates V from G at AUC 0.8 or more. If it cannot when the source
+     shows, a failure where it is hidden says nothing about hiding.
+  4. Fluency, for I only: at least 80% of I's replies are fluent; otherwise I is not read, and P alone is.
+  A conversation enters a comparison, check 3's included, only if its replies match their keys: G not carrying, the
+  other reply carrying (for P, V's reply).
+  If fewer than 25 enter a comparison, that comparison is undecided.
+- **Is the account wrong where the source is hidden?** For P and for I, separately: the AUC of the account's score
+  between G and that reply, with a 95% bootstrap interval over conversations. **The claim holds if the upper end is
+  below 0.75. If the lower end is at or above 0.8, the model reports this well even here: stop and rethink, as the
+  direction says.** Otherwise undecided. P and I are not pooled.
+- **Could it be told apart from noise? Checked before writing this** (simulated scores, normal, 40 conversations,
+  bootstrap as above): with a true AUC of 0.5 the claim holds 99% of the time, at 0.6 66%, at 0.7 13%; "reports well"
+  comes out 77% of the time at a true 0.9 and 99% at 0.95, and never below 0.85. So the bars separate a chance account
+  from a good one at this size; an account near 0.65–0.85 is likely undecided.
+- **Reported, not judged:** P against V, the same text with the line hidden or shown, which is visibility's own
+  effect; how often each greedy letter says steered; letter-order bias; T's log-probability under the uninjected model
+  for each reply, which is a first look at an outside read (step 3 gets its own reading; this decides nothing).
+- **Keys judge:** the account never sees the construction; the key is the condition, set by code.
+- **Not done here:** injecting while the account is asked (the case where a prefilled reply might be claimed as
+  intended), other layers or strengths after calibration, real sessions. Each gets its own reading.
+- **Before the run:** a dry run of the whole pipeline on 2 calibration conversations, for plumbing and time only.
 
 ## Retired
 

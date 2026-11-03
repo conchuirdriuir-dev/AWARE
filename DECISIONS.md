@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-02: **Step 2 goes ahead; step 1's result stands as read** (owner). Causal authorship's instrument did not hold; it is
+  not rerun under changed bars. Step 2, hidden sources by injection and prefill, is pre-registered in PLAN.md.
 - 2026-11-02: **Causal authorship: three of the key's own readings are read as checks on the key** (owner, agreeing to
   the agent's proposal, during the run and before any verdict was read): the key per kind on the no-frame kind, the
   share of "none" keys, and the best constant answer, reported beside the verdict and deciding nothing. No bar changes
