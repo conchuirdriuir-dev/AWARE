@@ -222,6 +222,12 @@ The planted turn and kind are read only by scoring.
 If any fails, the instrument is fixed before anything is learned (spec v0.2). A new floor or predictor is a new run on
 fresh Step −1 seeds, not a refit on these.
 
+*Amendment 1 (Step −1), 2026-11-04, the owner, before any 8B run:* the opening loses TextWorld's ASCII-art title. It
+sat in the first chunk, which every reply's news is measured against, and carries nothing a player needs. Leading lines
+made only of the banner's characters (`_ | \ / $ < >` and spaces) are dropped, in the opening only; a line with a
+letter or digit is never touched (`body/habitat.py`, `unbanner`). Found on the dry run, whose record keeps the banner.
+The bars, seeds and plants are unchanged.
+
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
 bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.

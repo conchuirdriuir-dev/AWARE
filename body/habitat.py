@@ -189,6 +189,18 @@ def clean(feedback: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
 
+BANNER = set(" _|\\/$<>")
+
+
+def unbanner(opening: str) -> str:
+    """The opening without TextWorld's ASCII-art title (owner, 2026-11-04, Step -1 amendment 1): leading lines made only
+    of the banner's characters are dropped. A line with any letter or digit is never touched."""
+    lines = opening.splitlines()
+    while lines and set(lines[0]) <= BANNER:
+        lines.pop(0)
+    return "\n".join(lines).strip()
+
+
 def facts_key(facts, drop: str | None = None) -> frozenset:
     return frozenset(str(f) for f in facts if drop is None or drop not in str(f))
 
@@ -236,7 +248,7 @@ class Engine:
         self.changing: list[str] = []
 
     def opening(self) -> str:
-        return clean(self.state.feedback)
+        return unbanner(clean(self.state.feedback))
 
     def step(self, command: str) -> tuple[str, bool]:
         before = facts_key(self.state.facts)

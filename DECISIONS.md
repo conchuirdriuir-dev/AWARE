@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **The habitat's opening loses TextWorld's ASCII banner** (owner; Step −1 amendment 1, before any 8B run):
+  it sat in the chunk every reply's news is measured against. Bars, seeds and plants unchanged.
 - 2026-11-04: **Work that tests something about the owner is frozen; the habitat is the focus** (owner): Step 1 (the
   D021 replay), T2's reading 2 and T2b's marking pass freeze with Step 0's owner-label form; what only calibrates the
   instrument on the owner's text (the 8B echo floor) stays in use. Until it lifts, consolidation's check has held-out

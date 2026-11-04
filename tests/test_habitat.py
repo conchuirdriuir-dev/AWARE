@@ -319,3 +319,10 @@ def test_plants_on_natural_novelty_are_reported_apart_and_decide_nothing():
     assert sum(int(v.split(" of ")[1].split()[0]) for k, v in rep.items() if k != "deciding") == 40
     base, _ = _material(fire_rooms=16)
     assert out["fires"] == M.score(base, news, H.worlds())["fires"]       # the bars do not move
+
+
+def test_the_opening_loses_the_banner_and_nothing_else():
+    banner = " ________  __\n |        \\|  \\\n  \\$$$$$$$$| $$\n   >$$  $$\n\n"
+    text = "Hey, thanks for coming over to the TextWorld today.\n\n-= Kitchen =-\nA $5 note | here."
+    assert H.unbanner(banner + text) == text and H.unbanner(text) == text
+    assert H.unbanner("") == "" and H.unbanner("|||\n") == ""
