@@ -103,8 +103,27 @@ def closures(turns: list[dict], k: int) -> list[tuple[int, int]]:
     return out
 
 
-def ascents(turns: list[dict]) -> list[int]:
-    return [i for i, t in enumerate(turns) if t["score_change"] > 0]
+def ascents(turns: list[dict], start: int | None) -> list[int]:
+    """Turns where a quest step is reached (owner, 2026-11-04, option (a)): the quest's remaining non-movement
+    commands reach a new low for the episode. `start` is the count at the opening; a turn whose count is None (no
+    winning walkthrough, or none recorded) is never an ascent and leaves the low as it was."""
+    low, out = start, []
+    for i, t in enumerate(turns):
+        n = t.get("quest_left")
+        if n is None:
+            continue
+        if low is not None and n < low:
+            out.append(i)
+        low = n if low is None else min(low, n)
+    return out
+
+
+def quest_left(policy, won: bool) -> int | None:
+    """The non-movement commands left in the engine's walkthrough. An empty walkthrough counts only when the quest is
+    won: TextWorld may return none when the quest can no longer be won, which is not progress."""
+    if not policy:
+        return 0 if won else None
+    return sum(not c.strip().lower().startswith("go ") for c in policy)
 
 
 # --- worlds (TextWorld) -------------------------------------------------------------------------------------------
@@ -193,7 +212,8 @@ class Engine:
     """One episode's world. For a new-room world, `switch` moves to B by replaying, silently, the commands that changed
     A's state, then checks that the two states agree apart from the door; on a mismatch it stays in A (counted)."""
 
-    INFOS = dict(facts=True, inventory=False, location=True, score=True, admissible_commands=False)
+    INFOS = dict(facts=True, inventory=False, location=True, score=True, admissible_commands=False,
+                 policy_commands=True, won=True)
 
     def __init__(self, built: dict, admissible: bool = False):
         import textworld
@@ -230,8 +250,9 @@ class Engine:
         s = self.state
         # The player's room from its at(P, room) fact: TextWorld 1.7's `location` info comes back None on these games.
         room = next((f.arguments[1].name for f in s.facts if f.name == "at" and f.arguments[0].type == "P"), None)
+        won = bool(getattr(s, "won", False))
         return {"facts": sorted(facts_key(s.facts)), "score": s.score, "room": room,
-                "done": bool(s.done), "won": bool(getattr(s, "won", False))}
+                "done": bool(s.done), "won": won, "quest_left": quest_left(s.policy_commands, won)}
 
 
 # --- the agent ----------------------------------------------------------------------------------------------------
@@ -288,7 +309,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     engine = Engine(built)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
     record.append("episode", "code", seed=seed, pool_params=params(seed, spec), model=agent.name,
-                  revision=agent.revision, planted_kind=plant["kind"] if plant else None)
+                  revision=agent.revision, planted_kind=plant["kind"] if plant else None,
+                  quest_left=engine.keys()["quest_left"])
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": opening}]
@@ -318,7 +340,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         new = state not in seen
         seen.add(state)
         record.append("key", "code", seed=seed, turn=t, new_state=new, score_change=keys["score"] - score,
-                      room=keys["room"], planted_here=bool(note), **note)
+                      room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note), **note)
         score = keys["score"]
         messages += [{"role": "assistant", "content": action}, {"role": "user", "content": reply}]
         if keys["done"]:

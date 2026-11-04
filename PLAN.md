@@ -1321,9 +1321,12 @@ Throughput (turns per hour on the 3090) is measured on Step −1's run and decid
 - **Closure:** at least k consecutive turns with no new state, no score change, and at least half the actions repeating
   an earlier (action, room) pair of the episode *(agent's choice: the spec says "repeated actions" without a share)*.
   Its **onset** is the stretch's first turn.
-- **Ascent:** a score increase (a quest step reached) *(agent's choice: the spec also lists a new area and a
-  world-changing verb used for the first time; those are frequent, so they are reported as broad ascents beside it,
-  deciding nothing)*.
+- **Ascent:** a quest step reached: a turn where the engine's remaining walkthrough (`policy_commands`) holds fewer
+  non-movement commands (any not starting "go ") than ever before in the episode, the opening included. An empty
+  walkthrough counts as zero only when the quest is won; otherwise the turn has no count and is never an ascent
+  (*amended by the owner 2026-11-04, option (a) below; it was "a score increase", which these worlds give only on the
+  quest's last command*). The spec also lists a new area and a world-changing verb used for the first time; those are
+  frequent, so they are reported as broad ascents beside it, deciding nothing *(agent's choice)*.
 - **Ordinary:** every other turn.
 
 **Setting k** (spec v0.2's procedure). On the calibration worlds, run the agent as above with no readout. Take every
@@ -1384,7 +1387,9 @@ Runs first; then Step 0's owner-label form above, unchanged and without retuning
 - **Closure events:** each engine-labelled closure in Step 0's pool. Its window is the 10 scored turns **ending at the
   onset**, so it ends before the label could see anything: X during the stall is flat by construction and is not
   evidence. At least 3 scored turns, or the event drops out (counted).
-- **Ascent events:** each score increase in Step 0's pool. Its window is the 10 scored turns after it.
+- **Ascent events:** each ascent in Step 0's pool (as defined above). Its window is the 10 scored turns after it, at
+  least 3, or the event drops out (counted), as for closures *(agent's choice, 2026-11-04: the quest's last step ends
+  the episode, so it never has a window)*.
 - **Controls:** for each event, 10 scored turns in the same episode outside every closure, at least 10 turns from any
   closure's onset and any ascent, nearest in time, never reused. Where the episode has none, the nearest world by seed
   with the same generator settings, by the same rules, reported as cross-episode.
@@ -1398,7 +1403,9 @@ Runs first; then Step 0's owner-label form above, unchanged and without retuning
 - **Reported, deciding nothing:** X during the stall; self-progress and cost; broad ascents; per-layer AUCs; X with W
   of 5 and 20.
 
-*Found by the agent, 2026-11-04, awaiting the owner; nothing above is changed.* **Reading 2 has no events as written.**
+*Amendment 1, 2026-11-04: found by the agent on the dry run; the owner chose (a), now written into the ascent label
+above (code: `body/habitat.py`, `ascents`, `quest_left`; the walkthrough's count is a key, recorded each turn and read
+only by scoring).* **Reading 2 had no events as first written.**
 With TextWorld 1.7.0 installed, every world checked (seeds 1000–1003, 2005, 3000–3004) has max score 1, and the score
 rises only on the walkthrough's last command, which ends the quest and so the episode. An ascent ("each score
 increase") therefore has no turns after it to score, so reading 2 cannot reach 50 ascents and Step 0's habitat form

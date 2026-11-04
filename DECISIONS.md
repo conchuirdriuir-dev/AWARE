@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **A habitat ascent is a quest step reached** (owner, option (a), after the dry run showed one-point
+  worlds that score only on the quest's last command): the remaining walkthrough's non-movement commands reach a new
+  low for the episode. Step 0's habitat form, amendment 1.
 - 2026-11-04: **The habitat's pre-registration fixed** (owner, the agent's draft unchanged): Step −1's three bars, k's
   procedure, the five disjoint seed pools (`material/habitat_worlds.json`) and Step 0's habitat form (PLAN.md, "The
   habitat"), including the choices marked as the agent's.

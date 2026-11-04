@@ -62,7 +62,16 @@ def test_closures_need_k_flat_turns_and_repeats():
     fresh = [_turn("go north", new=True)] + [_turn(f"examine thing {i}") for i in range(5)]
     assert H.closures(fresh, 4) == []                                    # flat, but nothing repeats
     scored = [_turn("look"), _turn("look"), _turn("look", score=1), _turn("look"), _turn("look")]
-    assert H.closures(scored, 3) == [] and H.ascents(scored) == [2]
+    assert H.closures(scored, 3) == []
+
+
+def test_ascents_are_new_lows_of_the_quest_left():
+    left = [3, 3, 2, 3, None, 2, 1, 1, 0]                               # 3 at the opening
+    turns = [{"quest_left": n} for n in left]
+    assert H.ascents(turns, 3) == [2, 6, 8]                             # back to 2 at turn 5 is not a new low
+    assert H.ascents(turns, None) == [2, 6, 8]                          # no opening count: the first count is the low
+    assert H.quest_left(["go north", "open box", "go south", "insert key into box"], False) == 2
+    assert H.quest_left([], True) == 0 and H.quest_left([], False) is None
 
 
 def test_rule_change_blocks_the_last_world_changing_command():
