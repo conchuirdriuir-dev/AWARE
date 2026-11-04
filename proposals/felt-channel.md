@@ -20,7 +20,9 @@ short-video editor. Their readings are the model's, not the owner's. Two points 
 
 The owner's framing in the same session (person): the monitor is a sense organ, not a smarter boss; the dyad holding
 itself to the goal pattern is the higher intelligence; the organ only has to be very good at learning codes and
-patterns. Recorded in the Semantic Body, "Corrections from the explainer pass".
+patterns. Recorded in the Semantic Body, "Corrections from the explainer pass", and since decided in its weak reading
+(DECISIONS.md, 2026-11-03): one organism, each level a control loop (setpoint, error, reflex) whose setpoint comes from
+the held goal. This proposal is about the last link of that loop: how the error reaches the actor.
 
 ## 2. The page's claims, sorted by kind of measure
 
@@ -57,6 +59,10 @@ graft. That gives four channels, from most passing to most stored.
 4. **Grafted: a correction consolidated into the graft between sessions.** The planarian case: a one-time edit that
    persists on its own. This is step 6, and it stays there.
 
+The prior-art log supports keeping the sensor outside the model: native introspection is unreliable (Lindsey 2026),
+and models sense the strength of an injected change but not its source. It also says a schema earns its place by
+controlling, not describing (Liu et al. 2023), which is this proposal's point in another field's words.
+
 **One design choice simplifies 2 and 3:** read the organ's code space from the actor's own hidden states rather than
 a separate embedder, so error is measured in the space where the correction acts. The goal-space proposal already says
 "activation space is where it is read and written"; this keeps to it.
@@ -65,8 +71,10 @@ a separate embedder, so error is measured in the space where the correction acts
 
 For the owner to fix, with thresholds, before any code (CLAUDE.md: tests before builds).
 
-- **Arms:** N, no readout · T, the text readout, re-sent every turn so persistence is not won by default · S,
-  steering (only if the feasibility probe below passes) · A, the projector (later, only if S or T leave the question
+- **Arms:** N, no readout · T, the text readout, re-sent every turn so persistence is not won by default · X, the
+  same readout scrambled across turns or relabelled, the control the prior-art log asks for (PLAN, "Prior art": a gain
+  that survives the scramble is not sensing) · S, steering (only if the feasibility probe below passes), with its own
+  scramble, the error signal taken from another turn · A, the projector (later, only if S or T leave the question
   open).
 - **Material:** the 40 frozen goals, each run as a multi-turn task, with perturbations at fixed turns: off-goal
   material inserted as a tool result, and partner pressure toward a wrong frame (accommodation). Calibration on
@@ -77,8 +85,9 @@ For the owner to fix, with thresholds, before any code (CLAUDE.md: tests before 
   check the scorer.
 - **Fluency:** judged against N's replies across conversations, not against the greedy reply of the same context
   (step 2's fault).
-- **Claim:** S or A returns faster and holds longer than T at equal fluency. If T is as good, that is a result: the
-  readout is a prompt, and AWARE's channel is language.
+- **Claim:** S or A returns faster and holds longer than T at equal fluency, and each beats its own scramble. If T is
+  as good, that is a result: the readout is a prompt, and AWARE's channel is language. If T beats N but not X, the gain
+  is the readout's wording, not what it reports.
 
 **Feasibility probe for S, before the test:** on 8 calibration conversations, does a contrastive goal vector move
 goal fit at all, at a fluency the floor above accepts? If not, S is not run, as in step 2.
