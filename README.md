@@ -53,7 +53,7 @@ the weak reading of Levin's multiscale competency (owner, 2026-11-03; DECISIONS.
 | Membrane | Provenance: partner, self, tool; read-backs count as self | What it reads from the actor and what reaches the actor | Gap junctions, coupling state |
 | Goal code | Held for it by the setpoint holder | A setpoint derived from the held goal | Target anatomy |
 | Error | Felt as steering: the gap the layer above measures | The gap from current code to goal code | Mismatch that drives regeneration |
-| Light cone | How far in code-space, and how many turns ahead, its goal reaches | The same, one level up | The largest goal a system can pursue |
+| Light cone | How far in code-space, and how many turns ahead, its goal reaches | The timescale its sense covers: turn, session or project | The largest goal a system can pursue |
 | Schema | — | Its compressed readout of the actor (`body/`) | Body schema, attention schema |
 | Closure | Current code tightens while coupling to sources with a different signal falls | — (the creature closes, not a reflex) | A cell shrinking its self to one cell |
 | Ascent | A move to a code that covers two earlier ones | — (the creature ascends, not a reflex) | A move to a new region of morphospace |
