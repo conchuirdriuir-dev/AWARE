@@ -18,7 +18,7 @@ when its test passes, not when its code exists.
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-03.*
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.*
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
@@ -51,6 +51,17 @@ source" below; record in `runs/source-qwen8b/`): the construction holds; by the 
 pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
 pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
 
+**Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
+the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
+the minimum of 15), too few to decide. Step 0 stands as pre-registered, with its five amendments, the 0.6B rehearsal
+and the cross-session finding; returning is a rerun, not a redesign. Its two open questions (pass on same-session pairs;
+thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is measured (2026-11-04):
+[material/echo_floor_8b.json](material/echo_floor_8b.json), layers 24–35 in units of D, by the registered midpoint
+rule, Qwen3-8B, sink "first", current sets, 10 sessions (`body/floor_file.py`, record in `runs/echo-floor-8b-first/`).
+The floor rises from 0.20 at layer 24 to 0.55 at 35; new content separates from near repeats at AUC 0.999–1.000 on
+every layer. The repeats are few (48 exact, 15 near, against 2,403 new), so the 95th percentile of repeats rests on
+about three chunks.
+
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
@@ -76,7 +87,7 @@ kept, ascent) on the candidate list, done blind to every reading; the same marks
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
 | 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
-| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
+| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | **Paused (owner, 2026-11-04)** until the habitat matures |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
 
@@ -1194,6 +1205,33 @@ not committed; 68 minutes on this machine, all 45 sessions). Both checks run on 
 So in the text space the matching does not move the readings, and leaving out cross-session pairs changes little. A
 median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
 the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
+
+**The 0.6B rehearsal, 2026-11-04 (plumbing, decides nothing; draft sets; `runs/body0-06/`, not committed).** All 45
+sessions, layers 19–27. It first crashed on a session with no chunks (the agent's bug, which the text-only dry run
+could not reach since it reads no states); fixed with a test and resumed from the checkpoints. Time: 15 minutes
+reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 chunks, 5.5 hours; S44, 1.5 hours).
+
+| | All pairs: events, AUC (90%), text | Same-session pairs only | Placebo: mean (5th–95th of 200), text |
+|---|---|---|---|
+| Closures | 20, 0.449 (0.407–0.493), text 0.483 | 13, 0.441 (0.391–0.487) | 0.491 (0.405–0.564), text 0.524 |
+| Ascents | 21, 0.531 (0.484–0.586), text 0.723 | 16, 0.642 (0.592–0.698) | **0.630 (0.562–0.703)**, text 0.496 |
+
+- **The placebo finds a bias in the ascent reading in the model's space** (not in the text space): pretend events with
+  no ascent in them score 0.63 against their controls. So the matching itself moves reading 2 there, and an ascent AUC
+  near 0.63 would mean nothing. Its cause is not yet looked at; candidates are where a control falls relative to its
+  event (the matching keeps the earlier of two equally near runs) and how X trends along a session in the model's
+  space. Reading 2's bar is not changed; the 8B's reading 2 is read against its own placebo, as amendment 5 says.
+- **Time for the 8B,** estimated: fitting scales with the 12 layers against 9 (about 14–15 hours), and reading the
+  26,817 chunks with the 8B split across GPU and RAM is slower by more than an order of magnitude, so the run comes
+  to about a day. Thinning to every second scored chunk is already registered as allowed if it would exceed a day;
+  that is the owner's call.
+- **Where the ascent bias sits** (agent, label-blind, on the rehearsal's checkpoints, 100 placebo draws): pretend ascents
+  whose control is from another session score above it in 0.806 of 855 pairs; within the session, 0.607 with the
+  control before (595) and 0.422 after (550), about 0.52 together. X's rank correlation with position within a session
+  has median 0.03. So the bias is cross-session: in the model's space X's level differs between sessions. The placebo
+  also holds more cross-session pairs than the real readings, since its pretend events take the little room short
+  sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
+  cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
 
 ## Translations (method)
 

@@ -162,3 +162,24 @@ def test_same_session_pairs_leave_out_cross_session_controls():
     r = s0.reading(ses, [e for e in clo if e.get("control_ord", e["ord"]) == e["ord"]], [0], 0, True,
                    np.random.default_rng(0))
     assert r["n"] == 1
+
+
+def test_a_session_with_no_chunks_reads_as_empty(tmp_path):
+    """The 0.6B rehearsal crashed on one; the text-only dry run never reads states, so it could not catch it."""
+    from body import step0 as s0
+    from substrate.record import Record
+
+    class Reader:
+        info = {"width": 8}
+
+    S = s0.read_states(Reader(), [], [1, 2], Record(tmp_path / "r.jsonl"), "states-empty")
+    assert S.shape == (0, 2, 8)
+
+
+def test_the_floor_file_takes_the_midpoint_of_repeats_95th_and_news_5th():
+    from body.floor_file import floors
+
+    kinds = np.array(["exact repeat"] * 20 + ["near repeat"] * 20 + ["new"] * 100 + ["between"] * 10)
+    dist = np.r_[np.zeros(20), np.linspace(0.1, 0.2, 20), np.linspace(0.5, 1.5, 100), np.full(10, 9.0)][:, None]
+    want = 0.5 * (np.percentile(dist[:40, 0], 95) + np.percentile(dist[40:140, 0], 5))
+    assert floors(dist, kinds, [24]) == {"24": want}

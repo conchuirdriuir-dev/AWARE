@@ -103,6 +103,8 @@ def read_states(reader, texts: list[str], layers: list[int], record: Record, key
             return {"S": reader.states(texts[b:b + BATCH], layers)}, {"from": b, "n": len(texts[b:b + BATCH])}
         arrays, _ = session_resumable(record, f"{key}-{b:05d}", compute)
         out.append(arrays["S"])
+    if not out:                                                  # a session with no chunks: nothing to read
+        return np.zeros((0, len(layers), reader.info["width"]), dtype=np.float32)
     return np.concatenate(out)                                   # texts x layers x width
 
 
@@ -284,7 +286,9 @@ def placebo_null(sessions: dict, deps: list[dict], clo: list[dict], asc: list[di
     """The readings' AUCs, mean over layers, on placebo windows, PLACEBO_DRAWS times; and the text baseline's."""
     rng, out = np.random.default_rng(5), {"closures": [], "ascents": [], "closures, text": [], "ascents, text": [],
                                          "n closures": [], "n ascents": [],
-                                         "n closures inside a span": [], "n ascents inside a span": []}
+                                         "n closures inside a span": [], "n ascents inside a span": [],
+                                         "n closures, same-session": [], "n closures, cross-session": [],
+                                         "n ascents, same-session": [], "n ascents, cross-session": []}
     for _ in range(draws):
         fake = placebo(sessions, deps, clo + asc, rng)
         for name, lower in (("closures", True), ("ascents", False)):
@@ -293,12 +297,18 @@ def placebo_null(sessions: dict, deps: list[dict], clo: list[dict], asc: list[di
             out[f"n {name} inside a span"].append(sum(e["inside a span"] for e in evs))
             if not evs:
                 continue
-            def a(sp):
+
+            def a(sp, evs=evs, lower=lower):
                 ev = [_stat(sessions, e, e["rows"], sp, "X") for e in evs]
                 ct = [_stat(sessions, e, e["control"], sp, "X") for e in evs]
                 return auc(ct, ev) if lower else auc(ev, ct)
             out[name].append(float(np.mean([a(sp) for sp in spaces])))
             out[f"{name}, text"].append(a(text))
+            for part, keep in (("same-session", True), ("cross-session", False)):   # reported: where the bias sits
+                sub = [e for e in evs if (e["control_ord"] == e["ord"]) == keep]
+                out[f"n {name}, {part}"].append(len(sub))
+                if sub:
+                    out.setdefault(f"{name}, {part}", []).append(float(np.mean([a(sp, sub) for sp in spaces])))
     summary = {"draws": draws}
     for k, v in out.items():
         if k.startswith("n "):
