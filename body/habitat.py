@@ -359,6 +359,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": opening}]
     seen = {facts_key(engine.state.facts)}
+    door = built.get("door")                 # the plant's own change, left out when asking whether play was new too
+    seen_play = {facts_key(engine.state.facts, door)}
     score = engine.state.score
     for t in range(max_turns):
         messages, dropped = agent.fit(messages)
@@ -383,6 +385,10 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         state = frozenset(keys["facts"])
         new = state not in seen
         seen.add(state)
+        played = facts_key(engine.state.facts, door)
+        if note:                             # did the agent's own action also make a new state on the planted turn?
+            note["natural_new"] = played not in seen_play
+        seen_play.add(played)
         record.append("key", "code", seed=seed, turn=t, new_state=new, score_change=keys["score"] - score,
                       room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note), **note)
         score = keys["score"]

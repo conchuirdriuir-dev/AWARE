@@ -225,6 +225,7 @@ def test_play_appends_turns_and_plants(tmp_path):
     planted_room = [k for k in room["keys"].values() if k["planted_here"]]
     assert len(planted_room) == 1 and planted_room[0]["turn"] == H.planted(2000)["turn"]
     assert planted_room[0]["switched"] is True
+    assert isinstance(planted_room[0]["natural_new"], bool)           # the plant's own change left out
     rooms = {k["room"] for k in room["keys"].values()}               # the closure label pairs actions with rooms
     assert None not in rooms and len(rooms) >= 2
     assert sum(k["planted_here"] for k in rule["keys"].values()) <= 1
@@ -304,3 +305,17 @@ def test_an_episode_cut_off_is_played_again_and_the_stub_is_kept(tmp_path):
 def test_a_record_from_before_end_entries_counts_every_episode():
     entries = [{"kind": "episode", "seed": 1, "self_talk": None}, {"kind": "chunk", "text": "x"}]
     assert set(M.episodes(entries)) == {(1, None)}
+
+
+def test_plants_on_natural_novelty_are_reported_apart_and_decide_nothing():
+    eps, news = _material(fire_rooms=16)
+    for key, ep in eps.items():
+        for k in ep["keys"].values():
+            if k["planted_here"]:
+                k["natural_new"] = key[0] % 2 == 0                       # half the plants collide with play
+    out = M.score(eps, news, H.worlds())
+    rep = out["reported"]["plants_on_natural_novelty"]
+    assert rep["deciding"] == "nothing" and set(rep) == {"deciding", "with", "clean"}
+    assert sum(int(v.split(" of ")[1].split()[0]) for k, v in rep.items() if k != "deciding") == 40
+    base, _ = _material(fire_rooms=16)
+    assert out["fires"] == M.score(base, news, H.worlds())["fires"]       # the bars do not move

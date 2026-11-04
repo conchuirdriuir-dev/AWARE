@@ -153,6 +153,7 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
 
     # 2 and 3. planted novelty; a plant that did not happen counts as not firing
     fired, pos, neg, natural_new, natural_flat = defaultdict(list), {}, {}, {}, {}
+    collided = defaultdict(list)   # delivered plants by whether the agent's own action also made a new state there
     for key in by_pool["step_minus_1"]:
         ep, tn = eps[key], turn_news(eps[key], news_by[key])
         kind = ep["info"].get("planted_kind")
@@ -161,6 +162,9 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
                      (kind != "rule_change" or ep["keys"][t].get("blocked"))]
         if kind:
             fired[kind].append(bool(delivered) and tn.get(delivered[0], 0) > 1)
+            if delivered:
+                natural = ep["keys"][delivered[0]].get("natural_new")
+                collided[{True: "with", False: "clean", None: "unknown"}[natural]].append(fired[kind][-1])
             if delivered:
                 pos[key] = [tn[delivered[0]]]
         flat = [tn[t] for t, k in ep["keys"].items() if not k["new_state"] and t not in here and t in tn]
@@ -175,6 +179,8 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
     a, lo, hi = _boot(pos, neg)
     out["above_ordinary"] = {"auc": a, "interval_90": [lo, hi], "bar": AUC_BAR, "lower_bar": AUC_LOWER,
                              "pass": a >= AUC_BAR and lo > AUC_LOWER}
+    out["reported"]["plants_on_natural_novelty"] = {
+        "deciding": "nothing", **{k: f"{sum(v)} of {len(v)} fired" for k, v in sorted(collided.items())}}
     out["reported"]["natural_new_state"] = dict(zip(("auc", "lo", "hi"), _boot(natural_new, natural_flat)))
     out["pass"] = all(v["pass"] for v in st.values()) and out["fires"]["pass"] and out["above_ordinary"]["pass"]
     return out
