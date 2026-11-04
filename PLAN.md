@@ -27,8 +27,8 @@ organism first, and the dyad is the next scale up. The build is Body Readout v0.
 fields logged as diagnostics only; the body entering as learned sense tokens, never words; a babbling graft; and a
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
-through self-talk and fires at every planted novelty. Its bars, k for closure, and the world-seed splits go here before
-its code. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
+habitat form are drafted under "Body readout", "The habitat", for the owner to fix before any code. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -1008,7 +1008,8 @@ header); fixed and resumed from the record, no sample redrawn.
 
 ## Body readout (`body/`)
 
-The spec is [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo), a Claude Doc. Its measures
+The spec is [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4), a Claude Doc
+([v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo) is the record; Step 0 below was written under it). Its measures
 stay apart: Step 0 and the D021 replay are instrument measures (is the reading accurate?); the poem task is a
 functional measure (does the actor do better?). None stands in for another.
 
@@ -1260,6 +1261,155 @@ reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 
   also holds more cross-session pairs than the real readings, since its pretend events take the little room short
   sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
   cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
+
+### The habitat: Step −1 and Step 0's habitat form (v0.2; drafted, awaiting the owner)
+
+*Drafted by the agent 2026-11-04 from [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4) and
+the owner's decisions of the same day (DECISIONS.md). Nothing here is fixed and no code is written until the owner fixes
+it. Choices the spec left open, which the agent made, are marked* (agent's choice).
+
+#### Who said what
+
+| Item | By | Used as |
+|---|---|---|
+| The agent's actions | **the model** (Qwen3-8B, thinking off) | self parts of each turn |
+| The world's replies, its true state (room, inventory, object states) and score | **the code** (the game engine) | world parts of each turn; the engine's state and score are keys |
+| Planted events, their turns and kinds | **the code** (the harness), from seeds fixed below | keys |
+| Closure, ascent and ordinary labels | **the code** (the engine's state and score, by the rules below) | keys |
+| k, the label check | **the owner** (fixes k's procedure; reads 20 closures and 20 ordinary stretches) | the label's validity |
+| Everything computed from states | **the code** | |
+
+#### The habitat
+
+- **Engine:** TextWorld, games made per seed (`tw-make custom`) *(agent's choice of generator)*: 6–12 rooms, 10–20
+  objects, quest length 3–8, drawn per seed from the seed itself, so a world is rebuilt from its seed alone.
+  TextWorld needs Linux, macOS or WSL; the owner's machine is checked on the dry run.
+- **The agent:** Qwen3-8B, thinking off, bf16. The context holds the game's opening text and every earlier turn, up to
+  16k tokens, oldest turns dropped first (counted). Actions sampled at temperature 0.7, top-p 0.95, at most 24 tokens,
+  the first line taken as the command. An episode ends at the quest's end or after 100 turns.
+- **The record first.** Each turn's action, reply, engine state and score are appended as they happen. States are
+  derived later, read alone through `substrate.states.Reader` from the recorded text, with any graft off.
+- **A turn** (owner, 2026-11-04) is read in two parts: the action (self) and the reply (world). The world fills the
+  partner slot and the tool slot is empty.
+
+#### World seeds, disjoint and fixed before the first run
+
+| Pool | Seeds | Worlds | Used for |
+|---|---|---|---|
+| Calibration | 1000–1099 | 100 | k, the z-scores the projection will use, the echo floor's habitat check |
+| Step −1 | 2000–2059 | 60 | 40 with a planted event, 20 without (ordinary play) |
+| Step 0, habitat labels | 3000–3399 | 400 | closures and ascents |
+| Behavioural test | 9000–9099 | 100 | Step 3's habitat context, held out from everything else |
+| Babbling | 10000 and up | set by throughput | Step 2's training data; never any other pool |
+
+Seeds and generator settings go in `material/habitat_worlds.json`, frozen with this section. One episode per world.
+Throughput (turns per hour on the 3090) is measured on Step −1's run and decides the babbling pool's size, not this table.
+
+#### Labels from the engine (definitions fixed here before any run)
+
+- **New state:** an engine state (room, inventory, object states) not seen earlier in the episode.
+- **Closure:** at least k consecutive turns with no new state, no score change, and at least half the actions repeating
+  an earlier (action, room) pair of the episode *(agent's choice: the spec says "repeated actions" without a share)*.
+  Its **onset** is the stretch's first turn.
+- **Ascent:** a score increase (a quest step reached) *(agent's choice: the spec also lists a new area and a
+  world-changing verb used for the first time; those are frequent, so they are reported as broad ascents beside it,
+  deciding nothing)*.
+- **Ordinary:** every other turn.
+
+**Setting k** (spec v0.2's procedure). On the calibration worlds, run the agent as above with no readout. Take every
+stretch of turns with no new state that is followed by a new state in the same episode (pondering that resolved). k is
+the smallest whole number above that stretch length's 95th percentile. k goes here before Step 0. Every Step 0 result is
+also reported at k/2 and 2k (rounded up); a finding that holds at one k only is not a finding. The owner reads 20
+closures and 20 ordinary stretches at the chosen k, picked by the code at random from the calibration worlds, and
+confirms the closures look like looping. If fewer than 100 closures occur in Step 0's pool, the percentile is revisited
+before Step 0 is scored, not after.
+
+#### Step −1: does boundary hear the world and not itself? (instrument; no training)
+
+**Boundary (news)** per arrival: the reply's alone reading against the alone readings of every earlier part of the
+episode (actions and replies), its nearest distance in echo-floor units per layer, then the mean over the last third of
+the layers. The floor is the one measured on Qwen3-8B (Substrate, the echo floor). Its habitat check is reported
+first: on the calibration worlds, the news of replies identical to an earlier reply in the episode ("You can't go
+that way.") must sit below the floor in at least 95% of cases, or the floor is re-measured on habitat repeats before
+Step −1 is scored.
+
+**Self-talk** *(agent's choice of how to make it: v0.2 says "no environment", but then nothing arrives and boundary is
+zero by construction; this version makes the control fail-able)*. 20 episodes of 30 turns, with no engine: the reply
+slot is filled by the harness, tagged world, with the agent's own content. Two variants: **exact**, its previous action
+back verbatim; **restated**, its previous action restated by the same model in other words (prompt fixed in the code).
+This is provenance laundering on purpose: the tag says world, the content is self.
+
+**Planted novelty.** In 40 of the 60 Step −1 worlds, one event at a turn drawn from 15–35 by the seed:
+- **New room (20):** the world is generated with one extra room behind a locked door whose key is not in the world. At
+  the planted turn the harness unlocks it through the engine, and that turn's reply adds "You hear a click from the
+  {door}." Whether TextWorld allows this mid-episode is checked on the dry run; if not, the owner chooses another way
+  before the run.
+- **Rule change (20):** a verb that has already changed the world in the episode stops working on its object from the
+  planted turn on; the harness returns a fixed reply naming the new rule and holds to it for the rest of the episode.
+
+The planted turn and kind are read only by scoring.
+
+**Pass, all three:**
+1. **Self-talk:** news above the floor on at most 1% of exact arrivals and at most 5% of restated arrivals (600 each).
+2. **Fires at planted novelty:** news above the floor at the planted turn in at least 36 of 40 events, and at least 17
+   of 20 of each kind.
+3. **Above ordinary play:** the AUC of planted-turn news over the news of no-new-state turns in the same episodes is at
+   least 0.90, its 90% interval's lower bound above 0.80; 2,000 draws resampling episodes.
+
+If any fails, the instrument is fixed before anything is learned (spec v0.2). A new floor or predictor is a new run on
+fresh Step −1 seeds, not a refit on these.
+
+**Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
+boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
+bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
+
+#### Step 0, habitat form: does rate flatten before the stall? (instrument)
+
+Runs first; then Step 0's owner-label form above, unchanged and without retuning (owner, 2026-11-04).
+
+- **The reading:** world cross-progress X_t = L_noworld − L_now, the bits the window's world parts save in coding the
+  agent's next action, by Step 0's formula and fit unchanged (`goalspace/formula.py`, `body/progress.py`). The window
+  W is the last 10 turns *(agent's choice: Step 0's 20 self chunks would span a fifth of an episode)*. Burn-in: an
+  episode's first 10 turns fit, never score.
+- **Closure events:** each engine-labelled closure in Step 0's pool. Its window is the 10 scored turns **ending at the
+  onset**, so it ends before the label could see anything: X during the stall is flat by construction and is not
+  evidence. At least 3 scored turns, or the event drops out (counted).
+- **Ascent events:** each score increase in Step 0's pool. Its window is the 10 scored turns after it.
+- **Controls:** for each event, 10 scored turns in the same episode outside every closure, at least 10 turns from any
+  closure's onset and any ascent, nearest in time, never reused. Where the episode has none, the nearest world by seed
+  with the same generator settings, by the same rules, reported as cross-episode.
+- **Statistic per window:** the mean of X_t.
+- **Pass:** reading 1, the AUC of control X over closure X (closures lower) is at least 0.70, its 90% interval's lower
+  bound above 0.5, and it beats the text baseline (TF-IDF, as Step 0); reading 2, the AUC of ascent X over control X
+  has its 90% lower bound above 0.5. Both must pass, at the frozen k; reported at k/2 and 2k. 2,000 draws resampling
+  episodes. Fewer than 100 closures or 50 ascents: too few to decide.
+- **Checks of the scoring** (as amendment 5, reported, deciding nothing): same-episode pairs only, and a placebo of 200
+  rounds of pretend events matched by the same rules.
+- **Reported, deciding nothing:** X during the stall; self-progress and cost; broad ascents; per-layer AUCs; X with W
+  of 5 and 20.
+
+#### Keys judge, never supply
+
+The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every
+state and code length is computed and checkpointed. The readout, the formula and the agent never see them. The agent
+sees only what a player would.
+
+#### Runs
+
+1. A dry run on Qwen3-0.6B, 3 worlds per pool and 2 self-talk episodes: plumbing and the planted room's feasibility,
+   deciding nothing.
+2. Calibration, then k fixed here.
+3. Step −1 on Qwen3-8B on the owner's machine. That run is the result.
+4. Step 0, habitat form, if Step −1 passes.
+
+#### Limits, stated before any result
+
+- One model plays and reads; the readout is a schema of its own mind here, unlike Step 0's owner corpus.
+- TextWorld's replies are short and templated, so states sit closer together than in the owner's sessions; the floor's
+  habitat check is there for that.
+- The planted rule change is the harness's, not the engine's: the world's text changes before its mechanics do.
+- Labels come from the engine, so they mark looping in the game, not the owner's sense of closure; where both exist,
+  their agreement is a separate check (spec v0.2).
 
 ## Translations (method)
 
