@@ -389,7 +389,8 @@ def main(argv=None):
                             for s in r["samples"]])
         print("redrawn the same:", redraw_same)
         return
-    pilot_texts = {(r["conversation"], r["sample"]): r["without"] for r in read(PILOT)} if Path(PILOT).exists() else {}
+    pilot_texts = {(r["conversation"], r["sample"]): r["without"] for r in read(PILOT)
+                   if r["kind"] == "sampled"} if Path(PILOT).exists() else {}
     if pilot_texts:                                       # reported, not judged: samples 0-7 should be the pilot's draws
         same = [pilot_texts.get((r["conversation"], r["sample"])) == r["without"] for r in read(record.path)
                 if r["kind"] == "sampled" and r["sample"] < PILOT_K]
