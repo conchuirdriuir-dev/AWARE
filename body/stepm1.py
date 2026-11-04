@@ -13,7 +13,8 @@ The floor file holds the echo floor per layer of the last third, in units of D, 
 `body/floor_file.py`; for Qwen3-8B it is `material/echo_floor_8b.json` (the default). Another model needs its own:
 the 0.6B dry run makes one with `python -m body.floor_file --model Qwen/Qwen3-0.6B ...` and passes it as --floor. D is
 measured on the paraphrase sets in the same run, as Step 0 does. A dry run passes --limit to play a few worlds of each
-pool.
+pool;
+--rehearsal plays new worlds on the pool's plan instead, spending none of its registered seeds.
 """
 from __future__ import annotations
 
@@ -53,13 +54,14 @@ def episodes(entries: list[dict]) -> dict:
 
 
 def pool_of(key, spec) -> str:
-    from body.habitat import pool
+    """The pool an episode is scored in; a rehearsal seed is scored in the pool of the seed it mirrors."""
+    from body.habitat import mirrored, pool
 
     seed, variant = key
     if variant:
         return "self_talk"
     for name in ("calibration", "step_minus_1", "step0_habitat", "behaviour_test"):
-        if seed in pool(name, spec):
+        if mirrored(seed) in pool(name, spec):
             return name
     return "babbling"
 
@@ -170,13 +172,13 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
 # --- commands -----------------------------------------------------------------------------------------------------
 
 def cmd_play(a) -> None:
-    from body.habitat import Agent, play, pool, self_talk, worlds
+    from body.habitat import REHEARSAL, Agent, play, pool, self_talk, worlds
 
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
     done = set(episodes(read(record.path)).keys()) if record.path.exists() else set()
     agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache)
-    seeds = pool(a.pool, spec)[: a.limit or None]
+    seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
     for seed in seeds:
         if a.pool == "self_talk":
             for variant in ("exact", "restated"):
@@ -240,6 +242,8 @@ def main(argv=None) -> None:
             s.add_argument("--pool", choices=POOLS, required=True)
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
             s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
+            s.add_argument("--rehearsal", action="store_true",
+                           help="play the pool's mirror seeds (+900000): new worlds on the same plan, no registered seed spent")
         if name == "read":
             s.add_argument("--floor", default="material/echo_floor_8b.json")
             s.add_argument("--sets", default="material/paraphrases.jsonl")

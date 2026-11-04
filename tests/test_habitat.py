@@ -21,6 +21,18 @@ def test_pools_are_disjoint_and_as_registered():
     assert min(seeds) < spec["pools"]["babbling"]["seeds_from"] > max(seeds)
 
 
+def test_rehearsal_seeds_follow_a_registered_plan_and_spend_none():
+    spec = H.worlds()
+    registered = {s for name in ("calibration", "step_minus_1", "step0_habitat", "behaviour_test")
+                  for s in H.pool(name, spec)} | set(H.pool("self_talk", spec))
+    mirror = {s + H.REHEARSAL for s in registered}
+    assert not mirror & registered and H.mirrored(2020 + H.REHEARSAL) == 2020 and H.mirrored(2020) == 2020
+    assert [H.planted(s + H.REHEARSAL)["kind"] for s in (2000, 2020)] == ["new_room", "rule_change"]
+    assert H.planted(2040 + H.REHEARSAL) is None and H.planted(1000 + H.REHEARSAL) is None
+    assert M.pool_of((2005 + H.REHEARSAL, None), spec) == "step_minus_1"
+    assert M.pool_of((1005 + H.REHEARSAL, None), spec) == "calibration"
+
+
 def test_planted_kinds_and_turns():
     kinds = [None if p is None else p["kind"] for p in map(H.planted, H.pool("step_minus_1"))]
     assert kinds.count("new_room") == kinds.count("rule_change") == kinds.count(None) == 20

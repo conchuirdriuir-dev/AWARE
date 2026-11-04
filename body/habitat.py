@@ -50,11 +50,22 @@ def params(seed: int, spec: dict | None = None) -> dict:
     return {k: int(rng.integers(g[k][0], g[k][1] + 1)) for k in ("rooms", "objects", "quest_length")}
 
 
+# Rehearsals (the agent's, 2026-11-04, outside the frozen seeds): seed s + REHEARSAL is built from its own seed, so its
+# world is new, but takes the plan of s (pool, planted kind). A rehearsal spends no registered world and decides nothing.
+REHEARSAL = 900_000
+
+
+def mirrored(seed: int) -> int:
+    """The registered seed whose plan a rehearsal seed follows; a registered seed is its own."""
+    return seed - REHEARSAL if seed >= REHEARSAL else seed
+
+
 def planted(seed: int, spec: dict | None = None) -> dict | None:
-    """The planted event of a Step -1 world: its kind and turn, or None. A key: read by the harness and scoring only."""
+    """The planted event of a Step -1 world: its kind and turn, or None. A key: read by the harness and scoring only.
+    A rehearsal seed takes the kind of the seed it mirrors and draws its turn from its own seed."""
     p = (spec or worlds())["pools"]["step_minus_1"]["planted"]
     for kind in ("new_room", "rule_change"):
-        if p[kind][0] <= seed <= p[kind][1]:
+        if p[kind][0] <= mirrored(seed) <= p[kind][1]:
             return {"kind": kind, "turn": int(np.random.default_rng(seed + 500000).integers(15, 36))}
     return None
 
@@ -339,7 +350,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     built = build(seed, games, plant["kind"] if plant else None)
     engine = Engine(built)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
-    record.append("episode", "code", seed=seed, pool_params=params(seed, spec), model=agent.name,
+    record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
+                  model=agent.name,
                   revision=agent.revision, kv_cache=getattr(agent, "cache", None),
                   planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
@@ -382,7 +394,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
 def self_talk(agent, record, seed: int, variant: str, turns: int = 30) -> None:
     """No engine: the reply slot carries the agent's own previous action, verbatim or restated by the same model.
     Recorded honestly: the reply's provenance is self and it is the model's; only its slot says world."""
-    record.append("episode", "code", seed=seed, self_talk=variant, model=agent.name, revision=agent.revision,
+    record.append("episode", "code", seed=seed, self_talk=variant, rehearsal=seed != mirrored(seed), model=agent.name,
+                  revision=agent.revision,
                   kv_cache=getattr(agent, "cache", None))
     opening = "You are alone in a quiet room. Nothing here answers you but your own words."
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world", variant=variant)
