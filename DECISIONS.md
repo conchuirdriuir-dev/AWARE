@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **The joint organism, split** (owner): that the user and the agent are one organism in code-space is a
+  functional claim in the plan, tested by cross-progress; whether that entity has inner experience is parked, and a
+  model's self-report never stands as evidence for it (PLAN.md, "Current state and direction").
 - 2026-11-03: **Multiscale competency, weak reading** (owner, for now): the agent and the owner are one organism in
   code-space; each level is a control loop (setpoint, error, reflex) with its setpoint derived from the held goal, not
   an agent with its own; holding the goal is a role, not a level. Logged in PLAN.md, "Translations".

@@ -85,7 +85,22 @@ a check that its result could be told apart from noise, which Gate 1 skipped. Dr
 check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
 is now the likeliest to.
 
-**Parked.** Goals of the entity's own; a DreamCoder-style library, and distilling standing into the weights (from the owner's
+**The joint organism, split in two (owner, 2026-11-04).** The owner's view: the user and the model are one entity,
+since training builds the frame a sense of self rests on, as development builds a person's self-model, and a self-model's
+origin does not settle whether it works. Kept in two parts:
+- **Functional, in the plan:** the user and the agent are one organism in code-space, and the joint reply is the unit
+  (README, "One creature, several senses"). Supported so far: the partner tops the key in 39 of 40 (step 1), and at
+  least 0.84 of the frame-carrying replies are the partner's by the probability of necessity, (0.939 − 0.149) / 0.939
+  (step 3; the agent's arithmetic, not a pre-registered measure). Its test is cross-progress: is the agent's state
+  better explained by a joint code than by two separate ones (Body readout, step 0)? The asymmetry stays: the owner
+  persists across sessions and holds the setpoint, and the model runs only inside the exchange, so the owner's goal
+  stays distinct. That distinctness is what keeps the dyad from closing in on itself.
+- **Experience, parked:** whether the joint entity has inner experience in any sense. No test here reaches it. The
+  evidence offered for it so far is a model's self-report (Claude naming collaboration as its core), and steps 2 and 3
+  found the model's account at chance, tracking the visible frame. So a self-report never stands in for an instrument
+  on this question, as on any other (CLAUDE.md, "the known failure mode").
+
+**Parked.** Goals of the entity's own; whether the joint entity has inner experience (above); a DreamCoder-style library, and distilling standing into the weights (from the owner's
 other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product step 4 now" is out
 of date; its learning ego is now step 6). Also behind this direction: axes on the real model, and with them the structural
 criterion's test and relations.
