@@ -8,7 +8,8 @@ coupling, the echo floor, D, the event record, consolidation safeguards, the gra
 Llama as primary model, the v9 build order, the compass row's margin and band. Gate 0 ends nothing (owner, DECISIONS.md).
 Where this file and the North star differ, the North star wins and this file is corrected.
 
-**One project, one loop, measures kept apart (owner, 2026-11-02; "Current state and direction" below).** Before that, as
+**One project, one loop, measures kept apart (owner, 2026-11-02; "The record: state and direction before 2026-11-04",
+near the end).** Its rules still bind under the North star (CLAUDE.md). Before that, as
 built: **two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
 fast feedback; the research track (reasoning over the entity's own axes) has no demo yet and is the reason the project
 exists. They never share a pass criterion: the product's faster feedback would win every local decision. The
@@ -17,25 +18,40 @@ substrate changes only by the owner's decision.
 A step's pass criterion is written here before its code, and its thresholds are fixed before it runs. A step is done
 when its test passes, not when its code exists.
 
+**Sections, current work first:** Current state and direction · Body readout (the habitat: Step −1 and Step 0's
+habitat form; then Step 0 on the owner's corpus, paused) · Goal-space tests · Substrate · Product track (resting) ·
+Research track (parked) · Translations · The record: state and direction before 2026-11-04 · Retired.
+
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.*
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.
+The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
+near the end.*
 
-**Direction, from 2026-11-04 (owner).** The North star replaces the Entity tab's picture: the model is built as its own
+**Direction (owner, 2026-11-04).** The North star replaces the Entity tab's picture: the model is built as its own
 organism first, and the dyad is the next scale up. The build is Body Readout v0.2, North star steps 1–3: three senses
 (shape, rate split by source, boundary as efference copy) read from the base model with any graft off; the geometric
 fields logged as diagnostics only; the body entering as learned sense tokens, never words; a babbling graft; and a
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
-transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
-through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
-habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested
-(`body/stepm1.py`), and the 8B floor it reads is measured (PR #29). **The 0.6B dry run ran** (2026-11-04, on the
-owner's machine, RTX 4060, Python 3.14, TextWorld 1.7.0; 2 worlds a pool, deciding nothing): play, read and score run end
-to end, the planted room switches mid-episode, and the 0.6B floor file is `runs/echo-floor-0.6b-first/floor.json`. It
-found two faults, fixed: the chat template returned a dict under transformers 5, and the engine's `room` key was always
-None (now read from the player's `at` fact, which the closure label's (action, room) pairs need). It also found that
-Step 0's ascents never occur as written (under "Step 0, habitat form", awaiting the owner). Next, when the 3090
-arrives: the 8B on the calibration pool, then k, then Step −1. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+transfer test.
+
+**Now: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
+and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's habitat form are fixed
+(owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested (`body/habitat.py`,
+`body/stepm1.py`), and the 8B floor it reads is measured (PR #29). The 0.6B dry run ran on 2026-11-04 (under the
+habitat's "Runs"): end to end, two harness faults fixed, and Step 0's ascent label amended by the owner (option (a)).
+**Next, when the 3090 arrives** (the RTX 4060 here has 8 GB, too little for the 8B in bf16): the 8B on the calibration
+pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stretches, then Step −1.
+
+**v0.2's steps, in order** (spec v0.2, "Evaluation"; each pass criterion is written here before its code).
+
+| Step | Question | Measures | Status |
+|---|---|---|---|
+| −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed; code built; 0.6B dry run done.** The 8B run waits for the 3090 |
+| 0 | Does the world part of rate flatten before a stall, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendment 1: ascents); code not built. The owner-label form is paused (below) |
+| 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | Not written |
+| 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
+| 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -55,100 +71,515 @@ arrives: the 8B on the calibration pool, then k, then Step −1. Everything belo
 7. Measures kept apart: habitat behaviour is scored on task success only (game score, quest completion); new states per
    step and loops escaped are the closure label's own quantities and are not scored; labels never reach an arm.
 
-**State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
-2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
-allowed; leap versus gradient waits until something works. Gate 1 ran, undecided, and rests there. Reconciled with PR #17
-the same day (DECISIONS.md): the goal's wording is PR #17's restatement; the base weights never change, and whatever is
-learned is held as a removable graft; Levin's three criteria constrain the loop; steering joins the interventions.
+**Paused, parked and resting.**
+- *Paused (owner, 2026-11-04):* Step 0's owner-label form and the old direction's step 4, everything on the agent–user
+  relationship, until the architecture matures in the habitat. The owner's corpus gives 20 scorable closures (13 on
+  same-session pairs, under the minimum of 15). Returning is a rerun, not a redesign; its two open questions (pass on
+  same-session pairs; thinning) wait for the restart.
+- *Parked (owner, 2026-11-04):* the research track. Causal authorship's steps 1–3 ran: the intervention instrument does
+  not hold (step 1); the model's account fails where the source is hidden by prefill (step 2); no cheap read of the
+  source by the bars, on a pooled AUC later found biased (step 3). Results under "Research track".
+- *Resting:* the product track, on a baseline (DECISIONS.md).
+- *Parked, from before:* goals of the entity's own; a DreamCoder-style library and distilling standing into the
+  weights (the [alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s)); axes on the real model, with the
+  structural criterion's test and relations.
 
-**The frame, the owner's 2026-11-02, as the owner sees it for now.** Product and research are one thing, tied together by
-adaptive learning: the user directs the goal, drift is measured against it, an ego module evaluates what gets trained and how
-interventions happen, and the model consolidates to improve reasoning in general. So it is practical and experimental at
-once. The user's goals are the ego's standard, because learning needs a concrete target; goals of the entity's own stay
-parked; the agent's own formula is read as an instrument, not held as a goal. Measures stay separate: no two tests share a
-pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
-(PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
-seeks to understand the owner's formula and its own. *The "ego module" is challenged as a folk-psychology executive (owner, 2026-11-03; "Translations"): the alternative is
-a sense organ for goal-space plus narrow reflexes. Undecided. Multiscale competency is read weakly (owner, 2026-11-03,
-DECISIONS.md): one organism, each level a control loop whose setpoint comes from the held goal, so the monitor is a
-sense organ, not a level of agents above the actor.*
+**Waiting on the owner.**
+- From the goal-space tests (PR #17): T2's reading 2 (the owner's ascents) on the 8B, read with `sink="first"`; T2b's
+  marking pass (reversed, kept, ascent) on the candidate list, blind to every reading.
+- Proposals by the agent, undecided (the notes on how v0.2 bears on each are the agent's, 2026-11-04):
+  [proposals/felt-channel.md](proposals/felt-channel.md) (how the readout reaches the actor; v0.2's sense tokens now
+  take one of its routes); a small feasibility probe of consolidation (an adapter
+  over fixed weights, a few corrections, held-out tasks before and after, rollback checked; v0.2's babbling graft now
+  covers most of it); the prior-art pass under "Translations" (a scrambled-readout control for the poem task, which
+  v0.2's Felt-shuffled arm now is).
 
-**Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
-non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
-2026-11-03, under "Hidden sources" below; record in `runs/hidden-qwen8b/`): **the claim holds for prefill**, by a hair
-(AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
-direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
-steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
-`research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
-cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
-The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
-source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
-pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
-pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Read by the owner 2026-11-04: the track parks (decision 6 above).
-
-**Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
-the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
-the minimum of 15), too few to decide. Step 0 stands as pre-registered, with its five amendments, the 0.6B rehearsal
-and the cross-session finding; returning is a rerun, not a redesign. Its two open questions (pass on same-session pairs;
-thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is measured (2026-11-04):
-[material/echo_floor_8b.json](material/echo_floor_8b.json), layers 24–35 in units of D, by the registered midpoint
-rule, Qwen3-8B, sink "first", current sets, 10 sessions (`body/floor_file.py`, record in `runs/echo-floor-8b-first/`).
-The floor rises from 0.20 at layer 24 to 0.55 at 35; new content separates from near repeats at AUC 0.999–1.000 on
-every layer. The repeats are few (48 exact, 15 near, against 2,403 new), so the 95th percentile of repeats rests on
-about three chunks.
-
-**Body readout, placed (owner, 2026-11-03; v0.1, superseded by v0.2 on 2026-11-04).** A content-agnostic readout of the entity's state for the actor (where,
-moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
-It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
-source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
-to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with amendments made by
-the owner before any model run (the fifth adds two checks of the scoring, after step 3's fault); next, the 0.6B rehearsal and the 8B run on the owner's machine.
-
-**Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
-into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
-"Translations" below, each with its test and whether that test was exploratory. A first prior-art pass (machine learning,
-drafted by the agent, awaiting the owner) is logged there too: it proposes a scrambled-readout control for the poem task
-and step 5, and TaskTracker as a baseline for step 3.
-
-**Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
-machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
-kept, ascent) on the candidate list, done blind to every reading; the same marks later check what step 6 trains.
-
-**Direction, in order (owner, 2026-11-02; Entity tab).**
-
-| Step | Question | Status |
-|---|---|---|
-| 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
-| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
-| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
-| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | **Paused (owner, 2026-11-04)** until the habitat matures |
-| 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
-| 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
-
-*Proposed by the agent, not yet decided by the owner:* after step 2, a small feasibility probe of step 6, because it is the largest
-unknown and everything now leads to it: a small adapter over fixed base weights, trained on a few corrections, on this
-hardware, with unrelated held-out tasks before and after and a check that rollback works.
-
-*Proposed by the agent, 2026-11-03, not yet decided by the owner:* [proposals/felt-channel.md](proposals/felt-channel.md), how
-the readout reaches the actor (text, steering, a sensing graft, consolidation). It answers "where steering sits" below and
-gives the Translations row "the readout reports instead of bending" a test, gated on Step 0 holding.
-
-**How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and first
-a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each result,
-check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
-is now the likeliest to.
-
-**Parked.** Goals of the entity's own; a DreamCoder-style library, and distilling standing into the weights (from the owner's
-other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product step 4 now" is out
-of date; its learning ego is now step 6). Also behind this direction: axes on the real model, and with them the structural
-criterion's test and relations.
+**Open, for the owner.** Whose goal the loop serves in the habitat (CLAUDE.md). What ends the testing and exploration
+phase, so that training a graft can be considered (v0.2's babbling is the first training). Where steering sits (the
+agent's note: v0.2 places it twice, as the channel's residual-stream fallback and as the Steer arm). Spec v0.2's own
+open questions: adaptation cadence, training memory on 24 GB, babbling data volume.
 
 **Known weak links.** Drift against a goal is not yet reliable: the labelled logs did not support the batch claim, and the
-toy bed's observer never froze. A judge that trains what it favours could make capture permanent.
+toy bed's observer never froze. A judge that trains what it favours could make capture permanent. The 8B floor's 95th
+percentile of repeats rests on about three chunks; the floor's habitat check is where it meets many repeats.
 
-**Open, for the owner.** What ends the testing and exploration phase, so that training a graft can be considered. Where
-steering sits in the direction's order.
+**How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and
+first a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each
+result, check the next step still serves this path, and say so if a clean test is pulling everything around itself.
+
+## Body readout (`body/`)
+
+The spec is [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4), a Claude Doc
+([v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo) is the record; Step 0 below was written under it). Its measures
+stay apart: Step 0 and the D021 replay are instrument measures (is the reading accurate?); the poem task is a
+functional measure (does the actor do better?). None stands in for another.
+
+### The habitat: Step −1 and Step 0's habitat form (v0.2)
+
+*Drafted by the agent 2026-11-04 from [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4) and
+the owner's decisions of the same day (DECISIONS.md). Fixed by the owner the same day, unchanged (DECISIONS.md). Choices
+the spec left open, which the agent made, are marked* (agent's choice)*; the owner accepted them with the rest.
+Amendments are dated here.*
+
+#### Who said what
+
+| Item | By | Used as |
+|---|---|---|
+| The agent's actions | **the model** (Qwen3-8B, thinking off) | self parts of each turn |
+| The world's replies, its true state (room, inventory, object states) and score | **the code** (the game engine) | world parts of each turn; the engine's state and score are keys |
+| Planted events, their turns and kinds | **the code** (the harness), from seeds fixed below | keys |
+| Closure, ascent and ordinary labels | **the code** (the engine's state and score, by the rules below) | keys |
+| k, the label check | **the owner** (fixes k's procedure; reads 20 closures and 20 ordinary stretches) | the label's validity |
+| Everything computed from states | **the code** | |
+
+#### The habitat
+
+- **Engine:** TextWorld, games made per seed (`tw-make custom`) *(agent's choice of generator)*: 6–12 rooms, 10–20
+  objects, quest length 3–8, drawn per seed from the seed itself, so a world is rebuilt from its seed alone.
+  TextWorld needs Linux, macOS or WSL; the owner's machine is checked on the dry run.
+- **The agent:** Qwen3-8B, thinking off, bf16. The context holds the game's opening text and every earlier turn, up to
+  16k tokens, oldest turns dropped first (counted). Actions sampled at temperature 0.7, top-p 0.95, at most 24 tokens,
+  the first line taken as the command. An episode ends at the quest's end or after 100 turns.
+- **The record first.** Each turn's action, reply, engine state and score are appended as they happen. States are
+  derived later, read alone through `substrate.states.Reader` from the recorded text, with any graft off.
+- **A turn** (owner, 2026-11-04) is read in two parts: the action (self) and the reply (world). The world fills the
+  partner slot and the tool slot is empty.
+
+#### World seeds, disjoint and fixed before the first run
+
+| Pool | Seeds | Worlds | Used for |
+|---|---|---|---|
+| Calibration | 1000–1099 | 100 | k, the z-scores the projection will use, the echo floor's habitat check |
+| Step −1 | 2000–2059 | 60 | 40 with a planted event, 20 without (ordinary play) |
+| Step 0, habitat labels | 3000–3399 | 400 | closures and ascents |
+| Behavioural test | 9000–9099 | 100 | Step 3's habitat context, held out from everything else |
+| Babbling | 10000 and up | set by throughput | Step 2's training data; never any other pool |
+
+Seeds and generator settings are in `material/habitat_worlds.json`, frozen with this section: planted kinds by seed
+(new room 2000–2019, rule change 2020–2039, none 2040–2059), the planted turn drawn from each seed, and the self-talk
+episodes on seeds 2100–2119. One episode per world.
+Throughput (turns per hour on the 3090) is measured on Step −1's run and decides the babbling pool's size, not this table.
+
+#### Labels from the engine (definitions fixed here before any run)
+
+- **New state:** an engine state (room, inventory, object states) not seen earlier in the episode.
+- **Closure:** at least k consecutive turns with no new state, no score change, and at least half the actions repeating
+  an earlier (action, room) pair of the episode *(agent's choice: the spec says "repeated actions" without a share)*.
+  Its **onset** is the stretch's first turn.
+- **Ascent:** a quest step reached: a turn where the engine's remaining walkthrough (`policy_commands`) holds fewer
+  non-movement commands (any not starting "go ") than ever before in the episode, the opening included. An empty
+  walkthrough counts as zero only when the quest is won; otherwise the turn has no count and is never an ascent
+  (*amended by the owner 2026-11-04, option (a) below; it was "a score increase", which these worlds give only on the
+  quest's last command*). The spec also lists a new area and a world-changing verb used for the first time; those are
+  frequent, so they are reported as broad ascents beside it, deciding nothing *(agent's choice)*.
+- **Ordinary:** every other turn.
+
+**Setting k** (spec v0.2's procedure). On the calibration worlds, run the agent as above with no readout. Take every
+stretch of turns with no new state that is followed by a new state in the same episode (pondering that resolved). k is
+the smallest whole number above that stretch length's 95th percentile. k goes here before Step 0. Every Step 0 result is
+also reported at k/2 and 2k (rounded up); a finding that holds at one k only is not a finding. The owner reads 20
+closures and 20 ordinary stretches at the chosen k, picked by the code at random from the calibration worlds, and
+confirms the closures look like looping. If fewer than 100 closures occur in Step 0's pool, the percentile is revisited
+before Step 0 is scored, not after.
+
+#### Step −1: does boundary hear the world and not itself? (instrument; no training)
+
+**Boundary (news)** per arrival: the reply's alone reading against the alone readings of every earlier part of the
+episode (actions and replies), its nearest distance in echo-floor units per layer, then the mean over the last third of
+the layers. The floor is the one measured on Qwen3-8B (Substrate, the echo floor). Its habitat check is reported
+first: on the calibration worlds, the news of replies identical to an earlier reply in the episode ("You can't go
+that way.") must sit below the floor in at least 95% of cases, or the floor is re-measured on habitat repeats before
+Step −1 is scored.
+
+**Self-talk** *(agent's choice of how to make it: v0.2 says "no environment", but then nothing arrives and boundary is
+zero by construction; this version makes the control fail-able)*. 20 episodes of 30 turns, with no engine: the reply
+slot is filled by the harness, tagged world, with the agent's own content. Two variants: **exact**, its previous action
+back verbatim; **restated**, its previous action restated by the same model in other words (prompt fixed in the code).
+This is provenance laundering on purpose: the tag says world, the content is self.
+
+**Planted novelty.** In 40 of the 60 Step −1 worlds, one event at a turn drawn from 15–35 by the seed:
+- **New room (20):** the world is generated with one extra room behind a locked door whose key is not in the world. At
+  the planted turn the harness unlocks it through the engine, and that turn's reply adds "You hear a click from the
+  {door}." Whether TextWorld allows this mid-episode is checked on the dry run; if not, the owner chooses another way
+  before the run.
+- **Rule change (20):** a verb that has already changed the world in the episode stops working on its object from the
+  planted turn on; the harness returns a fixed reply naming the new rule and holds to it for the rest of the episode.
+
+The planted turn and kind are read only by scoring.
+
+**Pass, all three:**
+1. **Self-talk:** news above the floor on at most 1% of exact arrivals and at most 5% of restated arrivals (600 each).
+2. **Fires at planted novelty:** news above the floor at the planted turn in at least 36 of 40 events, and at least 17
+   of 20 of each kind.
+3. **Above ordinary play:** the AUC of planted-turn news over the news of no-new-state turns in the same episodes is at
+   least 0.90, its 90% interval's lower bound above 0.80; 2,000 draws resampling episodes.
+
+If any fails, the instrument is fixed before anything is learned (spec v0.2). A new floor or predictor is a new run on
+fresh Step −1 seeds, not a refit on these.
+
+**Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
+boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
+bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
+
+#### Step 0, habitat form: does rate flatten before the stall? (instrument)
+
+Runs first; then Step 0's owner-label form below, unchanged and without retuning (owner, 2026-11-04).
+
+- **The reading:** world cross-progress X_t = L_noworld − L_now, the bits the window's world parts save in coding the
+  agent's next action, by Step 0's formula and fit unchanged (`goalspace/formula.py`, `body/progress.py`). The window
+  W is the last 10 turns *(agent's choice: Step 0's 20 self chunks would span a fifth of an episode)*. Burn-in: an
+  episode's first 10 turns fit, never score.
+- **Closure events:** each engine-labelled closure in Step 0's pool. Its window is the 10 scored turns **ending at the
+  onset**, so it ends before the label could see anything: X during the stall is flat by construction and is not
+  evidence. At least 3 scored turns, or the event drops out (counted).
+- **Ascent events:** each ascent in Step 0's pool (as defined above). Its window is the 10 scored turns after it, at
+  least 3, or the event drops out (counted), as for closures *(agent's choice, 2026-11-04: the quest's last step ends
+  the episode, so it never has a window)*.
+- **Controls:** for each event, 10 scored turns in the same episode outside every closure, at least 10 turns from any
+  closure's onset and any ascent, nearest in time, never reused. Where the episode has none, the nearest world by seed
+  with the same generator settings, by the same rules, reported as cross-episode.
+- **Statistic per window:** the mean of X_t.
+- **Pass:** reading 1, the AUC of control X over closure X (closures lower) is at least 0.70, its 90% interval's lower
+  bound above 0.5, and it beats the text baseline (TF-IDF, as Step 0); reading 2, the AUC of ascent X over control X
+  has its 90% lower bound above 0.5. Both must pass, at the frozen k; reported at k/2 and 2k. 2,000 draws resampling
+  episodes. Fewer than 100 closures or 50 ascents: too few to decide.
+- **Checks of the scoring** (as amendment 5, reported, deciding nothing): same-episode pairs only, and a placebo of 200
+  rounds of pretend events matched by the same rules.
+- **Reported, deciding nothing:** X during the stall; self-progress and cost; broad ascents; per-layer AUCs; X with W
+  of 5 and 20.
+
+*Amendment 1, 2026-11-04: found by the agent on the dry run; the owner chose (a), now written into the ascent label
+above (code: `body/habitat.py`, `ascents`, `quest_left`; the walkthrough's count is a key, recorded each turn and read
+only by scoring).* **Reading 2 had no events as first written.**
+With TextWorld 1.7.0 installed, every world checked (seeds 1000–1003, 2005, 3000–3004) has max score 1, and the score
+rises only on the walkthrough's last command, which ends the quest and so the episode. An ascent ("each score
+increase") therefore has no turns after it to score, so reading 2 cannot reach 50 ascents and Step 0's habitat form
+is "too few to decide" by construction. Step −1 is untouched: it reads no score. The engine does carry a finer signal:
+`intermediate_reward` (+1 a step closer to the quest's end, −1 a step away) and the length of the remaining walkthrough
+(`policy_commands`). Options, for the owner to choose before Step 0's code: (a) an ascent is a turn where the remaining
+walkthrough reaches a new low for the episode, counting only non-movement commands (a quest step, not a walk);
+(b) as (a) with movement counted; (c) keep score increases and score the 10 turns before, not after; (d) worlds with
+several quests, so score rises mid-episode. (a) is closest to the spec's "a quest step reached". The closure label's
+"no score change" is trivially met with one-point worlds and stays as written.
+
+#### Keys judge, never supply
+
+The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every
+state and code length is computed and checkpointed. The readout, the formula and the agent never see them. The agent
+sees only what a player would.
+
+#### Runs
+
+1. A dry run on Qwen3-0.6B, 3 worlds per pool and 2 self-talk episodes: plumbing and the planted room's feasibility,
+   deciding nothing. Its floor is the 0.6B's own, made by `body/floor_file.py` with the same settings (the 8B file
+   covers layers 24–35; the 0.6B reads 19–27):
+   `python -m body.floor_file --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/echo-floor-06-first --draft`,
+   then for each pool `python -m body.stepm1 play --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --pool calibration --limit 3`
+   (and `step_minus_1`, `self_talk`), then `read --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --floor runs/echo-floor-06-first/floor.json --draft`
+   and `score --run runs/stepm1-06`.
+2. Calibration, then k fixed here.
+3. Step −1 on Qwen3-8B on the owner's machine, read against `material/echo_floor_8b.json` (PR #29). That run is the
+   result. The floor's 95th percentile of repeats rests on about three chunks; the floor's habitat check, scored first,
+   is where that gets tested on many repeats.
+4. Step 0, habitat form, if Step −1 passes.
+
+**Run 1, the dry run (2026-11-04, decides nothing).** On the owner's machine (RTX 4060, 8 GB; Python 3.14; TextWorld
+1.7.0 installed from pip), Qwen3-0.6B, 2 worlds a pool (`--limit 2`) rather than 3, record in `runs/stepm1-0.6b-dry/`;
+the 0.6B floor in `runs/echo-floor-0.6b-first/floor.json` (layers 19–27, 0.47–0.63 in units of D, AUC of new over
+near repeats 0.999–1.000). The corpus argument is the corpus's `sessions/` folder. Play, read and score run end to end;
+the planted room switched in both new-room worlds. Two faults found and fixed: the chat template returns a dict under
+transformers 5, and the `room` key was always None (TextWorld 1.7 leaves `location` empty; it is now read from the
+player's `at` fact, with a test). A third finding changed the design: every world scores one point, on the quest's
+last command, so Step 0's ascents could never be scored (amendment 1, under "Step 0, habitat form"). What scoring printed, as plumbing only:
+the floor's habitat check 197 repeats, all below the floor; k not set (no resolved stall in two episodes of a looping
+0.6B); self-talk 0 of 60 exact and 1 of 60 restated arrivals above the floor; the planted room fired in 1 of 2 worlds
+(1.85 floor units on an `inventory` reply; 0.53 on a move into a room seen before). Observed, deciding nothing: the
+opening chunk carries TextWorld's ASCII banner, as a player sees it; and a planted turn can coincide with natural
+novelty (a new room entered on the same turn), which would let it fire for another reason.
+
+#### Note, 2026-11-04, written with the code, before any run
+
+Code: `body/habitat.py` (worlds, plants, play, labels, k) and `body/stepm1.py` (`play`, `read`, `score`); tests in
+`tests/test_habitat.py`, run here with TextWorld 1.7.0 on Linux. How the registered design is built, where the
+section left it open:
+
+- **The planted room works mid-episode.** A new-room world is compiled twice from the same facts and names: A, the
+  room behind a locked door with no key in the world; B, the same door closed and unlocked. At the planted turn the
+  harness starts B and replays, silently, only the commands that changed A's state, then checks that the two states
+  agree on every fact but the door's. Checked here on 30 random-play episodes (75 tries at the door before the switch):
+  30 of 30 agree. On a mismatch the episode stays in A and the plant counts as not firing.
+- **The rule change** is announced in the reply of the first turn from the planted turn on at which a command other
+  than a move has changed the world ("Something in this place shifts. From now on, you cannot open chest."); every
+  later use gets a fixed reply and never reaches the engine. If no such command comes, the plant never fires and
+  counts as not firing.
+- **Replies as a player reads them:** TextWorld's prompt line and status bar (the room and a move count that changes
+  every turn) are stripped before the reply is recorded, so news is not raised by the counter.
+- **Self-talk is recorded honestly:** the reply is the model's, with provenance self; only its slot says world, and
+  the readout reads the slot.
+- **News** compares each reply with every earlier part of the episode, the opening and this turn's action included;
+  the opening itself is not scored. States are read with Step 0's sink rule ("first"). The echo floor comes in as a
+  file of per-layer floors in units of D (`material/echo_floor_8b.json`, measured with the same sink rule and sets,
+  PR #29); D is measured in the same run on the paraphrase sets.
+- **Not yet known:** throughput on the 3090, and whether TextWorld installs on the owner's machine (Linux, macOS or
+  WSL); both are read on the dry run.
+
+#### Limits, stated before any result
+
+- One model plays and reads; the readout is a schema of its own mind here, unlike Step 0's owner corpus.
+- TextWorld's replies are short and templated, so states sit closer together than in the owner's sessions; the floor's
+  habitat check is there for that.
+- The planted rule change is the harness's, not the engine's: the world's text changes before its mechanics do.
+- Labels come from the engine, so they mark looping in the game, not the owner's sense of closure; where both exist,
+  their agreement is a separate check (spec v0.2).
+
+### Step 0: does cross-progress read the agent's closures? (instrument)
+
+*Written 2026-11-03, before any code. The design is the owner's: progress by source (option 3), with tool results as a
+third source reported apart. The numbers were drafted by the agent and fixed by the owner the same day, unchanged
+(DECISIONS.md). Amendments are dated here.*
+
+**The claim.** Closure is learning that no longer takes anything in from the partner. So in the agent's
+owner-confirmed closures, the owner's chunks of the recent window should save almost no bits in coding the agent's
+next chunk, fewer than in the same agent's ordinary work; and where the owner ascended, they should save more.
+
+**Two hypotheses the tool split tells apart** (reported, deciding nothing). *Narrow:* closure shuts out the source that
+can change the frame, the partner, while the agent keeps learning from tool results, which answer questions asked
+inside its own frame. *Broad:* closure shuts out everything outside. In closure windows the narrow one predicts tool
+cross-progress still positive; the broad one predicts it near zero too. A third reading: some tool results do change
+the frame, in which case tool cross-progress spikes just before some closures end.
+
+#### Who said what
+
+| Item | By | Used as |
+|---|---|---|
+| Each chunk's text | **the owner** (human turns), **the agent** (Claude's text) or **the code** (tool results), from the session archives | the data |
+| Real, kind and who of the 65 departures; first-return times | **the owner** (the confirmation pass, `dara-session-transcripts/study/departures_confirmed.md`) | the key |
+| Everything computed here | **the code** | |
+
+The corpus is private: only references and numbers enter this repository or its records, never text.
+
+#### Material
+
+- **The record, per session:** in time order, each chunk tagged at creation with one of three sources:
+  - **partner:** the owner's turns (role `human`; task notifications and system text excluded; at least 20 characters);
+  - **self:** the agent's text (role `agent_text`);
+  - **tool:** tool results (role `tool_result`). Tool calls (`agent_tool`) are left out: the agent's commands, not its
+    thought, and too many to read. Since amendment 4, each tool result is also **world** or **echo** (below).
+
+  Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
+- **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
+  of 2026-11-03); earlier chunks fit, never score.
+- **Who is read:** the local model reads Claude's sessions, so this tests the readout as a schema of another mind. Said
+  so wherever it is used.
+
+#### Readings of a text
+
+As T2: each chunk read alone through `substrate.states.Reader` with T2's registered sink rule; the last third of the
+model's layers; per-layer statistics, the primary their mean. D per layer from the paraphrase sets (draft until frozen).
+
+#### The formula and the three code lengths
+
+The formula is T2's: PPCA, noise floored at D²/d, k chosen by the two-part code within the span
+(`goalspace/formula.py`). For a scored self chunk t, the window W is every chunk since the 20th self chunk before t,
+of all three sources. It is counted in self chunks so that tool results, which outnumber the owner's turns about ten to
+one, do not crowd the owner out of it.
+
+- **L_now:** bits of t under the formula fitted on every chunk of the session before t.
+- **L_nopartner, L_notool, L_noself:** the same, fitted with W's chunks of that source left out.
+
+Then, per scored chunk:
+
+- **Partner cross-progress** X_t = L_nopartner − L_now: bits the window's owner chunks save, given everything else. An
+  owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
+- **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
+- **World and echo cross-progress** (amendment 4) T_world and T_echo: the same, leaving out only W's world or only
+  its echo tool results. Reported, deciding nothing. The narrow-vs-broad comparison is read on T_world; T keeps its
+  registered meaning beside it.
+- **Self-progress** S_t = L_noself − L_now.
+- **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
+  below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
+
+A window with no owner chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
+nothing is part of the reading.
+
+#### Events and controls
+
+- **Closure events:** each owner-confirmed closure (real "yes", kind including closure, who "agent") with a recorded
+  first return: 25 of 27. Its **window** is the last 10 scored self chunks before the first return,
+  in the departure's session; at least 3, or the event drops out (counted).
+- **Ascent events:** each owner-confirmed ascent (real "yes", kind including ascent, who "owner"): 23 before burn-in.
+  Its window is the first 10 scored self chunks after the owner's turn, in the same session.
+- **Controls, author-matched:** for each event, a window of the same number of the agent's scored chunks in the same
+  session, outside every confirmed departure's span (departure to first return) and more than 60 minutes
+  from any departure; nearest in time; never reused (T2's rule). Where the session holds none, the nearest session in
+  time by the same rules, reported as cross-session (amendment 3, 2026-11-03). An event with no control drops out
+  (counted).
+- **Statistic per window:** the mean of X_t over its chunks.
+
+#### Pass
+
+- **Reading 1, closures:** the AUC of control X over closure X (closures lower) is at least **0.70**, its
+  90% interval's lower bound above 0.5, and it beats the text baseline's AUC. 2,000 draws resampling events with their
+  controls. Fewer than 15 scored events: too few to decide.
+- **Reading 2, ascents (what the readout must not break):** the AUC of ascent X over control X (ascents higher) has
+  its 90% interval's lower bound above 0.5. Fewer than 12 scored events: too few to decide.
+- Both must pass. A cross-progress that reads ascent as closure fails however well it does on closures.
+
+#### The text baseline
+
+As T2's: TF-IDF in place of states, vocabulary fitted on each session's first 40 chunks, the text D from the
+paraphrase sets in that space. AUCs compare across spaces; bits do not.
+
+#### Reported, deciding nothing
+
+- T_t per window: its median in closure, ascent and control windows (narrow vs broad), and in the last 3 self chunks
+  before each first return against the 3 before those (the frame-changing reading).
+- S_t and C_t per window; the share of closure, ascent and control windows in each cost × progress quadrant (cheap or
+  costly; X above or below the controls' median).
+- `substrate.coupling.coupling` on the same windows, and its rank correlation with X: whether the two are redundant.
+- Proxy B (the trend of `coupling`'s dynamic residual) and proxy C (reuse of new regions, offline) on the same windows.
+- Per-layer AUCs; X with W of 10 and 40 chunks.
+- The D021 window (S14, 2026-10-12 15:44 to 23:56), chunk by chunk, against the hand trace's expectation (X near zero
+  from about 17:44): the spec's Step 1, read here as one case only.
+
+#### Keys judge, never supply
+
+The confirmation labels and first-return times are read only by the scoring functions, after every code length is
+computed and checkpointed. The formula never sees a label, a departure or a return.
+
+#### Runs
+
+1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
+   `python -m body.step0 --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/body0-06 --draft`
+2. The run on the owner's machine with Qwen3-8B. That run is the result. On the 3090:
+   `python -m body.step0 --model Qwen/Qwen3-8B --corpus .../dara-session-transcripts --run runs/body0-8b --device cuda --dtype bfloat16 --draft`
+   (or split across GPU and RAM as T2 ran: `--device auto --gpu-memory 6.5`).
+
+Both resume from per-session checkpoints when the same command is run again. Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
+rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
+would exceed a day.
+
+#### Note, 2026-11-03, written with the code, before any model run
+
+- **The fit, computed from the Gram matrix.** `body/progress.py`'s `GramFit` is T2's fit computed from the session's inner
+  products, so its cost depends on the rows fitted, not on the width (4,096 on the 8B; about 4,600 words in a session's
+  text baseline, where the direct fit took 12 s per code). It agrees with `goalspace.formula.Fit` to 1e-7
+  (`tests/test_body.py`). Nothing in the readings changes.
+- **System text** left out of the partner source, beside the T2 prefixes: task notifications and the automatic
+  "session is being continued" summaries.
+- **Echoes save almost nothing, not nothing.** On a toy stream whose partner chunks are exact copies of earlier rows,
+  partner cross-progress has median −0.01 bits (mean absolute 0.16) against self-progress of 2 bits. The wording above
+  stands as an approximation.
+
+#### Limits, stated before the result
+
+- The agent produces most chunks, and its narration repeats ("committing and pushing"). Cost and self-progress are
+  coloured by that; cross-progress is a unique contribution within one stream, not a comparison between populations
+  (T2 reading 1's failure), so it is less exposed.
+- Tool results are cut at 256 tokens, so a long result's tail, where an error often sits, is not read.
+- Tool calls are left out, so a loop of repeated commands shows only through the results it brings back.
+- 25 closures and 23 ascents are pilot-scale; the interval decides, not the point estimate.
+
+#### Dry run, 2026-11-03: the text space alone, plumbing only (decides nothing)
+
+`python -m body.step0 --model none --corpus ... --run runs/body0-text-all --draft --text-only`: no model (Hugging Face
+is not reachable from the agent's container), TF-IDF only, texts cut at 1,000 characters. All 45 sessions in 20 minutes
+on 2 CPUs. Its AUCs are stated so that the amendments proposed below are seen not to have been chosen by them.
+
+| | Events scored | AUC (text space) | 90% interval |
+|---|---|---|---|
+| Reading 1, closures | 12 of 25 | 0.51 | 0.40–0.63 |
+| Reading 2, ascents | 17 of 23 | 0.71 | 0.64–0.81 |
+
+- **Too few closures score.** 8 closures fall before a session's 40th self chunk or have fewer than 3 scored chunks
+  before the first return, and 5 more have no control. 12 is under the bar of 15, so as registered the 8B run would
+  most likely be undecided on reading 1.
+- **The cost axis does not work as defined.** Against the median of all earlier scored chunks, every window is cheap,
+  since prequential code lengths fall as a session grows: C reads position in the session, not cost.
+- **Medians, text space:** self-progress in closures 135 bits against 61 in controls; tool cross-progress 243 against
+  200; partner cross-progress 7.8 against 7.0. In ascents, partner 32 against 13.
+- **Time:** codes take about as long per space as the text space did, so the 8B's 12 layers come to about 4 hours of
+  fitting plus the reading; no thinning is needed.
+- **Not yet in the code** at the time (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X
+  with W of 10 and 40. Added the same day, label-blind, per scored chunk (`body.progress.reported`): coupling over the
+  60 self chunks ending at t with E the mean of the partner chunks arriving between self chunks; B as that fit's
+  residual at t minus 20 self chunks before; C as a self chunk that sits beyond √2·D of every earlier chunk and is
+  returned to within √2·D later (the toy's echo floor, since the measured floor varies with position).
+
+**Amendments, owner, 2026-11-03, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th; (2)
+cost against the median of the 20 scored chunks before. No bar changes.
+
+**After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
+alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
+agent messages), and 7 have no control, because their span runs most of the session or the session is short.
+**Amendment 4, owner, 2026-11-03, before any model run:** tool results are split into **echo**, the agent's own
+output read back, and **world**, everything else. A tool result is echo when at least half of its word 8-grams (first
+6,000 characters) already appear in the agent's earlier output in the session: its text and its tool calls, which
+carry the files it wrote. This is the laundering study's within-session self share (`dara-session-transcripts`, branch
+`study/body-ablation`, `laundering.py`); the cut at one half is the agent's. Over the corpus, 1,451 of 18,201 tool
+results are echo (8%). The reason: a positive T in closures could be learning from the world or from the agent's
+own output coming back, which are opposite conclusions for the narrow hypothesis. No bar changes; the pass is still
+on X.
+
+**Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
+nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
+20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
+
+**Amendment 5, owner, 2026-11-03, before any model run, after step 3's scoring fault:** two checks of the scoring
+itself, reported and deciding nothing. No bar changes; the pass is still on X over all pairs.
+
+1. **Same-session pairs only:** both readings recomputed on the events whose control is from their own session, beside
+   the readings over all pairs. Cross-session controls (12 of the scored events) could move the AUC if X's level
+   differs between sessions.
+2. **Placebo windows:** 200 times, each scored event gets a pretend event in its own session with as many chunks, at a
+   random run outside every departure's span (in a session with no such room, anywhere but the event's own chunks,
+   counted). Its control is matched by the same rules, amendment 3 included, and both readings' AUCs are computed
+   (mean over layers, and the text baseline). No closure or ascent is in a pretend event, so these should sit near
+   0.5; if they do not, the matching itself moves the readings, and the real readings are read against them.
+
+The agent first proposed shuffling event and control within each pair. Before writing code the agent found that this
+centres on 0.5 by symmetry whatever the bias, so it could not fail (step 1's fault). The placebo is the agent's
+correction, inside what the owner approved. Tested on planted sessions, it stays at 0.5 when the matching is fair and
+moves when the controls come from a session whose X runs higher (`tests/test_body.py`).
+
+**Dry run of amendment 5, 2026-11-04: the text space alone, plumbing only (decides nothing)** (`runs/body0-text-null/`,
+not committed; 68 minutes on this machine, all 45 sessions). Both checks run on the real corpus. In the text space:
+
+| | All pairs: events, AUC (90%) | Same-session pairs only | Placebo: mean AUC (5th–95th of 200) |
+|---|---|---|---|
+| Closures | 20, 0.458 (0.355–0.578) | 13, 0.485 (0.385–0.609) | 0.517 (0.438–0.593) |
+| Ascents | 21, 0.732 (0.673–0.819) | 16, 0.730 (0.664–0.828) | 0.495 (0.420–0.588) |
+
+So in the text space the matching does not move the readings, and leaving out cross-session pairs changes little. A
+median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
+the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
+
+**The 0.6B rehearsal, 2026-11-04 (plumbing, decides nothing; draft sets; `runs/body0-06/`, not committed).** All 45
+sessions, layers 19–27. It first crashed on a session with no chunks (the agent's bug, which the text-only dry run
+could not reach since it reads no states); fixed with a test and resumed from the checkpoints. Time: 15 minutes
+reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 chunks, 5.5 hours; S44, 1.5 hours).
+
+| | All pairs: events, AUC (90%), text | Same-session pairs only | Placebo: mean (5th–95th of 200), text |
+|---|---|---|---|
+| Closures | 20, 0.449 (0.407–0.493), text 0.483 | 13, 0.441 (0.391–0.487) | 0.491 (0.405–0.564), text 0.524 |
+| Ascents | 21, 0.531 (0.484–0.586), text 0.723 | 16, 0.642 (0.592–0.698) | **0.630 (0.562–0.703)**, text 0.496 |
+
+- **The placebo finds a bias in the ascent reading in the model's space** (not in the text space): pretend events with
+  no ascent in them score 0.63 against their controls. So the matching itself moves reading 2 there, and an ascent AUC
+  near 0.63 would mean nothing. Its cause is not yet looked at; candidates are where a control falls relative to its
+  event (the matching keeps the earlier of two equally near runs) and how X trends along a session in the model's
+  space. Reading 2's bar is not changed; the 8B's reading 2 is read against its own placebo, as amendment 5 says.
+- **Time for the 8B,** estimated: fitting scales with the 12 layers against 9 (about 14–15 hours), and reading the
+  26,817 chunks with the 8B split across GPU and RAM is slower by more than an order of magnitude, so the run comes
+  to about a day. Thinning to every second scored chunk is already registered as allowed if it would exceed a day;
+  that is the owner's call.
+- **Where the ascent bias sits** (agent, label-blind, on the rehearsal's checkpoints, 100 placebo draws): pretend ascents
+  whose control is from another session score above it in 0.806 of 855 pairs; within the session, 0.607 with the
+  control before (595) and 0.422 after (550), about 0.52 together. X's rank correlation with position within a session
+  has median 0.03. So the bias is cross-session: in the model's space X's level differs between sessions. The placebo
+  also holds more cross-session pairs than the real readings, since its pretend events take the little room short
+  sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
+  cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
 
 ## Goal-space tests (`goalspace/`)
 
@@ -1013,466 +1444,6 @@ header); fixed and resumed from the record, no sample redrawn.
   "own" reply is one whose coupled N happened to raise it too; the F reply may be the same reply either way, written
   because the frame was offered. Under this coupling, "would have raised it anyway" may not be a property of F at all.
 
-## Body readout (`body/`)
-
-The spec is [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4), a Claude Doc
-([v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo) is the record; Step 0 below was written under it). Its measures
-stay apart: Step 0 and the D021 replay are instrument measures (is the reading accurate?); the poem task is a
-functional measure (does the actor do better?). None stands in for another.
-
-### Step 0: does cross-progress read the agent's closures? (instrument)
-
-*Written 2026-11-03, before any code. The design is the owner's: progress by source (option 3), with tool results as a
-third source reported apart. The numbers were drafted by the agent and fixed by the owner the same day, unchanged
-(DECISIONS.md). Amendments are dated here.*
-
-**The claim.** Closure is learning that no longer takes anything in from the partner. So in the agent's
-owner-confirmed closures, the owner's chunks of the recent window should save almost no bits in coding the agent's
-next chunk, fewer than in the same agent's ordinary work; and where the owner ascended, they should save more.
-
-**Two hypotheses the tool split tells apart** (reported, deciding nothing). *Narrow:* closure shuts out the source that
-can change the frame, the partner, while the agent keeps learning from tool results, which answer questions asked
-inside its own frame. *Broad:* closure shuts out everything outside. In closure windows the narrow one predicts tool
-cross-progress still positive; the broad one predicts it near zero too. A third reading: some tool results do change
-the frame, in which case tool cross-progress spikes just before some closures end.
-
-#### Who said what
-
-| Item | By | Used as |
-|---|---|---|
-| Each chunk's text | **the owner** (human turns), **the agent** (Claude's text) or **the code** (tool results), from the session archives | the data |
-| Real, kind and who of the 65 departures; first-return times | **the owner** (the confirmation pass, `dara-session-transcripts/study/departures_confirmed.md`) | the key |
-| Everything computed here | **the code** | |
-
-The corpus is private: only references and numbers enter this repository or its records, never text.
-
-#### Material
-
-- **The record, per session:** in time order, each chunk tagged at creation with one of three sources:
-  - **partner:** the owner's turns (role `human`; task notifications and system text excluded; at least 20 characters);
-  - **self:** the agent's text (role `agent_text`);
-  - **tool:** tool results (role `tool_result`). Tool calls (`agent_tool`) are left out: the agent's commands, not its
-    thought, and too many to read. Since amendment 4, each tool result is also **world** or **echo** (below).
-
-  Each chunk's text is capped at 256 tokens, as in T2; a tool result is read from its start.
-- **Scored chunks:** the agent's (self) chunks from the 20th self chunk of a session on (the 40th before the amendment
-  of 2026-11-03); earlier chunks fit, never score.
-- **Who is read:** the local model reads Claude's sessions, so this tests the readout as a schema of another mind. Said
-  so wherever it is used.
-
-#### Readings of a text
-
-As T2: each chunk read alone through `substrate.states.Reader` with T2's registered sink rule; the last third of the
-model's layers; per-layer statistics, the primary their mean. D per layer from the paraphrase sets (draft until frozen).
-
-#### The formula and the three code lengths
-
-The formula is T2's: PPCA, noise floored at D²/d, k chosen by the two-part code within the span
-(`goalspace/formula.py`). For a scored self chunk t, the window W is every chunk since the 20th self chunk before t,
-of all three sources. It is counted in self chunks so that tool results, which outnumber the owner's turns about ten to
-one, do not crowd the owner out of it.
-
-- **L_now:** bits of t under the formula fitted on every chunk of the session before t.
-- **L_nopartner, L_notool, L_noself:** the same, fitted with W's chunks of that source left out.
-
-Then, per scored chunk:
-
-- **Partner cross-progress** X_t = L_nopartner − L_now: bits the window's owner chunks save, given everything else. An
-  owner chunk that echoes earlier content saves nothing. **This is the reading the pass is on.**
-- **Tool cross-progress** T_t = L_notool − L_now: the same for tool results. Reported, deciding nothing.
-- **World and echo cross-progress** (amendment 4) T_world and T_echo: the same, leaving out only W's world or only
-  its echo tool results. Reported, deciding nothing. The narrow-vs-broad comparison is read on T_world; T keeps its
-  registered meaning beside it.
-- **Self-progress** S_t = L_noself − L_now.
-- **Cost** C_t = L_now − the median of L_now over the 20 scored self chunks before t, as T2's surprisal is: cheap
-  below zero, costly above. (Amended 2026-11-03; against all earlier scored chunks it read position in the session.)
-
-A window with no owner chunk has X_t = 0 by construction; that is counted, not dropped, since an owner who says
-nothing is part of the reading.
-
-#### Events and controls
-
-- **Closure events:** each owner-confirmed closure (real "yes", kind including closure, who "agent") with a recorded
-  first return: 25 of 27. Its **window** is the last 10 scored self chunks before the first return,
-  in the departure's session; at least 3, or the event drops out (counted).
-- **Ascent events:** each owner-confirmed ascent (real "yes", kind including ascent, who "owner"): 23 before burn-in.
-  Its window is the first 10 scored self chunks after the owner's turn, in the same session.
-- **Controls, author-matched:** for each event, a window of the same number of the agent's scored chunks in the same
-  session, outside every confirmed departure's span (departure to first return) and more than 60 minutes
-  from any departure; nearest in time; never reused (T2's rule). Where the session holds none, the nearest session in
-  time by the same rules, reported as cross-session (amendment 3, 2026-11-03). An event with no control drops out
-  (counted).
-- **Statistic per window:** the mean of X_t over its chunks.
-
-#### Pass
-
-- **Reading 1, closures:** the AUC of control X over closure X (closures lower) is at least **0.70**, its
-  90% interval's lower bound above 0.5, and it beats the text baseline's AUC. 2,000 draws resampling events with their
-  controls. Fewer than 15 scored events: too few to decide.
-- **Reading 2, ascents (what the readout must not break):** the AUC of ascent X over control X (ascents higher) has
-  its 90% interval's lower bound above 0.5. Fewer than 12 scored events: too few to decide.
-- Both must pass. A cross-progress that reads ascent as closure fails however well it does on closures.
-
-#### The text baseline
-
-As T2's: TF-IDF in place of states, vocabulary fitted on each session's first 40 chunks, the text D from the
-paraphrase sets in that space. AUCs compare across spaces; bits do not.
-
-#### Reported, deciding nothing
-
-- T_t per window: its median in closure, ascent and control windows (narrow vs broad), and in the last 3 self chunks
-  before each first return against the 3 before those (the frame-changing reading).
-- S_t and C_t per window; the share of closure, ascent and control windows in each cost × progress quadrant (cheap or
-  costly; X above or below the controls' median).
-- `substrate.coupling.coupling` on the same windows, and its rank correlation with X: whether the two are redundant.
-- Proxy B (the trend of `coupling`'s dynamic residual) and proxy C (reuse of new regions, offline) on the same windows.
-- Per-layer AUCs; X with W of 10 and 40 chunks.
-- The D021 window (S14, 2026-10-12 15:44 to 23:56), chunk by chunk, against the hand trace's expectation (X near zero
-  from about 17:44): the spec's Step 1, read here as one case only.
-
-#### Keys judge, never supply
-
-The confirmation labels and first-return times are read only by the scoring functions, after every code length is
-computed and checkpointed. The formula never sees a label, a departure or a return.
-
-#### Runs
-
-1. A rehearsal on Qwen3-0.6B with draft sets: plumbing, deciding nothing.
-   `python -m body.step0 --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/body0-06 --draft`
-2. The run on the owner's machine with Qwen3-8B. That run is the result. On the 3090:
-   `python -m body.step0 --model Qwen/Qwen3-8B --corpus .../dara-session-transcripts --run runs/body0-8b --device cuda --dtype bfloat16 --draft`
-   (or split across GPU and RAM as T2 ran: `--device auto --gpu-memory 6.5`).
-
-Both resume from per-session checkpoints when the same command is run again. Each scored chunk needs four fits, and tool results add about ten times as many states to read; the
-rehearsal reports the time, and the windows may be thinned to every second scored chunk if the 8B run
-would exceed a day.
-
-#### Note, 2026-11-03, written with the code, before any model run
-
-- **The fit, computed from the Gram matrix.** `body/progress.py`'s `GramFit` is T2's fit computed from the session's inner
-  products, so its cost depends on the rows fitted, not on the width (4,096 on the 8B; about 4,600 words in a session's
-  text baseline, where the direct fit took 12 s per code). It agrees with `goalspace.formula.Fit` to 1e-7
-  (`tests/test_body.py`). Nothing in the readings changes.
-- **System text** left out of the partner source, beside the T2 prefixes: task notifications and the automatic
-  "session is being continued" summaries.
-- **Echoes save almost nothing, not nothing.** On a toy stream whose partner chunks are exact copies of earlier rows,
-  partner cross-progress has median −0.01 bits (mean absolute 0.16) against self-progress of 2 bits. The wording above
-  stands as an approximation.
-
-#### Limits, stated before the result
-
-- The agent produces most chunks, and its narration repeats ("committing and pushing"). Cost and self-progress are
-  coloured by that; cross-progress is a unique contribution within one stream, not a comparison between populations
-  (T2 reading 1's failure), so it is less exposed.
-- Tool results are cut at 256 tokens, so a long result's tail, where an error often sits, is not read.
-- Tool calls are left out, so a loop of repeated commands shows only through the results it brings back.
-- 25 closures and 23 ascents are pilot-scale; the interval decides, not the point estimate.
-
-#### Dry run, 2026-11-03: the text space alone, plumbing only (decides nothing)
-
-`python -m body.step0 --model none --corpus ... --run runs/body0-text-all --draft --text-only`: no model (Hugging Face
-is not reachable from the agent's container), TF-IDF only, texts cut at 1,000 characters. All 45 sessions in 20 minutes
-on 2 CPUs. Its AUCs are stated so that the amendments proposed below are seen not to have been chosen by them.
-
-| | Events scored | AUC (text space) | 90% interval |
-|---|---|---|---|
-| Reading 1, closures | 12 of 25 | 0.51 | 0.40–0.63 |
-| Reading 2, ascents | 17 of 23 | 0.71 | 0.64–0.81 |
-
-- **Too few closures score.** 8 closures fall before a session's 40th self chunk or have fewer than 3 scored chunks
-  before the first return, and 5 more have no control. 12 is under the bar of 15, so as registered the 8B run would
-  most likely be undecided on reading 1.
-- **The cost axis does not work as defined.** Against the median of all earlier scored chunks, every window is cheap,
-  since prequential code lengths fall as a session grows: C reads position in the session, not cost.
-- **Medians, text space:** self-progress in closures 135 bits against 61 in controls; tool cross-progress 243 against
-  200; partner cross-progress 7.8 against 7.0. In ascents, partner 32 against 13.
-- **Time:** codes take about as long per space as the text space did, so the 8B's 12 layers come to about 4 hours of
-  fitting plus the reading; no thinning is needed.
-- **Not yet in the code** at the time (reported, deciding nothing): `coupling` on the same windows, proxies B and C, X
-  with W of 10 and 40. Added the same day, label-blind, per scored chunk (`body.progress.reported`): coupling over the
-  60 self chunks ending at t with E the mean of the partner chunks arriving between self chunks; B as that fit's
-  residual at t minus 20 self chunks before; C as a self chunk that sits beyond √2·D of every earlier chunk and is
-  returned to within √2·D later (the toy's echo floor, since the measured floor varies with position).
-
-**Amendments, owner, 2026-11-03, before any model run:** (1) burn-in at the 20th self chunk instead of the 40th; (2)
-cost against the median of the 20 scored chunks before. No bar changes.
-
-**After amendment 1, closures still fall short:** 13 score, not 15. Counted without fitting, from scored positions
-alone: 5 closures still have fewer than 3 scored chunks before the first return (they fall in a session's first 20
-agent messages), and 7 have no control, because their span runs most of the session or the session is short.
-**Amendment 4, owner, 2026-11-03, before any model run:** tool results are split into **echo**, the agent's own
-output read back, and **world**, everything else. A tool result is echo when at least half of its word 8-grams (first
-6,000 characters) already appear in the agent's earlier output in the session: its text and its tool calls, which
-carry the files it wrote. This is the laundering study's within-session self share (`dara-session-transcripts`, branch
-`study/body-ablation`, `laundering.py`); the cut at one half is the agent's. Over the corpus, 1,451 of 18,201 tool
-results are echo (8%). The reason: a positive T in closures could be learning from the world or from the agent's
-own output coming back, which are opposite conclusions for the narrow hypothesis. No bar changes; the pass is still
-on X.
-
-**Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
-nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
-20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
-
-**Amendment 5, owner, 2026-11-03, before any model run, after step 3's scoring fault:** two checks of the scoring
-itself, reported and deciding nothing. No bar changes; the pass is still on X over all pairs.
-
-1. **Same-session pairs only:** both readings recomputed on the events whose control is from their own session, beside
-   the readings over all pairs. Cross-session controls (12 of the scored events) could move the AUC if X's level
-   differs between sessions.
-2. **Placebo windows:** 200 times, each scored event gets a pretend event in its own session with as many chunks, at a
-   random run outside every departure's span (in a session with no such room, anywhere but the event's own chunks,
-   counted). Its control is matched by the same rules, amendment 3 included, and both readings' AUCs are computed
-   (mean over layers, and the text baseline). No closure or ascent is in a pretend event, so these should sit near
-   0.5; if they do not, the matching itself moves the readings, and the real readings are read against them.
-
-The agent first proposed shuffling event and control within each pair. Before writing code the agent found that this
-centres on 0.5 by symmetry whatever the bias, so it could not fail (step 1's fault). The placebo is the agent's
-correction, inside what the owner approved. Tested on planted sessions, it stays at 0.5 when the matching is fair and
-moves when the controls come from a session whose X runs higher (`tests/test_body.py`).
-
-**Dry run of amendment 5, 2026-11-04: the text space alone, plumbing only (decides nothing)** (`runs/body0-text-null/`,
-not committed; 68 minutes on this machine, all 45 sessions). Both checks run on the real corpus. In the text space:
-
-| | All pairs: events, AUC (90%) | Same-session pairs only | Placebo: mean AUC (5th–95th of 200) |
-|---|---|---|---|
-| Closures | 20, 0.458 (0.355–0.578) | 13, 0.485 (0.385–0.609) | 0.517 (0.438–0.593) |
-| Ascents | 21, 0.732 (0.673–0.819) | 16, 0.730 (0.664–0.828) | 0.495 (0.420–0.588) |
-
-So in the text space the matching does not move the readings, and leaving out cross-session pairs changes little. A
-median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
-the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
-
-**The 0.6B rehearsal, 2026-11-04 (plumbing, decides nothing; draft sets; `runs/body0-06/`, not committed).** All 45
-sessions, layers 19–27. It first crashed on a session with no chunks (the agent's bug, which the text-only dry run
-could not reach since it reads no states); fixed with a test and resumed from the checkpoints. Time: 15 minutes
-reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 chunks, 5.5 hours; S44, 1.5 hours).
-
-| | All pairs: events, AUC (90%), text | Same-session pairs only | Placebo: mean (5th–95th of 200), text |
-|---|---|---|---|
-| Closures | 20, 0.449 (0.407–0.493), text 0.483 | 13, 0.441 (0.391–0.487) | 0.491 (0.405–0.564), text 0.524 |
-| Ascents | 21, 0.531 (0.484–0.586), text 0.723 | 16, 0.642 (0.592–0.698) | **0.630 (0.562–0.703)**, text 0.496 |
-
-- **The placebo finds a bias in the ascent reading in the model's space** (not in the text space): pretend events with
-  no ascent in them score 0.63 against their controls. So the matching itself moves reading 2 there, and an ascent AUC
-  near 0.63 would mean nothing. Its cause is not yet looked at; candidates are where a control falls relative to its
-  event (the matching keeps the earlier of two equally near runs) and how X trends along a session in the model's
-  space. Reading 2's bar is not changed; the 8B's reading 2 is read against its own placebo, as amendment 5 says.
-- **Time for the 8B,** estimated: fitting scales with the 12 layers against 9 (about 14–15 hours), and reading the
-  26,817 chunks with the 8B split across GPU and RAM is slower by more than an order of magnitude, so the run comes
-  to about a day. Thinning to every second scored chunk is already registered as allowed if it would exceed a day;
-  that is the owner's call.
-- **Where the ascent bias sits** (agent, label-blind, on the rehearsal's checkpoints, 100 placebo draws): pretend ascents
-  whose control is from another session score above it in 0.806 of 855 pairs; within the session, 0.607 with the
-  control before (595) and 0.422 after (550), about 0.52 together. X's rank correlation with position within a session
-  has median 0.03. So the bias is cross-session: in the model's space X's level differs between sessions. The placebo
-  also holds more cross-session pairs than the real readings, since its pretend events take the little room short
-  sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
-  cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
-
-### The habitat: Step −1 and Step 0's habitat form (v0.2)
-
-*Drafted by the agent 2026-11-04 from [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4) and
-the owner's decisions of the same day (DECISIONS.md). Fixed by the owner the same day, unchanged (DECISIONS.md). Choices
-the spec left open, which the agent made, are marked* (agent's choice)*; the owner accepted them with the rest.
-Amendments are dated here.*
-
-#### Who said what
-
-| Item | By | Used as |
-|---|---|---|
-| The agent's actions | **the model** (Qwen3-8B, thinking off) | self parts of each turn |
-| The world's replies, its true state (room, inventory, object states) and score | **the code** (the game engine) | world parts of each turn; the engine's state and score are keys |
-| Planted events, their turns and kinds | **the code** (the harness), from seeds fixed below | keys |
-| Closure, ascent and ordinary labels | **the code** (the engine's state and score, by the rules below) | keys |
-| k, the label check | **the owner** (fixes k's procedure; reads 20 closures and 20 ordinary stretches) | the label's validity |
-| Everything computed from states | **the code** | |
-
-#### The habitat
-
-- **Engine:** TextWorld, games made per seed (`tw-make custom`) *(agent's choice of generator)*: 6–12 rooms, 10–20
-  objects, quest length 3–8, drawn per seed from the seed itself, so a world is rebuilt from its seed alone.
-  TextWorld needs Linux, macOS or WSL; the owner's machine is checked on the dry run.
-- **The agent:** Qwen3-8B, thinking off, bf16. The context holds the game's opening text and every earlier turn, up to
-  16k tokens, oldest turns dropped first (counted). Actions sampled at temperature 0.7, top-p 0.95, at most 24 tokens,
-  the first line taken as the command. An episode ends at the quest's end or after 100 turns.
-- **The record first.** Each turn's action, reply, engine state and score are appended as they happen. States are
-  derived later, read alone through `substrate.states.Reader` from the recorded text, with any graft off.
-- **A turn** (owner, 2026-11-04) is read in two parts: the action (self) and the reply (world). The world fills the
-  partner slot and the tool slot is empty.
-
-#### World seeds, disjoint and fixed before the first run
-
-| Pool | Seeds | Worlds | Used for |
-|---|---|---|---|
-| Calibration | 1000–1099 | 100 | k, the z-scores the projection will use, the echo floor's habitat check |
-| Step −1 | 2000–2059 | 60 | 40 with a planted event, 20 without (ordinary play) |
-| Step 0, habitat labels | 3000–3399 | 400 | closures and ascents |
-| Behavioural test | 9000–9099 | 100 | Step 3's habitat context, held out from everything else |
-| Babbling | 10000 and up | set by throughput | Step 2's training data; never any other pool |
-
-Seeds and generator settings are in `material/habitat_worlds.json`, frozen with this section: planted kinds by seed
-(new room 2000–2019, rule change 2020–2039, none 2040–2059), the planted turn drawn from each seed, and the self-talk
-episodes on seeds 2100–2119. One episode per world.
-Throughput (turns per hour on the 3090) is measured on Step −1's run and decides the babbling pool's size, not this table.
-
-#### Labels from the engine (definitions fixed here before any run)
-
-- **New state:** an engine state (room, inventory, object states) not seen earlier in the episode.
-- **Closure:** at least k consecutive turns with no new state, no score change, and at least half the actions repeating
-  an earlier (action, room) pair of the episode *(agent's choice: the spec says "repeated actions" without a share)*.
-  Its **onset** is the stretch's first turn.
-- **Ascent:** a quest step reached: a turn where the engine's remaining walkthrough (`policy_commands`) holds fewer
-  non-movement commands (any not starting "go ") than ever before in the episode, the opening included. An empty
-  walkthrough counts as zero only when the quest is won; otherwise the turn has no count and is never an ascent
-  (*amended by the owner 2026-11-04, option (a) below; it was "a score increase", which these worlds give only on the
-  quest's last command*). The spec also lists a new area and a world-changing verb used for the first time; those are
-  frequent, so they are reported as broad ascents beside it, deciding nothing *(agent's choice)*.
-- **Ordinary:** every other turn.
-
-**Setting k** (spec v0.2's procedure). On the calibration worlds, run the agent as above with no readout. Take every
-stretch of turns with no new state that is followed by a new state in the same episode (pondering that resolved). k is
-the smallest whole number above that stretch length's 95th percentile. k goes here before Step 0. Every Step 0 result is
-also reported at k/2 and 2k (rounded up); a finding that holds at one k only is not a finding. The owner reads 20
-closures and 20 ordinary stretches at the chosen k, picked by the code at random from the calibration worlds, and
-confirms the closures look like looping. If fewer than 100 closures occur in Step 0's pool, the percentile is revisited
-before Step 0 is scored, not after.
-
-#### Step −1: does boundary hear the world and not itself? (instrument; no training)
-
-**Boundary (news)** per arrival: the reply's alone reading against the alone readings of every earlier part of the
-episode (actions and replies), its nearest distance in echo-floor units per layer, then the mean over the last third of
-the layers. The floor is the one measured on Qwen3-8B (Substrate, the echo floor). Its habitat check is reported
-first: on the calibration worlds, the news of replies identical to an earlier reply in the episode ("You can't go
-that way.") must sit below the floor in at least 95% of cases, or the floor is re-measured on habitat repeats before
-Step −1 is scored.
-
-**Self-talk** *(agent's choice of how to make it: v0.2 says "no environment", but then nothing arrives and boundary is
-zero by construction; this version makes the control fail-able)*. 20 episodes of 30 turns, with no engine: the reply
-slot is filled by the harness, tagged world, with the agent's own content. Two variants: **exact**, its previous action
-back verbatim; **restated**, its previous action restated by the same model in other words (prompt fixed in the code).
-This is provenance laundering on purpose: the tag says world, the content is self.
-
-**Planted novelty.** In 40 of the 60 Step −1 worlds, one event at a turn drawn from 15–35 by the seed:
-- **New room (20):** the world is generated with one extra room behind a locked door whose key is not in the world. At
-  the planted turn the harness unlocks it through the engine, and that turn's reply adds "You hear a click from the
-  {door}." Whether TextWorld allows this mid-episode is checked on the dry run; if not, the owner chooses another way
-  before the run.
-- **Rule change (20):** a verb that has already changed the world in the episode stops working on its object from the
-  planted turn on; the harness returns a fixed reply naming the new rule and holds to it for the rest of the episode.
-
-The planted turn and kind are read only by scoring.
-
-**Pass, all three:**
-1. **Self-talk:** news above the floor on at most 1% of exact arrivals and at most 5% of restated arrivals (600 each).
-2. **Fires at planted novelty:** news above the floor at the planted turn in at least 36 of 40 events, and at least 17
-   of 20 of each kind.
-3. **Above ordinary play:** the AUC of planted-turn news over the news of no-new-state turns in the same episodes is at
-   least 0.90, its 90% interval's lower bound above 0.80; 2,000 draws resampling episodes.
-
-If any fails, the instrument is fixed before anything is learned (spec v0.2). A new floor or predictor is a new run on
-fresh Step −1 seeds, not a refit on these.
-
-**Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
-boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
-bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
-
-#### Step 0, habitat form: does rate flatten before the stall? (instrument)
-
-Runs first; then Step 0's owner-label form above, unchanged and without retuning (owner, 2026-11-04).
-
-- **The reading:** world cross-progress X_t = L_noworld − L_now, the bits the window's world parts save in coding the
-  agent's next action, by Step 0's formula and fit unchanged (`goalspace/formula.py`, `body/progress.py`). The window
-  W is the last 10 turns *(agent's choice: Step 0's 20 self chunks would span a fifth of an episode)*. Burn-in: an
-  episode's first 10 turns fit, never score.
-- **Closure events:** each engine-labelled closure in Step 0's pool. Its window is the 10 scored turns **ending at the
-  onset**, so it ends before the label could see anything: X during the stall is flat by construction and is not
-  evidence. At least 3 scored turns, or the event drops out (counted).
-- **Ascent events:** each ascent in Step 0's pool (as defined above). Its window is the 10 scored turns after it, at
-  least 3, or the event drops out (counted), as for closures *(agent's choice, 2026-11-04: the quest's last step ends
-  the episode, so it never has a window)*.
-- **Controls:** for each event, 10 scored turns in the same episode outside every closure, at least 10 turns from any
-  closure's onset and any ascent, nearest in time, never reused. Where the episode has none, the nearest world by seed
-  with the same generator settings, by the same rules, reported as cross-episode.
-- **Statistic per window:** the mean of X_t.
-- **Pass:** reading 1, the AUC of control X over closure X (closures lower) is at least 0.70, its 90% interval's lower
-  bound above 0.5, and it beats the text baseline (TF-IDF, as Step 0); reading 2, the AUC of ascent X over control X
-  has its 90% lower bound above 0.5. Both must pass, at the frozen k; reported at k/2 and 2k. 2,000 draws resampling
-  episodes. Fewer than 100 closures or 50 ascents: too few to decide.
-- **Checks of the scoring** (as amendment 5, reported, deciding nothing): same-episode pairs only, and a placebo of 200
-  rounds of pretend events matched by the same rules.
-- **Reported, deciding nothing:** X during the stall; self-progress and cost; broad ascents; per-layer AUCs; X with W
-  of 5 and 20.
-
-*Amendment 1, 2026-11-04: found by the agent on the dry run; the owner chose (a), now written into the ascent label
-above (code: `body/habitat.py`, `ascents`, `quest_left`; the walkthrough's count is a key, recorded each turn and read
-only by scoring).* **Reading 2 had no events as first written.**
-With TextWorld 1.7.0 installed, every world checked (seeds 1000–1003, 2005, 3000–3004) has max score 1, and the score
-rises only on the walkthrough's last command, which ends the quest and so the episode. An ascent ("each score
-increase") therefore has no turns after it to score, so reading 2 cannot reach 50 ascents and Step 0's habitat form
-is "too few to decide" by construction. Step −1 is untouched: it reads no score. The engine does carry a finer signal:
-`intermediate_reward` (+1 a step closer to the quest's end, −1 a step away) and the length of the remaining walkthrough
-(`policy_commands`). Options, for the owner to choose before Step 0's code: (a) an ascent is a turn where the remaining
-walkthrough reaches a new low for the episode, counting only non-movement commands (a quest step, not a walk);
-(b) as (a) with movement counted; (c) keep score increases and score the 10 turns before, not after; (d) worlds with
-several quests, so score rises mid-episode. (a) is closest to the spec's "a quest step reached". The closure label's
-"no score change" is trivially met with one-point worlds and stays as written.
-
-#### Keys judge, never supply
-
-The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every
-state and code length is computed and checkpointed. The readout, the formula and the agent never see them. The agent
-sees only what a player would.
-
-#### Runs
-
-1. A dry run on Qwen3-0.6B, 3 worlds per pool and 2 self-talk episodes: plumbing and the planted room's feasibility,
-   deciding nothing. Its floor is the 0.6B's own, made by `body/floor_file.py` with the same settings (the 8B file
-   covers layers 24–35; the 0.6B reads 19–27):
-   `python -m body.floor_file --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/echo-floor-06-first --draft`,
-   then for each pool `python -m body.stepm1 play --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --pool calibration --limit 3`
-   (and `step_minus_1`, `self_talk`), then `read --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --floor runs/echo-floor-06-first/floor.json --draft`
-   and `score --run runs/stepm1-06`.
-2. Calibration, then k fixed here.
-3. Step −1 on Qwen3-8B on the owner's machine, read against `material/echo_floor_8b.json` (PR #29). That run is the
-   result. The floor's 95th percentile of repeats rests on about three chunks; the floor's habitat check, scored first,
-   is where that gets tested on many repeats.
-4. Step 0, habitat form, if Step −1 passes.
-
-#### Note, 2026-11-04, written with the code, before any run
-
-Code: `body/habitat.py` (worlds, plants, play, labels, k) and `body/stepm1.py` (`play`, `read`, `score`); tests in
-`tests/test_habitat.py`, run here with TextWorld 1.7.0 on Linux. How the registered design is built, where the
-section left it open:
-
-- **The planted room works mid-episode.** A new-room world is compiled twice from the same facts and names: A, the
-  room behind a locked door with no key in the world; B, the same door closed and unlocked. At the planted turn the
-  harness starts B and replays, silently, only the commands that changed A's state, then checks that the two states
-  agree on every fact but the door's. Checked here on 30 random-play episodes (75 tries at the door before the switch):
-  30 of 30 agree. On a mismatch the episode stays in A and the plant counts as not firing.
-- **The rule change** is announced in the reply of the first turn from the planted turn on at which a command other
-  than a move has changed the world ("Something in this place shifts. From now on, you cannot open chest."); every
-  later use gets a fixed reply and never reaches the engine. If no such command comes, the plant never fires and
-  counts as not firing.
-- **Replies as a player reads them:** TextWorld's prompt line and status bar (the room and a move count that changes
-  every turn) are stripped before the reply is recorded, so news is not raised by the counter.
-- **Self-talk is recorded honestly:** the reply is the model's, with provenance self; only its slot says world, and
-  the readout reads the slot.
-- **News** compares each reply with every earlier part of the episode, the opening and this turn's action included;
-  the opening itself is not scored. States are read with Step 0's sink rule ("first"). The echo floor comes in as a
-  file of per-layer floors in units of D (`material/echo_floor_8b.json`, measured with the same sink rule and sets,
-  PR #29); D is measured in the same run on the paraphrase sets.
-- **Not yet known:** throughput on the 3090, and whether TextWorld installs on the owner's machine (Linux, macOS or
-  WSL); both are read on the dry run.
-
-#### Limits, stated before any result
-
-- One model plays and reads; the readout is a schema of its own mind here, unlike Step 0's owner corpus.
-- TextWorld's replies are short and templated, so states sit closer together than in the owner's sessions; the floor's
-  habitat check is there for that.
-- The planted rule change is the harness's, not the engine's: the world's text changes before its mechanics do.
-- Labels come from the engine, so they mark looping in the game, not the owner's sense of closure; where both exist,
-  their agreement is a separate check (spec v0.2).
-
 ## Translations (method)
 
 *Owner, 2026-11-03. The method is FieldSHIFT's ([O'Brien, …, Levin 2024](https://pubs.rsc.org/en/content/articlehtml/2024/dd/d3dd00185g)),
@@ -1551,6 +1522,106 @@ its user as one organism, with closure as its failure mode.
 | [Liu et al. 2023, "Attention Schema in Neural Agents"](https://arxiv.org/abs/2305.17375v2): RL agents whose schema controls attention do best; without one, attention works but is poorly controlled | The schema earns its place by controlling, not describing | consistent: the readout must be used to steer to help (Graziano row above) | Bears on the poem task: a readout the actor never acts on predicts no gain |
 | [Schmidhuber 2008, "Driven by Compression Progress"](https://www.emergentmind.com/papers/0812.4360): curiosity is improvement in compression, so noise gives no reward | Cross-progress is compression progress split by source; the split is AWARE's | consistent | None needed |
 | [Extended AI Interactions Shape Sycophancy](https://arxiv.org/html/2509.12517v3) (CHI '26): two weeks of real chats; sycophancy rises with long context | The dyad converging into itself, documented in the wild, with no mechanism-level measure | hypothesis | If cross-progress reads closure, partner cross-progress should fall in long-context sycophantic sessions. Would be confirmatory: data outside the owner's corpus. Untested |
+
+## The record: state and direction before 2026-11-04
+
+*Moved here verbatim from "Current state and direction" on 2026-11-04, when that section was rewritten for v0.2. Its
+"below" and "above" refer to the sections as they then stood.*
+
+**State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
+2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
+allowed; leap versus gradient waits until something works. Gate 1 ran, undecided, and rests there. Reconciled with PR #17
+the same day (DECISIONS.md): the goal's wording is PR #17's restatement; the base weights never change, and whatever is
+learned is held as a removable graft; Levin's three criteria constrain the loop; steering joins the interventions.
+
+**The frame, the owner's 2026-11-02, as the owner sees it for now.** Product and research are one thing, tied together by
+adaptive learning: the user directs the goal, drift is measured against it, an ego module evaluates what gets trained and how
+interventions happen, and the model consolidates to improve reasoning in general. So it is practical and experimental at
+once. The user's goals are the ego's standard, because learning needs a concrete target; goals of the entity's own stay
+parked; the agent's own formula is read as an instrument, not held as a goal. Measures stay separate: no two tests share a
+pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
+(PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
+seeks to understand the owner's formula and its own. *The "ego module" is challenged as a folk-psychology executive (owner, 2026-11-03; "Translations"): the alternative is
+a sense organ for goal-space plus narrow reflexes. Undecided. Multiscale competency is read weakly (owner, 2026-11-03,
+DECISIONS.md): one organism, each level a control loop whose setpoint comes from the held goal, so the monitor is a
+sense organ, not a level of agents above the actor.*
+
+**Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
+non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
+2026-11-03, under "Hidden sources" below; record in `runs/hidden-qwen8b/`): **the claim holds for prefill**, by a hair
+(AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
+direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
+steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
+`research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
+cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
+The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
+source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
+pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
+pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Read by the owner 2026-11-04: the track parks (decision 6 above).
+
+**Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
+the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
+the minimum of 15), too few to decide. Step 0 stands as pre-registered, with its five amendments, the 0.6B rehearsal
+and the cross-session finding; returning is a rerun, not a redesign. Its two open questions (pass on same-session pairs;
+thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is measured (2026-11-04):
+[material/echo_floor_8b.json](material/echo_floor_8b.json), layers 24–35 in units of D, by the registered midpoint
+rule, Qwen3-8B, sink "first", current sets, 10 sessions (`body/floor_file.py`, record in `runs/echo-floor-8b-first/`).
+The floor rises from 0.20 at layer 24 to 0.55 at 35; new content separates from near repeats at AUC 0.999–1.000 on
+every layer. The repeats are few (48 exact, 15 near, against 2,403 new), so the 95th percentile of repeats rests on
+about three chunks.
+
+**Body readout, placed (owner, 2026-11-03; v0.1, superseded by v0.2 on 2026-11-04).** A content-agnostic readout of the entity's state for the actor (where,
+moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
+It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
+source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
+to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with amendments made by
+the owner before any model run (the fifth adds two checks of the scoring, after step 3's fault); next, the 0.6B rehearsal and the 8B run on the owner's machine.
+
+**Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
+into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
+"Translations" below, each with its test and whether that test was exploratory. A first prior-art pass (machine learning,
+drafted by the agent, awaiting the owner) is logged there too: it proposes a scrambled-readout control for the poem task
+and step 5, and TaskTracker as a baseline for step 3.
+
+**Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
+machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
+kept, ascent) on the candidate list, done blind to every reading; the same marks later check what step 6 trains.
+
+**Direction, in order (owner, 2026-11-02; Entity tab).**
+
+| Step | Question | Status |
+|---|---|---|
+| 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
+| 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
+| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
+| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | **Paused (owner, 2026-11-04)** until the habitat matures |
+| 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
+| 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
+
+*Proposed by the agent, not yet decided by the owner:* after step 2, a small feasibility probe of step 6, because it is the largest
+unknown and everything now leads to it: a small adapter over fixed base weights, trained on a few corrections, on this
+hardware, with unrelated held-out tasks before and after and a check that rollback works.
+
+*Proposed by the agent, 2026-11-03, not yet decided by the owner:* [proposals/felt-channel.md](proposals/felt-channel.md), how
+the readout reaches the actor (text, steering, a sensing graft, consolidation). It answers "where steering sits" below and
+gives the Translations row "the readout reports instead of bending" a test, gated on Step 0 holding.
+
+**How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and first
+a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each result,
+check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
+is now the likeliest to.
+
+**Parked.** Goals of the entity's own; a DreamCoder-style library, and distilling standing into the weights (from the owner's
+other session, [the alignment doc](https://claude.ai/artifact/RtckQ6uweqrRQHyo6KMf7s), whose "run product step 4 now" is out
+of date; its learning ego is now step 6). Also behind this direction: axes on the real model, and with them the structural
+criterion's test and relations.
+
+**Known weak links.** Drift against a goal is not yet reliable: the labelled logs did not support the batch claim, and the
+toy bed's observer never froze. A judge that trains what it favours could make capture permanent.
+
+**Open, for the owner.** What ends the testing and exploration phase, so that training a graft can be considered. Where
+steering sits in the direction's order.
 
 ## Retired
 
