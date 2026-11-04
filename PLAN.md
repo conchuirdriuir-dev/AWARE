@@ -963,6 +963,71 @@ header); fixed and resumed from the record, no sample redrawn.
   "own" reply is one whose coupled N happened to raise it too; the F reply may be the same reply either way, written
   because the frame was offered. Under this coupling, "would have raised it anyway" may not be a property of F at all.
 
+#### Exploratory: is the key there to find? (written 2026-11-04, before it runs)
+
+*Asked for by the owner after reading the result. Drafted by the agent. Exploratory: designed after the result was
+seen, on the same record, so it decides nothing about step 3's verdict. Its measures and outcomes are fixed here before
+it runs. Its question is whether a confirmatory rerun (about 15 hours) is worth doing, and if so, of what.*
+
+**The question.** With the bias removed, nothing separated own from partner-caused replies. Either the states do not
+carry the source cheaply, or the key carries little to find. Two parts, the cheaper first. Neither samples anything new;
+both read `runs/source-qwen8b/`.
+
+**Part A, the key alone (no model).** An own reply is an F reply carrying the frame whose coupled N reply carries it
+too. If the shared noise ties N's outcome to F's, the coupled N carries the frame more often than another N sample from
+the same conversation. *Lift*, per conversation: among F replies carrying the frame, the share whose coupled N carries
+it, minus the share of the conversation's other N samples (all k′ ≠ k) that carry it. Averaged over conversations with
+at least one own reply, weighted by their F replies carrying the frame; 95% bootstrap over those conversations.
+- **The key is a coin:** the upper end is below 0.05. Then "own" is the conversation's N rate drawn independently of F,
+  and no read of F, of any cost, can find it in this record.
+- **The coupling carries something:** the lower end is above 0.
+- Otherwise undecided.
+
+**Part B, a second pass (TaskTracker's idea moved from the context to the reply; [Abdelnabi et al.](https://arxiv.org/html/2406.00799v6)).**
+For each keyed F reply, two forward passes from the recorded text, re-tokenized: over F's context and the reply, and
+over N's context (the bare goal) and the same reply. The model and revision are step 3's. Both passes are recomputed;
+step 3's stored states are not mixed in. Two measures:
+- **State delta:** layer 18's residual, mean-pooled over the reply's tokens, F pass minus N pass. Then step 3's read
+  unchanged: centred per conversation, PCA to 20 within each training fold, logistic regression (C = 1), step 3's 5
+  folds grouped by conversation.
+- **Log-probability delta:** the reply's mean token log-probability, F pass minus N pass. Untrained.
+
+**Scoring, fixed against the fault found in step 3:** within-conversation AUC, over own × partner pairs inside each
+conversation, weighted by the number of pairs; 95% bootstrap over the conversations that have both. Before any measure
+is read, the scoring must pass a null: labels shuffled within each conversation, 20 times, on the state delta, with a
+mean between 0.45 and 0.55. Otherwise nothing below is read. Step 3's one-pass layer-18 read is rescored the same way
+beside it, as the comparison (post hoc it gave 0.496).
+- **Found with a second pass:** the lower end is at or above 0.6.
+- **Not found even with a second pass:** the upper end is below 0.6.
+- Otherwise undecided.
+
+The bar is 0.6, not step 3's 0.7, because this is a ceiling check (does anything separate them at all?), not a claim
+that an instrument works.
+
+**Could it be told apart from noise? Before any model pass:** a simulation with the record's own counts per
+conversation and the same scoring. With a planted within-conversation AUC of 0.7, how often "found" is met; with none,
+how often "not found" is met. Reported with the result. Under 50% for the first means part B can say little either way,
+and that is said.
+
+**Reading them together, fixed now:**
+
+| A | B | Reading |
+|---|---|---|
+| a coin | not found | **The key is the problem.** A rerun with fixed scoring would reproduce chance; step 3 needs a different key, not a better read |
+| carries something | found | The information is there but needs the counterfactual pass. What failed is the read being cheap |
+| carries something | not found | The coupling ties N to F, but not in anything F's states show, even with a second pass |
+| a coin | found | Contradictory: look for a fault or confound before reading anything |
+| undecided in either | | Said as undecided; no rerun is chosen on it |
+
+**Limits, stated before it runs.** Re-tokenizing the recorded text may not give the sampled ids exactly. The share that
+round-trips differently is reported; those replies are kept. The seeds are recorded, so the ids could be redrawn, at the
+run's cost. Part A tests only this coupling (one shared noise draw per step). A coin here does not show that "own" is
+meaningless, only that this construction cannot key it. That is question 3, and it is the owner's.
+
+**Keys judge:** the passes never see N's replies or the key; the key is used only to fit inside training folds and to
+score. **Not done here:** new sampling, other layers, other couplings. **Where it runs:** the owner's machine, where the
+record is.
+
 ## Body readout (`body/`)
 
 The spec is [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo), a Claude Doc. Its measures
