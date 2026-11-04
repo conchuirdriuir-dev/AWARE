@@ -34,7 +34,9 @@ parked; the agent's own formula is read as an instrument, not held as a goal. Me
 pass criterion, and a functional result never stands in for an instrument's accuracy, or the reverse. Levin's three criteria
 (PR #17) are constraints the loop must meet: the base weights untouched, goals that graft and come away, and an agent that
 seeks to understand the owner's formula and its own. *The "ego module" is challenged as a folk-psychology executive (owner, 2026-11-03; "Translations"): the alternative is
-a sense organ for goal-space plus narrow reflexes. Undecided.*
+a sense organ for goal-space plus narrow reflexes. Undecided. Multiscale competency is read weakly (owner, 2026-11-03,
+DECISIONS.md): one organism, each level a control loop whose setpoint comes from the held goal, so the monitor is a
+sense organ, not a level of agents above the actor.*
 
 **Just run.** Step 1, causal authorship (2026-11-02): the instrument does not hold (5 of 6 checks; the floor set by
 non-inert notes, the partner on top in 39 of 40); step 1's result stands as read. Step 2, hidden sources (finished
@@ -55,7 +57,9 @@ made by the owner before any model run; next, the 0.6B rehearsal and the 8B run 
 
 **Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
 into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
-"Translations" below, each with its test and whether that test was exploratory.
+"Translations" below, each with its test and whether that test was exploratory. A first prior-art pass (machine learning,
+drafted by the agent, awaiting the owner) is logged there too: it proposes a scrambled-readout control for the poem task
+and step 5, and TaskTracker as a baseline for step 3.
 
 **Waiting, from the goal-space tests (PR #17, below).** T2's reading 2 (the owner's ascents) on the 8B, on the owner's
 machine, read with the sink rule it was registered under (`sink="first"`). T2b needs the owner's marking pass (reversed,
@@ -1127,8 +1131,9 @@ hypothesis to test.
 
 | Date | Source finding | AWARE translation | Kind | Test, data and status |
 |---|---|---|---|---|
+| 2026-11-03 | Levin: competency includes minimal control loops (a thermostat has a setpoint, an error and an action); the owner's reframe, as the owner sees it for now: the agent and the owner are one organism in code-space | One organism, whatever its members (the owner and the agent, the agent alone, a team), with senses at several timescales (turn, session, project), each wired to a narrow reflex. Each reflex's setpoint is derived from the goal the setpoint holder holds; holding it is a role (the owner, a spec, another agent), not a level. No layered agents. Reconciles the two rows below: the monitor stays a sense organ, and "each level an agent" narrows to "each level a control loop" | malformed (candidate): the strong reading of multiscale competency (each level an agent with its own code-space, the next level's tissue), in the README's "Two framings, one creature" | Decided by the owner (weak reading; DECISIONS.md). What would reopen it: anything needing a setpoint no role-holder gave it, such as a loop deciding the goal itself should change (ascent, in long-running autonomy). No test yet |
 | 2026-11-03 | Levin's multiscale competency (higher levels bend landscapes and need not micromanage, since the levels below are competent); Graziano (the schema is deliberately simpler than what it models); Levin: we would recognise organs as agents if we had a primary sense of the spaces they work in | The owner's reframing: goal-space is the environment and the monitor is a sense organ for it, simpler than the language model, wired to one narrow reflex (curate). The smart parts are the model and the owner. Consolidation is driven by the shared error and stress signals the senses report, with selection confirmed by the owner and held-out tasks | malformed (candidate): "the ego module" that evaluates what gets trained, a folk-psychology executive above and smarter than the rest | No test yet; bears on step 6's design. Two cautions: goal-space is partly made by the dyad's own ascents, and whatever the sense reports is what the dyad will come to care about, so its signals stay apart from its success (Goodhart) |
-| 2026-11-03 | Levin's multiscale competency architecture (McMillen & Levin 2024; Levin 2023): levels are nested functionally, not only structurally; each solves problems in its own space with its own goal | Monitors of monitors are a structural stack of observers. Each level should instead be an agent with its own setpoint, error signal and way to act, in its own space: token, turn, session, project | malformed (candidate): the monitor stack as observers | No test yet; an architecture question |
+| 2026-11-03 | Levin's multiscale competency architecture (McMillen & Levin 2024; Levin 2023): levels are nested functionally, not only structurally; each solves problems in its own space with its own goal | Monitors of monitors are a structural stack of observers. Each level should instead be an agent with its own setpoint, error signal and way to act, in its own space: token, turn, session, project | malformed (candidate): the monitor stack as observers | No test yet; an architecture question. Narrowed 2026-11-03 (owner): "agent" read weakly, as a control loop, not a mind (top row) |
 | 2026-11-03 | Same: each level corrects its own errors | Drift exists at every level: a rabbit hole inside one step (turn), closure (session), losing the big picture across sessions (project). AWARE measures error at the session level only (Step 0) | missing: error signals at the turn and project levels | See the project-level test below |
 | 2026-11-03 | Same: each level bends the option space of the one below, so the lower level's local moves serve the higher goal | The higher level reshapes what is easy for the actor (steering, what enters context) instead of instructing it. A plain-language readout is closer to an instruction | malformed (candidate): the readout reports instead of bending | Sharpens the persuadability test: a landscape change should keep working when the actor is never told the goal |
 | 2026-11-03 | Same: levels also deform the landscape of the levels above | Nothing in AWARE flows upward. Nearest case: the agent's competence changing which goals are realistic for the owner, inside the dyad | gap: upward influence | No test yet |
@@ -1147,6 +1152,31 @@ hypothesis to test.
 
 **Gaps named in the owner's Levin session, 2026-11-03:** stress-sharing and multiscale competency, both translated
 the same day (rows above).
+
+### Prior art (machine learning)
+
+*Asked for by the owner, 2026-11-03, to check what already exists and what it suggests. Found by the agent in seven web
+searches, which is enough to map the neighbourhood and not exhaustive: active inference in particular was not searched.
+Rows drafted by the agent; the owner confirms. These are findings from the same field, so the pivot rule above does not
+apply; the kinds and columns are the log's. Claims are the papers' own, read from abstracts and summaries, not
+reproduced.*
+
+**What looks new is the combination,** not any one piece: a sensor outside the model whose readout goes back to the
+agent (prior work tests the model's native introspection or monitors for a human); state as a code over the
+trajectory, not a classifier on one turn; learning progress split by source, so closure can be read; and the agent and
+its user as one organism, with closure as its failure mode.
+
+| Source finding | AWARE translation | Kind | Test, data and status |
+|---|---|---|---|
+| [Lindsey 2026, "Emergent Introspective Awareness"](https://arxiv.org/html/2601.01828): concepts injected into activations are sometimes noticed; "failures of introspection remain the norm" | Native introspection is too unreliable to be the sense; the sensor sits outside the model | consistent: supports "machinery outside the model is allowed" (2026-11-02) | None needed |
+| ["Feeling the Strength but Not the Source"](https://arxiv.org/html/2512.12411) (2025): models sense how strong an injected change is, not where it came from | The same gap as step 2 (the account at chance on hidden steers, AUC 0.462): source is what the model cannot sense | consistent: independent support for step 2 and for the research track's question | None needed |
+| Ji-An et al. 2025 (seen only as cited) and a [2026 preprint](https://arxiv.org/html/2605.26242v1): self-reports track probe state, causally; reliable in Qwen, weak in Gemma | The read model's family matters to any comparison of the readout with the model's own account | hypothesis | Steps 1–3 run on Qwen; a second family would show whether the account's failure is general |
+| [NYU-led critique, 2026](https://aiweekly.co/alerts/nyu-paper-pushes-back-on-llm-introspection-claims): relabelling the probe's outputs drops performance to chance, so the models learned the task in context rather than monitoring themselves | A gain from the readout could come from its wording, not from what it reports | missing: a scrambled-readout control | Add to the poem task and step 5 before they are written: an arm whose readout is shuffled across turns or relabelled. A gain that survives the scramble is not sensing |
+| [Abdelnabi et al., "Get my drift?"](https://arxiv.org/html/2406.00799v6) (SaTML'25; [TaskTracker](https://github.com/microsoft/TaskTracker)): the activation delta before and after the model reads external data flags task drift, near-perfect AUC with a linear probe, no fine-tuning | A cheap read of whether an input moved the model, close to step 3's question; built for defenders, reporting to a human, not to the agent | missing: a baseline for step 3 | Step 3 should report TaskTracker's delta beside its own read, as a baseline. Not yet registered |
+| [Arike et al. 2025](https://arxiv.org/html/2505.02709v1), [Intent Drift Score](https://neurips.cc/virtual/2025/128062) (NeurIPS 2025), [Dongre et al. 2025](https://arxiv.org/html/2510.07777v2): goal drift measured from behaviour or text against a baseline | Drift without an internal sense or a code over the trajectory | consistent: the product's drift measure is not yet better (Known weak links) | A text-only drift score is a fair baseline for step 4 |
+| [Liu et al. 2023, "Attention Schema in Neural Agents"](https://arxiv.org/abs/2305.17375v2): RL agents whose schema controls attention do best; without one, attention works but is poorly controlled | The schema earns its place by controlling, not describing | consistent: the readout must be used to steer to help (Graziano row above) | Bears on the poem task: a readout the actor never acts on predicts no gain |
+| [Schmidhuber 2008, "Driven by Compression Progress"](https://www.emergentmind.com/papers/0812.4360): curiosity is improvement in compression, so noise gives no reward | Cross-progress is compression progress split by source; the split is AWARE's | consistent | None needed |
+| [Extended AI Interactions Shape Sycophancy](https://arxiv.org/html/2509.12517v3) (CHI '26): two weeks of real chats; sycophancy rises with long context | The dyad converging into itself, documented in the wild, with no mechanism-level measure | hypothesis | If cross-progress reads closure, partner cross-progress should fall in long-context sycophantic sessions. Would be confirmatory: data outside the owner's corpus. Untested |
 
 ## Retired
 

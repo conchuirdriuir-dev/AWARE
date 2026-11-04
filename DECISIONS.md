@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Multiscale competency, weak reading** (owner, for now): the agent and the owner are one organism in
+  code-space; each level is a control loop (setpoint, error, reflex) with its setpoint derived from the held goal, not
+  an agent with its own; holding the goal is a role, not a level. Logged in PLAN.md, "Translations".
 - 2026-11-03: **Translations become a method** (owner): findings from Levin's bioelectricity and neuroscience are
   translated into AWARE by FieldSHIFT's pivot (problem space and timescale, not vocabulary), to find hypotheses and
   missing or malformed elements; each logged in PLAN.md with its test, and tests on the owner's corpus after its
