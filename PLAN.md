@@ -233,8 +233,8 @@ Runs first; then Step 0's owner-label form below, unchanged and without retuning
   onset**, so it ends before the label could see anything: X during the stall is flat by construction and is not
   evidence. At least 3 scored turns, or the event drops out (counted).
 - **Ascent events:** each ascent in Step 0's pool (as defined above). Its window is the 10 scored turns after it, at
-  least 3, or the event drops out (counted), as for closures *(agent's choice, 2026-11-04: the quest's last step ends
-  the episode, so it never has a window)*.
+  least 3, or the event drops out (counted), as for closures *(agent's choice, 2026-11-04, confirmed by the owner the
+  same day: the quest's last step ends the episode, so it never has a window)*.
 - **Controls:** for each event, 10 scored turns in the same episode outside every closure, at least 10 turns from any
   closure's onset and any ascent, nearest in time, never reused. Where the episode has none, the nearest world by seed
   with the same generator settings, by the same rules, reported as cross-episode.
