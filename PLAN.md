@@ -1214,6 +1214,13 @@ reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 
   26,817 chunks with the 8B split across GPU and RAM is slower by more than an order of magnitude, so the run comes
   to about a day. Thinning to every second scored chunk is already registered as allowed if it would exceed a day;
   that is the owner's call.
+- **Where the ascent bias sits** (agent, label-blind, on the rehearsal's checkpoints, 100 placebo draws): pretend ascents
+  whose control is from another session score above it in 0.806 of 855 pairs; within the session, 0.607 with the
+  control before (595) and 0.422 after (550), about 0.52 together. X's rank correlation with position within a session
+  has median 0.03. So the bias is cross-session: in the model's space X's level differs between sessions. The placebo
+  also holds more cross-session pairs than the real readings, since its pretend events take the little room short
+  sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
+  cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
 
 ## Translations (method)
 
