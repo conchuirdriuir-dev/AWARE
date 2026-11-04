@@ -97,7 +97,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 **Open, for the owner.** Whose goal the loop serves in the habitat (CLAUDE.md). What ends the testing and exploration
 phase, so that training a graft can be considered (v0.2's babbling is the first training). Where steering sits (the
 agent's note: v0.2 places it twice, as the channel's residual-stream fallback and as the Steer arm). Spec v0.2's own
-open questions: adaptation cadence, training memory on 24 GB, babbling data volume.
+open questions: adaptation cadence, training memory on 24 GB (worked, awaiting the owner: under "Babbling"), babbling data volume.
 
 **Known weak links.** Drift against a goal is not yet reliable: the labelled logs did not support the batch claim, and the
 toy bed's observer never froze. A judge that trains what it favours could make capture permanent. The 8B floor's 95th
@@ -331,6 +331,51 @@ section left it open:
 - The planted rule change is the harness's, not the engine's: the world's text changes before its mechanics do.
 - Labels come from the engine, so they mark looping in the game, not the owner's sense of closure; where both exist,
   their agreement is a separate check (spec v0.2).
+
+### Babbling (v0.2 Step 2): training memory on 24 GB
+
+*Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
+assumed: `probes/lora_memory.py` on the owner's RTX 4060 (8 GB), on Qwen3-8B's own architecture in bf16 truncated to 2
+and 4 of its 36 layers, so that the 8B's per-token costs fit the small card. No pass criterion; this decides how
+babbling can be built, not whether it works.*
+
+**The setup measured.** LoRA rank 16 on q, k, v, o, gate, up and down in every layer (43.6M parameters on the full
+model), base frozen, gradient checkpointing per layer, SDPA attention, AdamW on the graft only, the language-modelling
+loss's logits computed only on the scored positions (64 in the probe). Random tokens; the k = 2 sense tokens and the
+small prediction heads are left out, as negligible.
+
+**What it found.**
+- Each layer stores its input per token, 8 KiB in bf16 (measured: 2 → 4 layers adds 16 KiB a token), so 288 KiB a
+  token over 36 layers.
+- One layer's recompute in the backward pass adds about 249 KiB a token whatever the depth, with the LoRA product
+  computed in bf16 from fp32 master weights; 369 KiB with the product in fp32. So bf16 compute is the setting.
+- Fixed: the bf16 base 15.26 GiB (the truncated loads extrapolate exactly: 2.32 for embeddings and head plus 0.359 a
+  layer); the graft with its gradients and Adam state about 0.65 GiB; the CUDA context about 0.5 GiB; the allocator
+  reserves about 7% above what is allocated.
+- The 4-bit (NF4) base loads at 5.83 GiB (measured on the full 8B; embeddings and head stay bf16). The 4060 cannot hold
+  its activations, so its rows below use the same per-token costs, which do not depend on the weights' format.
+- The 0.6B dry run's 100-turn episodes come to 2.5k–7.4k tokens with the 8B's tokenizer (opening about 550 tokens,
+  10–58 a turn); the 8B's episodes are measured on calibration.
+
+| Training sequence | bf16 base, estimated peak | NF4 base, estimated peak |
+|---|---|---|
+| 4k tokens | ≈ 20.1 GiB | ≈ 10.0 GiB |
+| 8k tokens | ≈ 22.3 GiB: fits, about 1.5 GiB spare | ≈ 12.2 GiB |
+| 10k tokens | ≈ 23.5 GiB: at the edge | ≈ 13.4 GiB |
+| 16k tokens (the actor's context) | ≈ 26.8 GiB: does not fit | ≈ 16.7 GiB |
+
+(Peak = (weights + 0.65 + 0.524 GiB per 1k tokens + 0.3 for the loss, chunked) × 1.07 + 0.5. Less about 0.4 GiB if
+the 3090 also drives a display.)
+
+**The agent's reading, for the owner.** The bf16 base trains whole episodes up to about 8k tokens. Longer ones need one
+of: training on windows of at most 8k tokens; moving the stored checkpoints to CPU memory (`torch.autograd.graph.save_on_cpu`),
+which removes the 288 KiB a token at the cost of PCIe traffic and would bring 16k to about 22 GiB (estimated, not
+measured); or the NF4 base, which fits 16k easily. The NF4 base trains the graft against a base it is not used with:
+the senses are read on bf16 with the graft off, but the babbling gate and the Felt arms run base plus graft, so they
+would either run on NF4 too or carry a train–use mismatch. The agent's suggestion: bf16 base, bf16 LoRA compute,
+whole episodes up to 8k, checkpoints to CPU above that, and NF4 only if offloading proves too slow. Two further
+facts to read on the calibration run: the 8B's episode lengths in tokens, and whether the loss is taken on the
+actor's own tokens only (the action tokens are about a tenth of an episode).
 
 ### Step 0: does cross-progress read the agent's closures? (instrument)
 
