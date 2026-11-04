@@ -56,8 +56,8 @@ moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](ht
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
-made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with amendments made by
+the owner before any model run (the fifth adds two checks of the scoring, after step 3's fault); next, the 0.6B rehearsal and the 8B run on the owner's machine.
 
 **Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
 into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
@@ -1161,6 +1161,35 @@ on X.
 **Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
 nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
 20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
+
+**Amendment 5, owner, 2026-11-03, before any model run, after step 3's scoring fault:** two checks of the scoring
+itself, reported and deciding nothing. No bar changes; the pass is still on X over all pairs.
+
+1. **Same-session pairs only:** both readings recomputed on the events whose control is from their own session, beside
+   the readings over all pairs. Cross-session controls (12 of the scored events) could move the AUC if X's level
+   differs between sessions.
+2. **Placebo windows:** 200 times, each scored event gets a pretend event in its own session with as many chunks, at a
+   random run outside every departure's span (in a session with no such room, anywhere but the event's own chunks,
+   counted). Its control is matched by the same rules, amendment 3 included, and both readings' AUCs are computed
+   (mean over layers, and the text baseline). No closure or ascent is in a pretend event, so these should sit near
+   0.5; if they do not, the matching itself moves the readings, and the real readings are read against them.
+
+The agent first proposed shuffling event and control within each pair. Before writing code the agent found that this
+centres on 0.5 by symmetry whatever the bias, so it could not fail (step 1's fault). The placebo is the agent's
+correction, inside what the owner approved. Tested on planted sessions, it stays at 0.5 when the matching is fair and
+moves when the controls come from a session whose X runs higher (`tests/test_body.py`).
+
+**Dry run of amendment 5, 2026-11-04: the text space alone, plumbing only (decides nothing)** (`runs/body0-text-null/`,
+not committed; 68 minutes on this machine, all 45 sessions). Both checks run on the real corpus. In the text space:
+
+| | All pairs: events, AUC (90%) | Same-session pairs only | Placebo: mean AUC (5th–95th of 200) |
+|---|---|---|---|
+| Closures | 20, 0.458 (0.355–0.578) | 13, 0.485 (0.385–0.609) | 0.517 (0.438–0.593) |
+| Ascents | 21, 0.732 (0.673–0.819) | 16, 0.730 (0.664–0.828) | 0.495 (0.420–0.588) |
+
+So in the text space the matching does not move the readings, and leaving out cross-session pairs changes little. A
+median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
+the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
 
 ## Translations (method)
 

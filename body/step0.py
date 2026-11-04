@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import functools
 import json
 import math
 import re
@@ -30,12 +31,14 @@ CAP, BURN_SELF, MIN_PARTNER_CHARS, BATCH = 256, 20, 20, 40      # burn-in at the
 TEXT_VOCAB = 40                                               # the text baseline's vocabulary: a session's first 40 chunks
 EVENT_CHUNKS, MIN_EVENT_CHUNKS, GAP_MINUTES = 10, 3, 60
 AUC_BAR, MIN_CLOSURES, MIN_ASCENTS, DRAWS = 0.70, 15, 12, 2000
+PLACEBO_DRAWS = 200                                           # amendment 5: reported, deciding nothing
 ECHO_SHARE, ECHO_GRAMS, ECHO_CHARS = 0.5, 8, 6000                 # amendment 4: a tool result is the agent's own
 D021 = ("S14", "2026-10-12T15:44", "2026-10-12T23:56")        # the spec's Step 1 case, read here as one case only
 SYSTEM_PREFIXES = ("[SYSTEM", "<system-reminder>", "[Artifact comment", "<task-notification>",
                    "This session is being continued from a previous conversation")
 
 
+@functools.lru_cache(maxsize=None)
 def ts(s: str) -> dt.datetime:
     return dt.datetime.fromisoformat(s.replace("Z", "")[:26])
 
@@ -145,7 +148,6 @@ def scored_index(sess: dict) -> list[int]:
 def windows(sessions: dict, deps: list[dict]) -> dict:
     """Closure and ascent windows, and one author-matched control per event (same session, outside every departure's
     span, more than GAP_MINUTES from any departure, nearest in time, never reused)."""
-    gap = dt.timedelta(minutes=GAP_MINUTES)
     events = []
     for d in deps:
         lab = d["label"]
@@ -165,28 +167,42 @@ def windows(sessions: dict, deps: list[dict]) -> dict:
     dropped = [e["id"] + "/" + e["kind"] for e in events if len(e["rows"]) < MIN_EVENT_CHUNKS]
     events = [e for e in events if len(e["rows"]) >= MIN_EVENT_CHUNKS]
 
-    taken = {k: set() for k in sessions}
+    w = match_controls(sessions, deps, events, {k: set() for k in sessions})
+    return {"events": w["events"], "dropped (fewer than 3 chunks)": dropped, "no control": w["no control"],
+            "cross-session controls": w["cross-session controls"]}
 
-    def control_in(key: str, n: int, centre: dt.datetime):
-        """The run of n contiguous scored chunks of session `key` nearest `centre`, outside every departure's span
-        and its gap, not taken; None if there is none."""
-        s = sessions[key]
-        idx = scored_index(s)
-        spans = []
-        for d in deps:
-            if d["ord"] != key:
-                continue
+
+def spans(sessions: dict, deps: list[dict], key: str) -> list[tuple]:
+    """Every departure's span in session `key`, departure to first return, widened by GAP_MINUTES each side."""
+    gap, out = dt.timedelta(minutes=GAP_MINUTES), []
+    for d in deps:
+        if d["ord"] == key:
             a = ts(d["time"])
             b = ts(d["return"]) if d["return"] else a
-            spans.append((a - gap, max(a, b) + gap))
-        ok = [i for i in idx if i not in taken[key]
-              and not any(lo <= ts(s["chunks"][i]["at"]) <= hi for lo, hi in spans)]
-        pos = {i: p for p, i in enumerate(idx)}
-        best = None
-        for start in range(len(ok) - n + 1):
-            run = ok[start:start + n]
-            if pos[run[-1]] - pos[run[0]] != n - 1:          # contiguous among the scored chunks
-                continue
+            out.append((a - gap, max(a, b) + gap))
+    return out
+
+
+def outside(sessions: dict, deps: list[dict], key: str, taken: set) -> list[int]:
+    """Scored chunks of session `key` outside every departure's span and its gap, not taken."""
+    s, sp = sessions[key], spans(sessions, deps, key)
+    return [i for i in scored_index(s) if i not in taken
+            and not any(lo <= ts(s["chunks"][i]["at"]) <= hi for lo, hi in sp)]
+
+
+def runs_of(sessions: dict, key: str, ok: list[int], n: int) -> list[list[int]]:
+    """Every run of n chunks of `ok` contiguous among the session's scored chunks."""
+    pos = {i: p for p, i in enumerate(scored_index(sessions[key]))}
+    return [ok[a:a + n] for a in range(len(ok) - n + 1) if pos[ok[a + n - 1]] - pos[ok[a]] == n - 1]
+
+
+def match_controls(sessions: dict, deps: list[dict], events: list[dict], taken: dict) -> dict:
+    """One author-matched control per event (same session, outside every departure's span, more than GAP_MINUTES from
+    any departure, nearest in time, never reused; else the nearest session in time, amendment 3)."""
+
+    def control_in(key: str, n: int, centre: dt.datetime):
+        s, best = sessions[key], None
+        for run in runs_of(sessions, key, outside(sessions, deps, key, taken[key]), n):
             dist = abs((ts(s["chunks"][run[n // 2]]["at"]) - centre).total_seconds())
             if best is None or dist < best[0]:
                 best = (dist, run)
@@ -217,8 +233,27 @@ def windows(sessions: dict, deps: list[dict]) -> dict:
         else:
             e["control"], e["control_ord"] = run, where
             taken[where].update(run)
-    return {"events": [e for e in events if e["control"] is not None], "dropped (fewer than 3 chunks)": dropped,
-            "no control": no_control, "cross-session controls": cross}
+    return {"events": [e for e in events if e["control"] is not None], "no control": no_control,
+            "cross-session controls": cross}
+
+
+def placebo(sessions: dict, deps: list[dict], events: list[dict], rng) -> list[dict]:
+    """Amendment 5: for each scored event, a pretend event in the same session with as many chunks, at a random run
+    outside every departure's span (in a session with no such room, anywhere but the event's own chunks, counted), its
+    control matched by the same rules. No closure or ascent is in it, so its AUC should sit at 0.5 unless the matching
+    itself moves it."""
+    taken, fake = {k: set() for k in sessions}, []
+    for e in events:
+        n, key, inside = len(e["rows"]), e["ord"], False
+        runs = runs_of(sessions, key, outside(sessions, deps, key, taken[key]), n)
+        if not runs:              # a short session, all departure: anywhere but the event's own chunks, counted
+            ok = [i for i in scored_index(sessions[key]) if i not in taken[key] and i not in set(e["rows"])]
+            runs, inside = runs_of(sessions, key, ok, n), True
+        if runs:
+            run = runs[rng.integers(len(runs))]
+            taken[key].update(run)
+            fake.append({"id": e["id"], "kind": e["kind"], "ord": key, "rows": run, "inside a span": inside})
+    return match_controls(sessions, deps, fake, taken)["events"]
 
 
 def _stat(sessions, e, rows, space, field):
@@ -242,6 +277,35 @@ def reading(sessions: dict, evs: list[dict], spaces: list[int], text_space: int,
     lo, hi = np.percentile(boot, [5, 95])
     return {"n": len(evs), "AUC": float(np.mean(per)), "90% interval": [float(lo), float(hi)],
             "text AUC": a(text_space, allp), "per layer AUC": per}
+
+
+def placebo_null(sessions: dict, deps: list[dict], clo: list[dict], asc: list[dict], spaces: list[int], text: int,
+                 draws: int = PLACEBO_DRAWS) -> dict:
+    """The readings' AUCs, mean over layers, on placebo windows, PLACEBO_DRAWS times; and the text baseline's."""
+    rng, out = np.random.default_rng(5), {"closures": [], "ascents": [], "closures, text": [], "ascents, text": [],
+                                         "n closures": [], "n ascents": [],
+                                         "n closures inside a span": [], "n ascents inside a span": []}
+    for _ in range(draws):
+        fake = placebo(sessions, deps, clo + asc, rng)
+        for name, lower in (("closures", True), ("ascents", False)):
+            evs = [e for e in fake if e["kind"] == name[:-1]]
+            out[f"n {name}"].append(len(evs))
+            out[f"n {name} inside a span"].append(sum(e["inside a span"] for e in evs))
+            if not evs:
+                continue
+            def a(sp):
+                ev = [_stat(sessions, e, e["rows"], sp, "X") for e in evs]
+                ct = [_stat(sessions, e, e["control"], sp, "X") for e in evs]
+                return auc(ct, ev) if lower else auc(ev, ct)
+            out[name].append(float(np.mean([a(sp) for sp in spaces])))
+            out[f"{name}, text"].append(a(text))
+    summary = {"draws": draws}
+    for k, v in out.items():
+        if k.startswith("n "):
+            summary[k + " (median per draw)"] = float(np.median(v)) if v else 0.0
+        elif v:
+            summary[k] = {"mean": float(np.mean(v)), "5th-95th": [float(x) for x in np.percentile(v, [5, 95])]}
+    return summary
 
 
 def score(root: str, sessions: dict, n_layers: int) -> dict:
@@ -316,6 +380,11 @@ def score(root: str, sessions: dict, n_layers: int) -> dict:
             ct = [np.mean([_stat(sessions, e, e["control"], sp, f) for sp in spaces]) for e in clo]
             extra[f"closure AUC with W = {wv}"] = auc(ct, ev)
     reported["coupling, proxies B and C, window variants"] = extra
+    same = lambda evs: [e for e in evs if e.get("control_ord", e["ord"]) == e["ord"]]  # noqa: E731
+    reported["same-session pairs only (amendment 5)"] = {
+        "closures": reading(sessions, same(clo), spaces, text, lower=True, rng=np.random.default_rng(0)),
+        "ascents": reading(sessions, same(asc), spaces, text, lower=False, rng=np.random.default_rng(0))}
+    reported["placebo windows (amendment 5)"] = placebo_null(sessions, deps, clo, asc, spaces, text)
     reported["dropped (fewer than 3 chunks)"] = w["dropped (fewer than 3 chunks)"]
     reported["no control"] = w["no control"]
     reported["cross-session controls"] = w["cross-session controls"]
