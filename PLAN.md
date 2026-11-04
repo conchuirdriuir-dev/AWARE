@@ -46,10 +46,10 @@ direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
 `research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
 cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
-The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-04, under "A cheap read of the
+The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
 source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
-pooled out-of-fold AUC proved biased below chance (the agent's design fault); every unbiased version puts the state
-read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
+pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
+pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
 
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
@@ -75,7 +75,7 @@ kept, ascent) on the candidate list, done blind to every reading; the same marks
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
-| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), but the pooled AUC is biased below chance; unbiased versions are at chance (0.50). The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
+| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
@@ -920,7 +920,7 @@ main case is replies the model wrote itself, where fit cannot separate the two b
   toward 3 of 8; samples 8–23 are not. No bar changed. The run takes about 15 hours, estimated from the dry runs.
 - **The 40 frames frozen** by the owner, as the pilot picked them, broad markers included (2026-11-03).
 
-#### Result (run 2026-11-03 to 04, 40 conversations × 24; record in `runs/source-qwen8b/`; 12.5 hours)
+#### Result (run 2026-11-03, 09:08–21:39, 40 conversations × 24; record in `runs/source-qwen8b/`)
 
 The first scoring crashed on the agent's bug after all sampling was recorded (the pilot comparison read the record's
 header); fixed and resumed from the record, no sample redrawn.
@@ -944,8 +944,9 @@ header); fixed and resumed from the record, no sample redrawn.
 - **By the pre-registered bars:** the read's upper end, 0.457, is below 0.7: **no cheap read here.** The account:
   **holds** (upper 0.589 < 0.75), weak again. The side case: **holds**, with the confound it was registered with (P
   greedy under another context, N sampled at 0.7), so it shows little beyond that.
-- **But the pooled out-of-fold AUC is biased, the agent's design fault** (`python -m research.source_check`, reported,
-  not judged). Every trained measure scores well below 0.5, which a read with no signal cannot do unless the method
+- **But the pooled out-of-fold AUC is biased, the agent's design fault.** What follows was added after the run, on
+  seeing the result; it is not pre-registered, has no bar, and does not replace the verdict above
+  (`python -m research.source_check`). Every trained measure scores well below 0.5, which a read with no signal cannot do unless the method
   pushes it there. The own share differs by fold (0.04–0.27), so each fold's fitted intercept is highest where its own
   test fold has the most own replies; with features centred per conversation, the intercept is most of what is left,
   and pooling scores across folds turns that into an anti-signal. Shuffling the labels within each conversation gives
@@ -954,8 +955,10 @@ header); fixed and resumed from the record, no sample redrawn.
   untrained text features within conversation 0.50–0.54. The planted test missed this because its classes were
   balanced in every conversation. The interval above is therefore not valid as an interval, and the "difference over
   the baseline" is not either.
-- **What it leaves (agent's reading, for the owner):** the verdict's direction stands, and more firmly: no measure,
-  read or baseline, separates own from partner-caused replies once the bias is removed. Why is open: either the states
+- **What it leaves (agent's reading, for the owner):** the verdict is the pre-registered one, "no cheap read here",
+  reached on a biased measure. The post-hoc checks point the same way (no measure separates own from partner-caused
+  replies once the bias is removed) but are exploratory; a confirmatory reading would need the scoring fixed and
+  registered before a fresh run. Why is open: either the states
   do not carry the source cheaply, or the key carries little to find. With F carrying the frame in 94% of replies, an
   "own" reply is one whose coupled N happened to raise it too; the F reply may be the same reply either way, written
   because the frame was offered. Under this coupling, "would have raised it anyway" may not be a property of F at all.
