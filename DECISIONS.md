@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **Step 0 and step 4 paused** (owner): work on the agent–user relationship waits until the
+  architecture matures in the habitat. 20 scorable closures (13 on same-session pairs, under the minimum of 15) are too
+  few to decide. Step 0's pre-registration, amendments and code stand unchanged for a rerun.
 - 2026-11-03: **Body readout Step 0, amendment 5** (owner, before any model run, after step 3's scoring fault): two
   checks of the scoring, reported, deciding nothing: the readings on same-session pairs only, and a placebo null of
   pretend events matched by the same rules. No bar changes.

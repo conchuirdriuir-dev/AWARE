@@ -18,7 +18,7 @@ when its test passes, not when its code exists.
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-03.*
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.*
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
@@ -51,6 +51,13 @@ source" below; record in `runs/source-qwen8b/`): the construction holds; by the 
 pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
 pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
 
+**Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
+the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
+the minimum of 15), too few to decide. Step 0 stands as pre-registered, with its five amendments, the 0.6B rehearsal
+and the cross-session finding; returning is a rerun, not a redesign. Its two open questions (pass on same-session pairs;
+thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is being measured
+(`body/floor_file.py`, `runs/echo-floor-8b-first/`).
+
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
@@ -76,7 +83,7 @@ kept, ascent) on the candidate list, done blind to every reading; the same marks
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
 | 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
-| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
+| 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | **Paused (owner, 2026-11-04)** until the habitat matures |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
 
