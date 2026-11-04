@@ -8,8 +8,11 @@ that: "The agent should function as if it is aware, even without metacognition m
 The entity is a trajectory through a local model's activation space (the base weights never changed;
 anything learned is a removable graft), with an observer riding alongside it: a
 retained low-dimensional code fit to the trajectory, and a model of the trajectory's dynamics in that code. Everything
-the project does is a use of that observer. The design is the Big Picture doc
-([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a Claude Doc; its Entity tab is the parent).
+the project does is a use of that observer. Since 2026-11-04 the picture is the North star in
+[The Semantic Body — Open Threads](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW): the model as its own organism
+(lift, sense, babble, act, dream), built now as [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4).
+The Big Picture doc ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw)) is kept as the
+implementation reference.
 
 Since 2026-11-02 these are one project and one loop, with their measures kept apart ([PLAN.md](PLAN.md)). The two tracks
 as they were built:

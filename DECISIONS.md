@@ -5,6 +5,18 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-11-04: **Step 0 and step 4 paused** (owner): work on the agent–user relationship waits until the
   architecture matures in the habitat. 20 scorable closures (13 on same-session pairs, under the minimum of 15) are too
   few to decide. Step 0's pre-registration, amendments and code stand unchanged for a rerun.
+- 2026-11-04: **The North star is the parent** (owner): the picture is the North star in The Semantic Body — Open
+  Threads, the model as its own organism, five steps (lift, sense, babble, act, dream); the Big Picture doc (v9) is kept
+  as the implementation reference only. CLAUDE.md and PLAN.md point there.
+- 2026-11-04: **Body Readout v0.2 is the current build** (owner): three senses lead (shape, rate by source, boundary as
+  efference copy); position, heading, speed, reach and distance to anchor are logged diagnostics only; the body enters as
+  learned sense tokens; a removable babbling graft; a text-game habitat. v0.1 is kept as the record.
+- 2026-11-04: **Senses are read with the graft off** (owner): by a second forward pass with the graft disabled; its cost
+  is measured when babbling starts.
+- 2026-11-04: **The habitat's chunk is one game turn** (owner): the agent's action plus the world's reply. Turns against
+  reasoning steps stays open for the poem task.
+- 2026-11-04: **The body readout's code stays in `body/`** (owner): its own directory, importing `substrate/` and
+  `goalspace/`; nothing further moves.
 - 2026-11-03: **Body readout Step 0, amendment 5** (owner, before any model run, after step 3's scoring fault): two
   checks of the scoring, reported, deciding nothing: the readings on same-session pairs only, and a placebo null of
   pretend events matched by the same rules. No bar changes.
