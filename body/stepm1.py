@@ -117,6 +117,15 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
     out["floor_check"] = {"repeats": len(below), "below_floor": share, "bar": FLOOR_CHECK,
                           "pass": bool(below) and share >= FLOOR_CHECK}
 
+    # k, from the calibration episodes' resolved stalls; fixed in PLAN.md before Step 0, not used here
+    from body.habitat import choose_k
+
+    flags = [[eps[key]["keys"][t]["new_state"] for t in sorted(eps[key]["keys"])] for key in by_pool["calibration"]]
+    try:
+        out["k"] = {"k": choose_k(flags), "episodes": len(flags)}
+    except ValueError as err:
+        out["k"] = {"k": None, "episodes": len(flags), "why": str(err)}
+
     # 1. self-talk
     st = {}
     for variant, bar in SELF_TALK_BARS.items():

@@ -134,6 +134,7 @@ def test_score_passes_on_a_sense_that_hears_the_world():
     assert out["fires"]["fired"] == 40 and out["fires"]["pass"]
     assert out["above_ordinary"]["auc"] == 1.0 and out["above_ordinary"]["pass"]
     assert out["floor_check"]["pass"] and out["pass"]
+    assert out["k"] == {"k": 10, "episodes": 10}                         # toy stalls of 9 turns between new states
 
 
 def test_score_fails_when_planted_rooms_are_missed_or_self_talk_fires():
