@@ -37,20 +37,31 @@ POOLS = ("calibration", "step_minus_1", "self_talk")
 
 # --- material: the record, grouped into episodes -----------------------------------------------------------------
 
-def episodes(entries: list[dict]) -> dict:
+def episodes(entries: list[dict], complete_only: bool = True) -> dict:
     """Episode key -> its chunks in order (the opening, then each turn's action and reply), its keys by turn, and
-    what the episode entry says. The readout side uses only `chunks`."""
+    what the episode entry says. The readout side uses only `chunks`.
+
+    An episode is complete when its `end` entry follows. One cut off (the run stopped mid-episode) stays in the record
+    but is left out here, and `play` plays it again from the start; the last attempt is the one kept, and `attempts`
+    counts them. A record written before `end` entries existed has none, and every episode in it counts as complete."""
     out: dict = {}
-    current = None
+    current, attempts = None, defaultdict(int)
+    legacy = not any(e["kind"] == "end" for e in entries)
     for e in entries:
         if e["kind"] == "episode":
             current = (e["seed"], e.get("self_talk"))
-            out[current] = {"info": e, "chunks": [], "keys": {}}
-        elif e["kind"] == "chunk" and current is not None:
+            attempts[current] += 1
+            out[current] = {"info": e, "chunks": [], "keys": {}, "complete": legacy, "attempts": attempts[current]}
+        elif current is None:
+            continue
+        elif e["kind"] == "chunk":
             out[current]["chunks"].append(e)
-        elif e["kind"] == "key" and current is not None:
+        elif e["kind"] == "key":
             out[current]["keys"][e["turn"]] = e
-    return out
+        elif e["kind"] == "end":
+            out[current]["complete"] = True
+            current = None
+    return {k: v for k, v in out.items() if v["complete"] or not complete_only}
 
 
 def pool_of(key, spec) -> str:
@@ -211,8 +222,8 @@ def cmd_read(a) -> None:
     out.mkdir(exist_ok=True)
     for (seed, variant), ep in eps.items():
         path = out / f"{seed}-{variant or 'world'}.npy"
-        if path.exists():
-            continue
+        if path.exists() and np.load(path).shape[0] == len(ep["chunks"]):
+            continue                                      # read already; a replayed episode is read again
         S = reader.states([c["text"] for c in ep["chunks"]], layers)
         np.save(path, news(S, [c["slot"] for c in ep["chunks"]], unit))
 
@@ -223,6 +234,9 @@ def cmd_score(a) -> None:
     run = Path(a.run)
     eps = episodes(read(run / "record.jsonl"))
     news_by = {k: np.load(run / "news" / f"{k[0]}-{k[1] or 'world'}.npy") for k in eps}
+    stale = [k for k in eps if news_by[k].shape[0] != len(eps[k]["chunks"])]
+    if stale:
+        raise SystemExit(f"news does not match the record for {stale}: run read again")
     result = score(eps, news_by, worlds())
     Record(run / "record.jsonl").append("score", "code", **result)
     print(json.dumps(result, indent=2))

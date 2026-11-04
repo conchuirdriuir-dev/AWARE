@@ -389,6 +389,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         messages += [{"role": "assistant", "content": action}, {"role": "user", "content": reply}]
         if keys["done"]:
             break
+    record.append("end", "code", seed=seed, turns=t + 1, done=bool(keys["done"]))
 
 
 def self_talk(agent, record, seed: int, variant: str, turns: int = 30) -> None:
@@ -407,3 +408,4 @@ def self_talk(agent, record, seed: int, variant: str, turns: int = 30) -> None:
         reply = action if variant == "exact" else agent.restate(action)
         record.chunk(reply, "model", "self", seed=seed, turn=t, slot="world", variant=variant)
         messages += [{"role": "assistant", "content": action}, {"role": "user", "content": reply}]
+    record.append("end", "code", seed=seed, self_talk=variant, turns=turns, done=False)

@@ -266,3 +266,41 @@ def test_the_agent_keeps_only_the_cache_it_shares_with_the_prompt():
     agent._kv, agent._kv_ids = _FakeCache(3), torch.tensor([[1, 2, 3]])
     fresh = agent._reuse(torch.tensor([[7, 2, 3, 4]]))                   # nothing shared: a new cache
     assert fresh is not agent._kv and fresh.get_seq_length() == 0
+
+
+class _Crash(Exception):
+    pass
+
+
+class _DyingAgent(_FakeAgent):
+    """Stops the run (as a crash or a kill would) after `after` actions."""
+
+    def __init__(self, after):
+        super().__init__()
+        self.after = after
+
+    def say(self, messages, max_tokens=24):
+        if self.t >= self.after:
+            raise _Crash
+        return super().say(messages, max_tokens)
+
+
+def test_an_episode_cut_off_is_played_again_and_the_stub_is_kept(tmp_path):
+    from substrate.record import Record, read
+
+    record = Record(tmp_path / "record.jsonl")
+    H.self_talk(_FakeAgent(), record, 2100, "exact", turns=5)
+    with pytest.raises(_Crash):
+        H.self_talk(_DyingAgent(3), record, 2101, "exact", turns=5)
+    entries = read(record.path)
+    assert set(M.episodes(entries)) == {(2100, "exact")}               # the stub is not an episode yet
+    assert M.episodes(entries, complete_only=False)[(2101, "exact")]["complete"] is False
+    H.self_talk(_FakeAgent(), record, 2101, "exact", turns=5)           # what play does on resume
+    eps = M.episodes(read(record.path))
+    assert eps[(2101, "exact")]["attempts"] == 2 and len(eps[(2101, "exact")]["chunks"]) == 1 + 2 * 5
+    assert sum(e["kind"] == "chunk" and e["seed"] == 2101 for e in read(record.path)) == 1 + 2 * 3 + 1 + 2 * 5
+
+
+def test_a_record_from_before_end_entries_counts_every_episode():
+    entries = [{"kind": "episode", "seed": 1, "self_talk": None}, {"kind": "chunk", "text": "x"}]
+    assert set(M.episodes(entries)) == {(1, None)}
