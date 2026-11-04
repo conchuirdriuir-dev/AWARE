@@ -207,3 +207,14 @@ def test_play_appends_turns_and_plants(tmp_path):
     assert sum(k["planted_here"] for k in rule["keys"].values()) <= 1
     assert all(c["provenance"] == "self" and c["by"] == "model" for c in talk["chunks"][1:])
     assert {c["slot"] for c in talk["chunks"][1:]} == {"self", "world"}
+
+
+def test_the_8b_floor_file_covers_reads_layers():
+    import json
+    import math
+    from pathlib import Path
+
+    floor = json.loads((Path(__file__).resolve().parent.parent / "material" / "echo_floor_8b.json").read_text())
+    n = 36                                                               # Qwen3-8B's layers
+    assert sorted(map(int, floor)) == list(range(math.ceil(2 * n / 3), n))
+    assert all(0 < v < 1 for v in floor.values())                        # in units of D, under D

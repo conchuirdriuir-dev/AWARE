@@ -29,7 +29,8 @@ habitat of procedurally generated text games (TextWorld first), with the user on
 transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
 through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
 habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested
-(`body/stepm1.py`); next, the 0.6B dry run on the owner's machine, then calibration and k. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+(`body/stepm1.py`), and the 8B floor it reads is measured (PR #29); next, the 0.6B dry run on the owner's machine,
+then calibration and k. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -1401,9 +1402,16 @@ sees only what a player would.
 #### Runs
 
 1. A dry run on Qwen3-0.6B, 3 worlds per pool and 2 self-talk episodes: plumbing and the planted room's feasibility,
-   deciding nothing.
+   deciding nothing. Its floor is the 0.6B's own, made by `body/floor_file.py` with the same settings (the 8B file
+   covers layers 24–35; the 0.6B reads 19–27):
+   `python -m body.floor_file --model Qwen/Qwen3-0.6B --corpus .../dara-session-transcripts --run runs/echo-floor-06-first --draft`,
+   then for each pool `python -m body.stepm1 play --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --pool calibration --limit 3`
+   (and `step_minus_1`, `self_talk`), then `read --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --floor runs/echo-floor-06-first/floor.json --draft`
+   and `score --run runs/stepm1-06`.
 2. Calibration, then k fixed here.
-3. Step −1 on Qwen3-8B on the owner's machine. That run is the result.
+3. Step −1 on Qwen3-8B on the owner's machine, read against `material/echo_floor_8b.json` (PR #29). That run is the
+   result. The floor's 95th percentile of repeats rests on about three chunks; the floor's habitat check, scored first,
+   is where that gets tested on many repeats.
 4. Step 0, habitat form, if Step −1 passes.
 
 #### Note, 2026-11-04, written with the code, before any run
@@ -1427,8 +1435,8 @@ section left it open:
   the readout reads the slot.
 - **News** compares each reply with every earlier part of the episode, the opening and this turn's action included;
   the opening itself is not scored. States are read with Step 0's sink rule ("first"). The echo floor comes in as a
-  file of per-layer floors in units of D, from the 8B measurement; D is measured in the same run on the paraphrase
-  sets.
+  file of per-layer floors in units of D (`material/echo_floor_8b.json`, measured with the same sink rule and sets,
+  PR #29); D is measured in the same run on the paraphrase sets.
 - **Not yet known:** throughput on the 3090, and whether TextWorld installs on the owner's machine (Linux, macOS or
   WSL); both are read on the dry run.
 

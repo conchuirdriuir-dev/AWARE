@@ -6,11 +6,14 @@ recorded text alone, with no graft, and checkpoints them; `score` alone reads th
     python -m body.stepm1 play --model Qwen/Qwen3-8B --run runs/stepm1-8b --pool calibration
     python -m body.stepm1 play --model Qwen/Qwen3-8B --run runs/stepm1-8b --pool step_minus_1
     python -m body.stepm1 play --model Qwen/Qwen3-8B --run runs/stepm1-8b --pool self_talk
-    python -m body.stepm1 read --model Qwen/Qwen3-8B --run runs/stepm1-8b --floor FLOOR.json
+    python -m body.stepm1 read --model Qwen/Qwen3-8B --run runs/stepm1-8b
     python -m body.stepm1 score --run runs/stepm1-8b
 
-FLOOR.json holds the echo floor measured on Qwen3-8B, per layer, in units of D: {"28": 0.31, ...}. D is measured on
-the paraphrase sets in the same run, as Step 0 does. A dry run passes --limit to play a few worlds of each pool.
+The floor file holds the echo floor per layer of the last third, in units of D, measured with `read`'s own settings by
+`body/floor_file.py`; for Qwen3-8B it is `material/echo_floor_8b.json` (the default). Another model needs its own:
+the 0.6B dry run makes one with `python -m body.floor_file --model Qwen/Qwen3-0.6B ...` and passes it as --floor. D is
+measured on the paraphrase sets in the same run, as Step 0 does. A dry run passes --limit to play a few worlds of each
+pool.
 """
 from __future__ import annotations
 
@@ -237,7 +240,7 @@ def main(argv=None) -> None:
             s.add_argument("--pool", choices=POOLS, required=True)
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
         if name == "read":
-            s.add_argument("--floor", required=True)
+            s.add_argument("--floor", default="material/echo_floor_8b.json")
             s.add_argument("--sets", default="material/paraphrases.jsonl")
             s.add_argument("--gpu-memory", type=float)
             s.add_argument("--draft", action="store_true")
