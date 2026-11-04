@@ -30,22 +30,23 @@ transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (
 through self-talk and fires at every planted novelty. Its bars, k for closure, and the world-seed splits go here before
 its code. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
-**Open, for the owner (from a coherence review of the three docs, 2026-11-04).**
-1. Boundary and the graft. Dreaming says senses are never retrained, but v0.2 has babbling's forward model, which is in
-   the graft, replace boundary's linear predictor. Either boundary keeps a predictor frozen outside the graft, or the
-   invariant excludes it.
-2. Chunk and source. A habitat chunk is the agent's action plus the world's reply, but rate and boundary are split by
-   source chunk; whether the world's reply counts as partner or tool is unstated. Step 0's pass rests on the partner
-   part of rate.
-3. Step 0 in the habitat. Its pass is worded around the owner's first return and author-matched controls, which a game
-   lacks; it needs a habitat form fixed here before it runs there.
-4. Lift. No component is named as North star step 1; `goalspace/formula.py`'s prequential code plays that part in v0.2.
-5. The goal code. Where the habitat's goal code comes from (the game, the owner, the organism) is unstated; v0.2 defers
-   Act, and the 2026-11-02 loop made the user's goal the standard.
-6. The research track. Causal authorship (step 3 below), discovering its own axes and retained axes have no place in
-   the North star; the Big Picture banner neither keeps nor drops them.
-7. Measures kept apart in the habitat. The closure and ascent labels and the habitat behaviour score both come from the
-   engine's state; why they stay separate should be stated.
+**Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
+1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
+   nightly dream grafts never retrain it.
+2. Chunk and source: time steps by game turn, each turn read as the action (self) and the reply (world); in the habitat
+   the world fills the partner slot and the tool slot is empty.
+3. Step 0 in the habitat: tests the lead. The world part of rate is flat in a window ending when the stall begins more
+   often than in matched ordinary stretches from the same world; over ascents, not flat. Then the owner's labels,
+   without retuning. Its numbers (window, matching, bar) go here before its code.
+4. Lift: `goalspace/formula.py`'s prequential code is Lift version 0; a trained encoder replaces it only if a
+   measurement earns it.
+5. The goal code: always stated by the environment (the game's quest text, the user's stated aim), lifted by the same
+   code; self-set goals stay parked. Built at step 4.
+6. The research track parks: step 3 (causal authorship) ran to completion, with its result and scoring fault recorded
+   (PR #25, "A cheap read of the source" below). Nothing further runs on the track. The rule on retained and structural
+   axes is unchanged.
+7. Measures kept apart: habitat behaviour is scored on task success only (game score, quest completion); new states per
+   step and loops escaped are the closure label's own quantities and are not scored; labels never reach an arm.
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
@@ -76,7 +77,7 @@ cannot pass with 8 samples a conversation (at most 51 own replies against 60); t
 The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
 source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
 pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
-pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
+pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Read by the owner 2026-11-04: the track parks (decision 6 above).
 
 **Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
 the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under

@@ -5,6 +5,20 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-11-04: **Step 0 and step 4 paused** (owner): work on the agent–user relationship waits until the
   architecture matures in the habitat. 20 scorable closures (13 on same-session pairs, under the minimum of 15) are too
   few to decide. Step 0's pre-registration, amendments and code stand unchanged for a rerun.
+- 2026-11-04: **Boundary's forward model is frozen after babbling** (owner): held as its own graft, read by boundary;
+  nightly dream grafts never retrain it.
+- 2026-11-04: **In the habitat the world fills the partner slot** (owner): each turn read as action (self) and reply
+  (world); the tool slot is empty there; the six senses are unchanged.
+- 2026-11-04: **Step 0's habitat form tests the lead** (owner): the world part of rate flat in a window ending when the
+  stall begins, against matched ordinary stretches from the same world; then the owner's labels without retuning.
+- 2026-11-04: **Lift version 0 is `goalspace/formula.py`'s prequential code** (owner); an encoder replaces it only if a
+  measurement earns it.
+- 2026-11-04: **The goal setpoint is stated by the environment** (owner): the game's quest text, the user's stated aim;
+  self-set goals stay parked. Built at step 4.
+- 2026-11-04: **The research track parks** (owner): step 3 ran to completion, with its result and scoring fault recorded
+  (PR #25); nothing further runs on the track. The rule on retained and structural axes is unchanged.
+- 2026-11-04: **Habitat behaviour is scored on task success only** (owner): game score and quest completion; the closure
+  label's own quantities are not scored, and labels never reach an arm.
 - 2026-11-04: **The North star is the parent** (owner): the picture is the North star in The Semantic Body — Open
   Threads, the model as its own organism, five steps (lift, sense, babble, act, dream); the Big Picture doc (v9) is kept
   as the implementation reference only. CLAUDE.md and PLAN.md point there.
