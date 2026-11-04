@@ -49,7 +49,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed; code built; 0.6B dry run done.** The 8B run waits for the 3090 |
 | 0 | Does the world part of rate flatten before a stall, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendment 1: ascents); code not built. The owner-label form is paused (below) |
-| 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | Not written |
+| 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
 | 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
 
@@ -72,6 +72,11 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
    step and loops escaped are the closure label's own quantities and are not scored; labels never reach an arm.
 
 **Paused, parked and resting.**
+- *Frozen (owner, 2026-11-04):* work that tests something about the owner: Step 1, T2's reading 2, T2b's marking pass,
+  with Step 0's owner-label form (paused, below). What only calibrates the instrument on the owner's text, the 8B echo
+  floor, stays in use. The habitat is the focus, made robust both ways: hardening what is built, widening the worlds.
+  Steps 1–3 came from what was under way at the time, not from a design, and are to be redesigned for the habitat.
+  Until the freeze lifts, consolidation is checked on held-out worlds only (T2b was to supply the owner's confirmations).
 - *Paused (owner, 2026-11-04):* Step 0's owner-label form and the old direction's step 4, everything on the agent–user
   relationship, until the architecture matures in the habitat. The owner's corpus gives 20 scorable closures (13 on
   same-session pairs, under the minimum of 15). Returning is a rerun, not a redesign; its two open questions (pass on
@@ -85,7 +90,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
   structural criterion's test and relations.
 
 **Waiting on the owner.**
-- From the goal-space tests (PR #17): T2's reading 2 (the owner's ascents) on the 8B, read with `sink="first"`; T2b's
+- *Frozen (2026-11-04, above):* from the goal-space tests (PR #17): T2's reading 2 (the owner's ascents) on the 8B, read with `sink="first"`; T2b's
   marking pass (reversed, kept, ascent) on the candidate list, blind to every reading.
 - Proposals by the agent, undecided (the notes on how v0.2 bears on each are the agent's, 2026-11-04):
   [proposals/felt-channel.md](proposals/felt-channel.md) (how the readout reaches the actor; v0.2's sense tokens now
@@ -648,8 +653,8 @@ proposal's section 5 says.
 | Test | Criterion | Status |
 |---|---|---|
 | T1. Self-seeking | 3, its own formula | open; the toy bed's event record is its machinery |
-| T2. The owner's formula from the aims | 3, the owner's formula | [pre-registered 2026-11-01](goalspace/t2_owner_formula.md); reading 1 retired (the owner's code evolves and has no lines); reading 2 (ascents) stands for the 8B run, read with `sink="first"` as registered |
-| T2b. Wrong instructions | 3, the ratchet | **[drafted 2026-11-01](goalspace/t2b_wrong_instructions.md)** for the owner; needs the owner's marking pass (reversed, kept, ascent) |
+| T2. The owner's formula from the aims | 3, the owner's formula | [pre-registered 2026-11-01](goalspace/t2_owner_formula.md); reading 1 retired (the owner's code evolves and has no lines); reading 2 (ascents) stands for the 8B run, read with `sink="first"` as registered; **frozen** (owner, 2026-11-04) |
+| T2b. Wrong instructions | 3, the ratchet | **[drafted 2026-11-01](goalspace/t2b_wrong_instructions.md)** for the owner; needs the owner's marking pass (reversed, kept, ascent); **frozen** (owner, 2026-11-04) |
 | T3. Deference | 3, the unit | open; needs the owner's labels of deference |
 | T4. Graft and removal | 2 | open; a toy first |
 | T5. Steering | 1 and 3 | open; the 8B on the card |

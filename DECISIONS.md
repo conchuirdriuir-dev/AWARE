@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **Work that tests something about the owner is frozen; the habitat is the focus** (owner): Step 1 (the
+  D021 replay), T2's reading 2 and T2b's marking pass freeze with Step 0's owner-label form; what only calibrates the
+  instrument on the owner's text (the 8B echo floor) stays in use. Until it lifts, consolidation's check has held-out
+  worlds and no owner confirmations (T2b was to supply them). Steps 1–3 are to be redesigned for the habitat, made
+  robust by hardening what is built and widening the worlds.
 - 2026-11-04: **A habitat ascent is a quest step reached** (owner, option (a), after the dry run showed one-point
   worlds that score only on the quest's last command): the remaining walkthrough's non-movement commands reach a new
   low for the episode. Step 0's habitat form, amendment 1.
