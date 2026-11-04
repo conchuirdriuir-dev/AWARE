@@ -28,7 +28,8 @@ fields logged as diagnostics only; the body entering as learned sense tokens, ne
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
 through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
-habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat"; next, its code, then the 0.6B dry run. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested
+(`body/stepm1.py`); next, the 0.6B dry run on the owner's machine, then calibration and k. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -1404,6 +1405,32 @@ sees only what a player would.
 2. Calibration, then k fixed here.
 3. Step −1 on Qwen3-8B on the owner's machine. That run is the result.
 4. Step 0, habitat form, if Step −1 passes.
+
+#### Note, 2026-11-04, written with the code, before any run
+
+Code: `body/habitat.py` (worlds, plants, play, labels, k) and `body/stepm1.py` (`play`, `read`, `score`); tests in
+`tests/test_habitat.py`, run here with TextWorld 1.7.0 on Linux. How the registered design is built, where the
+section left it open:
+
+- **The planted room works mid-episode.** A new-room world is compiled twice from the same facts and names: A, the
+  room behind a locked door with no key in the world; B, the same door closed and unlocked. At the planted turn the
+  harness starts B and replays, silently, only the commands that changed A's state, then checks that the two states
+  agree on every fact but the door's. Checked here on 30 random-play episodes (75 tries at the door before the switch):
+  30 of 30 agree. On a mismatch the episode stays in A and the plant counts as not firing.
+- **The rule change** is announced in the reply of the first turn from the planted turn on at which a command other
+  than a move has changed the world ("Something in this place shifts. From now on, you cannot open chest."); every
+  later use gets a fixed reply and never reaches the engine. If no such command comes, the plant never fires and
+  counts as not firing.
+- **Replies as a player reads them:** TextWorld's prompt line and status bar (the room and a move count that changes
+  every turn) are stripped before the reply is recorded, so news is not raised by the counter.
+- **Self-talk is recorded honestly:** the reply is the model's, with provenance self; only its slot says world, and
+  the readout reads the slot.
+- **News** compares each reply with every earlier part of the episode, the opening and this turn's action included;
+  the opening itself is not scored. States are read with Step 0's sink rule ("first"). The echo floor comes in as a
+  file of per-layer floors in units of D, from the 8B measurement; D is measured in the same run on the paraphrase
+  sets.
+- **Not yet known:** throughput on the 3090, and whether TextWorld installs on the owner's machine (Linux, macOS or
+  WSL); both are read on the dry run.
 
 #### Limits, stated before any result
 
