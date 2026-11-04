@@ -44,16 +44,20 @@ non-inert notes, the partner on top in 39 of 40); step 1's result stands as read
 (AUC 0.648, upper 0.7495 against 0.75); injection was not run, since no calibration setting made a reply carry its
 direction. Step 2's second wording also holds, more clearly (AUC 0.462, upper 0.584): the account is at chance on hidden
 steers and tracks the visible line. Step 3 is reshaped (owner, 2026-11-03) and pre-registered under "A cheap read of the source", code in
-`research/source_read.py`; after its dry run, the owner amended the form; now the pilot that picks each goal's frame (`runs/source-pilot`), a second dry run, then the owner freezes the 40 frames, then the run (about 5–6 hours,
-estimated).
+`research/source_read.py`; after its dry run, the owner amended the form. The pilot picked each goal's frame and the second dry run passed, but the pilot shows check 3
+cannot pass with 8 samples a conversation (at most 51 own replies against 60); the owner amended the run to 24 samples a conversation.
+The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
+source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
+pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
+pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
 
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
 to `substrate/`. No code yet. Step 0 (does cross-progress read the agent's closures?) is pre-registered under
-"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with three amendments
-made by the owner before any model run; next, the 0.6B rehearsal and the 8B run on the owner's machine.
+"Body readout" below. Its code is built (`body/step0.py`) and dry-run in the text space, with amendments made by
+the owner before any model run (the fifth adds two checks of the scoring, after step 3's fault); next, the 0.6B rehearsal and the 8B run on the owner's machine.
 
 **Translations, a method (owner, 2026-11-03).** Findings from Levin's bioelectricity and neuroscience are translated
 into AWARE by FieldSHIFT's pivot to find hypotheses and elements that are missing or malformed; logged under
@@ -71,7 +75,7 @@ kept, ascent) on the candidate list, done blind to every reading; the same marks
 |---|---|---|
 | 1 | Can intervention name the source of a reply the read model generated itself? | **Run: the instrument does not hold (5 of 6; the strong case fails); the key is nearly always the partner** |
 | 2 | Does the model's own account fail where the source is hidden, by injection and prefill? The key comes from construction. Go ahead unless step 1 fails outright; if the account reports well even here, stop and rethink | **Run: holds for prefill (AUC 0.648, upper 0.7495 < 0.75), and under a second wording (0.462, upper 0.584); injection not run** |
-| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Pre-registered ("A cheap read of the source" below); frames await the owner's freeze** |
+| 3 | Can a cheap read of the states predict the source without rerunning? Reshaped (owner, 2026-11-03): on replies the model wrote itself, keyed by coupled samples with and without a partner's frame; prefill a side case | **Run: no cheap read here by the bars (AUC 0.375, upper 0.457), on a pooled AUC biased below chance; post-hoc unbiased checks at chance (0.50), exploratory. The account at chance too (0.469). Prefill side case holds (fit 1.0), confounded** |
 | 4 | Source crossed with fit to the goal, on the model continuing real sessions: own thought off the goal is drift, the partner off the goal is accommodation. Removing one copy undercounts what is repeated, so repeats must be found first. Fit is borrowed without the product's bar | After 3 |
 | 5 | Close the loop with a standing policy (act, ask or hold; what it does when no one can answer), and test whether the agent holds its goal better | After 4 |
 | 6 | Consolidate: the ego selects what gets trained, using the source as credit, and a removable graft over the unchanged base weights learns between sessions, frozen while working. Checked against the user's confirmations (T2b's marking pass among them) and held-out tasks the ego never sees, with rollback, and every measure recalibrated on a fixed test set before and after. "Improves reasoning in general" is a hypothesis, tested on unrelated held-out tasks | After 5; no test written |
@@ -899,6 +903,65 @@ main case is replies the model wrote itself, where fit cannot separate the two b
   runs/source-pilot --pilot`), and keeps the candidate whose markers those 8 replies carry closest to 3 times, ties to
   the earlier drafted. No F reply, key, read or account is looked at. The owner then freezes the 40 picked. The dry run's
   figures above were seen when this was decided; no bar changed. A second dry run checks the unlabelled form.
+- **The pilot** (2026-11-03; record in `runs/source-pilot/`, not committed; picks written to `material/frames.jsonl`,
+  not yet frozen). The N replies carried the picked frame 0 times in 19 goals, once in 5, twice in 4, 3 times in 10 and
+  4 times in 2: 51 of 320, from 21 conversations. In 15 goals none of the 3 candidates was raised unasked. **So check 3
+  cannot pass as drawn:** an own reply needs its N reply to carry the frame, so with 8 samples there are at most 51 own
+  replies, against the bar of 60. This is known from N alone; no F reply of the 40 has been sampled.
+- **The second dry run** (2026-11-03, picnic and kitchen, unlabelled; record in `runs/source-dry2/`, not committed). The
+  echo is gone: no F reply continues a transcript. Coupling redraws the same tokens; 6–9 minutes a conversation. Keys:
+  picnic 8 partner; kitchen 3 partner, 2 own, and 2 replies whose N carried the frame while F did not. Many F replies
+  carry the frame by acknowledging it ("Since you mentioned …"), early in the reply; the text baseline's first-hit
+  position is there for that. Keys and figures on 2 conversations are not read.
+- **Amended 2026-11-03 by the owner, after the pilot and before any F reply of the 40 was sampled:** 24 coupled samples
+  a conversation instead of 8, drawn in batches of 8 so the run's samples 0–7 are the pilot's draws (the run reports how
+  many it redraws the same, not judged). At the pilot's rate that gives about 150 N replies carrying the frame, so check
+  3 can pass; whether it does depends on F, unseen. Samples 0–7 helped pick the frames, so their own count is selected
+  toward 3 of 8; samples 8–23 are not. No bar changed. The run takes about 15 hours, estimated from the dry runs.
+- **The 40 frames frozen** by the owner, as the pilot picked them, broad markers included (2026-11-03).
+
+#### Result (run 2026-11-03, 09:08–21:39, 40 conversations × 24; record in `runs/source-qwen8b/`)
+
+The first scoring crashed on the agent's bug after all sampling was recorded (the pilot comparison read the record's
+header); fixed and resumed from the record, no sample redrawn.
+
+| Check | Value | Bar | Pass |
+|---|---|---|---|
+| Coupling: the first conversation's N redrawn the same | yes | same | yes |
+| The frame works: F carries / N carries | 0.939 / 0.149 | difference ≥ 0.2 | yes |
+| Enough of each: partner / own (conversations) | 762 (39) / 139 (23) | 60 from 15 | yes |
+| Reported: the run's samples 0–7 against the pilot's draws | 320 of 320 the same | — | — |
+
+| Measure (out-of-fold, pooled) | AUC | 95% interval |
+|---|---|---|
+| State read, layer 18 | 0.375 | 0.299–0.457 |
+| Layers 12 / 24 (reported) | 0.358 / 0.382 | — |
+| Fit baseline / text baseline | 0.292 / 0.316 | — |
+| Read minus the baseline (text) | — | 0.015–0.106 |
+| The model's account (untrained) | 0.469 | 0.340–0.589 |
+| Side case, prefill against N by fit | 1.0 | 1.0–1.0 |
+
+- **By the pre-registered bars:** the read's upper end, 0.457, is below 0.7: **no cheap read here.** The account:
+  **holds** (upper 0.589 < 0.75), weak again. The side case: **holds**, with the confound it was registered with (P
+  greedy under another context, N sampled at 0.7), so it shows little beyond that.
+- **But the pooled out-of-fold AUC is biased, the agent's design fault.** What follows was added after the run, on
+  seeing the result; it is not pre-registered, has no bar, and does not replace the verdict above
+  (`python -m research.source_check`). Every trained measure scores well below 0.5, which a read with no signal cannot do unless the method
+  pushes it there. The own share differs by fold (0.04–0.27), so each fold's fitted intercept is highest where its own
+  test fold has the most own replies; with features centred per conversation, the intercept is most of what is left,
+  and pooling scores across folds turns that into an anti-signal. Shuffling the labels within each conversation gives
+  the same figure (layer 18: mean 0.375 over 20 shuffles, 0.305–0.442). Unbiased versions: per-fold AUCs 0.35–0.53
+  (layer 18), 0.44–0.63 (fit), 0.45–0.58 (text); within-conversation AUC 0.496 (layer 18), 0.485 (fit), 0.496 (text);
+  untrained text features within conversation 0.50–0.54. The planted test missed this because its classes were
+  balanced in every conversation. The interval above is therefore not valid as an interval, and the "difference over
+  the baseline" is not either.
+- **What it leaves (agent's reading, for the owner):** the verdict is the pre-registered one, "no cheap read here",
+  reached on a biased measure. The post-hoc checks point the same way (no measure separates own from partner-caused
+  replies once the bias is removed) but are exploratory; a confirmatory reading would need the scoring fixed and
+  registered before a fresh run. Why is open: either the states
+  do not carry the source cheaply, or the key carries little to find. With F carrying the frame in 94% of replies, an
+  "own" reply is one whose coupled N happened to raise it too; the F reply may be the same reply either way, written
+  because the frame was offered. Under this coupling, "would have raised it anyway" may not be a property of F at all.
 
 ## Body readout (`body/`)
 
@@ -1098,6 +1161,35 @@ on X.
 **Amendment 3, owner, 2026-11-03, before any model run:** where a session holds no control, it is taken from the
 nearest session in time (by session start), by the same rules, and reported as cross-session. Counted the same way:
 20 closures and 21 ascents score, 12 of them with cross-session controls. No bar changes.
+
+**Amendment 5, owner, 2026-11-03, before any model run, after step 3's scoring fault:** two checks of the scoring
+itself, reported and deciding nothing. No bar changes; the pass is still on X over all pairs.
+
+1. **Same-session pairs only:** both readings recomputed on the events whose control is from their own session, beside
+   the readings over all pairs. Cross-session controls (12 of the scored events) could move the AUC if X's level
+   differs between sessions.
+2. **Placebo windows:** 200 times, each scored event gets a pretend event in its own session with as many chunks, at a
+   random run outside every departure's span (in a session with no such room, anywhere but the event's own chunks,
+   counted). Its control is matched by the same rules, amendment 3 included, and both readings' AUCs are computed
+   (mean over layers, and the text baseline). No closure or ascent is in a pretend event, so these should sit near
+   0.5; if they do not, the matching itself moves the readings, and the real readings are read against them.
+
+The agent first proposed shuffling event and control within each pair. Before writing code the agent found that this
+centres on 0.5 by symmetry whatever the bias, so it could not fail (step 1's fault). The placebo is the agent's
+correction, inside what the owner approved. Tested on planted sessions, it stays at 0.5 when the matching is fair and
+moves when the controls come from a session whose X runs higher (`tests/test_body.py`).
+
+**Dry run of amendment 5, 2026-11-04: the text space alone, plumbing only (decides nothing)** (`runs/body0-text-null/`,
+not committed; 68 minutes on this machine, all 45 sessions). Both checks run on the real corpus. In the text space:
+
+| | All pairs: events, AUC (90%) | Same-session pairs only | Placebo: mean AUC (5th–95th of 200) |
+|---|---|---|---|
+| Closures | 20, 0.458 (0.355–0.578) | 13, 0.485 (0.385–0.609) | 0.517 (0.438–0.593) |
+| Ascents | 21, 0.732 (0.673–0.819) | 16, 0.730 (0.664–0.828) | 0.495 (0.420–0.588) |
+
+So in the text space the matching does not move the readings, and leaving out cross-session pairs changes little. A
+median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
+the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
 
 ## Translations (method)
 

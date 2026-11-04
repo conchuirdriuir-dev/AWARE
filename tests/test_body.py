@@ -89,3 +89,76 @@ def test_world_and_echo_split_tool_progress():
         assert np.isfinite(out[k][scored]).all()
     plain = by_source(X, src, floor_var=1e-3, burn_self=40)
     assert np.allclose(out["T"][scored], plain["T"][scored]) and np.allclose(out["X"][scored], plain["X"][scored])
+
+
+# --- Step 0's matching and its placebo null (amendment 5) -----------------------------------------------------------
+
+def _sessions(spec, rng):
+    """spec: {key: (n chunks, X offset)}; one scored chunk a minute, X noise plus the session's offset."""
+    import datetime as dt
+
+    out, t0 = {}, dt.datetime(2026, 10, 1)
+    for j, (key, (n, offset)) in enumerate(spec.items()):
+        start = t0 + dt.timedelta(days=j)
+        chunks = [{"at": (start + dt.timedelta(minutes=i)).isoformat(), "ref": f"{key}:{i}"} for i in range(n)]
+        out[key] = {"chunks": chunks, "codes": [{"L_now": np.ones(n), "X": rng.normal(offset, 1, n)}]}
+    return out
+
+
+def _closure(key, sessions, at, back, n=10):
+    """A confirmed agent closure whose first return is chunk `at`, departed `back` minutes before."""
+    import datetime as dt
+
+    ch = sessions[key]["chunks"]
+    ret = dt.datetime.fromisoformat(ch[at]["at"])
+    return {"id": f"{key}-{at}", "ord": key, "time": (ret - dt.timedelta(minutes=back)).isoformat(),
+            "return": ch[at]["at"], "label": {"real": ["yes"], "kind": ["closure"], "who": ["agent"]}}
+
+
+def test_controls_sit_outside_every_departure_and_fall_back_to_the_nearest_session():
+    from body import step0 as s0
+
+    rng = np.random.default_rng(0)
+    ses = _sessions({"A": (400, 0.0), "B": (40, 0.0)}, rng)
+    deps = [_closure("A", ses, 200, 30), _closure("B", ses, 35, 34)]
+    w = s0.windows(ses, deps)
+    a, b = sorted(w["events"], key=lambda e: e["ord"])
+    for e in (a, b):
+        assert len(e["rows"]) == 10 and len(e["control"]) == 10
+    assert a["control_ord"] == "A" and b["control_ord"] == "A"            # B has no room: the nearest session
+    assert w["cross-session controls"] == ["B-35/closure from A"]
+    span = range(200 - 30 - 60, 200 + 60 + 1)
+    assert not set(a["control"]) & set(span) and not set(a["control"]) & set(b["control"])
+
+
+def test_the_placebo_sits_at_half_without_bias_and_moves_when_the_matching_does():
+    """The null must be able to fail: controls drawn from a session whose X runs higher push it, as they would the
+    reading."""
+    from body import step0 as s0
+
+    rng = np.random.default_rng(1)
+    fair = _sessions({f"S{j}": (600, 0.0) for j in range(6)}, rng)
+    deps = [_closure(f"S{j}", fair, 300, 20) for j in range(6)] + [_closure(f"S{j}", fair, 500, 20) for j in range(6)]
+    clo = s0.windows(fair, deps)["events"]
+    null = s0.placebo_null(fair, deps, clo, [], [0], 0, draws=40)
+    assert abs(null["closures"]["mean"] - 0.5) < 0.1
+
+    spec = {"BIG": (2000, 3.0), **{f"s{j}": (30, 0.0) for j in range(12)}}  # short sessions: controls come from BIG
+    biased = _sessions(spec, rng)
+    deps = [_closure(f"s{j}", biased, 28, 27) for j in range(12)]
+    clo = s0.windows(biased, deps)["events"]
+    assert all(e["control_ord"] == "BIG" for e in clo)
+    null = s0.placebo_null(biased, deps, clo, [], [0], 0, draws=40)
+    assert null["closures"]["mean"] > 0.9                                # the bias shows in the null
+
+
+def test_same_session_pairs_leave_out_cross_session_controls():
+    from body import step0 as s0
+
+    rng = np.random.default_rng(2)
+    ses = _sessions({"A": (400, 0.0), "B": (40, 0.0)}, rng)
+    deps = [_closure("A", ses, 200, 30), _closure("B", ses, 35, 34)]
+    clo = s0.windows(ses, deps)["events"]
+    r = s0.reading(ses, [e for e in clo if e.get("control_ord", e["ord"]) == e["ord"]], [0], 0, True,
+                   np.random.default_rng(0))
+    assert r["n"] == 1

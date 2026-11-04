@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-03: **Body readout Step 0, amendment 5** (owner, before any model run, after step 3's scoring fault): two
+  checks of the scoring, reported, deciding nothing: the readings on same-session pairs only, and a placebo null of
+  pretend events matched by the same rules. No bar changes.
+- 2026-11-03: **Step 3's 40 frames frozen as the pilot picked them** (owner), broad markers included.
+- 2026-11-03: **Step 3 draws 24 samples a conversation, not 8** (owner, after the pilot): with 8, at most 51 own
+  replies could exist against check 3's 60. No bar changes; the run takes about 15 hours (PLAN.md).
 - 2026-11-03: **Multiscale competency, weak reading** (owner, for now): the agent and the owner are one organism in
   code-space; each level is a control loop (setpoint, error, reflex) with its setpoint derived from the held goal, not
   an agent with its own; holding the goal is a role, not a level. Logged in PLAN.md, "Translations".
