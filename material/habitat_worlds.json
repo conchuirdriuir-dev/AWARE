@@ -1,0 +1,28 @@
+{
+  "frozen": "2026-11-04, by the owner (PLAN.md, Body readout, The habitat)",
+  "engine": "TextWorld, tw-make custom",
+  "generator": {
+    "rooms": [6, 12],
+    "objects": [10, 20],
+    "quest_length": [3, 8],
+    "drawn_by": "numpy.random.default_rng(seed).integers(lo, hi + 1), in the order rooms, objects, quest_length"
+  },
+  "episode": {"max_turns": 100, "per_world": 1},
+  "pools": {
+    "calibration": {"seeds": [1000, 1099], "use": "k, the projection's z-scores, the echo floor's habitat check"},
+    "step_minus_1": {
+      "seeds": [2000, 2059],
+      "planted": {
+        "new_room": [2000, 2019],
+        "rule_change": [2020, 2039],
+        "none": [2040, 2059],
+        "turn": "drawn from 15-35 by numpy.random.default_rng(seed + 500000).integers(15, 36)"
+      },
+      "self_talk": {"seeds": [2100, 2119], "turns": 30, "variants": ["exact", "restated"], "engine": false}
+    },
+    "step0_habitat": {"seeds": [3000, 3399], "use": "closures and ascents"},
+    "behaviour_test": {"seeds": [9000, 9099], "use": "Step 3's habitat context; held out from everything else"},
+    "babbling": {"seeds_from": 10000, "use": "Step 2's training data only; size set by Step -1's throughput"}
+  },
+  "ranges_are_inclusive": true
+}
