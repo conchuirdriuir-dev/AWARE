@@ -28,7 +28,7 @@ fields logged as diagnostics only; the body entering as learned sense tokens, ne
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
 through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
-habitat form are drafted under "Body readout", "The habitat", for the owner to fix before any code. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat"; next, its code, then the 0.6B dry run. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -1262,11 +1262,12 @@ reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 
   sessions have. **Added by the agent before any 8B run, reported only:** the placebo split by same- and
   cross-session pairs. Whether the readings should pass on same-session pairs is the owner's call, before the 8B run.
 
-### The habitat: Step −1 and Step 0's habitat form (v0.2; drafted, awaiting the owner)
+### The habitat: Step −1 and Step 0's habitat form (v0.2)
 
 *Drafted by the agent 2026-11-04 from [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4) and
-the owner's decisions of the same day (DECISIONS.md). Nothing here is fixed and no code is written until the owner fixes
-it. Choices the spec left open, which the agent made, are marked* (agent's choice).
+the owner's decisions of the same day (DECISIONS.md). Fixed by the owner the same day, unchanged (DECISIONS.md). Choices
+the spec left open, which the agent made, are marked* (agent's choice)*; the owner accepted them with the rest.
+Amendments are dated here.*
 
 #### Who said what
 
@@ -1302,7 +1303,9 @@ it. Choices the spec left open, which the agent made, are marked* (agent's choic
 | Behavioural test | 9000–9099 | 100 | Step 3's habitat context, held out from everything else |
 | Babbling | 10000 and up | set by throughput | Step 2's training data; never any other pool |
 
-Seeds and generator settings go in `material/habitat_worlds.json`, frozen with this section. One episode per world.
+Seeds and generator settings are in `material/habitat_worlds.json`, frozen with this section: planted kinds by seed
+(new room 2000–2019, rule change 2020–2039, none 2040–2059), the planted turn drawn from each seed, and the self-talk
+episodes on seeds 2100–2119. One episode per world.
 Throughput (turns per hour on the 3090) is measured on Step −1's run and decides the babbling pool's size, not this table.
 
 #### Labels from the engine (definitions fixed here before any run)

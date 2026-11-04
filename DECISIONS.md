@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **The habitat's pre-registration fixed** (owner, the agent's draft unchanged): Step −1's three bars, k's
+  procedure, the five disjoint seed pools (`material/habitat_worlds.json`) and Step 0's habitat form (PLAN.md, "The
+  habitat"), including the choices marked as the agent's.
 - 2026-11-04: **Step 0 and step 4 paused** (owner): work on the agent–user relationship waits until the
   architecture matures in the habitat. 20 scorable closures (13 on same-session pairs, under the minimum of 15) are too
   few to decide. Step 0's pre-registration, amendments and code stand unchanged for a rerun.
