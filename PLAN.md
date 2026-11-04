@@ -1195,6 +1195,26 @@ So in the text space the matching does not move the readings, and leaving out cr
 median of 4 pretend events per draw, of each kind, had to sit inside a departure's span. The model's spaces are what
 the 8B run reads; these figures are stated so that nothing later is seen to be chosen by them.
 
+**The 0.6B rehearsal, 2026-11-04 (plumbing, decides nothing; draft sets; `runs/body0-06/`, not committed).** All 45
+sessions, layers 19–27. It first crashed on a session with no chunks (the agent's bug, which the text-only dry run
+could not reach since it reads no states); fixed with a test and resumed from the checkpoints. Time: 15 minutes
+reading, 10.8 hours fitting, most of it in the two longest sessions (S41, 2,254 chunks, 5.5 hours; S44, 1.5 hours).
+
+| | All pairs: events, AUC (90%), text | Same-session pairs only | Placebo: mean (5th–95th of 200), text |
+|---|---|---|---|
+| Closures | 20, 0.449 (0.407–0.493), text 0.483 | 13, 0.441 (0.391–0.487) | 0.491 (0.405–0.564), text 0.524 |
+| Ascents | 21, 0.531 (0.484–0.586), text 0.723 | 16, 0.642 (0.592–0.698) | **0.630 (0.562–0.703)**, text 0.496 |
+
+- **The placebo finds a bias in the ascent reading in the model's space** (not in the text space): pretend events with
+  no ascent in them score 0.63 against their controls. So the matching itself moves reading 2 there, and an ascent AUC
+  near 0.63 would mean nothing. Its cause is not yet looked at; candidates are where a control falls relative to its
+  event (the matching keeps the earlier of two equally near runs) and how X trends along a session in the model's
+  space. Reading 2's bar is not changed; the 8B's reading 2 is read against its own placebo, as amendment 5 says.
+- **Time for the 8B,** estimated: fitting scales with the 12 layers against 9 (about 14–15 hours), and reading the
+  26,817 chunks with the 8B split across GPU and RAM is slower by more than an order of magnitude, so the run comes
+  to about a day. Thinning to every second scored chunk is already registered as allowed if it would exceed a day;
+  that is the owner's call.
+
 ## Translations (method)
 
 *Owner, 2026-11-03. The method is FieldSHIFT's ([O'Brien, …, Levin 2024](https://pubs.rsc.org/en/content/articlehtml/2024/dd/d3dd00185g)),

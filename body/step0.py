@@ -103,6 +103,8 @@ def read_states(reader, texts: list[str], layers: list[int], record: Record, key
             return {"S": reader.states(texts[b:b + BATCH], layers)}, {"from": b, "n": len(texts[b:b + BATCH])}
         arrays, _ = session_resumable(record, f"{key}-{b:05d}", compute)
         out.append(arrays["S"])
+    if not out:                                                  # a session with no chunks: nothing to read
+        return np.zeros((0, len(layers), reader.info["width"]), dtype=np.float32)
     return np.concatenate(out)                                   # texts x layers x width
 
 
