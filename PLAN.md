@@ -84,6 +84,10 @@ kept, ascent) on the candidate list, done blind to every reading; the same marks
 unknown and everything now leads to it: a small adapter over fixed base weights, trained on a few corrections, on this
 hardware, with unrelated held-out tasks before and after and a check that rollback works.
 
+*Proposed by the agent, 2026-11-03, not yet decided by the owner:* [proposals/felt-channel.md](proposals/felt-channel.md), how
+the readout reaches the actor (text, steering, a sensing graft, consolidation). It answers "where steering sits" below and
+gives the Translations row "the readout reports instead of bending" a test, gated on Step 0 holding.
+
 **How to continue.** Each step gets its reading written here before its code, with thresholds fixed before it runs, and first
 a check that its result could be told apart from noise, which Gate 1 skipped. Dry-run before a long run. After each result,
 check the next step still serves this path, and say so if a clean test is pulling everything around itself: causal authorship
