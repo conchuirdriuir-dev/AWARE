@@ -55,8 +55,12 @@ pre-registered and deciding nothing, put the state read, fit and text at chance.
 the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
 the minimum of 15), too few to decide. Step 0 stands as pre-registered, with its five amendments, the 0.6B rehearsal
 and the cross-session finding; returning is a rerun, not a redesign. Its two open questions (pass on same-session pairs;
-thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is being measured
-(`body/floor_file.py`, `runs/echo-floor-8b-first/`).
+thinning) wait for the restart. The 8B echo floor file for the habitat's `read` is measured (2026-11-04):
+[material/echo_floor_8b.json](material/echo_floor_8b.json), layers 24–35 in units of D, by the registered midpoint
+rule, Qwen3-8B, sink "first", current sets, 10 sessions (`body/floor_file.py`, record in `runs/echo-floor-8b-first/`).
+The floor rises from 0.20 at layer 24 to 0.55 at 35; new content separates from near repeats at AUC 0.999–1.000 on
+every layer. The repeats are few (48 exact, 15 near, against 2,403 new), so the 95th percentile of repeats rests on
+about three chunks.
 
 **Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
