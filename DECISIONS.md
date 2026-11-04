@@ -5,6 +5,32 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-11-04: **Step 0 and step 4 paused** (owner): work on the agent–user relationship waits until the
   architecture matures in the habitat. 20 scorable closures (13 on same-session pairs, under the minimum of 15) are too
   few to decide. Step 0's pre-registration, amendments and code stand unchanged for a rerun.
+- 2026-11-04: **Boundary's forward model is frozen after babbling** (owner): held as its own graft, read by boundary;
+  nightly dream grafts never retrain it.
+- 2026-11-04: **In the habitat the world fills the partner slot** (owner): each turn read as action (self) and reply
+  (world); the tool slot is empty there; the six senses are unchanged.
+- 2026-11-04: **Step 0's habitat form tests the lead** (owner): the world part of rate flat in a window ending when the
+  stall begins, against matched ordinary stretches from the same world; then the owner's labels without retuning.
+- 2026-11-04: **Lift version 0 is `goalspace/formula.py`'s prequential code** (owner); an encoder replaces it only if a
+  measurement earns it.
+- 2026-11-04: **The goal setpoint is stated by the environment** (owner): the game's quest text, the user's stated aim;
+  self-set goals stay parked. Built at step 4.
+- 2026-11-04: **The research track parks** (owner): step 3 ran to completion, with its result and scoring fault recorded
+  (PR #25); nothing further runs on the track. The rule on retained and structural axes is unchanged.
+- 2026-11-04: **Habitat behaviour is scored on task success only** (owner): game score and quest completion; the closure
+  label's own quantities are not scored, and labels never reach an arm.
+- 2026-11-04: **The North star is the parent** (owner): the picture is the North star in The Semantic Body — Open
+  Threads, the model as its own organism, five steps (lift, sense, babble, act, dream); the Big Picture doc (v9) is kept
+  as the implementation reference only. CLAUDE.md and PLAN.md point there.
+- 2026-11-04: **Body Readout v0.2 is the current build** (owner): three senses lead (shape, rate by source, boundary as
+  efference copy); position, heading, speed, reach and distance to anchor are logged diagnostics only; the body enters as
+  learned sense tokens; a removable babbling graft; a text-game habitat. v0.1 is kept as the record.
+- 2026-11-04: **Senses are read with the graft off** (owner): by a second forward pass with the graft disabled; its cost
+  is measured when babbling starts.
+- 2026-11-04: **The habitat's chunk is one game turn** (owner): the agent's action plus the world's reply. Turns against
+  reasoning steps stays open for the poem task.
+- 2026-11-04: **The body readout's code stays in `body/`** (owner): its own directory, importing `substrate/` and
+  `goalspace/`; nothing further moves.
 - 2026-11-03: **Body readout Step 0, amendment 5** (owner, before any model run, after step 3's scoring fault): two
   checks of the scoring, reported, deciding nothing: the readings on same-session pairs only, and a placebo null of
   pretend events matched by the same rules. No bar changes.

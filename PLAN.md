@@ -1,11 +1,12 @@
 # Plan
 
-The design is the Big Picture doc, v9 ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw), a
-Claude Doc). Its **Entity** tab is the parent: what the entity is, the substrate decisions, the capacities, and the two
-tracks. The **Drift detection (v10)** tab is the product track's full treatment (v9's is kept as the record);
-**Tech stack** sets the build order. Gate 0 ends nothing: it is refined until the product passes it, and the doc's
-"can end the project" line is ignored (owner, DECISIONS.md).
-Where this file and the doc differ, the doc wins and this file is corrected.
+The picture is the North star in [The Semantic Body — Open Threads](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW)
+(fixed 2026-11-04, a Claude Doc): the model as its own organism, five steps (lift, sense, babble, act, dream). The current
+build is [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4). The Big Picture doc, v9
+([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw)), is kept as the implementation reference only:
+coupling, the echo floor, D, the event record, consolidation safeguards, the graft rule and the tech stack. Stale there:
+Llama as primary model, the v9 build order, the compass row's margin and band. Gate 0 ends nothing (owner, DECISIONS.md).
+Where this file and the North star differ, the North star wins and this file is corrected.
 
 **One project, one loop, measures kept apart (owner, 2026-11-02; "Current state and direction" below).** Before that, as
 built: **two tracks, one substrate, kept apart.** The product track (drift detection, then self-correction) has the demo and
@@ -19,6 +20,33 @@ when its test passes, not when its code exists.
 ## Current state and direction
 
 *Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.*
+
+**Direction, from 2026-11-04 (owner).** The North star replaces the Entity tab's picture: the model is built as its own
+organism first, and the dyad is the next scale up. The build is Body Readout v0.2, North star steps 1–3: three senses
+(shape, rate split by source, boundary as efference copy) read from the base model with any graft off; the geometric
+fields logged as diagnostics only; the body entering as learned sense tokens, never words; a babbling graft; and a
+habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
+transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
+through self-talk and fires at every planted novelty. Its bars, k for closure, and the world-seed splits go here before
+its code. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+
+**Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
+1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
+   nightly dream grafts never retrain it.
+2. Chunk and source: time steps by game turn, each turn read as the action (self) and the reply (world); in the habitat
+   the world fills the partner slot and the tool slot is empty.
+3. Step 0 in the habitat: tests the lead. The world part of rate is flat in a window ending when the stall begins more
+   often than in matched ordinary stretches from the same world; over ascents, not flat. Then the owner's labels,
+   without retuning. Its numbers (window, matching, bar) go here before its code.
+4. Lift: `goalspace/formula.py`'s prequential code is Lift version 0; a trained encoder replaces it only if a
+   measurement earns it.
+5. The goal code: always stated by the environment (the game's quest text, the user's stated aim), lifted by the same
+   code; self-set goals stay parked. Built at step 4.
+6. The research track parks: step 3 (causal authorship) ran to completion, with its result and scoring fault recorded
+   (PR #25, "A cheap read of the source" below). Nothing further runs on the track. The rule on retained and structural
+   axes is unchanged.
+7. Measures kept apart: habitat behaviour is scored on task success only (game score, quest completion); new states per
+   step and loops escaped are the closure label's own quantities and are not scored; labels never reach an arm.
 
 **State.** The focus is the research track; the product rests on a baseline (DECISIONS.md). The owner's decisions of
 2026-11-02: the track's question is causal authorship, which source made an output happen; machinery outside the model is
@@ -49,7 +77,7 @@ cannot pass with 8 samples a conversation (at most 51 own replies against 60); t
 The owner froze the 40 picked frames, broad markers included. **Step 3 ran** (2026-11-03, under "A cheap read of the
 source" below; record in `runs/source-qwen8b/`): the construction holds; by the bars, no cheap read here, but the
 pooled out-of-fold AUC proved biased below chance (the agent's design fault). Checks added after the run, not
-pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Next: the owner reads the result and decides.
+pre-registered and deciding nothing, put the state read, fit and text at chance. The model's account is at chance too. Read by the owner 2026-11-04: the track parks (decision 6 above).
 
 **Paused (owner, 2026-11-04).** Step 0 and direction step 4, everything on the agent–user relationship, wait until
 the architecture matures in the habitat: the owner's corpus gives 20 scorable closures (13 on same-session pairs, under
@@ -62,7 +90,7 @@ The floor rises from 0.20 at layer 24 to 0.55 at 35; new content separates from 
 every layer. The repeats are few (48 exact, 15 near, against 2,403 new), so the 95th percentile of repeats rests on
 about three chunks.
 
-**Body readout, placed (owner, 2026-11-03).** A content-agnostic readout of the entity's state for the actor (where,
+**Body readout, placed (owner, 2026-11-03; v0.1, superseded by v0.2 on 2026-11-04).** A content-agnostic readout of the entity's state for the actor (where,
 moving, source, repeats, learning), specified in [Body Readout — Spec v0.1](https://claude.ai/artifact/BBcL4c3mN6uUthsJfrqBMo).
 It is how the actor would see step 4's quantities and what step 5's policy would act on; it reuses step 3's read of the
 source once that holds and `goalspace/`'s prequential gain for learning. Placed in `body/`, with `basis` and `coupling` moved
