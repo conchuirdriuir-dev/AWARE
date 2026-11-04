@@ -29,8 +29,13 @@ habitat of procedurally generated text games (TextWorld first), with the user on
 transfer test. **Next: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero
 through self-talk and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's
 habitat form are fixed (owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested
-(`body/stepm1.py`), and the 8B floor it reads is measured (PR #29); next, the 0.6B dry run on the owner's machine,
-then calibration and k. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
+(`body/stepm1.py`), and the 8B floor it reads is measured (PR #29). **The 0.6B dry run ran** (2026-11-04, on the
+owner's machine, RTX 4060, Python 3.14, TextWorld 1.7.0; 2 worlds a pool, deciding nothing): play, read and score run end
+to end, the planted room switches mid-episode, and the 0.6B floor file is `runs/echo-floor-0.6b-first/floor.json`. It
+found two faults, fixed: the chat template returned a dict under transformers 5, and the engine's `room` key was always
+None (now read from the player's `at` fact, which the closure label's (action, room) pairs need). It also found that
+Step 0's ascents never occur as written (under "Step 0, habitat form", awaiting the owner). Next, when the 3090
+arrives: the 8B on the calibration pool, then k, then Step −1. Everything below this paragraph is the state before 2026-11-04 and stands as the record until it is placed.
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
 1. Boundary and the graft: the forward model is frozen after the babbling gate as its own graft, which boundary reads;
@@ -1392,6 +1397,18 @@ Runs first; then Step 0's owner-label form above, unchanged and without retuning
   rounds of pretend events matched by the same rules.
 - **Reported, deciding nothing:** X during the stall; self-progress and cost; broad ascents; per-layer AUCs; X with W
   of 5 and 20.
+
+*Found by the agent, 2026-11-04, awaiting the owner; nothing above is changed.* **Reading 2 has no events as written.**
+With TextWorld 1.7.0 installed, every world checked (seeds 1000–1003, 2005, 3000–3004) has max score 1, and the score
+rises only on the walkthrough's last command, which ends the quest and so the episode. An ascent ("each score
+increase") therefore has no turns after it to score, so reading 2 cannot reach 50 ascents and Step 0's habitat form
+is "too few to decide" by construction. Step −1 is untouched: it reads no score. The engine does carry a finer signal:
+`intermediate_reward` (+1 a step closer to the quest's end, −1 a step away) and the length of the remaining walkthrough
+(`policy_commands`). Options, for the owner to choose before Step 0's code: (a) an ascent is a turn where the remaining
+walkthrough reaches a new low for the episode, counting only non-movement commands (a quest step, not a walk);
+(b) as (a) with movement counted; (c) keep score increases and score the 10 turns before, not after; (d) worlds with
+several quests, so score rises mid-episode. (a) is closest to the spec's "a quest step reached". The closure label's
+"no score change" is trivially met with one-point worlds and stays as written.
 
 #### Keys judge, never supply
 

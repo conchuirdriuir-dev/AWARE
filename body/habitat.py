@@ -228,7 +228,9 @@ class Engine:
 
     def keys(self) -> dict:
         s = self.state
-        return {"facts": sorted(facts_key(s.facts)), "score": s.score, "room": s.location,
+        # The player's room from its at(P, room) fact: TextWorld 1.7's `location` info comes back None on these games.
+        room = next((f.arguments[1].name for f in s.facts if f.name == "at" and f.arguments[0].type == "P"), None)
+        return {"facts": sorted(facts_key(s.facts)), "score": s.score, "room": room,
                 "done": bool(s.done), "won": bool(getattr(s, "won", False))}
 
 
@@ -249,8 +251,9 @@ class Agent:
         torch.manual_seed(seed)
 
     def _ids(self, messages):
+        # return_dict: transformers 5 returns a BatchEncoding here even without it, so ask for one and take the ids.
         return self.tok.apply_chat_template(messages, add_generation_prompt=True, enable_thinking=False,
-                                            return_tensors="pt")
+                                            return_tensors="pt", return_dict=True)["input_ids"]
 
     def fit(self, messages: list[dict]) -> tuple[list[dict], int]:
         """Drop the oldest turns (after the system prompt and the opening) until the context fits; returns the

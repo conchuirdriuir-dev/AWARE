@@ -204,6 +204,8 @@ def test_play_appends_turns_and_plants(tmp_path):
     planted_room = [k for k in room["keys"].values() if k["planted_here"]]
     assert len(planted_room) == 1 and planted_room[0]["turn"] == H.planted(2000)["turn"]
     assert planted_room[0]["switched"] is True
+    rooms = {k["room"] for k in room["keys"].values()}               # the closure label pairs actions with rooms
+    assert None not in rooms and len(rooms) >= 2
     assert sum(k["planted_here"] for k in rule["keys"].values()) <= 1
     assert all(c["provenance"] == "self" and c["by"] == "model" for c in talk["chunks"][1:])
     assert {c["slot"] for c in talk["chunks"][1:]} == {"self", "world"}
