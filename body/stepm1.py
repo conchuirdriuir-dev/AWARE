@@ -175,7 +175,7 @@ def cmd_play(a) -> None:
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
     done = set(episodes(read(record.path)).keys()) if record.path.exists() else set()
-    agent = Agent(a.model, device=a.device, dtype=a.dtype)
+    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache)
     seeds = pool(a.pool, spec)[: a.limit or None]
     for seed in seeds:
         if a.pool == "self_talk":
@@ -239,6 +239,7 @@ def main(argv=None) -> None:
         if name == "play":
             s.add_argument("--pool", choices=POOLS, required=True)
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
+            s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
         if name == "read":
             s.add_argument("--floor", default="material/echo_floor_8b.json")
             s.add_argument("--sets", default="material/paraphrases.jsonl")

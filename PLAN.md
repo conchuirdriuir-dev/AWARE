@@ -297,6 +297,17 @@ the floor's habitat check 197 repeats, all below the floor; k not set (no resolv
 opening chunk carries TextWorld's ASCII banner, as a player sees it; and a planted turn can coincide with natural
 novelty (a new room entered on the same turn), which would let it fire for another reason.
 
+**Play keeps its key-value cache between turns (2026-11-04, the owner's go-ahead, before any real run).** The agent
+used to re-read the whole episode, up to 16k tokens, to write each action of at most 24. It now cuts its cache back to
+the longest start the new prompt shares with it and reads only the rest; dropped turns and a new episode shorten that
+start, and the restating prompt in self-talk bypasses the cache. The text the model sees is unchanged, and each episode
+entry records `kv_cache`. Checked on Qwen3-0.6B (record in the agent's scratch space, not kept): greedy and
+teacher-forced, the cached agent took the same action as the uncached one on 240 of 240 turns, over a calibration
+world, a planted room, a planted rule change and a context cut to 1,200 tokens (51 turns with dropped turns). Sampled
+free play: prompt tokens read fell from 673k to 12.7k over 200 turns, and time per turn from 0.41 to 0.19 s; the 8B's
+gain is read on calibration. `play --no-cache` restores the old path. Every real run uses the cache, calibration
+included, so all pools are played by the same code.
+
 #### Note, 2026-11-04, written with the code, before any run
 
 Code: `body/habitat.py` (worlds, plants, play, labels, k) and `body/stepm1.py` (`play`, `read`, `score`); tests in

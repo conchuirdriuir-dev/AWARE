@@ -258,18 +258,43 @@ class Engine:
 # --- the agent ----------------------------------------------------------------------------------------------------
 
 class Agent:
-    """Qwen3 with thinking off, sampling one command a turn. Plays only; states are read later from the record."""
+    """Qwen3 with thinking off, sampling one command a turn. Plays only; states are read later from the record.
 
-    def __init__(self, model: str, device: str = "auto", dtype: str = "bfloat16", seed: int = 0):
+    The key-value cache is kept between turns (`cache=True`): each prompt is compared with the tokens the cache holds,
+    the cache is cut back to the longest shared start, and only the rest is read. What the model sees is the same
+    text either way; dropped turns or a new episode shorten the shared start, and the restating prompt bypasses the
+    cache. `sample=False` (greedy) is only for checking that cached and uncached play agree."""
+
+    def __init__(self, model: str, device: str = "auto", dtype: str = "bfloat16", seed: int = 0,
+                 cache: bool = True, sample: bool = True):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
-        self.torch, self.name = torch, model
+        self.torch, self.name, self.cache, self.sample = torch, model, cache, sample
         self.tok = AutoTokenizer.from_pretrained(model)
         self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=getattr(torch, dtype), device_map=device)
         self.model.eval()
         self.revision = getattr(self.model.config, "_commit_hash", None)
+        self._kv, self._kv_ids = None, None                # the cache, and the tokens it holds
+        self.read_tokens = 0                               # tokens the model read for prompts, for throughput
         torch.manual_seed(seed)
+
+    def _reuse(self, ids):
+        """The cache cut back to the longest start it shares with `ids` (at least one token left to read), or a new
+        empty cache when nothing is shared."""
+        from transformers import DynamicCache
+
+        if self._kv is None or self._kv_ids is None:
+            return DynamicCache()
+        n = min(self._kv_ids.shape[1], ids.shape[1] - 1)
+        same = (self._kv_ids[0, :n] == ids[0, :n]).cpu()
+        shared = int(same.long().cumprod(0).sum()) if n else 0
+        if shared == 0:
+            return DynamicCache()
+        extra = self._kv.get_seq_length() - shared
+        if extra > 0:
+            self._kv.crop(-extra)                          # a negative count removes tokens (transformers 4 and 5)
+        return self._kv
 
     def _ids(self, messages):
         # return_dict: transformers 5 returns a BatchEncoding here even without it, so ask for one and take the ids.
@@ -285,16 +310,22 @@ class Agent:
             dropped += 1
         return messages, dropped
 
-    def say(self, messages: list[dict], max_tokens: int = MAX_ACTION_TOKENS) -> str:
+    def say(self, messages: list[dict], max_tokens: int = MAX_ACTION_TOKENS, use_cache: bool = True) -> str:
         ids = self._ids(messages).to(self.model.device)
+        keep = self.cache and use_cache
+        kv = self._reuse(ids) if keep else None
+        self.read_tokens += ids.shape[1] - (kv.get_seq_length() if kv is not None else 0)
+        sampling = dict(do_sample=True, temperature=TEMPERATURE, top_p=TOP_P) if self.sample else dict(do_sample=False)
         with self.torch.no_grad():
-            out = self.model.generate(ids, max_new_tokens=max_tokens, do_sample=True, temperature=TEMPERATURE,
-                                      top_p=TOP_P, pad_token_id=self.tok.eos_token_id)
+            out = self.model.generate(ids, max_new_tokens=max_tokens, pad_token_id=self.tok.eos_token_id,
+                                      past_key_values=kv, **sampling)
+        if keep:
+            self._kv, self._kv_ids = kv, out[:, :kv.get_seq_length()]
         text = self.tok.decode(out[0, ids.shape[1]:], skip_special_tokens=True).strip()
         return (text.splitlines() or [""])[0].strip()
 
     def restate(self, text: str) -> str:
-        return self.say([{"role": "user", "content": RESTATE.format(text=text)}], max_tokens=64)
+        return self.say([{"role": "user", "content": RESTATE.format(text=text)}], max_tokens=64, use_cache=False)
 
 
 # --- episodes -----------------------------------------------------------------------------------------------------
@@ -309,7 +340,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     engine = Engine(built)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
     record.append("episode", "code", seed=seed, pool_params=params(seed, spec), model=agent.name,
-                  revision=agent.revision, planted_kind=plant["kind"] if plant else None,
+                  revision=agent.revision, kv_cache=getattr(agent, "cache", None),
+                  planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
@@ -350,7 +382,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
 def self_talk(agent, record, seed: int, variant: str, turns: int = 30) -> None:
     """No engine: the reply slot carries the agent's own previous action, verbatim or restated by the same model.
     Recorded honestly: the reply's provenance is self and it is the model's; only its slot says world."""
-    record.append("episode", "code", seed=seed, self_talk=variant, model=agent.name, revision=agent.revision)
+    record.append("episode", "code", seed=seed, self_talk=variant, model=agent.name, revision=agent.revision,
+                  kv_cache=getattr(agent, "cache", None))
     opening = "You are alone in a quiet room. Nothing here answers you but your own words."
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world", variant=variant)
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": opening}]

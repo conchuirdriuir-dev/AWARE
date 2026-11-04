@@ -229,3 +229,28 @@ def test_the_8b_floor_file_covers_reads_layers():
     n = 36                                                               # Qwen3-8B's layers
     assert sorted(map(int, floor)) == list(range(math.ceil(2 * n / 3), n))
     assert all(0 < v < 1 for v in floor.values())                        # in units of D, under D
+
+
+class _FakeCache:
+    def __init__(self, n):
+        self.n, self.cropped = n, []
+
+    def get_seq_length(self):
+        return self.n
+
+    def crop(self, k):
+        assert k < 0                                                     # transformers 5 takes a count to remove
+        self.n += k
+        self.cropped.append(k)
+
+
+def test_the_agent_keeps_only_the_cache_it_shares_with_the_prompt():
+    torch = pytest.importorskip("torch")
+    agent = object.__new__(H.Agent)
+    agent._kv, agent._kv_ids = _FakeCache(6), torch.tensor([[1, 2, 3, 4, 5, 6]])
+    assert agent._reuse(torch.tensor([[1, 2, 3, 9, 9, 9, 9]])) is agent._kv and agent._kv.n == 3
+    agent._kv, agent._kv_ids = _FakeCache(3), torch.tensor([[1, 2, 3]])
+    assert agent._reuse(torch.tensor([[1, 2, 3]])).get_seq_length() == 2   # one token is always left to read
+    agent._kv, agent._kv_ids = _FakeCache(3), torch.tensor([[1, 2, 3]])
+    fresh = agent._reuse(torch.tensor([[7, 2, 3, 4]]))                   # nothing shared: a new cache
+    assert fresh is not agent._kv and fresh.get_seq_length() == 0
