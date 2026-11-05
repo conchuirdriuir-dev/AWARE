@@ -52,7 +52,7 @@ code) counts as scheduled:
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
-| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed; the theme built (PR #33); harness not built |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed (amendment 1); harness built; pool fixed; 0.6B rehearsal next |
 | Rate, world part | Step 0, Stage 2 (the 8B playing, amendment 5) | instrument | Fixed; code built; waits for the 3090 |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Decided; reported only; not built |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
@@ -70,8 +70,9 @@ code) counts as scheduled:
 | Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
 | The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
 
-**Next, while waiting for the 3090:** Step −1C's harness (the theme is PR #33) and its 0.6B rehearsal on mirror seeds,
-scripted play read on the 4060, deciding nothing; the contingent-vs-blind script pair. *The paragraph below is the
+**Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal on mirror seeds, scripted play read on the 4060,
+deciding nothing; it checks the plumbing, the interval's width and whether boundary sits near its ceiling. Its play
+needs no GPU. The contingent-vs-blind script pair is not built. *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -87,7 +88,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 | Step | Question | Measures | Status |
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed (amendments 1–4); code built; Stage 1's scripted play done.** The 8B's reading and self-talk wait for the 3090 |
-| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32); the theme built (PR #33); harness not built |
+| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32, amendment 1); harness built (`body/stepm1c.py`); pool fixed. Next: the 0.6B rehearsal |
 | 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–5); code built (`body/step0_habitat.py`); the 8B plays (amendment 5) and waits for the 3090. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
@@ -442,9 +443,10 @@ the turn the script enters; each episode ends after it.
 
 **Pass, both:**
 1. **Shape:** the AUC of off-structure shape over on-structure shape is at least 0.80, its 90% lower bound above 0.70.
-2. **Apart from boundary:** the 90% interval of (shape's AUC − boundary's AUC) on the same chunks excludes zero; 2,000
-   draws resampling episodes; the margin reported. If 1 passes and 2 fails, shape under Lift v0 is redundant with
-   boundary: the measurement decision 4 asks for before a trained encoder replaces Lift v0.
+2. **Apart from boundary:** the 90% interval of (shape's AUC − boundary's AUC) on the same chunks lies entirely above
+   zero (one-sided, amendment 1 below); 2,000 draws resampling episodes; the margin reported. If 1 passes and 2 fails,
+   shape under Lift v0 is redundant with boundary: the measurement decision 4 asks for before a trained encoder
+   replaces Lift v0.
 
 *Precondition, reported:* boundary fires on both kinds. If it does not fire on on-structure rooms, the dissociation
 cannot be read and the owner is told.
@@ -457,6 +459,53 @@ counts are taken before any reading and recorded with the seeds drawn.
 **Bars fixed in advance** (replacing Q6's answer): no reading sets them. A 0.6B rehearsal on mirror seeds (scripted
 play, read on the 4060) checks plumbing and the interval's width, deciding nothing; if the interval is much wider than
 estimated, the pool grows before the 8B reads. Gating: under "Two stages".
+
+*Amendment 1 (Step −1C), 2026-11-05, the owner, before any reading:*
+- **Bar 2 is one-sided:** shape's AUC must sit above boundary's. As first written ("excludes zero"), a boundary that
+  separated the kinds better than shape would have passed it, the opposite of shape's claim.
+- **Reported, deciding nothing: shape given boundary.** Shape less its least-squares line on news, fitted on all
+  chunks blind to the kind, then its AUC off over on. The reason, stated before any reading: the theme keeps house's
+  words but changes its templates, which also moves an off-structure room away from its nearest earlier reading, so
+  boundary may part the kinds nearly as well as shape. With both AUCs near 1, bar 2 cannot pass even where shape
+  carries more; this reading can still see it. It is conservative there (the line on news takes up part of the kind's
+  effect), so it can read a real effect low, never invent one. *The agent's note:* strata of news were tried first,
+  on toy material, and dropped: under such a ceiling each stratum's off chunks still sit higher in news, and a shape
+  that only tracked news read 0.97.
+- **The 0.6B rehearsal reports whether boundary's AUC is near its ceiling.** If it is, the owner is told before the 8B
+  reads; any change made then is labelled as made after the rehearsal.
+
+#### Step −1C: note, 2026-11-05, written with the code, before any run
+
+Code: `body/stepm1c.py` (`play`, `read`, `score`), the pool in `material/habitat_worlds_stepm1c.json`, tests in
+`tests/test_stepm1c.py`; `body/habitat.py`'s `build` and `play` take the plan as optional arguments, leaving Step −1
+unchanged. `read` is Step −1's own, unchanged: news, shape and token counts for every chunk. Run here with TextWorld
+1.7.0 on Linux (Python 3.11; TextWorld's jericho does not build on 3.13).
+
+*The agent's choices, fixed by the owner unchanged (2026-11-05), before any play of the pool's seeds:*
+- **The pool:** seeds 6000–6999, disjoint from every registered pool and below babbling's; the generator is Stage 1's
+  frozen one (6–12 rooms); episodes of up to 100 turns, ending on the turn the script enters the planted room.
+- **The kind:** on-structure on an even seed, off-structure on an odd one; the planted turn drawn as Step −1's
+  (15–35, `default_rng(seed + 500000)`); a rehearsal seed takes the kind of the seed it mirrors.
+- **The length match is drawn for both kinds:** every seed draws its off-structure description and is skipped if none
+  matches, whatever its kind; an on-structure seed then keeps its house description. Without this the off kind alone
+  would lose rooms whose house description is unusually short or long, and the kinds would differ in more than their
+  templates.
+- **A kind already full is not played,** and seeds are drawn in order until both are full; `play` records the counts
+  (unbuildable, no length match, never entered, by kind) and the seeds drawn before any reading.
+- **Checked in code:** one seed played as either kind gives the same actions (the script never reads a description),
+  so who enters the room, and when, cannot depend on the kind.
+
+*Found while building, deciding nothing (40 mirror seeds, scripted play only, no reading):* 14 seeds had no length
+match, 17 never entered the room in 100 turns, 9 entered (about 22%). The planted room is small (one door, one object),
+so its house description is often 16–20 tokens, below the theme's shortest (about 22); on ordinary rooms PR #33
+measured 12% unmatched. At this rate the 1,000-seed pool gives about 110 usable a kind, against 80, and the draw takes
+about an hour on a CPU. The script finds the room's door by chance: it opens a door only when no untried exit is left
+in the room.
+
+*Questions for the owner:*
+1. **Bar 2's direction.** *Answered (owner, 2026-11-05): one-sided, shape above boundary; amendment 1 above.*
+2. **The entry rate.** *Answered (owner, 2026-11-05): the script stays as fixed; about 22% usable is enough for the
+   pool as drawn.*
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 

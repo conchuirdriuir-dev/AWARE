@@ -146,10 +146,14 @@ def quest_left(policy, won: bool) -> int | None:
 
 # --- worlds (TextWorld) -------------------------------------------------------------------------------------------
 
-def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = None) -> dict:
+def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = None, vault: str | None = None) -> dict:
     """Compile the world for `seed` into `out`. A new-room world is compiled twice: A, with one extra room behind a
     locked door whose key is not in the world, and B, the same with the door closed but unlocked. Returns the paths
-    and the planted room's names as the compiled game holds them."""
+    and the planted room's names as the compiled game holds them.
+
+    `vault` (Step -1C, PLAN.md): "on" or "off". Either way the planted room's off-structure description is drawn and
+    length-matched to its own house one (`body/offtheme.py`), so both kinds are selected alike; "off" puts it in the
+    game, "on" keeps the house one. With no match, nothing is compiled and `unmatched` is returned."""
     import textworld
     from textworld.generator import Game, World, compile_game, make_game
     from textworld.logic import Proposition, Variable
@@ -176,16 +180,26 @@ def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = Non
     R, V, D, O = Variable(room, "r"), Variable("r_vault", "r"), Variable("d_vault", "d"), Variable("o_vault", "o")
     plant = [Proposition(rel, (V, R)), Proposition(DIRS[rel], (R, V)), Proposition("link", (R, D, V)),
              Proposition("link", (V, D, R)), Proposition("at", (O, V))]
-    paths, first = {}, None
+    paths, first, match = {}, None, None
     for name, state in (("A", "locked"), ("B", "closed")):
         game = Game(World.from_facts(facts + plant + [Proposition(state, (D,))]), base.grammar, base.quests)
         game.metadata = dict(base.metadata)
         if first is not None:                       # B is A with the door unlocked: the same names and text
             game._infos = copy.deepcopy(first.infos)
+        elif vault is not None:                     # Step -1C: the planted room's description, before compiling
+            from body.offtheme import describe
+            match = describe(next(r for r in game.world.rooms if r.id == "r_vault"), game, seed)
+            if match["desc"] is None:
+                return {"unmatched": True, "match": match}
+            if vault == "off":
+                game.infos["r_vault"].desc = match["desc"]
         paths[name] = compile_(game, name)
         first = first or game
     names = {k: first.infos[k].name for k in ("r_vault", "d_vault", "o_vault")}
-    return {**paths, "door": names["d_vault"], "room": names["r_vault"], "object": names["o_vault"], "next_to": room}
+    out_ = {**paths, "door": names["d_vault"], "room": names["r_vault"], "object": names["o_vault"], "next_to": room}
+    if vault is not None:
+        out_["match"] = {k: v for k, v in match.items() if k != "desc"}
+    return out_
 
 
 BUILD_MEMORY, BUILD_SECONDS = 8 << 30, 120     # Step 0 amendment 4 (owner): Step -1C's rule
@@ -197,7 +211,7 @@ class Unbuildable(Exception):
 
 
 def build_capped(seed: int, out: Path, kind: str | None = None, spec: dict | None = None,
-                 memory: int | None = None, seconds: float | None = None) -> dict:
+                 memory: int | None = None, seconds: float | None = None, vault: str | None = None) -> dict:
     """`build` in a subprocess capped at `memory` bytes of address space and `seconds`; Unbuildable past either.
     TextWorld's quest search can run away with memory on some seeds, which a timeout alone does not stop."""
     import os
@@ -210,10 +224,11 @@ def build_capped(seed: int, out: Path, kind: str | None = None, spec: dict | Non
     def cap():
         resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
 
-    job = json.dumps({"seed": seed, "out": str(out), "kind": kind, "spec": spec})
+    job = json.dumps({"seed": seed, "out": str(out), "kind": kind, "spec": spec, "vault": vault})
     code = ("import json, sys, warnings; warnings.filterwarnings('ignore'); from body.habitat import build; "
             "a = json.loads(sys.stdin.read()); "
-            "print('BUILT ' + json.dumps(build(a['seed'], __import__('pathlib').Path(a['out']), a['kind'], a['spec'])))")
+            "print('BUILT ' + json.dumps(build(a['seed'], __import__('pathlib').Path(a['out']), a['kind'], a['spec'], "
+            "a.get('vault'))))")
     try:
         r = subprocess.run([sys.executable, "-c", code], input=job, capture_output=True, text=True, timeout=seconds,
                            preexec_fn=cap, cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)})
@@ -481,20 +496,29 @@ class Agent:
 # --- episodes -----------------------------------------------------------------------------------------------------
 
 def play(agent, record, seed: int, games: Path, max_turns: int | None = None, kind: str | None = "auto",
-         generator: dict | None = None, worlds_path: Path | None = None) -> None:
+         generator: dict | None = None, worlds_path: Path | None = None, plan: dict | None = None) -> str:
     """One episode on world `seed`, appended to `record` turn by turn. Each turn is two chunks, the action (the
-    model's, self) and the reply (the code's, external, elicited), then one key entry the readout never reads."""
+    model's, self) and the reply (the code's, external, elicited), then one key entry the readout never reads.
+
+    `plan` (Step -1C) replaces the pool's plant: {"kind": "new_room", "turn": t, "vault": "on" | "off"}; the episode
+    then ends on the turn the player enters the planted room. Returns how it ended: "unbuildable", "unmatched",
+    "entered", or "played" (its turns ran out or the game ended)."""
     spec = worlds(worlds_path) if worlds_path else worlds()
     if generator:                            # a candidate setting, rehearsals only: recorded on the episode
         spec = {**spec, "generator": generator}
     max_turns = max_turns or spec["episode"]["max_turns"]
-    plant = planted(seed, spec) if kind == "auto" else None
+    plant = plan or (planted(seed, spec) if kind == "auto" else None)
+    vault = plan.get("vault") if plan else None
+    where = Path(worlds_path).name if worlds_path else WORLDS.name
     try:
-        built = build_capped(seed, games, plant["kind"] if plant else None, spec)
+        built = build_capped(seed, games, plant["kind"] if plant else None, spec, vault=vault)
     except Unbuildable as why:                # amendment 4: skipped and counted, before any reading
-        record.append("skip", "code", seed=seed, reason=str(why), pool_params=params(seed, spec),
-                      worlds=Path(worlds_path).name if worlds_path else WORLDS.name)
-        return
+        record.append("skip", "code", seed=seed, reason=str(why), pool_params=params(seed, spec), worlds=where)
+        return "unbuildable"
+    if built.get("unmatched"):                # Step -1C: no length match, skipped and counted, never loosened
+        record.append("skip", "code", seed=seed, reason="no length match", match=built["match"],
+                      pool_params=params(seed, spec), worlds=where)
+        return "unmatched"
     scripted = getattr(agent, "scripted", False)
     engine = Engine(built, admissible=scripted)       # the script reads the admissible commands
     if scripted:
@@ -506,7 +530,8 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
                   context=getattr(agent, "context", None), generator=generator,
                   worlds=Path(worlds_path).name if worlds_path else WORLDS.name,
                   system=None if scripted else getattr(agent, "system", SYSTEM), planted_kind=plant["kind"] if plant else None,
-                  quest_left=engine.keys()["quest_left"])
+                  quest_left=engine.keys()["quest_left"],
+                  **({"plan": plan, "match": built["match"]} if plan else {}))
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
     system = getattr(agent, "system", SYSTEM)
@@ -515,6 +540,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     door = built.get("door")                 # the plant's own change, left out when asking whether play was new too
     seen_play = {facts_key(engine.state.facts, door)}
     score = engine.state.score
+    entered = False
     for t in range(max_turns):
         if scripted:                         # Stage 1: the code acts; the reading is unchanged (its slot is the player's)
             action, by, dropped = agent.act(engine), "code", 0
@@ -550,14 +576,18 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         seen_play.add(played)
         if scripted:
             note = {**note, "phase": agent.last_phase}
+        if plan and keys["room"] == built["room"]:  # Step -1C: this turn's reply is the scored description
+            entered = note["entered"] = True
         record.append("key", "code", seed=seed, turn=t, new_state=new, score_change=keys["score"] - score,
-                      room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note.keys() - {"phase"}),
+                      room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note.keys() - {"phase", "entered"}),
                       **note)
         score = keys["score"]
         messages += [{"role": "assistant", "content": action}, {"role": "user", "content": reply}]
-        if keys["done"]:
+        if keys["done"] or entered:
             break
-    record.append("end", "code", seed=seed, turns=t + 1, done=bool(keys["done"]))
+    record.append("end", "code", seed=seed, turns=t + 1, done=bool(keys["done"]),
+                  **({"entered": entered} if plan else {}))
+    return "entered" if entered else "played"
 
 
 def self_talk(agent, record, seed: int, variant: str, turns: int = 30) -> None:

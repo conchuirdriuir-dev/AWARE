@@ -1,0 +1,22 @@
+{
+  "fixed": "2026-11-05, by the owner, the agent's draft unchanged (PLAN.md, Body readout, Step -1C), before any play of its seeds",
+  "engine": "TextWorld, tw-make custom",
+  "generator": {
+    "rooms": [6, 12],
+    "objects": [10, 20],
+    "quest_length": [3, 8],
+    "drawn_by": "numpy.random.default_rng(seed).integers(lo, hi + 1), in the order rooms, objects, quest_length",
+    "same_as": "habitat_worlds.json (Stage 1's frozen worlds)"
+  },
+  "episode": {"max_turns": 100, "per_world": 1, "ends": "on the turn the script enters the planted room"},
+  "pools": {
+    "step_minus_1c": {
+      "seeds": [6000, 6999],
+      "per_kind": 80,
+      "kind": "on-structure on an even seed, off-structure on an odd one (a rehearsal seed takes the kind of the seed it mirrors)",
+      "turn": "drawn from 15-35 by numpy.random.default_rng(seed + 500000).integers(15, 36), as Step -1's plants",
+      "drawn": "in order until 80 per kind are usable; a seed of a kind already full is not played"
+    }
+  },
+  "ranges_are_inclusive": true
+}

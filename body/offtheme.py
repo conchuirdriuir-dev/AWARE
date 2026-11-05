@@ -90,12 +90,18 @@ def check(theme_path: os.PathLike | None = None) -> dict:
             "ok": not new_words and not shared and not missing}
 
 
+_kb = None
+
+
 def grammar(rng=None):
-    """The theme as a TextWorld Grammar (its own directory as the knowledge base's grammar path)."""
+    """The theme as a TextWorld Grammar (its own directory as the knowledge base's grammar path). The knowledge base
+    is loaded once (0.2 s a load; `describe` makes up to TRIES grammars a room); each grammar keeps its own rng."""
+    global _kb
     from textworld.generator.data import KnowledgeBase
     from textworld.generator.text_grammar import Grammar
-    kb = KnowledgeBase.load(grammar_path=str(THEME_DIR))
-    return Grammar(options={"theme": THEME}, rng=rng, kb=kb)
+    if _kb is None:
+        _kb = KnowledgeBase.load(grammar_path=str(THEME_DIR))
+    return Grammar(options={"theme": THEME}, rng=rng, kb=_kb)
 
 
 TOLERANCE = 0.10
