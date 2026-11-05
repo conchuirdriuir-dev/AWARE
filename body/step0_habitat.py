@@ -304,9 +304,10 @@ def cmd_play(a) -> None:
     run = Path(a.run)
     record = Record(run / "record.jsonl")
     done = set(_episodes(run)) if record.path.exists() else set()
-    if a.nf4 and not a.rehearsal:
-        raise SystemExit("--nf4 plays a 4-bit model: rehearsals only (--rehearsal)")
-    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4)
+    if (a.nf4 or a.context) and not a.rehearsal:
+        raise SystemExit("--nf4 and --context change the player: rehearsals only (--rehearsal)")
+    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
+                  **({"context": a.context} if a.context else {}))
     for seed in [s + REHEARSAL * a.rehearsal for s in pool("step0_habitat")[: a.limit or None]]:
         if (seed, None) not in done:
             play(agent, record, seed, run / "games")
@@ -387,6 +388,7 @@ def main(argv=None) -> None:
             s.add_argument("--rehearsal", action="store_true", help="the pool's mirror seeds (+900000)")
             s.add_argument("--no-cache", action="store_true")
             s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
+            s.add_argument("--context", type=int, help="a shorter context in tokens: rehearsals only")
         if name == "read":
             s.add_argument("--sets", default="material/paraphrases.jsonl")
             s.add_argument("--gpu-memory", type=float)

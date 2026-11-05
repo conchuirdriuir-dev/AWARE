@@ -300,12 +300,13 @@ class Agent:
     cache. `sample=False` (greedy) is only for checking that cached and uncached play agree."""
 
     def __init__(self, model: str, device: str = "auto", dtype: str = "bfloat16", seed: int = 0,
-                 cache: bool = True, sample: bool = True, nf4: bool = False):
+                 cache: bool = True, sample: bool = True, nf4: bool = False, context: int = CONTEXT_TOKENS):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.torch, self.name, self.cache, self.sample = torch, model, cache, sample
         self.load = "nf4" if nf4 else dtype                 # recorded on every episode; nf4 is for rehearsals only
+        self.context = context                              # recorded too; below 16384 for rehearsals only
         self.tok = AutoTokenizer.from_pretrained(model)
         extra = {}
         if nf4:
@@ -346,7 +347,7 @@ class Agent:
         """Drop the oldest turns (after the system prompt and the opening) until the context fits; returns the
         messages and how many turns were dropped."""
         dropped = 0
-        while self._ids(messages).shape[1] > CONTEXT_TOKENS - MAX_ACTION_TOKENS and len(messages) > 4:
+        while self._ids(messages).shape[1] > self.context - MAX_ACTION_TOKENS and len(messages) > 4:
             messages = messages[:2] + messages[4:]
             dropped += 1
         return messages, dropped
@@ -383,7 +384,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
                   model=agent.name,
                   revision=agent.revision, kv_cache=getattr(agent, "cache", None), load=getattr(agent, "load", None),
-                  planted_kind=plant["kind"] if plant else None,
+                  context=getattr(agent, "context", None), planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
