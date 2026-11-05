@@ -162,7 +162,8 @@ def test_score_passes_on_a_sense_that_hears_the_world():
     assert out["fires"]["fired"] == 40 and out["fires"]["pass"]
     assert out["above_ordinary"]["auc"] == 1.0 and out["above_ordinary"]["pass"]
     assert out["floor_check"]["pass"] and out["pass"]
-    assert out["k"] == {"k": 10, "episodes": 10}                         # toy stalls of 9 turns between new states
+    assert out["k"]["k"] == 10 and out["k"]["episodes"] == 10           # toy stalls of 9 turns between new states
+    assert "Stage 2" in out["k"]["note"]                                 # reported only: Stage 2's player sets k
 
 
 def test_score_fails_when_planted_rooms_are_missed_or_self_talk_fires():
@@ -357,6 +358,45 @@ def test_a_planted_turn_is_read_on_its_own_chunk_and_the_appended_form_is_report
     out = M.score(eps, news, H.worlds(), {key: J})
     assert out["fires"]["fired"] == 40
     assert out["reported"]["plants_read_appended"] == {"deciding": "nothing", "new_room": "0 of 1 fired"}
+
+
+def test_the_script_plays_full_episodes_by_its_policy_and_delivers_every_plant(tmp_path):
+    """Stage 1's player on real worlds: it never wins, so every episode runs its 100 turns and every plant arrives on
+    its turn; its actions are the code's; the same seed plays the same game."""
+    pytest.importorskip("textworld")
+    from substrate.record import Record, read
+
+    record = Record(tmp_path / "record.jsonl")
+    for seed in (2000, 2020, 2040, 1000):                                # room, rule, no plant, calibration
+        H.play(H.Script(), record, seed, tmp_path / "games")
+    eps = M.episodes(read(record.path))
+    for (seed, _), ep in eps.items():
+        assert len(ep["keys"]) == 100 and not any(k["score_change"] > 0 for k in ep["keys"].values())
+        assert all(c["by"] == "code" for c in ep["chunks"] if c["slot"] == "self")
+        plant = H.planted(seed)
+        here = [t for t, k in ep["keys"].items() if k["planted_here"]]
+        assert here == ([plant["turn"]] if plant else [])
+    loops = [c["text"] for c in eps[(1000, None)]["chunks"] if c["slot"] == "self"]
+    assert len(set(loops)) < len(loops) and sum(not k["new_state"] for k in eps[(1000, None)]["keys"].values()) >= 20
+    again = Record(tmp_path / "again.jsonl")
+    H.play(H.Script(), again, 1000, tmp_path / "games2")
+    assert [c["text"] for c in M.episodes(read(again.path))[(1000, None)]["chunks"] if c["slot"] == "self"] == loops
+
+
+def test_the_script_alternates_explore_and_loop_phases():
+    sc = H.Script()
+    sc.start(5)
+    sc.used = ["go north", "open box", "take key"]
+    kinds, lengths = [], []
+    for _ in range(6):
+        sc._next_phase()
+        kinds.append(sc.phase)
+        lengths.append(sc.left)
+    assert kinds == ["explore", "loop"] * 3
+    assert all(8 <= n <= 15 for n in lengths[::2]) and all(5 <= n <= 12 for n in lengths[1::2])
+    sc.start(5)
+    sc._next_phase(); sc._next_phase()                                    # nothing used yet: explore again
+    assert sc.phase == "explore"
 
 
 def test_step0_habitat_reads_a_real_episode(tmp_path):

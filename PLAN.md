@@ -37,7 +37,7 @@ transfer test.
 
 **Now (2026-11-05): the habitat in two stages, player and perceiver apart (owner)**, under "Body readout", "Two
 stages": Stage 1, Step −1 with a scripted player; Stage 2, Step 0 with a weaker model playing; the 8B perceives in
-both. The stages are the agent's draft, for the owner to fix before their code. Play for both can run on the 4060; the
+both. The agent's draft of the stages was fixed by the owner the same day. Play for both can run on the 4060; the
 8B's reading waits for the 3090. *The paragraph below is the state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -192,7 +192,7 @@ closures and 20 ordinary stretches at the chosen k, picked by the code at random
 confirms the closures look like looping. If fewer than 100 closures occur in Step 0's pool, the percentile is revisited
 before Step 0 is scored, not after.
 
-#### Two stages: the player and the perceiver apart (owner, 2026-11-05; the stages below are the agent's draft, for the owner to fix)
+#### Two stages: the player and the perceiver apart (owner, 2026-11-05; the stages below drafted by the agent, fixed by the owner the same day)
 
 The owner's direction, from two outside suggestions after the rehearsals: the habitat was testing the player's skill,
 not the instrument. Through the night of 2026-11-04 the worlds were reshaped around how the 8B plays (harder quests,

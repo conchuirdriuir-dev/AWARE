@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **The two stages fixed** (owner, the agent's draft unchanged): the script's policy, Stage 2's player
+  candidates and criteria, as written in PLAN.md, "Two stages".
 - 2026-11-05: **The habitat runs in two stages, the player and the perceiver apart** (owner, from two outside
   suggestions): Stage 1, instrument validity, a scripted player with the 8B perceiving (Step −1); Stage 2, predictive
   validity, a weaker model playing with the 8B perceiving (Step 0). The worlds had been reshaped around the player's

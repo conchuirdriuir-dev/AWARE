@@ -291,6 +291,64 @@ class Engine:
                 "done": bool(s.done), "won": won, "quest_left": quest_left(s.policy_commands, won)}
 
 
+# --- Stage 1's player: the script (PLAN.md, "Two stages") -------------------------------------------------------
+
+SCRIPT_SEED, EXPLORE, LOOP, CYCLE = 700000, (8, 15), (5, 12), (2, 4)
+
+
+class Script:
+    """Stage 1's player (fixed by the owner, 2026-11-05): explore phases of 8-15 turns (a move through an exit not yet
+    taken from this room if there is one, else an admissible command not yet tried here, else any admissible one) and
+    loop phases of 5-12 turns (a cycle of 2-4 commands already used, repeated), alternating from explore, every
+    choice drawn from default_rng(seed + 700000). It reads what a player sees (the room it is in) and the admissible
+    commands, never the plant; and it never issues the quest's final command (read from the walkthrough), so an
+    episode runs its full length. Its actions are the code's."""
+
+    name, revision, scripted = "script-v1", None, True
+
+    def start(self, seed: int) -> None:
+        self.rng = np.random.default_rng(seed + SCRIPT_SEED)
+        self.tried: set = set()
+        self.used: list[str] = []
+        self.phase, self.left, self.cycle, self.i = "loop", 0, [], 0
+
+    def _next_phase(self) -> None:
+        self.phase = "explore" if self.phase == "loop" else "loop"
+        lo, hi = EXPLORE if self.phase == "explore" else LOOP
+        self.left = int(self.rng.integers(lo, hi + 1))
+        if self.phase == "loop":
+            if len(self.used) < 2:                       # nothing to loop over yet: explore again
+                self.phase, self.left = "explore", int(self.rng.integers(EXPLORE[0], EXPLORE[1] + 1))
+            else:
+                n = min(int(self.rng.integers(CYCLE[0], CYCLE[1] + 1)), len(self.used))
+                self.cycle = [str(c) for c in self.rng.choice(self.used, size=n, replace=False)]
+                self.i = 0
+
+    def act(self, engine) -> str:
+        if self.left <= 0:
+            self._next_phase()
+        self.left -= 1
+        state = engine.state
+        walk = list(state.policy_commands or [])
+        final = walk[0].strip().lower() if len(walk) == 1 else None
+        ok = sorted({c for c in (state.admissible_commands or []) if c.strip().lower() != final})
+        room = engine.keys()["room"]
+        if self.phase == "loop":
+            cmd = self.cycle[self.i % len(self.cycle)]
+            self.i += 1
+            if cmd.strip().lower() == final:             # the quest's last step: never
+                cmd = str(self.rng.choice(ok)) if ok else "look"
+        else:
+            fresh = [c for c in ok if (room, c) not in self.tried]
+            moves = [c for c in fresh if c.startswith("go ")]
+            pick = moves or fresh or ok
+            cmd = str(self.rng.choice(pick)) if pick else "look"
+        self.tried.add((room, cmd))
+        if cmd not in self.used:
+            self.used.append(cmd)
+        return cmd
+
+
 # --- the agent ----------------------------------------------------------------------------------------------------
 
 class Agent:
@@ -384,7 +442,10 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     max_turns = max_turns or spec["episode"]["max_turns"]
     plant = planted(seed, spec) if kind == "auto" else None
     built = build(seed, games, plant["kind"] if plant else None, spec)
-    engine = Engine(built)
+    scripted = getattr(agent, "scripted", False)
+    engine = Engine(built, admissible=scripted)       # the script reads the admissible commands
+    if scripted:
+        agent.start(seed)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
     record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
                   model=agent.name,
@@ -399,9 +460,12 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     seen_play = {facts_key(engine.state.facts, door)}
     score = engine.state.score
     for t in range(max_turns):
-        messages, dropped = agent.fit(messages)
-        action = agent.say(messages)
-        record.chunk(action, "model", "self", seed=seed, turn=t, slot="self", dropped=dropped)
+        if scripted:                         # Stage 1: the code acts; the reading is unchanged (its slot is the player's)
+            action, by, dropped = agent.act(engine), "code", 0
+        else:
+            messages, dropped = agent.fit(messages)
+            action, by = agent.say(messages), "model"
+        record.chunk(action, by, "self", seed=seed, turn=t, slot="self", dropped=dropped)
         blocked = rule.before(t, action) if rule else None
         if blocked is not None:
             reply, changed = blocked, False

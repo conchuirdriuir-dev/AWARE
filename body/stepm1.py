@@ -147,7 +147,8 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -
 
     flags = [[eps[key]["keys"][t]["new_state"] for t in sorted(eps[key]["keys"])] for key in by_pool["calibration"]]
     try:
-        out["k"] = {"k": choose_k(flags), "episodes": len(flags)}
+        out["k"] = {"k": choose_k(flags), "episodes": len(flags),
+                "note": "reported only: k is set from Stage 2's player on the calibration pool"}
     except ValueError as err:
         out["k"] = {"k": None, "episodes": len(flags), "why": str(err)}
 
@@ -206,7 +207,7 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -
 # --- commands -----------------------------------------------------------------------------------------------------
 
 def cmd_play(a) -> None:
-    from body.habitat import REHEARSAL, Agent, play, pool, self_talk, worlds
+    from body.habitat import REHEARSAL, Agent, Script, play, pool, self_talk, worlds
 
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
@@ -214,8 +215,12 @@ def cmd_play(a) -> None:
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None
-    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
-                  **({"context": a.context} if a.context else {}))
+    if not a.script and not a.model:
+        raise SystemExit("play needs --model, or --script for Stage 1's scripted player")
+    if a.script and a.pool == "self_talk":
+        raise SystemExit("self-talk is the perceiver's own words: the 8B writes it, not the script")
+    agent = Script() if a.script else Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
+                                            **({"context": a.context} if a.context else {}))
     seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
     for seed in seeds:
         if a.pool == "self_talk":
@@ -284,7 +289,7 @@ def main(argv=None) -> None:
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
         if name != "score":
-            s.add_argument("--model", required=True)
+            s.add_argument("--model", required=name == "read", help="the player (play) or the perceiver (read)")
             s.add_argument("--device", default="auto")
             s.add_argument("--dtype", default="bfloat16")
         if name == "play":
@@ -292,6 +297,7 @@ def main(argv=None) -> None:
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
             s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
             s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
+            s.add_argument("--script", action="store_true", help="Stage 1's scripted player (no model, no GPU)")
             s.add_argument("--context", type=int, help="a shorter context in tokens: rehearsals only")
             s.add_argument("--generator", help='candidate world settings as JSON, e.g. {"rooms": [10, 20], ...}: rehearsals only')
             s.add_argument("--rehearsal", action="store_true",
