@@ -308,6 +308,29 @@ the floor's habitat check 197 repeats, all below the floor; k not set (no resolv
 opening chunk carries TextWorld's ASCII banner, as a player sees it; and a planted turn can coincide with natural
 novelty (a new room entered on the same turn), which would let it fire for another reason.
 
+**Rehearsals 1 and 2 (2026-11-04, Qwen3-0.6B, mirror seeds, decide nothing).** Rehearsals play mirror seeds (a
+registered seed + 900000: a new world on the same plan), so no registered world is spent; records in
+`runs/stepm1-0.6b-rehearsal/` and `-rehearsal2/`. Rehearsal 1 (30 calibration, 60 Step −1, 20 self-talk seeds, code
+before the hardening below): floor check 2,902 repeats, all below; k's procedure ran for the first time, k = 10 from
+only 11 resolved stalls (the 0.6B won 0 of 30 and loops); self-talk exact 0 of 600, restated 11.5% above the floor (bar
+5%); planted room 14 of 20, rule change 0 of 20; AUC over ordinary play 0.98. Rehearsal 2 (10 calibration, the same
+Step −1 and self-talk seeds, on the hardened code, killed once mid-episode on purpose): the stub was played again
+(seed 902005, 2 attempts), every opening without the banner, k = 5 from 10 episodes, otherwise as rehearsal 1 (room 13
+of 20, all 20 clean of natural novelty; rule change 0 of 20; restated 11.5%). Re-reading rehearsal 1's record from its
+text alone rebuilt all 130 news files exactly (largest difference 0.0). Found, for the owner before the 8B run:
+- **The rule change is rarely delivered:** 18 of 20 (rehearsal 1) and 20 of 20 (rehearsal 2) never fired, since the
+  rule waits for a world-changing command other than a move and the looping 0.6B makes none. It counts as not firing,
+  so a passive player fails Step −1 with the instrument not at fault. The two delivered stayed below the floor (0.66,
+  0.98).
+- **The planted room is diluted in long replies:** all 6 misses are 76–104 token replies (a room seen before, the click
+  appended last); all 14 hits are 13–33 tokens. A chunk's state is the mean over its tokens.
+- **k moves with few stalls** (10, then 5); the 8B's calibration, 100 worlds, is where it is set.
+
+**Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
+done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
+was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
+apart, deciding nothing.
+
 **Play keeps its key-value cache between turns (2026-11-04, the owner's go-ahead, before any real run).** The agent
 used to re-read the whole episode, up to 16k tokens, to write each action of at most 24. It now cuts its cache back to
 the longest start the new prompt shares with it and reads only the rest; dropped turns and a new episode shorten that
