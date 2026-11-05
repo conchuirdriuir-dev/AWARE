@@ -259,6 +259,14 @@ frozen file. Stage 2's player, k and Step 0 all come from this file (`body/step0
 calibration|step0_habitat`, `k`, `read`, `score`). Then 1.7B and 4B, told the forms, are screened on its mirror seeds
 by the same criteria.
 
+*Step 0 amendment 4, the owner, 2026-11-05, Step −1C's rule:* some of Stage 2's longer-quest worlds cannot be built:
+TextWorld's quest search runs past a minute or runs away with memory (the owner's machine was killed twice for memory
+on seed 905004). Probed under a 3 GB, 55 s limit: 7 of 80 seeds failed, all with 30–39 objects. Every world is now
+built in a subprocess capped at 8 GB of address space and 120 s; a seed over either limit is skipped and counted (a
+`skip` entry in the record, before any reading) and never retried. Step 0's pool stays 5000–5399, about 365 usable;
+the minimum event counts are unchanged. The skips tilt the pool slightly away from the densest worlds; the count and
+the skipped worlds' sizes are reported.
+
 *Step 0 amendment 3, the owner, 2026-11-05:* "the nearest world by seed with the same generator settings" reads as the
 nearest world by seed in the same pool, since every world of Step 0's pool shares its generator. The agent had read it
 as identical rooms, objects and quest length, which almost never coincide (the 4B's screen lost 6 of 6 cross-episode

@@ -273,6 +273,7 @@ def cmd_play(a) -> None:
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
     done = set(episodes(read(record.path)).keys()) if record.path.exists() else set()
+    done |= {(e["seed"], None) for e in read(record.path) if e["kind"] == "skip"} if record.path.exists() else set()
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None

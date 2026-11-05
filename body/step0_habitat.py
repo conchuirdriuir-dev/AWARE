@@ -358,6 +358,7 @@ def cmd_play(a) -> None:
     run = Path(a.run)
     record = Record(run / "record.jsonl")
     done = set(_episodes(run, a.pool)) if record.path.exists() else set()
+    done |= {(e["seed"], None) for e in read(record.path) if e["kind"] == "skip"} if record.path.exists() else set()
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None
@@ -437,6 +438,10 @@ def cmd_score(a) -> None:
     run = Path(a.run)
     eps, n_layers = load(run)
     result = score(eps, a.k, n_layers)
+    skips = [e for e in read(run / "record.jsonl") if e["kind"] == "skip"]
+    result["reported"]["skipped as unbuildable (amendment 4)"] = {
+        "count": len(skips), "worlds": [{"seed": e["seed"], **e.get("pool_params", {}), "why": e["reason"]}
+                                        for e in skips]}
     Record(run / "record.jsonl").append("score", "code", step="step0_habitat", **result)
     print(json.dumps(result, indent=1, default=float))
 

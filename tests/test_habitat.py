@@ -524,3 +524,22 @@ def test_stage_2s_worlds_are_their_own_pools_with_longer_quests(tmp_path):
     pytest.importorskip("textworld")
     built = H.build(5000, tmp_path, None, s2)
     assert H.Engine(built).keys()["quest_left"] is not None
+
+
+def test_a_world_is_built_under_caps_and_one_over_them_is_skipped_and_counted(tmp_path, monkeypatch):
+    """Step 0 amendment 4: each world builds in a capped subprocess; over the limits, the seed is skipped and counted
+    (a skip entry, no episode) and play goes on."""
+    pytest.importorskip("textworld")
+    from substrate.record import Record, read
+
+    capped = H.build_capped(2000, tmp_path / "a", "new_room")
+    direct = H.build(2000, tmp_path / "b", "new_room")
+    assert {k: v for k, v in capped.items() if k not in "AB"} == {k: v for k, v in direct.items() if k not in "AB"}
+    with pytest.raises(H.Unbuildable):
+        H.build_capped(2000, tmp_path / "c", None, seconds=0.01)
+    monkeypatch.setattr(H, "BUILD_SECONDS", 0.01)
+    record = Record(tmp_path / "record.jsonl")
+    H.play(_FakeAgent(), record, 1000, tmp_path / "games", max_turns=5)
+    entries = read(record.path)
+    assert [e["kind"] for e in entries] == ["skip"] and entries[0]["seed"] == 1000 and "over" in entries[0]["reason"]
+    assert M.episodes(entries) == {}

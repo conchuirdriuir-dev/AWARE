@@ -188,6 +188,44 @@ def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = Non
     return {**paths, "door": names["d_vault"], "room": names["r_vault"], "object": names["o_vault"], "next_to": room}
 
 
+BUILD_MEMORY, BUILD_SECONDS = 8 << 30, 120     # Step 0 amendment 4 (owner): Step -1C's rule
+ROOT = Path(__file__).resolve().parent.parent
+
+
+class Unbuildable(Exception):
+    """A world over the build limits (memory or time): skipped and counted, never retried."""
+
+
+def build_capped(seed: int, out: Path, kind: str | None = None, spec: dict | None = None,
+                 memory: int | None = None, seconds: float | None = None) -> dict:
+    """`build` in a subprocess capped at `memory` bytes of address space and `seconds`; Unbuildable past either.
+    TextWorld's quest search can run away with memory on some seeds, which a timeout alone does not stop."""
+    import os
+    import resource
+    import subprocess
+    import sys
+
+    memory, seconds = memory or BUILD_MEMORY, seconds or BUILD_SECONDS
+
+    def cap():
+        resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+
+    job = json.dumps({"seed": seed, "out": str(out), "kind": kind, "spec": spec})
+    code = ("import json, sys, warnings; warnings.filterwarnings('ignore'); from body.habitat import build; "
+            "a = json.loads(sys.stdin.read()); "
+            "print('BUILT ' + json.dumps(build(a['seed'], __import__('pathlib').Path(a['out']), a['kind'], a['spec'])))")
+    try:
+        r = subprocess.run([sys.executable, "-c", code], input=job, capture_output=True, text=True, timeout=seconds,
+                           preexec_fn=cap, cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)})
+    except subprocess.TimeoutExpired:
+        raise Unbuildable(f"over {seconds:.0f} s")
+    line = next((x for x in r.stdout.splitlines() if x.startswith("BUILT ")), None)
+    if r.returncode != 0 or line is None:
+        tail = (r.stderr.strip().splitlines() or ["no output"])[-1]
+        raise Unbuildable(f"exit {r.returncode}: {tail[:200]}")
+    return json.loads(line[6:])
+
+
 STATUS = re.compile(r"-=\s.*?=-\s*\d+/\d+")
 
 
@@ -451,7 +489,12 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         spec = {**spec, "generator": generator}
     max_turns = max_turns or spec["episode"]["max_turns"]
     plant = planted(seed, spec) if kind == "auto" else None
-    built = build(seed, games, plant["kind"] if plant else None, spec)
+    try:
+        built = build_capped(seed, games, plant["kind"] if plant else None, spec)
+    except Unbuildable as why:                # amendment 4: skipped and counted, before any reading
+        record.append("skip", "code", seed=seed, reason=str(why), pool_params=params(seed, spec),
+                      worlds=Path(worlds_path).name if worlds_path else WORLDS.name)
+        return
     scripted = getattr(agent, "scripted", False)
     engine = Engine(built, admissible=scripted)       # the script reads the admissible commands
     if scripted:

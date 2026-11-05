@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **A world that cannot be built is skipped and counted** (owner; Step 0 amendment 4, Step −1C's rule): each
+  build in a subprocess capped at 8 GB and 120 s; about 9% of Stage 2's seeds fail, all dense (30–39 objects).
 - 2026-11-05: **Stage 2 plays its own worlds, with longer quests** (owner): `material/habitat_worlds_stage2.json`, 10–20
   rooms, quests of 15–25 steps, calibration 4000–4099, Step 0 5000–5399. In the frozen worlds every player's quest
   steps and stalls fell in the first dozen turns. Stage 1 keeps the frozen file.
