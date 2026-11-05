@@ -461,3 +461,50 @@ def test_shape_is_reported_by_source_beside_token_lengths():
     assert {"step_minus_1: self", "step_minus_1: world", "step_minus_1: planted event", "step_minus_1: pooled"} <= set(sh)
     assert sh["step_minus_1: planted event"]["chunks"] == 1 and sh["step_minus_1: pooled"]["median tokens"] == 7
     assert "shape" not in rep["not produced"]
+
+
+def test_the_scripts_phases_are_recorded_and_recovered_by_a_replay_that_matches(tmp_path):
+    """Play records each turn's phase in its key; for a record without them, `phases` replays the script and keeps
+    the labels only where every action matches (owner, 2026-11-05)."""
+    pytest.importorskip("textworld")
+    import argparse
+    import json
+
+    from substrate.record import Record, read
+
+    live = Record(tmp_path / "live.jsonl")
+    H.play(H.Script(), live, 2020, tmp_path / "g1", max_turns=40)
+    keys = M.episodes(read(live.path))[(2020, None)]["keys"]
+    assert {k["phase"] for k in keys.values()} == {"explore", "loop"}
+    assert sum(k["planted_here"] for k in keys.values()) == 1                # a phase is not a plant
+    run = tmp_path / "old"
+    run.mkdir()
+    lines = [json.loads(x) for x in open(live.path)]
+    for e in lines:
+        e.pop("phase", None)                                                 # as played before phases were recorded
+    (run / "record.jsonl").write_text("".join(json.dumps(e) + "\n" for e in lines))
+    M.cmd_phases(argparse.Namespace(run=str(run)))
+    got = M.phases_of(run, M.episodes(read(run / "record.jsonl")))[(2020, None)]
+    assert got == {t: k["phase"] for t, k in keys.items()}
+
+
+def test_loop_and_explore_are_compared_within_token_bins_by_source():
+    eps, news, shape_by, tokens_by, phases = {}, {}, {}, {}, {}
+    for s in range(5):
+        chunks = [{"slot": "world", "turn": -1, "text": "o"}]
+        for t in range(40):
+            chunks += [{"slot": "self", "turn": t, "text": "a"}, {"slot": "world", "turn": t, "text": "r",
+                                                                  "cause": "elicited"}]
+        n = len(chunks)
+        key = (s, None)
+        eps[key] = {"chunks": chunks, "keys": {}, "info": {}}
+        loop = {t: "loop" if t % 2 else "explore" for t in range(40)}
+        phases[key] = loop
+        sh = np.array([[5.0 if c["turn"] >= 0 and loop[c["turn"]] == "loop" else 9.0] * 2 for c in chunks])
+        shape_by[key], news[key] = sh, sh / 10
+        tokens_by[key] = np.array([4 if c["slot"] == "self" else 40 for c in chunks])
+    out = M.phase_comparison(eps, shape_by, news, tokens_by, phases)
+    assert set(out) == {"action, tokens [1, 8)", "reply, tokens [32, 64)"}
+    row = out["action, tokens [1, 8)"]
+    assert row["loop chunks"] == 100 and row["shape"]["AUC loop over explore"] == 0.0
+    assert row["shape"]["loop median"] == 5.0 and "news" in row

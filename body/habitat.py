@@ -332,6 +332,7 @@ class Script:
         if self.left <= 0:
             self._next_phase()
         self.left -= 1
+        self.last_phase = self.phase                     # recorded in the turn's key (the code's label)
         state = engine.state
         walk = list(state.policy_commands or [])
         final = walk[0].strip().lower() if len(walk) == 1 else None
@@ -500,8 +501,11 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
         if note:                             # did the agent's own action also make a new state on the planted turn?
             note["natural_new"] = played not in seen_play
         seen_play.add(played)
+        if scripted:
+            note = {**note, "phase": agent.last_phase}
         record.append("key", "code", seed=seed, turn=t, new_state=new, score_change=keys["score"] - score,
-                      room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note), **note)
+                      room=keys["room"], quest_left=keys["quest_left"], planted_here=bool(note.keys() - {"phase"}),
+                      **note)
         score = keys["score"]
         messages += [{"role": "assistant", "content": action}, {"role": "user", "content": reply}]
         if keys["done"]:

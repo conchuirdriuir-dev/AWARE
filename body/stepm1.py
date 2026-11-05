@@ -359,6 +359,93 @@ def cmd_read(a) -> None:
             np.save(out / f"{seed}-{variant or 'world'}-joined.npy", J)
 
 
+BINS = (1, 8, 16, 32, 64, 257)              # chunk token lengths (the agent's choice, PLAN.md, before any run)
+MIN_BIN = 20
+
+
+def phase_comparison(eps: dict, shape_by: dict, news_by: dict, tokens_by: dict, phases: dict) -> dict:
+    """Shape and news in the script's loop phases against its explore phases (owner, PR #32 sec. 4a; reported,
+    deciding nothing): by source (action, reply) within token-length bins, the medians and the AUC of loop over
+    explore, each as the mean over layers. `phases`: episode key -> turn -> phase."""
+    cells = defaultdict(lambda: {"loop": [], "explore": []})
+    for key, ep in eps.items():
+        if key not in phases or key not in shape_by:
+            continue
+        for i, c in enumerate(ep["chunks"]):
+            ph = phases[key].get(c["turn"])
+            if ph is None or c.get("cause") == "spontaneous" or not np.isfinite(shape_by[key][i]).all():
+                continue
+            n = int(tokens_by[key][i])
+            b = next((f"[{lo}, {hi})" for lo, hi in zip(BINS, BINS[1:]) if lo <= n < hi), None)
+            if b is None:
+                continue
+            src = "action" if c["slot"] == "self" else "reply"
+            nv = float(np.mean(news_by[key][i])) if np.isfinite(news_by[key][i]).all() else np.nan
+            cells[(src, b)][ph].append((float(np.mean(shape_by[key][i])), nv))
+    out = {}
+    for (src, b), v in sorted(cells.items()):
+        lo, ex = v["loop"], v["explore"]
+        row = {"loop chunks": len(lo), "explore chunks": len(ex)}
+        if len(lo) < MIN_BIN or len(ex) < MIN_BIN:
+            row["note"] = f"too few (under {MIN_BIN} of a phase)"
+        else:
+            for j, name in ((0, "shape"), (1, "news")):
+                L = [x[j] for x in lo if np.isfinite(x[j])]
+                E = [x[j] for x in ex if np.isfinite(x[j])]
+                if L and E:
+                    row[name] = {"loop median": float(np.median(L)), "explore median": float(np.median(E)),
+                                 "AUC loop over explore": auc(L, E)}
+        out[f"{src}, tokens {b}"] = row
+    return out
+
+
+def phases_of(run: Path, eps: dict) -> dict:
+    """Each scripted episode's phase by turn: from its keys where play recorded them, else from the derived labels
+    `phases` wrote (kept only where the replay matched every action)."""
+    derived = run / "derived" / "phases.json"
+    saved = json.loads(derived.read_text()) if derived.exists() else {}
+    out = {}
+    for key, ep in eps.items():
+        if any("phase" in k for k in ep["keys"].values()):
+            out[key] = {t: k.get("phase") for t, k in ep["keys"].items()}
+        elif str(key[0]) in saved and not key[1]:
+            out[key] = {int(t): p for t, p in saved[str(key[0])].items()}
+    return out
+
+
+def cmd_phases(a) -> None:
+    """Derive the script's phases for a record played before play recorded them (owner, 2026-11-05): replay the
+    deterministic script from each seed in a scratch directory and keep the labels only if every action matches."""
+    import tempfile
+
+    from body.habitat import Script, play
+
+    run = Path(a.run)
+    eps = episodes(read(run / "record.jsonl"))
+    out, report = {}, {"matched": 0, "mismatched": [], "skipped": 0}
+    with tempfile.TemporaryDirectory() as tmp:
+        scratch = Record(Path(tmp) / "replay.jsonl")
+        for (seed, variant), ep in sorted(eps.items()):
+            if variant or ep["info"].get("model") != Script.name or any("phase" in k for k in ep["keys"].values()):
+                report["skipped"] += 1
+                continue
+            play(Script(), scratch, seed, Path(tmp) / "games", max_turns=len(ep["keys"]),
+                 generator=ep["info"].get("generator"))
+            again = episodes(read(scratch.path))[(seed, None)]
+            mine = [c["text"] for c in ep["chunks"] if c["slot"] == "self"]
+            theirs = [c["text"] for c in again["chunks"] if c["slot"] == "self"]
+            if mine == theirs:
+                out[str(seed)] = {str(t): k["phase"] for t, k in again["keys"].items()}
+                report["matched"] += 1
+            else:
+                report["mismatched"].append(seed)
+    path = run / "derived" / "phases.json"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps(out))
+    Record(run / "record.jsonl").append("derived", "code", what="script phases, by replay", path=str(path), **report)
+    print(json.dumps(report))
+
+
 def cmd_score(a) -> None:
     from body.habitat import worlds
 
@@ -372,6 +459,12 @@ def cmd_score(a) -> None:
     shape_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-shape.npy").exists()}
     tokens_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-tokens.npy").exists()}
     result = score(eps, news_by, worlds(), joined_by, shape_by, tokens_by)
+    if tokens_by:
+        result["reported"]["chunks cut at 256 tokens"] = int(sum((t > SHAPE_CAP).sum() for t in tokens_by.values()))
+    ph = phases_of(run, eps)
+    if ph and shape_by:
+        result["reported"]["shape and news, loop against explore"] = phase_comparison(eps, shape_by, news_by,
+                                                                                      tokens_by, ph)
     Record(run / "record.jsonl").append("score", "code", **result)
     print(json.dumps(result, indent=2))
 
@@ -379,10 +472,10 @@ def cmd_score(a) -> None:
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("play", "read", "score"):
+    for name in ("play", "read", "score", "phases"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
-        if name != "score":
+        if name not in ("score", "phases"):
             s.add_argument("--model", required=name == "read", help="the player (play) or the perceiver (read)")
             s.add_argument("--device", default="auto")
             s.add_argument("--dtype", default="bfloat16")
@@ -403,7 +496,7 @@ def main(argv=None) -> None:
             s.add_argument("--gpu-memory", type=float)
             s.add_argument("--draft", action="store_true")
     a = p.parse_args(argv)
-    {"play": cmd_play, "read": cmd_read, "score": cmd_score}[a.cmd](a)
+    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "phases": cmd_phases}[a.cmd](a)
 
 
 if __name__ == "__main__":

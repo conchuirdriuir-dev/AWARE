@@ -323,9 +323,15 @@ from context, read from the record. Coupling and rate per turn are not yet compu
 added 2026-11-05 to the owner's definition (PR #32, `proposals/staged-schedule.md` sec. 4a):* per chunk and layer,
 the formula's code length (Lk) of the chunk fitted on every earlier chunk of the episode, both sources, on Step 0's
 readings (cut at 256 tokens) and floor variance; chunks in the first 10 turns fit and never score; reported by source
-(self, world, planted event) and pooled, beside token lengths, deciding nothing. Its loop-against-explore comparison
-on the scripted play is not built: the script's phases are not in the record, and "length-matched" is open (both
-put to the owner).*
+(self, world, planted event) and pooled, beside token lengths, deciding nothing. The owner's answers, 2026-11-05 (via PR #32):
+the script's phases are recovered by replaying it from each seed in a scratch directory, kept only if every action
+matches the record exactly, and saved beside the record as derived labels; from now on script play records each
+turn's phase in its key (`by: code`, read only by scoring). The comparison (reported, deciding nothing): shape in loop
+phases against explore phases, by source (the action, the reply), within token-length bins, with boundary (news) on
+the same turns. The 256-token cap stays; score reports how many chunks it cut. *Bin edges, the agent's choice, written
+before any run:* chunk token lengths [1, 8), [8, 16), [16, 32), [32, 64), [64, 256]; per bin and source, the medians
+of loop and explore chunks and the AUC of loop over explore, for shape and for news; a bin with fewer than 20 chunks
+of either phase is reported as too few.*
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
