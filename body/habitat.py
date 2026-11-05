@@ -300,13 +300,20 @@ class Agent:
     cache. `sample=False` (greedy) is only for checking that cached and uncached play agree."""
 
     def __init__(self, model: str, device: str = "auto", dtype: str = "bfloat16", seed: int = 0,
-                 cache: bool = True, sample: bool = True):
+                 cache: bool = True, sample: bool = True, nf4: bool = False):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.torch, self.name, self.cache, self.sample = torch, model, cache, sample
+        self.load = "nf4" if nf4 else dtype                 # recorded on every episode; nf4 is for rehearsals only
         self.tok = AutoTokenizer.from_pretrained(model)
-        self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=getattr(torch, dtype), device_map=device)
+        extra = {}
+        if nf4:
+            from transformers import BitsAndBytesConfig
+            extra["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
+                                                              bnb_4bit_compute_dtype=getattr(torch, dtype))
+        self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=getattr(torch, dtype), device_map=device,
+                                                          **extra)
         self.model.eval()
         self.revision = getattr(self.model.config, "_commit_hash", None)
         self._kv, self._kv_ids = None, None                # the cache, and the tokens it holds
@@ -375,7 +382,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
     record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
                   model=agent.name,
-                  revision=agent.revision, kv_cache=getattr(agent, "cache", None),
+                  revision=agent.revision, kv_cache=getattr(agent, "cache", None), load=getattr(agent, "load", None),
                   planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()

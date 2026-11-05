@@ -211,7 +211,9 @@ def cmd_play(a) -> None:
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
     done = set(episodes(read(record.path)).keys()) if record.path.exists() else set()
-    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache)
+    if a.nf4 and not a.rehearsal:
+        raise SystemExit("--nf4 plays a 4-bit model: rehearsals only (--rehearsal)")
+    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4)
     seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
     for seed in seeds:
         if a.pool == "self_talk":
@@ -287,6 +289,7 @@ def main(argv=None) -> None:
             s.add_argument("--pool", choices=POOLS, required=True)
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
             s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
+            s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
             s.add_argument("--rehearsal", action="store_true",
                            help="play the pool's mirror seeds (+900000): new worlds on the same plan, no registered seed spent")
         if name == "read":
