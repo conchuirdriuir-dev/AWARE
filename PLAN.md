@@ -507,8 +507,10 @@ candidate meets the criteria; the owner is asked.
 `runs/stage1-script-rehearsal/`).** 20 calibration and the 60 Step −1 mirror worlds: every episode 100 turns, none
 won; all 40 plants delivered on their planted turn (rule changes: 17 blocking a played command, 3 from the
 walkthrough); 13 of 40 plants on a turn where play was also new (reported apart); median 73% of turns with no new
-state and 58% of replies repeating an earlier one. Stage 1's registered play (calibration 1000–1099, Step −1
-2000–2059) follows, by the script, in `runs/stage1-script/`; its reading and the 8B's self-talk wait for the 3090.
+state and 58% of replies repeating an earlier one. **Stage 1's registered play, done 2026-11-05** (calibration 1000–1099, Step −1 2000–2059, by `script-v1`, in
+`runs/stage1-script/`, which git does not track: the record is on the owner's machine only, and should be backed up):
+160 episodes, all 100 turns, none won; 40 of 40 plants delivered on their turn. Next on the 3090: the 8B's self-talk
+(20 seeds, both variants), then `read` (the 8B, the floor in `material/echo_floor_8b.json`) and `score`.
 
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
