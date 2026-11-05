@@ -288,6 +288,22 @@ walkthrough reaches a new low for the episode, counting only non-movement comman
 several quests, so score rises mid-episode. (a) is closest to the spec's "a quest step reached". The closure label's
 "no score change" is trivially met with one-point worlds and stays as written.
 
+*Amendment 2, 2026-11-05, the owner, before any 8B run (changes decision 3's "matched ordinary stretches"):* the
+4-bit 8B's play (candidate C1, under "Runs") either progresses steadily, a quest step every 1–3 turns, or sits in one
+closure for most of the episode, so ordinary stretches hardly occur and 0 of 157 events found a control. Step 0 now
+compares a stall with progress:
+- **Pre-progress windows:** the last 10 scored turns before an ascent (ending before it, at least 3), none inside a
+  closure.
+- **Reading 1:** each closure window is paired with one pre-progress window of the same length (its last n turns), in
+  the same episode, nearest its middle turn, never reused; where the episode has none, the nearest world by seed with
+  the same generator settings (cross-episode, reported). Pass: the AUC of pre-progress X over pre-stall X at least
+  0.70, its 90% lower bound above 0.5, and above the text baseline's.
+- **Reading 2:** the post-ascent windows (as before) against the pre-stall windows, unpaired: the AUC of post-ascent X
+  over pre-stall X has its 90% lower bound above 0.5.
+- Unchanged: the window and burn-in, the frozen k with k/2 and 2k reported, 2,000 draws resampling episodes, the text
+  baseline, too few to decide below 100 closures (here, paired) or 50 ascents. The placebo now draws, for each event, a
+  random run of its length outside every closure, read by the same rules; same-episode pairs are reported for reading 1.
+
 #### Step 0, habitat form: note, 2026-11-04, written with the code, before any run
 
 Code: `body/step0_habitat.py` (`play`, `read`, `score`); tests in `tests/test_step0_habitat.py` on toy episodes, and

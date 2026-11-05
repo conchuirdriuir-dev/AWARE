@@ -30,7 +30,7 @@ from body.progress import by_source, cost
 from goalspace.formula import Tfidf, auc
 from substrate.record import Record, read
 
-W, BURN, MIN_ROWS, GAP = 10, 10, 3, 10       # window and burn-in in turns; an event needs 3 scored turns
+W, BURN, MIN_ROWS = 10, 10, 3                # window and burn-in in turns; an event needs 3 scored turns
 AUC_BAR, MIN_CLOSURES, MIN_ASCENTS, DRAWS, PLACEBO_DRAWS = 0.70, 100, 50, 2000, 200
 CAP, TEXT_VOCAB, VARIANTS = 256, 40, (5, 20)
 FIELDS = ("L_now", "X", "S", "C") + tuple(f"X_w{v}" for v in VARIANTS)
@@ -107,11 +107,19 @@ def windows(e: dict, lab: dict, which: str = "ascents") -> tuple[list[dict], lis
     return out, [f"{d['seed']}/{d['kind']}@{d['at']}" for d in dropped]
 
 
-def eligible(e: dict, lab: dict, taken: set) -> list[int]:
-    """Scored turns outside every closure, at least GAP turns from any closure's onset and any ascent, not taken."""
-    inside = {t for onset, n in lab["closures"] for t in range(onset, onset + n)}
-    marks = [onset for onset, _ in lab["closures"]] + list(lab["ascents"])
-    return [t for t in e["scored"] if t not in inside and t not in taken and all(abs(t - m) >= GAP for m in marks)]
+def inside(lab: dict) -> set:
+    return {t for onset, n in lab["closures"] for t in range(onset, onset + n)}
+
+
+def pre_progress(e: dict, lab: dict) -> list[tuple[int, list[int]]]:
+    """(ascent, window) for each ascent: the last W scored turns before it, at least 3, none inside a closure
+    (amendment 2)."""
+    out, stuck = [], inside(lab)
+    for a in lab["ascents"]:
+        rows = [t for t in e["scored"] if t < a][-W:]
+        if len(rows) >= MIN_ROWS and not stuck & set(rows):
+            out.append((a, rows))
+    return out
 
 
 def runs_of(e: dict, ok: list[int], n: int) -> list[list[int]]:
@@ -121,47 +129,56 @@ def runs_of(e: dict, ok: list[int], n: int) -> list[list[int]]:
 
 
 def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
-    """One control per event, as long as it: in the same episode, nearest in time to the event's middle turn, never
-    reused; where the episode has none, the nearest world by seed with the same generator settings (cross-episode)."""
+    """Reading 1's pairs (amendment 2): each closure window with one pre-progress window, cut to its last n turns, in
+    the same episode, nearest the closure window's middle turn, never reused (`taken`: seed -> ascents used); where the
+    episode has none, the nearest world by seed with the same generator settings (cross-episode)."""
 
     def control_in(seed, n, centre):
         best = None
-        for run in runs_of(eps[seed], eligible(eps[seed], labs[seed], taken[seed]), n):
+        for a, rows in pre_progress(eps[seed], labs[seed]):
+            if a in taken[seed] or len(rows) < n:
+                continue
+            run = rows[-n:]
             d = abs(run[n // 2] - centre)
             if best is None or d < best[0]:
-                best = (d, run)
-        return None if best is None else best[1]
+                best = (d, a, run)
+        return best
 
     kept, none, cross = [], [], []
     for ev in events:
         n, seed = len(ev["rows"]), ev["seed"]
-        run, where = control_in(seed, n, ev["rows"][n // 2]), seed
-        if run is None:
+        best, where = control_in(seed, n, ev["rows"][n // 2]), seed
+        if best is None:
             same = sorted((s for s in eps if s != seed and eps[s]["params"] == eps[seed]["params"]),
                           key=lambda s: abs(s - seed))
             for s in same:
-                run = control_in(s, n, ev["rows"][n // 2])
-                if run is not None:
+                best = control_in(s, n, ev["rows"][n // 2])
+                if best is not None:
                     where = s
                     cross.append(f"{seed}/{ev['kind']}@{ev['at']} from {s}")
                     break
-        if run is None:
+        if best is None:
             none.append(f"{seed}/{ev['kind']}@{ev['at']}")
             continue
-        taken[where].update(run)
-        kept.append({**ev, "control": run, "control_seed": where})
+        taken[where].add(best[1])
+        kept.append({**ev, "control": best[2], "control_seed": where, "control_ascent": best[1]})
     return {"events": kept, "no control": none, "cross-episode controls": cross}
 
 
 def events_at(eps: dict, k: int, which: str = "ascents") -> dict:
+    """Closure windows paired with pre-progress windows (reading 1), and the post-ascent windows (reading 2; `which`
+    picks the ascents or, reported only, the broad ascents)."""
     labs = {s: labels(e, k) for s, e in eps.items()}
-    evs, dropped = [], []
+    clo, asc, dropped = [], [], []
     for s in sorted(eps):
         w, d = windows(eps[s], labs[s], which)
-        evs += w
+        clo += [x for x in w if x["kind"] == "closure"]
+        asc += [x for x in w if x["kind"] == "ascent"]
         dropped += d
-    m = match(eps, labs, evs, {s: set() for s in eps})
-    return {**m, "dropped (fewer than 3 turns)": dropped, "labels": labs}
+    m = match(eps, labs, clo, {s: set() for s in eps})
+    return {"closures": m["events"], "pre-stall": clo, "ascents": asc, "no control": m["no control"],
+            "cross-episode controls": m["cross-episode controls"], "dropped (fewer than 3 turns)": dropped,
+            "labels": labs}
 
 
 # --- the readings ------------------------------------------------------------------------------------------------
@@ -177,9 +194,17 @@ def _auc(eps, evs, space, lower, field="X"):
     return auc(ct, ev) if lower else auc(ev, ct)
 
 
+def _boot(by_ep: dict, value, draws: int, seed: int) -> list[float]:
+    keys, rng, out = sorted(by_ep), np.random.default_rng(seed), []
+    for _ in range(draws):
+        pick = [by_ep[keys[i]] for i in rng.integers(0, len(keys), len(keys))]
+        out.append(value(pick))
+    return out
+
+
 def reading(eps: dict, evs: list[dict], spaces: list[int], text: int, lower: bool, seed: int = 0,
             draws: int = DRAWS, field: str = "X") -> dict:
-    """The AUC per layer of event windows' mean X against their controls' (closures lower, ascents higher), its mean
+    """Paired: the AUC per layer of event windows' mean X against their controls' (`lower`: events lower), its mean
     over layers, a 90% interval from `draws` resamplings of episodes (each with all its events), and the text
     baseline's AUC."""
     if not evs:
@@ -188,13 +213,39 @@ def reading(eps: dict, evs: list[dict], spaces: list[int], text: int, lower: boo
     by_ep = defaultdict(list)
     for e in evs:
         by_ep[e["seed"]].append(e)
-    keys, rng, boot = sorted(by_ep), np.random.default_rng(seed), []
-    for _ in range(draws):
-        pick = [x for i in rng.integers(0, len(keys), len(keys)) for x in by_ep[keys[i]]]
-        boot.append(np.mean([_auc(eps, pick, sp, lower, field) for sp in spaces]))
-    lo, hi = np.nanpercentile(boot, [5, 95])
-    return {"n": len(evs), "episodes": len(keys), "AUC": float(np.mean(per)), "90% interval": [float(lo), float(hi)],
+    boot = _boot(by_ep, lambda pick: np.mean([_auc(eps, [x for p in pick for x in p], sp, lower, field)
+                                              for sp in spaces]), draws, seed)
+    lo, hi = np.nanpercentile(boot, [5, 95]) if boot else (np.nan, np.nan)
+    return {"n": len(evs), "episodes": len(by_ep), "AUC": float(np.mean(per)), "90% interval": [float(lo), float(hi)],
             "text AUC": _auc(eps, evs, text, lower, field), "per layer AUC": per}
+
+
+def unpaired(eps: dict, pos: list[dict], neg: list[dict], spaces: list[int], text: int, seed: int = 0,
+             draws: int = DRAWS, field: str = "X") -> dict:
+    """Reading 2 (amendment 2): the AUC of `pos` windows' mean X over `neg` windows', per layer and its mean, with a
+    90% interval resampling episodes (each with all its windows of both kinds), and the text baseline's."""
+    if not pos or not neg:
+        return {"n": len(pos), "against": len(neg), "AUC": float("nan")}
+
+    def a(P, N, sp):
+        return auc([stat(eps, w["seed"], w["rows"], sp, field) for w in P],
+                   [stat(eps, w["seed"], w["rows"], sp, field) for w in N])
+    per = [a(pos, neg, sp) for sp in spaces]
+    by_ep = defaultdict(lambda: ([], []))
+    for w in pos:
+        by_ep[w["seed"]][0].append(w)
+    for w in neg:
+        by_ep[w["seed"]][1].append(w)
+    by_ep = dict(by_ep)
+
+    def value(pick):
+        P = [w for p, _ in pick for w in p]
+        N = [w for _, n in pick for w in n]
+        return np.mean([a(P, N, sp) for sp in spaces]) if P and N else np.nan
+    boot = [v for v in _boot(by_ep, value, draws, seed) if np.isfinite(v)]
+    lo, hi = np.percentile(boot, [5, 95]) if boot else (np.nan, np.nan)
+    return {"n": len(pos), "against": len(neg), "episodes": len(by_ep), "AUC": float(np.mean(per)),
+            "90% interval": [float(lo), float(hi)], "text AUC": a(pos, neg, text), "per layer AUC": per}
 
 
 def decide(r1: dict, r2: dict) -> dict:
@@ -207,27 +258,30 @@ def decide(r1: dict, r2: dict) -> dict:
     return {"passed": bool(p1 and p2), "1 closures": bool(p1), "2 ascents": bool(p2)}
 
 
-def placebo(eps: dict, labs: dict, events: list[dict], spaces: list[int], text: int,
-            draws: int = PLACEBO_DRAWS) -> dict:
-    """For each event, a pretend event as long, at a random eligible run of its episode, its control matched by the
-    same rules; no closure or ascent is in it, so the AUCs should sit at 0.5 unless the matching moves them."""
-    rng, out = np.random.default_rng(5), defaultdict(list)
+def placebo(eps: dict, w: dict, spaces: list[int], text: int, draws: int = PLACEBO_DRAWS) -> dict:
+    """For each event, a pretend window as long at a random run of its episode outside every closure, read by the same
+    rules: pretend closures paired with pre-progress windows, pretend ascents against the real pre-stall windows. The
+    AUCs show what the pairing and the windows' placing give with no event in them."""
+    rng, out, labs = np.random.default_rng(5), defaultdict(list), w["labels"]
     for _ in range(draws):
-        taken, fake = {s: set() for s in eps}, []
-        for ev in events:
-            runs = runs_of(eps[ev["seed"]], eligible(eps[ev["seed"]], labs[ev["seed"]], taken[ev["seed"]]),
-                           len(ev["rows"]))
+        fake = {"closure": [], "ascent": []}
+        for ev in w["pre-stall"] + w["ascents"]:
+            e = eps[ev["seed"]]
+            ok = [t for t in e["scored"] if t not in inside(labs[ev["seed"]])]
+            runs = runs_of(e, ok, len(ev["rows"]))
             if runs:
                 run = runs[rng.integers(len(runs))]
-                taken[ev["seed"]].update(run)
-                fake.append({"kind": ev["kind"], "seed": ev["seed"], "at": run[0], "rows": run})
-        m = match(eps, labs, fake, taken)["events"]
-        for name, lower in (("closures", True), ("ascents", False)):
-            evs = [e for e in m if e["kind"] == name[:-1]]
-            out[f"n {name}"].append(len(evs))
-            if evs:
-                out[name].append(float(np.mean([_auc(eps, evs, sp, lower) for sp in spaces])))
-                out[f"{name}, text"].append(_auc(eps, evs, text, lower))
+                fake[ev["kind"]].append({"kind": ev["kind"], "seed": ev["seed"], "at": run[0], "rows": run})
+        m = match(eps, labs, fake["closure"], {s: set() for s in eps})["events"]
+        out["n closures"].append(len(m))
+        out["n ascents"].append(len(fake["ascent"]))
+        if m:
+            out["closures"].append(float(np.mean([_auc(eps, m, sp, True) for sp in spaces])))
+            out["closures, text"].append(_auc(eps, m, text, True))
+        if fake["ascent"] and w["pre-stall"]:
+            u = unpaired(eps, fake["ascent"], w["pre-stall"], spaces, text, draws=0)
+            out["ascents"].append(u["AUC"])
+            out["ascents, text"].append(u["text AUC"])
     summary = {"draws": draws}
     for k, v in out.items():
         summary[k] = (float(np.median(v)) if k.startswith("n ") else
@@ -236,50 +290,47 @@ def placebo(eps: dict, labs: dict, events: list[dict], spaces: list[int], text: 
 
 
 def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, draws: int = DRAWS) -> dict:
-    """Step 0's habitat form at the frozen k; reported at k/2 and 2k (rounded up), with the scoring's checks."""
+    """Step 0's habitat form (amendment 2) at the frozen k; reported at k/2 and 2k (rounded up), with the scoring's
+    checks. Reading 1: pre-progress X over pre-stall X, paired. Reading 2: post-ascent X over pre-stall X."""
     spaces, text = list(range(n_layers)), n_layers
 
     def at(kk):
         w = events_at(eps, kk)
-        clo = [e for e in w["events"] if e["kind"] == "closure"]
-        asc = [e for e in w["events"] if e["kind"] == "ascent"]
-        r1 = reading(eps, clo, spaces, text, True, draws=draws)
-        r2 = reading(eps, asc, spaces, text, False, draws=draws)
-        return w, clo, asc, r1, r2
+        r1 = reading(eps, w["closures"], spaces, text, True, draws=draws)
+        r2 = unpaired(eps, w["ascents"], w["pre-stall"], spaces, text, draws=draws)
+        return w, r1, r2
 
-    w, clo, asc, r1, r2 = at(k)
+    w, r1, r2 = at(k)
+    clo, asc = w["closures"], w["ascents"]
     out = {"k": k, "reading 1, closures": r1, "reading 2, ascents": r2, "decision": decide(r1, r2), "reported": {}}
     rep = out["reported"]
     for kk in sorted({math.ceil(k / 2), 2 * k} - {k}):
-        _, _, _, a1, a2 = at(kk)
+        _, a1, a2 = at(kk)
         rep[f"at k = {kk}"] = {"closures": {x: a1.get(x) for x in ("n", "AUC", "90% interval", "text AUC")},
                                "ascents": {x: a2.get(x) for x in ("n", "AUC", "90% interval", "text AUC")},
                                "decision": decide(a1, a2)}
-    same = lambda evs: [e for e in evs if e["control_seed"] == e["seed"]]  # noqa: E731
-    rep["same-episode pairs only"] = {"closures": reading(eps, same(clo), spaces, text, True, draws=draws),
-                                      "ascents": reading(eps, same(asc), spaces, text, False, draws=draws)}
-    rep["placebo windows"] = placebo(eps, w["labels"], clo + asc, spaces, text, placebo_draws)
+    same = [e for e in clo if e["control_seed"] == e["seed"]]
+    rep["same-episode pairs only (reading 1)"] = reading(eps, same, spaces, text, True, draws=draws)
+    rep["placebo windows"] = placebo(eps, w, spaces, text, placebo_draws)
 
-    def med(evs, field, which):
-        vals = [np.nanmean([stat(eps, e["seed" if which == "rows" else "control_seed"], e[which], sp, field)
-                            for sp in spaces]) for e in evs]
+    def med(wins, field):
+        vals = [np.nanmean([stat(eps, x["seed"], x["rows"], sp, field) for sp in spaces]) for x in wins]
         vals = [v for v in vals if np.isfinite(v)]
         return float(np.median(vals)) if vals else float("nan")
-    for name, evs in (("closures", clo), ("ascents", asc)):
-        rep[f"{name}: medians, events and controls"] = {
-            f: {"events": med(evs, f, "rows"), "controls": med(evs, f, "control")} for f in ("X", "S", "C")}
-    stall = [np.nanmean([stat(eps, e["seed"], [t for t in e["stall"] if t in eps[e["seed"]]["spaces"][sp]["X"]],
-                              sp) for sp in spaces]) for e in clo]
-    stall = [v for v in stall if np.isfinite(v)]
-    rep["X during the stall (median; flat by construction, not evidence)"] = (float(np.median(stall)) if stall
-                                                                              else float("nan"))
+    progress = [{"seed": e["control_seed"], "rows": e["control"]} for e in clo]
+    rep["medians: pre-stall, pre-progress, post-ascent"] = {
+        f: {"pre-stall": med(clo, f), "pre-progress": med(progress, f), "post-ascent": med(asc, f)}
+        for f in ("X", "S", "C")}
+    stall = [{"seed": e["seed"], "rows": [t for t in e["stall"] if t in eps[e["seed"]]["spaces"][0]["X"]]}
+             for e in clo]
+    rep["X during the stall (median; flat by construction, not evidence)"] = med([x for x in stall if x["rows"]], "X")
     wb = events_at(eps, k, which="broad")
-    rep["broad ascents"] = reading(eps, [e for e in wb["events"] if e["kind"] == "ascent"], spaces, text, False,
-                                   draws=draws)
+    rep["broad ascents"] = unpaired(eps, wb["ascents"], wb["pre-stall"], spaces, text, draws=draws)
     for v in VARIANTS:
+        f = f"X_w{v}"
         rep[f"X with W = {v}"] = {
-            name: float(np.mean([_auc(eps, evs, sp, lower, f"X_w{v}") for sp in spaces])) if evs else float("nan")
-            for name, evs, lower in (("closures", clo, True), ("ascents", asc, False))}
+            "closures": float(np.mean([_auc(eps, clo, sp, True, f) for sp in spaces])) if clo else float("nan"),
+            "ascents": unpaired(eps, asc, w["pre-stall"], spaces, text, draws=0, field=f)["AUC"]}
     rep["dropped (fewer than 3 turns)"] = w["dropped (fewer than 3 turns)"]
     rep["no control"] = w["no control"]
     rep["cross-episode controls"] = w["cross-episode controls"]

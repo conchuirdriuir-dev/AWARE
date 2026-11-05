@@ -150,6 +150,8 @@ def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = Non
     p = params(seed, spec)
     opts = textworld.GameOptions()
     opts.seeds, opts.nb_rooms, opts.nb_objects, opts.quest_length = seed, p["rooms"], p["objects"], p["quest_length"]
+    # "goal_only": the opening states the quest's last step, not every step (TextWorld's only_last_action)
+    opts.grammar.only_last_action = bool(((spec or worlds())["generator"]).get("goal_only", False))
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
 

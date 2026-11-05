@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step 0's habitat form compares a stall with progress** (owner; amendment 2, changing decision 3's
+  "matched ordinary stretches"): the 8B's play has almost none. Pre-stall windows against pre-progress windows (reading
+  1, paired) and post-ascent windows against pre-stall windows (reading 2). Bars unchanged.
 - 2026-11-04: **A planted event is its own chunk** (owner; Step −1 amendment 3): appended to a long reply, the mean over
   its tokens drowned it. The agent still reads reply and event as one message; the appended form is reported only.
 - 2026-11-04: **The rule change is always delivered at the planted turn** (owner; Step −1 amendment 2): the agent's latest
