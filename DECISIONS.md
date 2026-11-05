@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step −1C's pool fixed** (owner, the agent's draft unchanged): seeds 6000–6999, on-structure on even
+  seeds and off on odd, Stage 1's generator, the length match drawn for both kinds; the script stays as fixed, about
+  22% of seeds usable.
 - 2026-11-05: **Step −1C's bar 2 is one-sided, and shape given boundary is reported** (owner; amendment 1, before any
   reading): shape's AUC must sit above boundary's; shape less its line on news is reported, deciding nothing, against
   a ceiling on both AUCs.

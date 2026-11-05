@@ -1,5 +1,5 @@
 {
-  "fixed": "2026-11-05, the agent's draft of Step -1C's pool (PLAN.md, Body readout, Step -1C), for the owner to fix before any registered play",
+  "fixed": "2026-11-05, by the owner, the agent's draft unchanged (PLAN.md, Body readout, Step -1C), before any play of its seeds",
   "engine": "TextWorld, tw-make custom",
   "generator": {
     "rooms": [6, 12],
