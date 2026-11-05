@@ -551,6 +551,14 @@ the episodes: the early stalls are mostly the parser's: "unlock box" or "use key
 with key", repeated for the rest of the episode; the system prompt's examples show no two-object command. And the
 cross-episode fallback, read by the agent as identical rooms, objects and quest length, almost never finds a world.
 
+**Stage 2's screen again, told the command forms (2026-11-05, mirror seeds, labels only; `runs/stage2f-*`).**
+Qwen3-1.7B: k = 24; won 14%; ascents kept 18 in 40 (projected 180); closures kept 0, 28 of 33 stalls beginning in
+turns 0–9; no pre-progress window anywhere in the pool. Qwen3-4B (4-bit): k = 6; won 33%; ascents kept 21 (projected
+210); closures kept 1 (projected 10), 24 of 30 stalls beginning in turns 0–6; 3 pre-progress windows in the pool.
+Neither meets the criteria. Across every player screened (0.6B, 1.7B, 4B, the 4-bit 8B, with and without the forms),
+these worlds put nearly every quest step in turns 0–12 and nearly every stall's onset in turns 0–9, so Step 0's
+10-turn burn-in and windows leave almost nothing: the worlds' timing, not the player. For the owner.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
