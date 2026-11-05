@@ -35,7 +35,12 @@ fields logged as diagnostics only; the body entering as learned sense tokens, ne
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test.
 
-**Now: v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
+**Now (2026-11-05): the habitat in two stages, player and perceiver apart (owner)**, under "Body readout", "Two
+stages": Stage 1, Step −1 with a scripted player; Stage 2, Step 0 with a weaker model playing; the 8B perceives in
+both. The stages are the agent's draft, for the owner to fix before their code. Play for both can run on the 4060; the
+8B's reading waits for the 3090. *The paragraph below is the state before this.*
+
+**Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
 and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's habitat form are fixed
 (owner, 2026-11-04) under "Body readout", "The habitat". Its code is built and tested (`body/habitat.py`,
 `body/stepm1.py`), and the 8B floor it reads is measured (PR #29). The 0.6B dry run ran on 2026-11-04 (under the
@@ -186,6 +191,59 @@ also reported at k/2 and 2k (rounded up); a finding that holds at one k only is 
 closures and 20 ordinary stretches at the chosen k, picked by the code at random from the calibration worlds, and
 confirms the closures look like looping. If fewer than 100 closures occur in Step 0's pool, the percentile is revisited
 before Step 0 is scored, not after.
+
+#### Two stages: the player and the perceiver apart (owner, 2026-11-05; the stages below are the agent's draft, for the owner to fix)
+
+The owner's direction, from two outside suggestions after the rehearsals: the habitat was testing the player's skill,
+not the instrument. Through the night of 2026-11-04 the worlds were reshaped around how the 8B plays (harder quests,
+quests stated by their last step only, plant timing) so that plants would arrive and stalls would fall in reach; none
+of it was about whether the senses read accurately. The fix is to stop asking the perceiver to be the player. **Stage 1
+(instrument validity, Step −1): a scripted player, the 8B perceiving. Stage 2 (predictive validity, Step 0): a weaker
+model playing, the 8B perceiving.** Both stay instrument measures with their own pass criteria; neither is a
+functional measure.
+
+Why the reading is unchanged: every chunk is read alone, its state from its own text, never in the game's context, so
+who wrote the actions does not enter the reading. The player decides only which replies arrive and when.
+
+What it gives up, stated plainly: the North star's boundary is an efference copy of the model's *own* action. Both
+stages read an agent other than the perceiver; they check the instrument before the organism, they do not replace the
+8B reading itself. From Step 2 (babbling) on the 8B is the actor again. *Open, for the owner:* whether a third check,
+the 8B playing and reading its own play, returns once the instrument is validated, or whether the babbling gate covers
+it.
+
+**Stage 1, draft: Step −1 with a scripted player.**
+- **The script** (code, labelled as such: action chunks `by: code`, in the player's slot, so the reading is
+  unchanged). Its policy, fixed here before any reading: each episode alternates *explore* phases (8–15 turns: a move
+  through an exit not yet taken from this room if there is one, else an admissible command not yet tried here) and
+  *loop* phases (5–12 turns: a cycle of 2–4 commands already used, repeated), lengths and choices drawn from
+  `default_rng(seed + 700000)`. It reads only what a player sees plus the admissible commands, and never the plant's
+  kind or turn. It never issues the quest's final command, so no episode ends before its 100 turns (Step −1 scores no
+  quest).
+- **Plants** as amended (2: the rule change always delivered at the planted turn; 3: the event is its own chunk). The
+  planted turns stay 15–35; with 100-turn episodes every plant arrives.
+- **Self-talk unchanged:** the 8B writes it, in bf16 on the 3090, since "not itself" needs the content to be the
+  perceiver's own.
+- **Pools and bars unchanged:** the frozen worlds file and seeds; the floor's habitat check on the calibration pool
+  played by the script; the three bars as written. Ordinary no-new-state turns come from loop phases and revisits.
+- **What it can now be done on:** the script's play needs no GPU and can run before the 3090; the 8B's reading and its
+  self-talk wait for it.
+
+**Stage 2, draft: Step 0's habitat form with a weaker model playing.** A scripted player would make Step 0 circular: X
+is how much the world's replies help code the player's next action, so a script's stalls and any lead before them are
+the script's own rules. Step 0 needs an agent whose stalls nobody wrote.
+- **The player:** one fixed Qwen3 model smaller than the perceiver, with its load (precision, context) registered and
+  identical in all Step 0 and calibration play. Chosen on mirror seeds of the calibration and Step 0 pools, from the
+  engine's labels alone (no state read), as the smallest of Qwen3-1.7B (bf16) and Qwen3-4B (4-bit on the 4060, or bf16
+  on the 3090) that meets: projected to Step 0's 400 worlds, at least 150 closures and 75 ascents kept under amendment 2,
+  at the k its own calibration stalls give; and it wins at least 10% of episodes. If neither does, the owner is asked.
+- **k** from the chosen player's play on the calibration pool, fixed here before Step 0 is scored; the owner's read of
+  20 closures and 20 ordinary stretches stays.
+- **The readings** as amended (amendment 2), the formula and fit unchanged, the 8B reading the player's actions and the
+  world's replies.
+- **What it can now be done on:** the player's play on the 4060 before the 3090; the 8B's reading waits for it.
+
+Retired by this: the harder-worlds search (its criteria and candidates C1–C3 stay in "Runs" as the record); the frozen
+worlds file stands. Unchanged: Step −1's amendments 1–3, Step 0's amendments 1–2, the freeze.
 
 #### Step −1: does boundary hear the world and not itself? (instrument; no training)
 

@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **The habitat runs in two stages, the player and the perceiver apart** (owner, from two outside
+  suggestions): Stage 1, instrument validity, a scripted player with the 8B perceiving (Step −1); Stage 2, predictive
+  validity, a weaker model playing with the 8B perceiving (Step 0). The worlds had been reshaped around the player's
+  skill. The harder-worlds search is retired. The stages' specifics are the agent's draft until the owner fixes them.
 - 2026-11-05: **Step 0's habitat form compares a stall with progress** (owner; amendment 2, changing decision 3's
   "matched ordinary stretches"): the 8B's play has almost none. Pre-stall windows against pre-progress windows (reading
   1, paired) and post-ascent windows against pre-stall windows (reading 2). Bars unchanged.
