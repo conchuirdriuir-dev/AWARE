@@ -145,16 +145,19 @@ def score(eps: dict, news_by: dict, shape_by: dict, tokens_by: dict, draws: int 
     # 1. shape: off-structure over on-structure
     out["shape"] = {"auc": a_shape, "interval_90": [float(lo), float(hi)], "bar": SHAPE_AUC, "lower_bar": SHAPE_LOWER,
                     "pass": bool(a_shape >= SHAPE_AUC and lo > SHAPE_LOWER)}
-    # 2. apart from boundary: shape's AUC minus boundary's on the same chunks, its 90% interval excluding zero
+    # 2. apart from boundary, one-sided (owner, 2026-11-05, amendment 1, before any reading): shape's AUC minus
+    #    boundary's on the same chunks, its 90% interval entirely above zero
     out["apart_from_boundary"] = {"shape_auc": a_shape, "boundary_auc": a_news, "margin": a_shape - a_news,
                                   "interval_90": [float(dlo), float(dhi)],
-                                  "excludes_zero": bool(dlo > 0 or dhi < 0),
                                   "direction": "shape above boundary" if a_shape > a_news else "boundary above shape",
-                                  "pass": bool(dlo > 0 or dhi < 0)}
+                                  "pass": bool(dlo > 0)}
     # precondition, reported: boundary fires (news above the floor) on both kinds, since both rooms are unseen
     out["precondition"] = {k: f"{sum(r['news'] > 1 for r in rows if r['kind'] == k)} of {n[k]} above the floor"
                            for k in ("on", "off")}
     out["pass"] = out["shape"]["pass"] and out["apart_from_boundary"]["pass"]
+
+    # reported, deciding nothing (amendment 1): shape given boundary, which a ceiling on both AUCs does not hide
+    out["reported"]["shape given boundary"] = given_boundary(rows)
 
     # reported, deciding nothing: per layer, length beside every comparison, length-binned AUCs
     L = len(rows[0]["shape_layers"]) if rows else 0
@@ -185,6 +188,24 @@ def score(eps: dict, news_by: dict, shape_by: dict, tokens_by: dict, draws: int 
             "news": float(np.median([r["news"] for r in rows if r["kind"] == k])) if n[k] else None}
         for k in ("on", "off")}
     return out
+
+
+def given_boundary(rows: list[dict]) -> dict:
+    """Does shape still part the kinds once boundary's part is taken out? Reported, deciding nothing (owner,
+    2026-11-05, amendment 1): shape less its least-squares line on news, fitted on all chunks blind to the kind, then
+    its AUC off over on. Conservative where boundary itself parts the kinds: the line on news then takes up part of
+    the kind's effect on shape too, so a real effect reads low, never high. (Strata of news were tried on toy material
+    and dropped, written before any run: when boundary parts the kinds, each stratum's off chunks still sit higher in
+    news, and a shape that only tracks news read 0.97.)"""
+    if not rows:
+        return {}
+    news = np.array([r["news"] for r in rows])
+    sh = np.array([r["shape"] for r in rows])
+    off = np.array([r["kind"] == "off" for r in rows])
+    slope, icept = np.polyfit(news, sh, 1) if len(set(news)) > 1 else (0.0, float(np.mean(sh)))
+    resid = sh - (slope * news + icept)
+    return {"slope": float(slope), "shape_auc": auc(resid[off], resid[~off]),
+            "reads": "conservative where boundary parts the kinds"}
 
 
 # --- commands -----------------------------------------------------------------------------------------------------

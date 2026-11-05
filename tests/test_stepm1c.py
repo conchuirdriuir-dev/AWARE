@@ -119,6 +119,37 @@ def test_score_fails_apart_when_shape_only_tracks_boundary():
     assert out["shape"]["pass"] and not out["apart_from_boundary"]["pass"] and not out["pass"]
 
 
+def test_score_fails_apart_when_boundary_parts_better_than_shape():
+    """Amendment 1: one-sided. A boundary that separates the kinds better than shape no longer passes bar 2."""
+    out = C.score(*_toy(40, shape_off=1.2, news_off=6.0), draws=300)
+    d = out["apart_from_boundary"]
+    assert d["direction"] == "boundary above shape" and d["interval_90"][1] < 0 and not d["pass"]
+
+
+def test_shape_given_boundary_sees_through_a_ceiling():
+    """Both AUCs near 1, so bar 2 cannot pass, yet shape less its line on boundary still parts the kinds."""
+    eps, news_by, shape_by, tokens_by = _toy(60, shape_off=0.0, news_off=0.0, seed=3)
+    rng = np.random.default_rng(4)
+    for k, ep in eps.items():
+        up = ep["info"]["plan"]["vault"] == "off"
+        nv = rng.normal(5 + 4 * up, 1)                    # boundary parts the kinds almost fully
+        news_by[k][-1] = nv
+        shape_by[k][-1] = 2 * nv + 3 * up + rng.normal(0, 0.5)  # shape: boundary's part plus its own
+    out = C.score(eps, news_by, shape_by, tokens_by, draws=300)
+    assert out["apart_from_boundary"]["boundary_auc"] > 0.95 and not out["apart_from_boundary"]["pass"]
+    g = out["reported"]["shape given boundary"]
+    assert g["shape_auc"] > 0.65                          # conservative: the line on news takes up some of the effect
+
+
+def test_shape_given_boundary_at_chance_when_shape_is_boundary():
+    eps, news_by, shape_by, tokens_by = _toy(60, shape_off=0.0, news_off=4.0, seed=5)
+    rng = np.random.default_rng(6)
+    for k in eps:
+        shape_by[k][-1] = 2 * news_by[k][-1] + 1 + rng.normal(0, 0.3)
+    g = C.score(eps, news_by, shape_by, tokens_by, draws=200)["reported"]["shape given boundary"]
+    assert abs(g["shape_auc"] - 0.5) < 0.15
+
+
 def test_score_fails_shape_at_chance():
     out = C.score(*_toy(40, shape_off=0.0, news_off=0.0), draws=300)
     assert not out["shape"]["pass"] and not out["pass"]

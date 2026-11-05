@@ -443,9 +443,10 @@ the turn the script enters; each episode ends after it.
 
 **Pass, both:**
 1. **Shape:** the AUC of off-structure shape over on-structure shape is at least 0.80, its 90% lower bound above 0.70.
-2. **Apart from boundary:** the 90% interval of (shape's AUC − boundary's AUC) on the same chunks excludes zero; 2,000
-   draws resampling episodes; the margin reported. If 1 passes and 2 fails, shape under Lift v0 is redundant with
-   boundary: the measurement decision 4 asks for before a trained encoder replaces Lift v0.
+2. **Apart from boundary:** the 90% interval of (shape's AUC − boundary's AUC) on the same chunks lies entirely above
+   zero (one-sided, amendment 1 below); 2,000 draws resampling episodes; the margin reported. If 1 passes and 2 fails,
+   shape under Lift v0 is redundant with boundary: the measurement decision 4 asks for before a trained encoder
+   replaces Lift v0.
 
 *Precondition, reported:* boundary fires on both kinds. If it does not fire on on-structure rooms, the dissociation
 cannot be read and the owner is told.
@@ -458,6 +459,20 @@ counts are taken before any reading and recorded with the seeds drawn.
 **Bars fixed in advance** (replacing Q6's answer): no reading sets them. A 0.6B rehearsal on mirror seeds (scripted
 play, read on the 4060) checks plumbing and the interval's width, deciding nothing; if the interval is much wider than
 estimated, the pool grows before the 8B reads. Gating: under "Two stages".
+
+*Amendment 1 (Step −1C), 2026-11-05, the owner, before any reading:*
+- **Bar 2 is one-sided:** shape's AUC must sit above boundary's. As first written ("excludes zero"), a boundary that
+  separated the kinds better than shape would have passed it, the opposite of shape's claim.
+- **Reported, deciding nothing: shape given boundary.** Shape less its least-squares line on news, fitted on all
+  chunks blind to the kind, then its AUC off over on. The reason, stated before any reading: the theme keeps house's
+  words but changes its templates, which also moves an off-structure room away from its nearest earlier reading, so
+  boundary may part the kinds nearly as well as shape. With both AUCs near 1, bar 2 cannot pass even where shape
+  carries more; this reading can still see it. It is conservative there (the line on news takes up part of the kind's
+  effect), so it can read a real effect low, never invent one. *The agent's note:* strata of news were tried first,
+  on toy material, and dropped: under such a ceiling each stratum's off chunks still sit higher in news, and a shape
+  that only tracked news read 0.97.
+- **The 0.6B rehearsal reports whether boundary's AUC is near its ceiling.** If it is, the owner is told before the 8B
+  reads; any change made then is labelled as made after the rehearsal.
 
 #### Step −1C: note, 2026-11-05, written with the code, before any run
 
@@ -487,10 +502,8 @@ measured 12% unmatched. At this rate the 1,000-seed pool gives about 110 usable 
 about an hour on a CPU. The script finds the room's door by chance: it opens a door only when no untried exit is left
 in the room.
 
-*Two questions for the owner:*
-1. **Bar 2's direction.** As written, the interval of (shape's AUC − boundary's AUC) must exclude zero, which a
-   boundary that separates the kinds better than shape would also satisfy. The code applies the bar as written and
-   reports the direction. Should the bar require shape above boundary?
+*Questions for the owner:*
+1. **Bar 2's direction.** *Answered (owner, 2026-11-05): one-sided, shape above boundary; amendment 1 above.*
 2. **The entry rate.** 22% usable is enough for the pool as drawn. If the owner wants a higher rate, the change would
    be to the script (Stage 1's fixed player), so it is the owner's; the agent recommends leaving the script as fixed.
 
