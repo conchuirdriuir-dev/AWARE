@@ -47,17 +47,19 @@ run unattended, so no measurement depends on one person's conversations.
 Each step's pass criterion is written in [PLAN.md](PLAN.md) before its code, and its thresholds are fixed before it
 runs. Decisions and their reasons are logged in [DECISIONS.md](DECISIONS.md). A failed bar is recorded, not moved.
 
-The senses are calibrated before the subject. The player and the perceiver are kept apart, so that the habitat tests
-the instrument and not the player's skill:
+The senses are calibrated before the subject, in two stages, so that the habitat tests the instrument and not the
+player's skill:
 
 | Stage | Who plays | Who reads | Asks |
 |---|---|---|---|
 | 1 (Step −1) | A scripted player, alternating explore and loop phases | Qwen3-8B | Does each sense read what it claims, under known conditions? |
-| 2 (Step 0) | A weaker Qwen3 model (1.7B or 4B) | Qwen3-8B | Does the reading anticipate another agent's stalls? |
+| 2 (Step 0) | Qwen3-8B, on longer-quest worlds | Qwen3-8B | Does the reading anticipate a stall after progress, and not read an ascent as one? |
 
-Each chunk is read alone, from its own text, so who wrote the actions does not enter the reading. There is no third
-stage: the 8B's reading of its own play, and the split between self and world, are covered by the babbling gate. Stage
-1 gates what follows; Stage 2 informs.
+Each chunk is read alone, from its own text, so who wrote the actions does not enter the reading. Stage 2 was to be
+played by a weaker model; every one screened locked in from its first turns, and only the 8B gave progress and then a
+stall, so the 8B plays it (Step 0 amendment 5). Its reading is then of its own play: the measure compares coding with
+and without the world's replies, so self-familiarity should largely cancel. There is no third stage; the split between
+self and world is covered by the babbling gate. Stage 1 gates what follows; Stage 2 informs.
 
 Then babbling (does the model use its senses, and does acting beat passive exposure?), behaviour (does it do better
 with live senses than with the same readings given as text, or shuffled?), and dreaming.
@@ -72,8 +74,8 @@ axis of persuadability by measurement.
 
 - Stage 1 (scripted player): the registered play is done (160 episodes, every plant delivered). The 8B's reading,
   and its self-talk, wait for a 24 GB GPU.
-- Stage 2 (weaker player): no player chosen yet. Every one screened (Qwen3-1.7B and 4B, with and without TextWorld's
-  command forms, on the frozen worlds and on Stage 2's own) falls short of the selection criteria; that is for the owner.
+- Stage 2: the 8B plays (amendment 5), after Qwen3-1.7B and 4B, screened with and without TextWorld's command forms,
+  fell short of the selection criteria. Its screen, k, play and reading wait for the 24 GB GPU.
 - Earlier runs on Qwen3-0.6B and a 4-bit 8B rehearsed the harness end to end and found the design faults that led to
   the staged schedule; they decide nothing. Records are in PLAN.md, "Body readout", "The habitat", "Runs".
 - Results: none yet decide a bar. *(This line is replaced by the first result.)*
@@ -117,13 +119,16 @@ python -m body.stepm1 read  --model Qwen/Qwen3-8B --run runs/stepm1
 python -m body.stepm1 score --run runs/stepm1
 ```
 
-Stage 2 (Step 0's habitat form) plays its own worlds (`material/habitat_worlds_stage2.json`): the player on the
-calibration pool, then k, then Step 0's pool, read by the 8B. `PLAYER` is the chosen player, once there is one.
+Stage 2 (Step 0's habitat form) plays its own worlds (`material/habitat_worlds_stage2.json`), the 8B told the
+command forms: first a screen on mirror seeds (labels only), then the calibration pool, k, and Step 0's pool.
 
 ```sh
-python -m body.step0_habitat play  --model PLAYER --forms --run runs/step0h --pool calibration
+python -m body.step0_habitat play  --model Qwen/Qwen3-8B --forms --run runs/s2-screen --pool calibration --limit 30 --rehearsal
+python -m body.step0_habitat play  --model Qwen/Qwen3-8B --forms --run runs/s2-screen --pool step0_habitat --limit 40 --rehearsal
+python -m body.step0_habitat screen --run runs/s2-screen
+python -m body.step0_habitat play  --model Qwen/Qwen3-8B --forms --run runs/step0h --pool calibration
 python -m body.step0_habitat k     --run runs/step0h
-python -m body.step0_habitat play  --model PLAYER --forms --run runs/step0h --pool step0_habitat
+python -m body.step0_habitat play  --model Qwen/Qwen3-8B --forms --run runs/step0h --pool step0_habitat
 python -m body.step0_habitat read  --model Qwen/Qwen3-8B --run runs/step0h
 python -m body.step0_habitat score --run runs/step0h --k K
 ```
@@ -133,7 +138,8 @@ no registered seed, and is required by the rehearsal-only flags (`--nf4` for a 4
 `--generator`). `read` takes `--floor` (the echo floor; `material/echo_floor_8b.json` by default, and another model
 needs its own, made by `body.floor_file`) and `--gpu-memory`. PLAN.md gives each step's pools and flags.
 
-Qwen3-8B in bf16 needs a 24 GB GPU to read; play by a smaller model, and the script's play, run on an 8 GB card.
+Qwen3-8B in bf16 needs a 24 GB GPU, to play and to read; the script's play, and rehearsals with smaller or 4-bit
+models, run on an 8 GB card.
 
 The earlier tracks' commands (the product rounds, `substrate.measure_d`, `substrate.echo_floor`) are in this file's
 history, before 2026-11-05, and in PLAN.md under their sections.

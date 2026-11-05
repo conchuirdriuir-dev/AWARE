@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **`docs/` added** (owner): `docs/architecture.md`, from the Architecture Brief, beside a rewritten README;
+  the North star and PLAN.md win where they differ.
 - 2026-11-05: **Step 0's event is a stall after progress, and the 8B plays Stage 2** (owner; amendment 5): a closure counts
   only after a quest step; a post-ascent window starts the turn after; weaker players locked in from their first
   turns, and only the 8B gave progress then stall. Screened on the 3090.
@@ -23,6 +25,9 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-11-05: **Step 0's habitat form compares a stall with progress** (owner; amendment 2, changing decision 3's
   "matched ordinary stretches"): the 8B's play has almost none. Pre-stall windows against pre-progress windows (reading
   1, paired) and post-ascent windows against pre-stall windows (reading 2). Bars unchanged.
+- 2026-11-04: **Experience, parked** (owner; carried from PR #26, closed as superseded): whether the agent, or the
+  agent and the user together, has inner experience is parked; no test here reaches it, and a model's self-report never
+  stands as evidence for it (steps 2–3 found the account at chance).
 - 2026-11-04: **A planted event is its own chunk** (owner; Step −1 amendment 3): appended to a long reply, the mean over
   its tokens drowned it. The agent still reads reply and event as one message; the appended form is reported only.
 - 2026-11-04: **The rule change is always delivered at the planted turn** (owner; Step −1 amendment 2): the agent's latest

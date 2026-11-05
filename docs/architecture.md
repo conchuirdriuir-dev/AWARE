@@ -104,10 +104,11 @@ kept apart (owner, 2026-11-05), so that the habitat tests the senses and not the
 
 1. **Instrument check** (Step −1, Stage 1): a scripted player, Qwen3-8B perceiving. Boundary stays silent in self-talk
    and fires at every planted novelty; shape is read per chunk.
-2. **Rate proxy** (Step 0, Stage 2): a weaker model playing, the 8B perceiving. Rate is flat before closures, not flat
-   at ascents.
+2. **Rate proxy** (Step 0, Stage 2): the 8B playing longer-quest worlds and perceiving (a weaker player was planned;
+   amendment 5, after every one screened locked in early). Rate is flat before a stall after progress, not flat at
+   ascents.
 3. **Babbling gate**: the graft predicts its next sensation better with the sense tokens than without, and worse when
-   they are shuffled. The 8B is the actor again from here, and this gate covers its reading of its own play.
+   they are shuffled. This gate covers the split of rate between self and world; there is no third stage.
 4. **Behaviour**: with live senses, the organism beats the same senses given as text, and the same graft with shuffled
    senses, in held-out worlds and on an owner-scored reading task.
 
