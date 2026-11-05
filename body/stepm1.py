@@ -122,7 +122,31 @@ def joined(ep: dict) -> list[tuple[int, str]]:
             if c.get("cause") == "spontaneous" and c["turn"] >= 0]      # the opening is spontaneous too
 
 
-def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -> dict:
+def shape_report(eps: dict, shape_by: dict, tokens_by: dict, spec: dict) -> dict:
+    """Shape by pool and source (self, world, planted event), pooled too: the median over scored chunks of the mean over
+    layers, per-layer medians, and the chunks' median token length beside it. Per chunk, the files hold both."""
+    groups = defaultdict(lambda: {"shape": [], "layers": [], "tokens": []})
+    for key, ep in eps.items():
+        if key not in shape_by:
+            continue
+        Sh, Tk, name = shape_by[key], tokens_by.get(key), pool_of(key, spec)
+        for i, c in enumerate(ep["chunks"]):
+            if not np.isfinite(Sh[i]).all():
+                continue
+            src = "self" if c["slot"] == "self" else ("planted event" if c.get("cause") == "spontaneous" else "world")
+            for g in (f"{name}: {src}", f"{name}: pooled"):
+                groups[g]["shape"].append(float(np.mean(Sh[i])))
+                groups[g]["layers"].append(Sh[i])
+                if Tk is not None:
+                    groups[g]["tokens"].append(int(Tk[i]))
+    return {g: {"chunks": len(v["shape"]), "median bits": float(np.median(v["shape"])),
+                "median bits per layer": [float(x) for x in np.median(np.array(v["layers"]), axis=0)],
+                "median tokens": float(np.median(v["tokens"])) if v["tokens"] else None}
+            for g, v in sorted(groups.items())}
+
+
+def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None, shape_by: dict | None = None,
+          tokens_by: dict | None = None) -> dict:
     """Step -1's three bars and the floor's habitat check, from episodes and their news (episode -> chunks x layers)."""
     out: dict = {"reported": {}}
     by_pool = defaultdict(list)
@@ -232,8 +256,10 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -
         play[name]["turns_with_dropped"] += sum(bool(c.get("dropped")) for c in acts)
     out["reported"]["play"] = {k: {**v, "turns_per_hour": v["turns"] / v["seconds"] * 3600 if v["seconds"] else None}
                                for k, v in play.items()}
-    out["reported"]["not produced"] = ("coupling, shape and rate per turn: registered as reported, not yet computed "
-                                       "(shape awaits its definition; PLAN.md, Step -1, 'Reported')")
+    if shape_by:
+        out["reported"]["shape"] = shape_report(eps, shape_by, tokens_by, spec)
+    out["reported"]["not produced"] = ("coupling and rate per turn: registered as reported, not yet computed"
+                                       + ("" if shape_by else "; shape: no shape files (run read again)"))
     out["reported"]["natural_new_state"] = dict(zip(("auc", "lo", "hi"), _boot(natural_new, natural_flat)))
     out["pass"] = all(v["pass"] for v in st.values()) and out["fires"]["pass"] and out["above_ordinary"]["pass"]
     return out
@@ -266,6 +292,26 @@ def cmd_play(a) -> None:
             play(agent, record, seed, Path(a.run) / "games", generator=gen)
 
 
+SHAPE_BURN, SHAPE_CAP = 10, 256          # shape (owner, 2026-11-05, PR #32 sec. 4a): turns that fit and never score
+
+
+def shape(S: np.ndarray, turns: list[int], floor_var: list[float]) -> np.ndarray:
+    """Shape per chunk and layer (Spec v0.2; reported, deciding nothing): the bits of each chunk under the formula
+    fitted on every earlier chunk of the episode, both sources (Lift v0: `goalspace.formula.prequential`'s Lk,
+    computed from the Gram matrix as Step 0 does). Chunks in the first SHAPE_BURN turns fit and never score: NaN."""
+    from body.progress import code
+
+    n, L, d = S.shape
+    out = np.full((n, L), np.nan)
+    start = next((i for i, t in enumerate(turns) if t >= SHAPE_BURN), n)
+    for j in range(L):
+        X = S[:, j].astype(np.float64)
+        G = X @ X.T
+        for t in range(max(start, 2), n):
+            out[t, j] = code(G, np.arange(t), t, d, floor_var[j])[0]
+    return out
+
+
 def cmd_read(a) -> None:
     from substrate.echo_floor import d_resumable
     from substrate.measure_d import load_sets
@@ -289,10 +335,21 @@ def cmd_read(a) -> None:
     out.mkdir(exist_ok=True)
     for (seed, variant), ep in eps.items():
         path = out / f"{seed}-{variant or 'world'}.npy"
-        if path.exists() and np.load(path).shape[0] == len(ep["chunks"]):
+        done = [path, out / f"{seed}-{variant or 'world'}-shape.npy", out / f"{seed}-{variant or 'world'}-tokens.npy"]
+        if all(p.exists() and np.load(p).shape[0] == len(ep["chunks"]) for p in done):
             continue                                      # read already; a replayed episode is read again
         S = reader.states([c["text"] for c in ep["chunks"]], layers)
         np.save(path, news(S, [c["slot"] for c in ep["chunks"]], unit))
+        # shape on Step 0's readings: each chunk cut at 256 tokens, so only longer chunks are read again
+        tok = reader.tokenizer
+        ids = [tok(c["text"], add_special_tokens=False)["input_ids"] for c in ep["chunks"]]
+        long_ = [i for i, x in enumerate(ids) if len(x) > SHAPE_CAP]
+        Sc = S.copy()
+        if long_:
+            Sc[long_] = reader.states([tok.decode(ids[i][:SHAPE_CAP]) for i in long_], layers)
+        np.save(out / f"{seed}-{variant or 'world'}-shape.npy",
+                shape(Sc, [c["turn"] for c in ep["chunks"]], [float(x) ** 2 / S.shape[2] for x in D]))
+        np.save(out / f"{seed}-{variant or 'world'}-tokens.npy", np.array([len(x) for x in ids]))
         pairs = joined(ep)
         if pairs:                                         # reported only: the event read inside its turn's reply
             J = np.full((len(ep["chunks"]), len(layers)), np.nan)
@@ -312,7 +369,9 @@ def cmd_score(a) -> None:
     if stale:
         raise SystemExit(f"news does not match the record for {stale}: run read again")
     joined_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-joined.npy").exists()}
-    result = score(eps, news_by, worlds(), joined_by)
+    shape_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-shape.npy").exists()}
+    tokens_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-tokens.npy").exists()}
+    result = score(eps, news_by, worlds(), joined_by, shape_by, tokens_by)
     Record(run / "record.jsonl").append("score", "code", **result)
     print(json.dumps(result, indent=2))
 

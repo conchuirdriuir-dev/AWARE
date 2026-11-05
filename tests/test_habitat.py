@@ -425,3 +425,39 @@ def test_step0_habitat_reads_a_real_episode(tmp_path):
 def test_stage_2s_prompt_adds_the_command_forms_and_the_first_stays():
     assert H.SYSTEM_FORMS.startswith(H.SYSTEM) and "unlock <thing> with <key>" in H.SYSTEM_FORMS
     assert "unlock" not in H.SYSTEM                                       # Stage 1 and self-talk: unchanged
+
+
+def test_shape_is_the_prequential_code_length_after_ten_turns():
+    """Shape per chunk (owner, PR #32 sec. 4a) is formula.prequential's Lk, both sources, from the first chunk of
+    turn 10 (0-based) on; earlier chunks fit and never score."""
+    from goalspace.formula import prequential
+
+    rng = np.random.default_rng(3)
+    turns = [-1] + [t for t in range(14) for _ in (0, 1)]                 # the opening, then action and reply
+    S = rng.normal(size=(len(turns), 2, 6))
+    fv = [0.05, 0.08]
+    out = M.shape(S, turns, fv)
+    start = turns.index(10)
+    assert np.isnan(out[:start]).all() and np.isfinite(out[start:]).all()
+    for j in range(2):
+        ref = prequential(S[:, j].astype(float), fv[j], start)["Lk"]
+        assert np.allclose(out[start:, j], ref[start:], atol=1e-6)
+
+
+def test_shape_is_reported_by_source_beside_token_lengths():
+    eps, news = _material()
+    shape_by, tokens_by = {}, {}
+    for key, ep in eps.items():
+        n = len(ep["chunks"])
+        sh = np.full((n, 2), np.nan)
+        sh[5:] = 10.0
+        shape_by[key], tokens_by[key] = sh, np.full(n, 7)
+    key = (2000, None)
+    ep = eps[key]
+    i = len(ep["chunks"]) - 1
+    ep["chunks"][i] = dict(ep["chunks"][i], cause="spontaneous")
+    rep = M.score(eps, news, H.worlds(), None, shape_by, tokens_by)["reported"]
+    sh = rep["shape"]
+    assert {"step_minus_1: self", "step_minus_1: world", "step_minus_1: planted event", "step_minus_1: pooled"} <= set(sh)
+    assert sh["step_minus_1: planted event"]["chunks"] == 1 and sh["step_minus_1: pooled"]["median tokens"] == 7
+    assert "shape" not in rep["not produced"]

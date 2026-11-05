@@ -319,8 +319,13 @@ boundary's coupling part on the same turns (v10's coupling over the last p turns
 bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
 *Gap, found 2026-11-05 (by the session drafting PR #32, for the owner): `score` produced only the first of these. It
 now also reports per-layer values (the third bar's AUC and plants fired, layer by layer), throughput and turns dropped
-from context, read from the record. Coupling, shape and rate per turn are not yet computed, and `score` says so;
-shape has no definition yet (one is being drafted for the owner).*
+from context, read from the record. Coupling and rate per turn are not yet computed, and `score` says so. *Shape,
+added 2026-11-05 to the owner's definition (PR #32, `proposals/staged-schedule.md` sec. 4a):* per chunk and layer,
+the formula's code length (Lk) of the chunk fitted on every earlier chunk of the episode, both sources, on Step 0's
+readings (cut at 256 tokens) and floor variance; chunks in the first 10 turns fit and never score; reported by source
+(self, world, planted event) and pooled, beside token lengths, deciding nothing. Its loop-against-explore comparison
+on the scripted play is not built: the script's phases are not in the record, and "length-matched" is open (both
+put to the owner).*
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
