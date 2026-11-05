@@ -1,0 +1,16 @@
+{
+  "frozen": "2026-11-05, by the owner (PLAN.md, Body readout, Two stages: Stage 2's worlds)",
+  "engine": "TextWorld, tw-make custom",
+  "generator": {
+    "rooms": [10, 20],
+    "objects": [20, 40],
+    "quest_length": [15, 25],
+    "drawn_by": "numpy.random.default_rng(seed).integers(lo, hi + 1), in the order rooms, objects, quest_length"
+  },
+  "episode": {"max_turns": 100, "per_world": 1},
+  "pools": {
+    "calibration": {"seeds": [4000, 4099], "use": "k for Stage 2's player; the owner's read of 20 closures and 20 ordinary stretches"},
+    "step0_habitat": {"seeds": [5000, 5399], "use": "Step 0's habitat form: closures and ascents"}
+  },
+  "ranges_are_inclusive": true
+}
