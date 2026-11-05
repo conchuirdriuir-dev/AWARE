@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step −1C skips unbuildable seeds** (owner): each world built in a subprocess capped at 8 GB and 120 s;
+  a seed over either is skipped and counted before any reading, beside no-match and no-entry.
 - 2026-11-05: **Step −1C's pool is drawn until 80 per kind are usable** (owner): seeds in order, skipped (never
   loosened) on no length match or no room entry, both counted before any reading; length matched in the reader's
   tokens (Qwen3), PR #33.

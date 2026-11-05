@@ -160,8 +160,11 @@ exact repeat, the re-fit test this replaces) cannot tell shape from boundary or 
 - *Pool and size:* 80 episodes of each kind, seeds disjoint from every registered pool, so bar 2 resolves a margin
   of about 0.03 (about 0.05 at 40). *Drawing the pool (owner, 2026-11-05):* seeds are taken in order from the new
   pool's range until 80 per kind are usable; a seed is skipped, never loosened, when its off-structure description
-  finds no length match (about 12% in the theme's dry run, PR #33) or the script never enters the room. Both counts
-  are taken from lengths and engine labels before any reading, and recorded with the seeds drawn.
+  finds no length match (about 12% in the theme's dry run, PR #33), the script never enters the room, or its world
+  cannot be built: each build runs in a subprocess capped at 8 GB of memory (`ulimit -v`) and 120 s, and a seed over
+  either is skipped (TextWorld generation ran out of memory twice on 2026-11-05, on Stage 2's longer quests). All
+  three counts are taken before any reading and recorded with the seeds drawn. An unbuildable seed is lost to both
+  kinds alike: the world is built before the kind matters, which changes only one room's description.
 - *Length match:* within ±10% of the reader's tokens (Qwen3's tokenizer, shared by every size), counted before
   rendering with Inform7 code removed (PR #33).
 - *Bars fixed in advance* (owner, 2026-11-05, replacing Q6's answer): no reading sets them. A 0.6B rehearsal on
