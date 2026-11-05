@@ -7,13 +7,42 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   turns, and only the 8B gave progress then stall. Screened on the 3090.
 - 2026-11-05: **A world that cannot be built is skipped and counted** (owner; Step 0 amendment 4, Step −1C's rule): each
   build in a subprocess capped at 8 GB and 120 s; about 9% of Stage 2's seeds fail, all dense (30–39 objects).
+- 2026-11-05: **Step −1C skips unbuildable seeds** (owner): each world built in a subprocess capped at 8 GB and 120 s;
+  a seed over either is skipped and counted before any reading, beside no-match and no-entry.
+- 2026-11-05: **Step −1C's pool is drawn until 80 per kind are usable** (owner): seeds in order, skipped (never
+  loosened) on no length match or no room entry, both counted before any reading; length matched in the reader's
+  tokens (Qwen3), PR #33.
+- 2026-11-05: **No sense enters the channel before its own instrument test passes** (owner): shape stays out of the
+  sense tokens until Step −1C passes; babbling runs on rate and boundary until then.
+- 2026-11-05: **Step −1C fixed** (owner, proposals/staged-schedule.md §4a): bars in advance (shape's AUC off- over
+  on-structure ≥ 0.80, lower bound > 0.70; shape's AUC minus boundary's, 90% interval excluding zero), 80 episodes per
+  kind, each ending after the scored description, ±10% length match, TextWorld themes first on the dry run; the 0.6B
+  run is a rehearsal deciding nothing (replaces Q6's answer); gates chords and shape's sense token, not Stage 2.
 - 2026-11-05: **Stage 2 plays its own worlds, with longer quests** (owner): `material/habitat_worlds_stage2.json`, 10–20
   rooms, quests of 15–25 steps, calibration 4000–4099, Step 0 5000–5399. In the frozen worlds every player's quest
   steps and stalls fell in the first dozen turns. Stage 1 keeps the frozen file.
+- 2026-11-05: **Shape's reading, three details** (owner, on the PR #31 session's questions): the script's phase labels
+  are derived by replaying it from the seed, kept only on an exact match with the record; loop vs explore is compared
+  within chunk token-length bins; shape keeps Step 0's 256-token cap, the truncated count reported.
+- 2026-11-05: **Shape's Stage 1 test is a dissociation** (owner, option C of proposals/staged-schedule.md §4a): shape
+  lower on new on-structure rooms than new off-structure ones, and apart from boundary on the same chunks (Step −1C, its
+  own pool). The re-fit test is dropped; the loop-vs-explore reading is reported. Bars and gating still open.
 - 2026-11-05: **Stage 2's player is told TextWorld's command forms** (owner): the screened players stalled on the parser
   in their first turns. Stage 1 and the 8B's self-talk keep the first prompt.
 - 2026-11-05: **Step 0's cross-episode fallback is the nearest world by seed in the pool** (owner; amendment 3): "the same
   generator settings" is the pool's generator, not identical world sizes.
+- 2026-11-05: **No Stage 3; babbling covers the 8B's own play** (owner, from proposals/staged-schedule.md, Q1): the
+  self/world split (rate's self part) is tested at Step 2, where the 8B acts again. The harder-worlds search stays retired.
+- 2026-11-05: **Step −1's bar 1, restated part, amended** (owner, Q2; made after rehearsal 3's 12%, before any 8B run):
+  reported in Stage 1, gating at the tickle test after babbling, since v0's history predictor cannot cancel self-caused
+  input by design. Bar 1's exact part gates Stage 1 unchanged.
+- 2026-11-05: **Gating and Stage 2's screen** (owner, Q4–Q5): Stage 1 gates Stage 2's scoring; Stage 2 informs and does
+  not gate babbling. Stage 2's player screen stays as fixed that day.
+- 2026-11-05: **Stage 1 adds shape and a rate calibration** (owner, Q3, Q6): shape at the planted rule change, its window
+  and bar set from the 0.6B rehearsal record (mirror seeds) and fixed before the 8B reads Stage 1; a contingent-vs-blind
+  script pair for rate, reported only. (Shape's test superseded the same day: the dissociation.)
+- 2026-11-05: **Every capacity gets a step** (owner, Q7): a slot (a named step with its question, bars written before its
+  code) counts as scheduled; the coverage table moves into PLAN's "Current state and direction" once PR #31 is merged.
 - 2026-11-05: **The two stages fixed** (owner, the agent's draft unchanged): the script's policy, Stage 2's player
   candidates and criteria, as written in PLAN.md, "Two stages".
 - 2026-11-05: **The habitat runs in two stages, the player and the perceiver apart** (owner, from two outside
