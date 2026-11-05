@@ -71,10 +71,16 @@ split:
 - *Reported, deciding nothing:* Stage 1's plants against first-seen replies of the same length (draft control 7; the
   gap rehearsal 3 noted).
 - *Optional, if the owner accepts Q3:* the contingent-vs-blind rate check.
+- **Shape (Stage 1, from the draft's Step 0S; dropped from this proposal's first version by mistake).** On scripted
+  play, shape (the code length of the current fit) rises at the planted rule change and falls back as the code re-fits
+  within **[owner fixes]** turns; the rule change's turn is known, so this is a calibration check with a known answer.
+  Unlike rate it is not circular: it reads the fit to the text, not how much the replies help code the next action.
+  It needs no new play, only scoring the plants already recorded. **(Q6)**
 
 **Proposals, no bars yet, each written into PLAN before its code when its step comes:**
 - **Stage 3 and the self/world split**, if Q1 is yes. Learnable structure planted in the world's replies or in the
-  agent's own notes; the rise in rate should land on the planted source's part.
+  agent's own notes; the rise in rate should land on the planted source's part. **If Q1 is no**, the split moves to
+  babbling (Step 2), where the 8B's own actions return; otherwise nothing tests rate's self part.
 - **At babbling (Step 2):** the active-vs-yoked-passive arm (a second graft on the same episodes replayed with no acting,
   matched in data and steps; if it does no worse, the sensory-substitution framing is doing no work) and the tickle test
   (the forward model frozen as its own graft, decision 1; restated self-talk and draft control 4 rerun there). The
@@ -84,12 +90,55 @@ split:
   there is no world.
 - **Dream (Step 4)**, one line until babbling exists: dream vs replay-only at matched compute on held-out worlds'
   task success (functional); rollback catching a degraded graft (safeguard); the sleep trigger firing on an injected
-  plateau (instrument). Three measures, kept apart.
+  plateau (instrument). Three measures, kept apart. Two more slots, from the North star's Dreaming table and ascent
+  cycle:
+  - *The library of codes (abstract):* a code admitted to the library codes held-out worlds it was not fitted on
+    shorter than codes fitted per world. An instrument measure of the abstraction, apart from task success.
+  - *Rivals and ascent (dream):* after a closure, the dreamed route yields a code shorter than both rivals on both
+    episodes' held-out turns. The North star's ascent cycle (compress, go lateral, hold two codes, ascend) has a label
+    in Step 0 but no test that the organism itself ascends; this is that test.
+- **Act (Step 3), one more slot: the perturbation test** (North star, "Design changes", goal code as setpoint). The
+  route to the goal is blocked mid-episode (an exit closed, an object moved); an agent holding the goal reaches it by
+  another route, one running a habit repeats the old one. Functional (task success after the perturbation), apart
+  from Felt vs Tell. Needs the goal code (decision 5).
+- **The dyad, after Dream: a placeholder only.** The North star puts it at the next scale up: three-class provenance
+  (agent, collaborator, world), recoupling as the drift response, split tracking, cone metrics. Paused with the
+  agent–user work (owner, 2026-11-04); the slot marks where it returns, with no content until then.
 
 **Naming** *(draft's choice, kept)*: new forms take a suffix (0W, and any new Stage 1 form); registered steps keep
 their names, so records, amendments and run folders line up.
 
-## 5. Questions for the owner
+## 5. Coverage: every capacity has a step
+
+The draft's purpose (the owner's): every part of the planned system gets a development step, or it will not be built.
+A slot is a named step with its question; its bars are written into PLAN before its code, when its turn comes. The
+capacities are the North star's five steps, its senses table and its Dreaming table. An empty cell is a gap.
+
+| Capacity | Step | Kind | State |
+|---|---|---|---|
+| Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined (§3.6) |
+| Shape (code length) | Stage 1, shape at the rule change (§4) | instrument | Slot; bars open (Q6) |
+| Rate, world part | Step 0, Stage 2 | instrument | Fixed |
+| Rate, world part, calibration | Stage 1, contingent vs blind (§3.2) | instrument | Optional (Q3) |
+| Rate, self part (the self/world split) | Stage 3; else babbling (Step 2) | instrument | Slot; home depends on Q1 |
+| Boundary, world | Step −1, Stage 1 | instrument | Fixed; play done |
+| Boundary, efference copy | Tickle test at babbling | instrument | Slot (Q2 decides bar 1's restated part) |
+| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
+| Chords (senses together) | After Step 0W | instrument | Slot |
+| Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
+| Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
+| Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
+| Act: goal code as setpoint | Step 3, perturbation test | functional | Slot |
+| Dream: replay and write the graft | Dream vs replay-only | functional | Slot |
+| Dream: morning check and rollback | Rollback of a degraded graft | safeguard | Slot |
+| Dream: library of codes | Held-out worlds' code length | instrument | Slot |
+| Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
+| The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
+
+Every capacity now has a slot. Two depend on answers: rate's self part (Q1) and shape's bars (Q6). Adaptation is
+scored only by the sleep trigger; habituation before Dream is reported, never gating.
+
+## 6. Questions for the owner
 
 - **Q1.** Does Stage 3 (the 8B playing and reading its own play) return after Stages 1–2, or does the babbling gate
   cover it? Q2's bar, the harder worlds and the self/world split depend on the answer.
@@ -98,8 +147,12 @@ their names, so records, amendments and run folders line up.
 - **Q3.** Add the contingent-vs-blind rate check to Stage 1, with its bar fixed first, or leave rate to Stage 2?
 - **Q4.** Stage 2's screen: keep the fixed one (the agent's recommendation) or the draft's?
 - **Q5.** Gating: Stage 1 gates Stages 2 and 3; Stage 2 informs and does not gate (the draft's choice)?
+- **Q6.** Shape at the rule change in Stage 1: added, with its re-fit window and bar fixed before scoring, or reported
+  only?
+- **Q7.** Coverage (§5): is a slot (a named step with its question, bars later) enough to count a capacity as
+  scheduled, and should the table move into PLAN's "Current state and direction" once accepted?
 
-## 6. Limits
+## 7. Limits
 
 - Stage 1 tests the reading, not the prediction; a pass there says nothing about early warning.
 - The script's loops are cleaner than real ones; a gauge that reads them may still miss real stalls.
