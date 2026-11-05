@@ -576,6 +576,12 @@ Neither meets the criteria. Across every player screened (0.6B, 1.7B, 4B, the 4-
 these worlds put nearly every quest step in turns 0–12 and nearly every stall's onset in turns 0–9, so Step 0's
 10-turn burn-in and windows leave almost nothing: the worlds' timing, not the player. For the owner.
 
+**Stage 2's screen on its own worlds (2026-11-05, mirror seeds of `material/habitat_worlds_stage2.json`, labels only;
+`runs/s2w-1.7b/`).** Qwen3-1.7B told the forms: 30 calibration episodes (k = 21) and 27 of 40 Step 0 worlds before a
+GPU out-of-memory at long context on the 4060 ended the run (the 3090 has room); 2 seeds skipped as unbuildable
+(905004, 905007, over 120 s, amendment 4). Won 2% (bar 10%): fails. No closure kept, no pre-progress window in the
+pool, stall onsets still mostly in turns 0–4. The longer quests are beyond it.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
