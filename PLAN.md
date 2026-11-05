@@ -309,6 +309,13 @@ one on a real world in `tests/test_habitat.py`. Where the registered form left a
 - Found on toy episodes: at 100 turns, an episode with a closure and two ascents has room for about two 10-turn controls
   under the 10-turn gap; the rest go to the nearest world with the same settings or have none (counted).
 
+**Step 0 habitat rehearsal 1 (2026-11-04, Qwen3-0.6B, 40 mirror worlds of Step 0's pool, k = 10 from rehearsal 1,
+decides nothing; record in `runs/step0h-0.6b-rehearsal/`).** Play, read (10.5 minutes) and score ran end to end; no
+event survived: 41 closures and 5 ascents labelled, 39 dropped for fewer than 3 scored turns, 7 with no control. The
+0.6B loops from the start: 34 of 41 closures begin in the first 6 turns, most last the whole episode, and 99% of turns
+(median) are inside a closure; its ascents fall on turns 1–3 but one. A closure that begins in the burn-in has no
+window, so a player that never makes progress gives Step 0 nothing to read, as it should.
+
 #### Keys judge, never supply
 
 The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every
