@@ -211,8 +211,9 @@ def cmd_play(a) -> None:
     spec = worlds()
     record = Record(Path(a.run) / "record.jsonl")
     done = set(episodes(read(record.path)).keys()) if record.path.exists() else set()
-    if (a.nf4 or a.context) and not a.rehearsal:
-        raise SystemExit("--nf4 and --context change the player: rehearsals only (--rehearsal)")
+    if (a.nf4 or a.context or a.generator) and not a.rehearsal:
+        raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
+    gen = json.loads(a.generator) if a.generator else None
     agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
                   **({"context": a.context} if a.context else {}))
     seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
@@ -222,7 +223,7 @@ def cmd_play(a) -> None:
                 if (seed, variant) not in done:
                     self_talk(agent, record, seed, variant, spec["pools"]["step_minus_1"]["self_talk"]["turns"])
         elif (seed, None) not in done:
-            play(agent, record, seed, Path(a.run) / "games")
+            play(agent, record, seed, Path(a.run) / "games", generator=gen)
 
 
 def cmd_read(a) -> None:
@@ -292,6 +293,7 @@ def main(argv=None) -> None:
             s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
             s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
             s.add_argument("--context", type=int, help="a shorter context in tokens: rehearsals only")
+            s.add_argument("--generator", help='candidate world settings as JSON, e.g. {"rooms": [10, 20], ...}: rehearsals only')
             s.add_argument("--rehearsal", action="store_true",
                            help="play the pool's mirror seeds (+900000): new worlds on the same plan, no registered seed spent")
         if name == "read":

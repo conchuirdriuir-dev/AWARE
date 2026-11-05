@@ -397,6 +397,19 @@ each kind were delivered, against a bar of 17 of 20: **as registered, Step −1 
 instrument not at fault.** With Step 0's rehearsal 2 (under "Step 0, habitat form"), the frozen generator settings
 (6–12 rooms, quests of 3–8 steps) are too easy for the 8B. For the owner, before the 3090.
 
+**Harder worlds: how the settings are chosen (owner's choice, 2026-11-04; criteria written by the agent before any
+candidate is played).** The owner chose harder worlds over earlier plants: the generator's world size and quest length
+rise, a new seed pool file is registered in place of `material/habitat_worlds.json`, and every bar stays. Candidates
+are played by the 8B in 4-bit on mirror seeds (`--generator`, rehearsals only, recorded on each episode), Step −1's
+and Step 0's pools, and judged on the engine's labels alone: no news, X or other reading is computed or looked at.
+The chosen setting is the smallest candidate that meets all three; if none does, the owner is asked, not the bar
+moved.
+1. **Plants arrive:** at least 95% of Step −1 episodes are still running at turn 35 (the latest planted turn).
+2. **Step 0 has events:** projected to Step 0's 400 worlds, at least 150 closures and 75 ascents kept (windows of at
+   least 3 scored turns, with controls), at k = 10 and at the k given by the candidate's own resolved stalls.
+3. **The quest is winnable:** the 8B wins at least 10% of episodes, so ascents come from progress, not chance.
+Generation time per world is reported; a setting the generator cannot build in reasonable time is not a candidate.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants

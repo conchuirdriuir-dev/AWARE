@@ -139,7 +139,7 @@ def quest_left(policy, won: bool) -> int | None:
 
 # --- worlds (TextWorld) -------------------------------------------------------------------------------------------
 
-def build(seed: int, out: Path, kind: str | None = None) -> dict:
+def build(seed: int, out: Path, kind: str | None = None, spec: dict | None = None) -> dict:
     """Compile the world for `seed` into `out`. A new-room world is compiled twice: A, with one extra room behind a
     locked door whose key is not in the world, and B, the same with the door closed but unlocked. Returns the paths
     and the planted room's names as the compiled game holds them."""
@@ -147,7 +147,7 @@ def build(seed: int, out: Path, kind: str | None = None) -> dict:
     from textworld.generator import Game, World, compile_game, make_game
     from textworld.logic import Proposition, Variable
 
-    p = params(seed)
+    p = params(seed, spec)
     opts = textworld.GameOptions()
     opts.seeds, opts.nb_rooms, opts.nb_objects, opts.quest_length = seed, p["rooms"], p["objects"], p["quest_length"]
     out = Path(out)
@@ -372,19 +372,22 @@ class Agent:
 
 # --- episodes -----------------------------------------------------------------------------------------------------
 
-def play(agent, record, seed: int, games: Path, max_turns: int | None = None, kind: str | None = "auto") -> None:
+def play(agent, record, seed: int, games: Path, max_turns: int | None = None, kind: str | None = "auto",
+         generator: dict | None = None) -> None:
     """One episode on world `seed`, appended to `record` turn by turn. Each turn is two chunks, the action (the
     model's, self) and the reply (the code's, external, elicited), then one key entry the readout never reads."""
     spec = worlds()
+    if generator:                            # a candidate setting, rehearsals only: recorded on the episode
+        spec = {**spec, "generator": generator}
     max_turns = max_turns or spec["episode"]["max_turns"]
     plant = planted(seed, spec) if kind == "auto" else None
-    built = build(seed, games, plant["kind"] if plant else None)
+    built = build(seed, games, plant["kind"] if plant else None, spec)
     engine = Engine(built)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None
     record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
                   model=agent.name,
                   revision=agent.revision, kv_cache=getattr(agent, "cache", None), load=getattr(agent, "load", None),
-                  context=getattr(agent, "context", None), planted_kind=plant["kind"] if plant else None,
+                  context=getattr(agent, "context", None), generator=generator, planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
