@@ -24,7 +24,7 @@ Research track (parked) · Translations · The record: state and direction befor
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-04.
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-05.
 The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
 near the end.*
 
@@ -39,8 +39,40 @@ transfer test.
 a scripted player, the 8B perceiving: its play is done (160 episodes, every plant delivered), its reading and the
 8B's self-talk wait for the 3090. Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
 after weaker players locked in early): its screen, k, the owner's read of closures, and its play and reading all
-wait for the 3090. The agent's draft of the stages was fixed by the owner the same day. Play for both can run on the 4060; the
-8B's reading waits for the 3090. *The paragraph below is the state before this.*
+wait for the 3090. The agent's draft of the stages was fixed by the owner the same day. Stage 1's play ran on the
+4060; everything else with the 8B in it waits for the 3090.
+
+**The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
+seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
+moves to the tickle test (Step −1 amendment 4). Shape gets its own instrument test, Step −1C (below, under "The
+habitat"), and rate a contingent-vs-blind calibration in Stage 1, reported only. Gating by dependency, under "Two
+stages". Every capacity of the North star has a step; a slot (a named step with its question, bars written before its
+code) counts as scheduled:
+
+| Capacity | Step | Kind | State |
+|---|---|---|---|
+| Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed; the theme built (PR #33); harness not built |
+| Rate, world part | Step 0, Stage 2 (the 8B playing, amendment 5) | instrument | Fixed; code built; waits for the 3090 |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Decided; reported only; not built |
+| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
+| Boundary, world | Step −1, Stage 1 | instrument | Fixed; play done; reading waits for the 3090 |
+| Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
+| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
+| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | Slot |
+| Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
+| Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
+| Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
+| Act: goal code as setpoint | Step 3, perturbation test | functional | Slot |
+| Dream: replay and write the graft | Dream vs replay-only | functional | Slot |
+| Dream: morning check and rollback | Rollback of a degraded graft | safeguard | Slot |
+| Dream: library of codes | Held-out worlds' code length | instrument | Slot |
+| Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
+| The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
+
+**Next, while waiting for the 3090:** Step −1C's harness (the theme is PR #33) and its 0.6B rehearsal on mirror seeds,
+scripted play read on the 4060, deciding nothing; the contingent-vs-blind script pair. *The paragraph below is the
+state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
 and fires at every planted novelty. Its bars, k's procedure, the world-seed splits and Step 0's habitat form are fixed
@@ -54,8 +86,9 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 
 | Step | Question | Measures | Status |
 |---|---|---|---|
-| −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed; code built; 0.6B dry run done.** The 8B run waits for the 3090 |
-| 0 | Does the world part of rate flatten before a stall, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendment 1: ascents); code not built. The owner-label form is paused (below) |
+| −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed (amendments 1–4); code built; Stage 1's scripted play done.** The 8B's reading and self-talk wait for the 3090 |
+| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32); the theme built (PR #33); harness not built |
+| 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–5); code built (`body/step0_habitat.py`); the 8B plays (amendment 5) and waits for the 3090. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
 | 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
@@ -211,7 +244,14 @@ What it gives up, stated plainly: the North star's boundary is an efference copy
 stages read an agent other than the perceiver; they check the instrument before the organism, they do not replace the
 8B reading itself. From Step 2 (babbling) on the 8B is the actor again. *Answered by the owner, 2026-11-05 (recorded in
 PR #32, `proposals/staged-schedule.md`, with its PLAN edits listed there for after this PR):* no third stage; the
-babbling gate covers the 8B's own play.
+babbling gate covers the 8B's own play. *Since Step 0 amendment 5 the 8B also plays Stage 2, so Stage 2 reads its own
+play, with the limit stated there; the self/world split still waits for babbling.*
+
+**Gating, by dependency (owner, 2026-11-05; PR #32, Q5 and Step −1C).** Step −1 (Stage 1) gates Stage 2's scoring;
+Stage 2 informs and does not gate babbling. Step −1C gates chords and shape's entry into the sense tokens; Step −1 alone
+gates Stage 2, which never reads shape. **No sense enters the channel before its own instrument test passes:** shape
+stays out of the sense tokens until Step −1C passes, and babbling runs on rate and boundary until then, so a functional
+pass at babbling can never stand in for a sense's accuracy.
 
 **Stage 1, draft: Step −1 with a scripted player.**
 - **The script** (code, labelled as such: action chunks `by: code`, in the player's slot, so the reading is
@@ -350,6 +390,17 @@ The bars, seeds and plants are unchanged.
   decision 2). The event read inside its reply, against every chunk before the reply, is reported beside it, deciding
   nothing. The floor's habitat check reads replies only. The bars, seeds and planted turns are unchanged.
 
+*Amendment 4 (Step −1), 2026-11-05, the owner (PR #32, Q2), made after rehearsal 3 and before any 8B run:* **bar 1's
+restated part is reported in Stage 1 and gates at the tickle test after babbling.** Rehearsal 3 (0.6B) gave restated
+self-talk above the floor on 12% of arrivals against the 5% bar; v0's history predictor cannot tell restated self from
+world by design, which is the forward model's job (decision 1). Recorded as an amendment made after seeing a rehearsal,
+not a bar left standing. Bar 1's exact part gates Stage 1 unchanged.
+
+*Rate's calibration in Stage 1 (owner, 2026-11-05, PR #32, Q3), reported only, not yet built:* two scripts differing
+only in contingency on the same worlds, one choosing its next action from the reply (an exit the reply names), one
+blind to it. World rate should be higher under the contingent script. It uses the script's circularity as a known
+answer: it tests the gauge's calibration, never lead. Its form is written here before its code.
+
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
 bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
@@ -368,6 +419,44 @@ the same turns. The 256-token cap stays; score reports how many chunks it cut. *
 before any run:* chunk token lengths [1, 8), [8, 16), [16, 32), [32, 64), [64, 256]; per bin and source, the medians
 of loop and explore chunks and the AUC of loop over explore, for shape and for news; a bin with fewer than 20 chunks
 of either phase is reported as too few.*
+
+#### Step −1C: does shape read structure, apart from boundary? (instrument; no training)
+
+*Fixed by the owner, 2026-11-05 (PR #32, `proposals/staged-schedule.md` §4a, where the reasoning and the definition's
+five choices are). A new form, with its own seed pool; written here before its code.*
+
+**Shape** is the code length of the current chunk under the formula fitted on every earlier chunk of the episode, both
+sources, in bits per chunk (`goalspace/formula.py`'s prequential code, Lift v0), on Step 0's readings (cut at 256
+tokens) and floor variance; the first 10 turns fit and never score; reported by source and pooled, with length beside
+every comparison.
+
+**Why a dissociation.** Boundary asks whether this text was seen before; shape asks whether it fits the structure
+learned so far. They part on a chunk that is new but on-structure: boundary should fire and shape stay low.
+
+**Plants.** Each episode gets one extra room, unlocked at a planted turn (15–35) as in Step −1's new-room plant and
+entered by the script. One kind per episode, fixed by the seed: **on-structure**, generated by the episode's own world
+generator; **off-structure**, its description from a second, disjoint vocabulary and template set, written once for
+every world (domain-free; `body/offtheme.py`, PR #33), length matched within ±10% of the reader's tokens (Qwen3's
+tokenizer), counted before rendering with Inform7 code removed. The chunk scored is the room's first description, on
+the turn the script enters; each episode ends after it.
+
+**Pass, both:**
+1. **Shape:** the AUC of off-structure shape over on-structure shape is at least 0.80, its 90% lower bound above 0.70.
+2. **Apart from boundary:** the 90% interval of (shape's AUC − boundary's AUC) on the same chunks excludes zero; 2,000
+   draws resampling episodes; the margin reported. If 1 passes and 2 fails, shape under Lift v0 is redundant with
+   boundary: the measurement decision 4 asks for before a trained encoder replaces Lift v0.
+
+*Precondition, reported:* boundary fires on both kinds. If it does not fire on on-structure rooms, the dissociation
+cannot be read and the owner is told.
+
+**Pool.** 80 episodes of each kind, seeds disjoint from every registered pool, taken in order until 80 per kind are
+usable. A seed is skipped, never loosened, when its off-structure description finds no length match, the script never
+enters the room, or its world cannot be built (a subprocess capped at 8 GB and 120 s, as Step 0 amendment 4). All three
+counts are taken before any reading and recorded with the seeds drawn.
+
+**Bars fixed in advance** (replacing Q6's answer): no reading sets them. A 0.6B rehearsal on mirror seeds (scripted
+play, read on the 4060) checks plumbing and the interval's width, deciding nothing; if the interval is much wider than
+estimated, the pool grows before the 8B reads. Gating: under "Two stages".
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
