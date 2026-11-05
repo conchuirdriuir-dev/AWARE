@@ -29,8 +29,17 @@ def test_theme_passes_its_checks():
     assert out == {**out, "words_not_in_house": [], "shared_4grams": [], "missing_symbols": [], "ok": True}
 
 
+def _tokenizer_or_skip():
+    pytest.importorskip("transformers")
+    try:
+        T.qwen_tokens("x")
+    except OSError:
+        pytest.skip("Qwen3 tokenizer not cached")
+
+
 def test_describe_matches_length_and_is_seeded():
     pytest.importorskip("textworld")
+    _tokenizer_or_skip()
     import textworld
     from textworld.generator import make_game
     opts = textworld.GameOptions()
@@ -45,3 +54,10 @@ def test_describe_matches_length_and_is_seeded():
             assert abs(a["length"] - a["house_length"]) <= T.TOLERANCE * a["house_length"]
             assert a["desc"] != game.infos[room.id].desc
     assert matched >= len(game.world.rooms) - 1
+
+
+def test_length_counts_tokens_by_default_and_skips_inform7():
+    _tokenizer_or_skip()
+    desc = "Exit north: unguarded. [a list of things on the (obj)]"
+    assert T.length(desc) == T.qwen_tokens("Exit north: unguarded.")
+    assert T.length(desc, T.words_count) == 3

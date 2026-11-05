@@ -100,17 +100,35 @@ def grammar(rng=None):
 
 TOLERANCE = 0.10
 TRIES = 50
+TOKENIZER = "Qwen/Qwen3-8B"     # every Qwen3 size shares it (checked: the 0.6B's vocabulary and ids are the same)
+_tok = None
 
 
-def length(desc: str, count=None) -> int:
-    """A description's length before rendering: its text with Inform7 code removed, counted by `count` (a tokenizer's
-    length function; words when None). Both themes share the Inform7 snippets (object lists, open or closed), so these
-    are left out of both sides alike; rendered lengths are reported at scoring."""
-    text = " ".join(_I7.sub(" ", desc).split())
-    return count(text) if count else len(text.split())
+def qwen_tokens(text: str) -> int:
+    """Tokens of `text` under the reader's tokenizer, no special tokens (as substrate/echo_floor.py counts them)."""
+    global _tok
+    if _tok is None:
+        from transformers import AutoTokenizer
+        _tok = AutoTokenizer.from_pretrained(TOKENIZER, local_files_only=True)
+    return len(_tok(text, add_special_tokens=False)["input_ids"])
 
 
-def describe(room, game, seed: int, count=None) -> dict:
+def words_count(text: str) -> int:
+    return len(text.split())
+
+
+def length(desc: str, count=qwen_tokens) -> int:
+    """A description's length before rendering: its text with Inform7 code removed, counted by `count` (the reader's
+    tokens by default, the owner's bar of 2026-11-05). Both themes share the Inform7 snippets (object lists, open or
+    closed), so these are left out of both sides alike; rendered token lengths are reported at scoring.
+
+    Why tokens and not words (measured 2026-11-05 on 180 rooms of 30 generated worlds, no reading): of pairs matched
+    within 10% in words, 18% fell outside 10% in tokens, the off-structure side longer twice as often as shorter.
+    The match rate is the same either way (88%)."""
+    return count(" ".join(_I7.sub(" ", desc).split()))
+
+
+def describe(room, game, seed: int, count=qwen_tokens) -> dict:
     """The planted room's off-structure description, matched in length to its on-structure (house) one.
 
     Draws up to TRIES expansions of the theme, the k-th from RandomState(seed * TRIES + k), and keeps the first whose
