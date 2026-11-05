@@ -1,0 +1,46 @@
+#-------------------------
+#Room Descriptor Grammar: offhouse (Step -1C's off-structure theme)
+#-------------------------
+#Written once by the agent, 2026-11-05, before any reading (proposals/staged-schedule.md, section 4a).
+#Its symbols are basic_room.twg's. Its templates are new and use only words found in house_room.twg's template text;
+#body/offtheme.py checks both in code. Inform7 snippets copied from basic_room.twg unchanged.
+
+# Inform7 snippets
+i7_closed/open:[if (obj) is open]an open[otherwise]a closed[end if]
+i7_list_in:[a list of things in the (obj)]
+i7_list_on:[a list of things on the (obj)]
+i7_empty:[if (obj) contains nothing]an empty[otherwise]a[end if]
+inform7:[if (obj) is locked]a locked[else if (obj) is open]an open[otherwise]a closed[end if]
+inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an open[otherwise]a closed[end if]
+inform7noun:[if (obj) is locked]locked[else if (obj) is open]unlocked[otherwise]closed[end if]
+inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open]unlocked[otherwise]closed[end if]
+
+# Needed by TextWorld's room description code, which expands it for every phrase; no template here has a (name-adj)
+# slot, so it never reaches the text. Copied from basic_obj.twg.
+ordinary_adj:ordinary
+
+#Room Intro#
+dec:Room listing: the (name). Examination now open. Every object in this area will be put on the list, one by one.;Sector note, the (name). Information on this area follows, as complete as possible, with nothing left out.;Entered: the (name). A list of what is here follows. Check every part of the list, then move on.;Arrive at the (name). Inventory of this zone, part one. Part two will come later, if there is a part two.;Place in the listing: the (name). Contents follow. The information is as true as the examination that found it.;Next on the list: the (name). Examination: start. What can be seen from here will now be shown.;Room: the (name).;Sector: the (name). Listing follows.;Entered: the (name).
+
+#Container Descriptions
+room_desc_(c):#room_desc_(c)_1_name##room_desc_(c)_content#
+room_desc_(c)_1_name:#reg-a#
+reg-a:Object on the list: #i7_closed/open# (name). Examination of the (name) is complete.;Object noticed: #i7_closed/open# (name), which will need a second look later.;Also on the list for this zone: #i7_closed/open# (name). Nothing more to note about it.;Object noticed: #i7_closed/open# (name). It is part of this zone, so it is put on the list, and the examination of it is now complete.
+room_desc_(c)_content:[if (obj) is open] #reg-d#[end if]
+reg-d:Held inside the (name): #i7_list_in#. That is the complete list.;Contents, (name): #i7_list_in#. No other objects found within.
+
+#Supporter Descriptions
+room_desc_(s):#room_desc_(s)_1_name# #room_desc_(s)_content#
+room_desc_(s)_1_name:Object on the list: a (name). Examination of the (name) is complete.;Object noticed: a (name), which will need a second look later.;Also on the list for this zone: a (name). Nothing more to note about it.;Object noticed: a (name). It is part of this zone, so it is put on the list, and the examination of it is now complete.
+room_desc_(s)_content:Resting upon the (name): #i7_list_on#. Nothing else on it.;Held up by the (name): #i7_list_on#. No other objects found upon it.
+
+#Group Descriptions
+room_desc_group:How many for this zone: (^) (val), that is (name).
+
+#Exit Descriptions
+room_desc_(d):Door, (dir): #i7_closed/open# (name). It leads out of this zone.;Exit (dir), by way of #i7_closed/open# (name). Check the door, then go through.
+room_desc_(dir):Exit (dir): unguarded. Nothing is blocking the way out.;Exit (dir), nothing blocking. Someone could walk right through.;Exit (dir).
+room_desc_exits:#easy1#
+room_desc_doors_closed:Closed doors, (^) in all: (name-indefinite)
+room_desc_doors_open:Open doors, (^) in all: (name-indefinite)
+easy1:Unblocked [exit|exits]: (dir). Nothing is in the way there.;Unblocked: (dir).
