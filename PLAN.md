@@ -390,6 +390,13 @@ short and unseen in form), so firing at a planted chunk is close to guaranteed b
 compares plants with no-new-state replies; how plants compare with *first* replies of the same length is not yet
 reported.
 
+**Step −1 play check, the 8B in 4-bit (2026-11-04, play only, 2,048 tokens of context, the 60 mirror worlds,
+decides nothing; record in `runs/stepm1-8b-nf4-play/`).** The 8B won 13 of 20 worlds of each planted kind before the
+planted turn (15–35) came: median episode 8.5 turns (planted room), 9.5 (rule change), 17.5 (none). 7 of 20 plants of
+each kind were delivered, against a bar of 17 of 20: **as registered, Step −1 fails on the worlds' length, with the
+instrument not at fault.** With Step 0's rehearsal 2 (under "Step 0, habitat form"), the frozen generator settings
+(6–12 rooms, quests of 3–8 steps) are too easy for the 8B. For the owner, before the 3090.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
