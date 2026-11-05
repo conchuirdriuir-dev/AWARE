@@ -503,6 +503,13 @@ amendment 2, ascents are plentiful (projected 1,000–2,000 kept against 75) but
 projected against 150): most stalls begin within the first 10 turns, inside the burn-in, and have no window. No
 candidate meets the criteria; the owner is asked.
 
+**Stage 1's script, rehearsed (2026-11-05, CPU, mirror seeds, keys only, decides nothing; record in
+`runs/stage1-script-rehearsal/`).** 20 calibration and the 60 Step −1 mirror worlds: every episode 100 turns, none
+won; all 40 plants delivered on their planted turn (rule changes: 17 blocking a played command, 3 from the
+walkthrough); 13 of 40 plants on a turn where play was also new (reported apart); median 73% of turns with no new
+state and 58% of replies repeating an earlier one. Stage 1's registered play (calibration 1000–1099, Step −1
+2000–2059) follows, by the script, in `runs/stage1-script/`; its reading and the 8B's self-talk wait for the 3090.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
