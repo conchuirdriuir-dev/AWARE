@@ -341,6 +341,17 @@ text alone rebuilt all 130 news files exactly (largest difference 0.0). Found, f
   appended last); all 14 hits are 13–33 tokens. A chunk's state is the mean over its tokens.
 - **k moves with few stalls** (10, then 5); the 8B's calibration, 100 worlds, is where it is set.
 
+**Rehearsal 3 (2026-11-04, Qwen3-0.6B, mirror seeds, after amendments 2 and 3, decides nothing).** 10 calibration,
+the 60 Step −1 and 5 self-talk seeds; record in `runs/stepm1-0.6b-rehearsal3/`. Every rule change delivered (17 from
+the walkthrough, 3 from play). Planted events fired 40 of 40 (room 20, rule 20), all clean of natural novelty; AUC over
+ordinary play 0.989 (0.987–0.992); floor check 970 repeats, all below; self-talk exact 0 of 150, restated 12% (bar 5%).
+Read inside the reply, as before amendment 3, the same plants fire 14 of 20 and 15 of 20. Noted by the agent, for the
+owner: the planted chunks sit in narrow bands (room 5.2–5.7, rule 3.7–4.3 floor units) because each is one fixed
+sentence the episode has not seen. Any short unseen text may clear the floor this way (restated self-talk, at 12%, is
+short and unseen in form), so firing at a planted chunk is close to guaranteed by its shape. Step −1's third bar
+compares plants with no-new-state replies; how plants compare with *first* replies of the same length is not yet
+reported.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
