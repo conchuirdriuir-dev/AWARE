@@ -1,117 +1,148 @@
 # AWARE
 
-The goal, in the owner's words (restated 2026-11-01, DECISIONS.md): "An architecture that allows an agent to discover and
-safely orient itself and the user toward a mechanistically inferred pattern in 'goal-space', a purely theoretical
-higher-dimensional space where patterns over actions guide activity, using MDL, steering, and interrogation." Before
-that: "The agent should function as if it is aware, even without metacognition machinery."
+AWARE studies goal-directedness in a language-model agent by treating the model as an organism. It gives the model
+a body in a space one level above meaning, lets it feel that body through a few measured senses, and asks, by
+experiment, what those senses let it do. The method is borrowed from developmental biology, in the spirit of Michael
+Levin's TAME framework and the FieldSHIFT pivot: where FieldSHIFT carries neuroscience into anatomical morphospace,
+AWARE carries morphospace one step further, into a *code-space* over the model's own embedding space, with game turns
+in place of minutes.
 
-The entity is a trajectory through a local model's activation space (the base weights never changed;
-anything learned is a removable graft), with an observer riding alongside it: a
-retained low-dimensional code fit to the trajectory, and a model of the trajectory's dynamics in that code. Everything
-the project does is a use of that observer. Since 2026-11-04 the picture is the North star in
-[The Semantic Body — Open Threads](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW): the model as its own organism
-(lift, sense, babble, act, dream), built now as [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4).
-The Big Picture doc ([Big Picture — v9](https://claude.ai/artifact/ByrrhB2Ue4NS8NzmyZXoCw)) is kept as the
-implementation reference.
+Everything runs locally on one machine (Qwen3-8B, Hugging Face transformers, numpy). The base model's weights are
+never changed; anything learned is a removable adapter (a "graft").
 
-Since 2026-11-02 these are one project and one loop, with their measures kept apart ([PLAN.md](PLAN.md)). The two tracks
-as they were built:
-- **Product: drift detection, then self-correction** (`product/`). The demo: it catches the loop from the shape, not
-  the words.
-- **Research: reasoning over the entity's own axes** (`research/`). Relations, operations, composition and order. No
-  demo yet; the reason the project exists.
-- **Body** (`body/`): the body readout, a measured model of where the entity is and what moves it, for every
-  capacity; spec only so far (DECISIONS.md, 2026-11-03).
-- **Substrate** (`substrate/`): model access and D, the record with provenance, the geometry core, and the retained
-  axes with their two admission criteria.
+The picture is the North star in [The Semantic Body — Open Threads](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW);
+the current build is [Body Readout — Spec v0.2](https://claude.ai/artifact/GW7JqgKGYmDtNG24cBrTn4). Where this
+repository differs from the North star, the North star wins. A longer account of the design is in
+[docs/architecture.md](docs/architecture.md).
 
-It runs on one machine, without cloud services: Hugging Face transformers with nnsight for activations, numpy for the
-geometry.
+## The idea in five steps
 
-## The picture: a creature in code-space
+**Lift, sense, babble, act, dream.**
 
-*Framing by the owner (2026-11-03): the agent and the owner as a creature moving through an environment; goals are
-codes over actions, so goal-space is code-space; the monitor is a sense organ for goal-space. Table and the reconciling
-of the two layers drafted by the model in [The Semantic Body](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW),
-proposed here; the owner confirms. The two layers were revised to one creature with several senses (owner,
-2026-11-03).*
+1. **Lift.** Each chunk of text lands as a point in the model's fixed embedding space (meaning-space). The body is not
+   any one point but the compressed code that the agent's recent trajectory fits, in code-space. Move every point
+   while keeping the pattern and the body stays where it was, as a waltz stays a waltz anywhere on the floor.
+2. **Sense.** Three small measured functions, not neural networks, read the body each turn:
 
-![The body is where its trajectory sits in code-space](body/picture.svg)
+   | Sense | What it computes | Biological counterpart |
+   |---|---|---|
+   | Shape | Bits needed to describe this turn under the code fitted so far | Proprioception |
+   | Rate | Bits the last window taught, split by source (self, world) | Interoception; boredom is rate at zero |
+   | Boundary | How new an arrival is, with self-caused input cancelled | Touch, with efference copy |
 
-The creature's place is not a point in meaning-space but the code its recent moves fit, as a planarian's state is its
-shape in morphospace, not a cell's spot in the tissue. **Goal is a role, not a kind of code:** every trajectory fits some
-code, closures included; a code becomes a goal when a layer holds it as its target.
+   No single sense detects a stall; each alone is ambiguous. A stall is a chord: cheap shape, flat rate, silent
+   boundary.
+3. **Babble.** The senses reach the model as two learned soft tokens, meaningless at first, like Bach-y-Rita's
+   tongue display. Practice while acting wires them in, and trains a forward model that predicts the agent's own
+   effects.
+4. **Act.** The agent pursues goals stated by its environment (a game's quest), with its senses live.
+5. **Dream.** Offline, the forward model replays and recombines the day's episodes; the result is written to a new
+   graft, which is kept only if it does better on worlds it has never seen.
 
-**One creature, several senses.** The owner and the agent are one creature in code-space (or the agent alone, or a
-team). "The environment is the world and the owner" is the actor's view; "goal-space is the environment" is the
-monitor's, a sense organ of the same creature, not a second agent above it. Each reflex holds a setpoint derived from
-the goal the setpoint holder holds (the owner, a spec, another agent): holding the goal is a role, not a level. This is
-the weak reading of Levin's multiscale competency (owner, 2026-11-03; DECISIONS.md): each level a control loop, not a mind.
+The agent grows up in procedurally generated text-game worlds ([TextWorld](https://github.com/microsoft/TextWorld)),
+run unattended, so no measurement depends on one person's conversations.
 
-| Term | For the actor | For the monitor | Biology |
+## How it is tested
+
+Each step's pass criterion is written in [PLAN.md](PLAN.md) before its code, and its thresholds are fixed before it
+runs. Decisions and their reasons are logged in [DECISIONS.md](DECISIONS.md). A failed bar is recorded, not moved.
+
+The senses are calibrated before the subject. The player and the perceiver are kept apart, so that the habitat tests
+the instrument and not the player's skill:
+
+| Stage | Who plays | Who reads | Asks |
 |---|---|---|---|
-| Environment | The world (tool results) and the owner | Code-space: the actor's codes, which it senses | An organism's surroundings |
-| Tissue | Meaning-space: the fixed landscape each turn lands in | The sequence of the actor's codes | Tissue, a cell's place in it |
-| Body | The trajectory and the code it currently fits | The code it fits over the actor's codes | Current shape in morphospace |
-| Membrane | Provenance: partner, self, tool; read-backs count as self | What it reads from the actor and what reaches the actor | Gap junctions, coupling state |
-| Goal code | Held for it by the setpoint holder | A setpoint derived from the held goal | Target anatomy |
-| Error | Felt as steering: the gap the layer above measures | The gap from current code to goal code | Mismatch that drives regeneration |
-| Light cone | How far in code-space, and how many turns ahead, its goal reaches | The timescale its sense covers: turn, session or project | The largest goal a system can pursue |
-| Schema | — | Its compressed readout of the actor (`body/`) | Body schema, attention schema |
-| Closure | Current code tightens while coupling to sources with a different signal falls | — (the creature closes, not a reflex) | A cell shrinking its self to one cell |
-| Ascent | A move to a code that covers two earlier ones | — (the creature ascends, not a reflex) | A move to a new region of morphospace |
+| 1 (Step −1) | A scripted player, alternating explore and loop phases | Qwen3-8B | Does each sense read what it claims, under known conditions? |
+| 2 (Step 0) | A weaker Qwen3 model (1.7B or 4B) | Qwen3-8B | Does the reading anticipate another agent's stalls? |
 
-Translated findings, their tests and which elements they challenge are logged in PLAN.md, "Translations".
+Each chunk is read alone, from its own text, so who wrote the actions does not enter the reading. There is no third
+stage: the 8B's reading of its own play, and the split between self and world, are covered by the babbling gate. Stage
+1 gates what follows; Stage 2 informs.
+
+Then babbling (does the model use its senses, and does acting beat passive exposure?), behaviour (does it do better
+with live senses than with the same readings given as text, or shuffled?), and dreaming.
+
+The longer-term test, following the planarian rewrite experiments: edit the agent's target state directly, with its
+inputs unchanged, and compare that intervention with prompting and with retraining. That places the agent on TAME's
+axis of persuadability by measurement.
 
 ## Status
 
-The framing changed on 2026-10-30 and again on 2026-10-31 (DECISIONS.md). The earlier work (freeform chat, the rung-2
-memory harness, the toy world, the port of DARA's kernel) is retired at the tag `aware-rungs-final`. The product
-track's toy bed has run eight rounds against pre-registered bars (PLAN.md, `product/rounds/`): v9's detectors failed
-all three bars; v10's passed three of four; round 3, with sparse externals as in real sessions, failed every bar, and review traced it to a
-misspecified observer (`reviews/round3/triage.md`); round 4, event-locked coupling read as news and gain, passes
-five of eight, every coupling bar among them; round 5, the observer as an event record, passes eight of nine,
-including a blind structure written before its code; round 6's blind structure (a partner replaying old content)
-exposed that novelty is measured against recent history only; round 7a, with arrival cause and long news, passes
-seven of ten, separation among them; round 7b (contingency, the reactive toy) passes seven of twelve and shows that
-detecting repeated content waits on the real model's echo floor. On the owner's logged sessions, news read alone
-against alone tells repeats from new content at every layer (Qwen3-0.6B, a dress rehearsal). Model access passes on real Qwen3-0.6B weights on CPU and awaits the GPU.
+*Updated 2026-11-05.*
 
-Since 2026-11-02 the focus is the research track and the product rests on a baseline (DECISIONS.md). The D jump on the
-8B is explained and the reader now finds the attention sink by norm; Gate 1 ran, undecided. The track's question is now
-causal authorship. **Where things stand and where they go next: PLAN.md, "Current state and direction".**
+- Stage 1 (scripted player): the registered play is done (160 episodes, every plant delivered). The 8B's reading,
+  and its self-talk, wait for a 24 GB GPU.
+- Stage 2 (weaker player): no player chosen yet. Every one screened (Qwen3-1.7B and 4B, with and without TextWorld's
+  command forms, on the frozen worlds and on Stage 2's own) falls short of the selection criteria; that is for the owner.
+- Earlier runs on Qwen3-0.6B and a 4-bit 8B rehearsed the harness end to end and found the design faults that led to
+  the staged schedule; they decide nothing. Records are in PLAN.md, "Body readout", "The habitat", "Runs".
+- Results: none yet decide a bar. *(This line is replaced by the first result.)*
+
+The current state is always in [PLAN.md](PLAN.md), "Current state and direction".
+
+## The repository
+
+| Path | What it holds |
+|---|---|
+| `body/` | The habitat, the senses and the step harnesses (`habitat.py`, `stepm1.py`, `step0_habitat.py`; `step0.py` is Step 0's form on the owner's sessions, paused) |
+| `goalspace/` | The code-length formula behind lift and rate |
+| `substrate/` | Model access, the echo floor, the record with provenance, the geometry core |
+| `material/` | Registered world seeds and measured floors |
+| `probes/` | Small one-off measurements (memory, concept probes) |
+| `tests/` | Tests; `pytest -m model` for those that load a model |
+| `docs/` | The architecture, at more length than here |
+| `product/`, `research/` | Earlier tracks, resting and parked; their records stand |
+| `proposals/`, `reviews/` | Design proposals and outside reviews |
 
 ## Running
 
-Python 3.11+. The geometry, axes, toy bed and Gate 1 need only numpy:
+Python 3.11+. TextWorld needs Linux, macOS or WSL.
 
 ```sh
 pip install -r requirements.txt
-python -m pytest
-python -m product.round7b                    # the toy bed, round 7b: contingency, the reactive toy
-python -m product.round7a                    # round 7a: arrival cause, short and long news
-python -m product.round6                     # round 6: separation narrowed, the residual descriptor
-python -m product.round5                     # round 5: the event record, with a blind structure
-python -m product.round4                     # round 4: event-locked coupling, news and gain
-python -m product.round3                     # round 3: sparse externals, at zero, the probe
-python -m product.round2                     # round 2: v10's detectors against v10's bars
-python -m product.toybed                     # round 1, v9's detectors (the record)
+python -m pytest                       # numpy-only tests
+pip install -r requirements-model.txt  # torch, transformers, nnsight, nnterp, TextWorld; bitsandbytes optional
+python -m pytest -m model              # loads Qwen3-0.6B
 ```
 
-Reading the model's states needs torch, transformers, nnsight and nnterp:
+Each habitat step plays, reads and scores. The record comes first: `play` appends every turn as it happens, `read`
+derives states from the recorded text alone, and only `score` reads the keys. Stage 1 (Step −1): the script plays
+the calibration and Step −1 pools with no model or GPU; the 8B writes its own self-talk, then reads everything.
 
 ```sh
-pip install -r requirements-model.txt
-python -m substrate.measure_d --model meta-llama/Llama-3.1-8B-Instruct --run runs/d-llama   # D per layer, frozen sets
-python -m pytest -m model                                                                    # Qwen3-0.6B, plumbing only
+python -m body.stepm1 play  --script --run runs/stepm1 --pool calibration
+python -m body.stepm1 play  --script --run runs/stepm1 --pool step_minus_1
+python -m body.stepm1 play  --model Qwen/Qwen3-8B --run runs/stepm1 --pool self_talk
+python -m body.stepm1 read  --model Qwen/Qwen3-8B --run runs/stepm1
+python -m body.stepm1 score --run runs/stepm1
 ```
 
-The echo floor (substrate), beside D. On an 8 GB card with 32 GB of RAM (an RTX 4060, say), the 8B runs in full
-precision split between the GPU and RAM: slower, but exact. `--quantize 4bit` fits on the card alone, as a quick
-check only, since quantisation adds noise to D.
+Stage 2 (Step 0's habitat form) plays its own worlds (`material/habitat_worlds_stage2.json`): the player on the
+calibration pool, then k, then Step 0's pool, read by the 8B. `PLAYER` is the chosen player, once there is one.
 
 ```sh
-python -m substrate.echo_floor --model meta-llama/Llama-3.1-8B-Instruct --run runs/echo-llama \
-    --device auto --gpu-memory 6.5               # frozen sets; add --long for the long-session test
-python -m substrate.echo_floor --model Qwen/Qwen3-8B --run runs/echo-qwen8b --device auto --gpu-memory 6.5 --long
+python -m body.step0_habitat play  --model PLAYER --forms --run runs/step0h --pool calibration
+python -m body.step0_habitat k     --run runs/step0h
+python -m body.step0_habitat play  --model PLAYER --forms --run runs/step0h --pool step0_habitat
+python -m body.step0_habitat read  --model Qwen/Qwen3-8B --run runs/step0h
+python -m body.step0_habitat score --run runs/step0h --k K
 ```
+
+Useful flags: `--limit n` plays only the first n seeds of a pool; `--rehearsal` plays mirror seeds instead, spending
+no registered seed, and is required by the rehearsal-only flags (`--nf4` for a 4-bit player, `--context`,
+`--generator`). `read` takes `--floor` (the echo floor; `material/echo_floor_8b.json` by default, and another model
+needs its own, made by `body.floor_file`) and `--gpu-memory`. PLAN.md gives each step's pools and flags.
+
+Qwen3-8B in bf16 needs a 24 GB GPU to read; play by a smaller model, and the script's play, run on an 8 GB card.
+
+The earlier tracks' commands (the product rounds, `substrate.measure_d`, `substrate.echo_floor`) are in this file's
+history, before 2026-11-05, and in PLAN.md under their sections.
+
+## History
+
+AWARE grew out of an earlier architecture, DARA, and went through several framings: a drift detector for one
+person's sessions, then reasoning over the agent's own axes, then the organism. The earlier work is kept at the tag
+`aware-rungs-final` and in PLAN.md, "The record". Its main lesson shaped the current design: tests built on one
+person's conversation logs measured that person as much as the agent, so the agent now grows up in its own worlds.
+
+MIT License.
