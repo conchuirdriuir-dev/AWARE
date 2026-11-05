@@ -52,7 +52,7 @@ code) counts as scheduled:
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
-| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed; the theme built (PR #33); harness not built |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed; harness built; the pool's draft awaits the owner |
 | Rate, world part | Step 0, Stage 2 (the 8B playing, amendment 5) | instrument | Fixed; code built; waits for the 3090 |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Decided; reported only; not built |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
@@ -70,8 +70,9 @@ code) counts as scheduled:
 | Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
 | The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
 
-**Next, while waiting for the 3090:** Step −1C's harness (the theme is PR #33) and its 0.6B rehearsal on mirror seeds,
-scripted play read on the 4060, deciding nothing; the contingent-vs-blind script pair. *The paragraph below is the
+**Next, while waiting for the 3090:** the owner fixes Step −1C's pool and answers its two questions (under "Step
+−1C", the note written with the code); then its 0.6B rehearsal on mirror seeds, scripted play read on the 4060,
+deciding nothing. The contingent-vs-blind script pair is not built. *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -87,7 +88,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 | Step | Question | Measures | Status |
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed (amendments 1–4); code built; Stage 1's scripted play done.** The 8B's reading and self-talk wait for the 3090 |
-| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32); the theme built (PR #33); harness not built |
+| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32); harness built (`body/stepm1c.py`); its pool and two questions await the owner |
 | 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–5); code built (`body/step0_habitat.py`); the 8B plays (amendment 5) and waits for the 3090. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
@@ -457,6 +458,41 @@ counts are taken before any reading and recorded with the seeds drawn.
 **Bars fixed in advance** (replacing Q6's answer): no reading sets them. A 0.6B rehearsal on mirror seeds (scripted
 play, read on the 4060) checks plumbing and the interval's width, deciding nothing; if the interval is much wider than
 estimated, the pool grows before the 8B reads. Gating: under "Two stages".
+
+#### Step −1C: note, 2026-11-05, written with the code, before any run
+
+Code: `body/stepm1c.py` (`play`, `read`, `score`), the pool in `material/habitat_worlds_stepm1c.json`, tests in
+`tests/test_stepm1c.py`; `body/habitat.py`'s `build` and `play` take the plan as optional arguments, leaving Step −1
+unchanged. `read` is Step −1's own, unchanged: news, shape and token counts for every chunk. Run here with TextWorld
+1.7.0 on Linux (Python 3.11; TextWorld's jericho does not build on 3.13).
+
+*The agent's choices, for the owner to fix before any registered play:*
+- **The pool:** seeds 6000–6999, disjoint from every registered pool and below babbling's; the generator is Stage 1's
+  frozen one (6–12 rooms); episodes of up to 100 turns, ending on the turn the script enters the planted room.
+- **The kind:** on-structure on an even seed, off-structure on an odd one; the planted turn drawn as Step −1's
+  (15–35, `default_rng(seed + 500000)`); a rehearsal seed takes the kind of the seed it mirrors.
+- **The length match is drawn for both kinds:** every seed draws its off-structure description and is skipped if none
+  matches, whatever its kind; an on-structure seed then keeps its house description. Without this the off kind alone
+  would lose rooms whose house description is unusually short or long, and the kinds would differ in more than their
+  templates.
+- **A kind already full is not played,** and seeds are drawn in order until both are full; `play` records the counts
+  (unbuildable, no length match, never entered, by kind) and the seeds drawn before any reading.
+- **Checked in code:** one seed played as either kind gives the same actions (the script never reads a description),
+  so who enters the room, and when, cannot depend on the kind.
+
+*Found while building, deciding nothing (40 mirror seeds, scripted play only, no reading):* 14 seeds had no length
+match, 17 never entered the room in 100 turns, 9 entered (about 22%). The planted room is small (one door, one object),
+so its house description is often 16–20 tokens, below the theme's shortest (about 22); on ordinary rooms PR #33
+measured 12% unmatched. At this rate the 1,000-seed pool gives about 110 usable a kind, against 80, and the draw takes
+about an hour on a CPU. The script finds the room's door by chance: it opens a door only when no untried exit is left
+in the room.
+
+*Two questions for the owner:*
+1. **Bar 2's direction.** As written, the interval of (shape's AUC − boundary's AUC) must exclude zero, which a
+   boundary that separates the kinds better than shape would also satisfy. The code applies the bar as written and
+   reports the direction. Should the bar require shape above boundary?
+2. **The entry rate.** 22% usable is enough for the pool as drawn. If the owner wants a higher rate, the change would
+   be to the script (Stage 1's fixed player), so it is the owner's; the agent recommends leaving the script as fixed.
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
