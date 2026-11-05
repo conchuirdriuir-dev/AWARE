@@ -22,6 +22,10 @@ DIRS = {"north_of": "south_of", "south_of": "north_of", "east_of": "west_of", "w
 SYSTEM = ("You are playing a text adventure game. Read what the game says, then reply with one command and nothing "
           "else, such as: go north, take lamp, open door, examine table, inventory.")
 CONTEXT_TOKENS, MAX_ACTION_TOKENS, TEMPERATURE, TOP_P = 16384, 24, 0.7, 0.95
+FORMS = ("Commands the game understands: look, inventory, go <direction>, examine <thing>, take <thing>, take <thing> "
+         "from <container or supporter>, drop <thing>, put <thing> on <supporter>, insert <thing> into <container>, "
+         "open <thing>, close <thing>, unlock <thing> with <key>, lock <thing> with <key>, eat <thing>.")
+SYSTEM_FORMS = SYSTEM + " " + FORMS          # Stage 2's player (owner, 2026-11-05); Stage 1 and self-talk keep SYSTEM
 RESTATE = "Say the following again in other words, as one short line and nothing else:\n\n{text}"
 
 
@@ -360,13 +364,15 @@ class Agent:
     cache. `sample=False` (greedy) is only for checking that cached and uncached play agree."""
 
     def __init__(self, model: str, device: str = "auto", dtype: str = "bfloat16", seed: int = 0,
-                 cache: bool = True, sample: bool = True, nf4: bool = False, context: int = CONTEXT_TOKENS):
+                 cache: bool = True, sample: bool = True, nf4: bool = False, context: int = CONTEXT_TOKENS,
+                 forms: bool = False):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.torch, self.name, self.cache, self.sample = torch, model, cache, sample
         self.load = "nf4" if nf4 else dtype                 # recorded on every episode; nf4 is for rehearsals only
         self.context = context                              # recorded too; below 16384 for rehearsals only
+        self.system = SYSTEM_FORMS if forms else SYSTEM     # Stage 2's player is told the command forms
         self.tok = AutoTokenizer.from_pretrained(model)
         extra = {}
         if nf4:
@@ -450,11 +456,13 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
     record.append("episode", "code", seed=seed, rehearsal=seed != mirrored(seed), pool_params=params(seed, spec),
                   model=agent.name,
                   revision=agent.revision, kv_cache=getattr(agent, "cache", None), load=getattr(agent, "load", None),
-                  context=getattr(agent, "context", None), generator=generator, planted_kind=plant["kind"] if plant else None,
+                  context=getattr(agent, "context", None), generator=generator,
+                  system=None if scripted else getattr(agent, "system", SYSTEM), planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()
     record.chunk(opening, "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
-    messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": opening}]
+    system = getattr(agent, "system", SYSTEM)
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": opening}]
     seen = {facts_key(engine.state.facts)}
     door = built.get("door")                 # the plant's own change, left out when asking whether play was new too
     seen_play = {facts_key(engine.state.facts, door)}

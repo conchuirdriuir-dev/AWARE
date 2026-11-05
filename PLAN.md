@@ -242,6 +242,19 @@ the script's own rules. Step 0 needs an agent whose stalls nobody wrote.
   world's replies.
 - **What it can now be done on:** the player's play on the 4060 before the 3090; the 8B's reading waits for it.
 
+*Stage 2's player prompt, the owner, 2026-11-05, after the screen (under "Runs"):* the screened players stalled in
+their first turns on the parser ("unlock box" for "unlock box with key"). Stage 2's player is told TextWorld's command
+forms, as the game's own help lists them: look, inventory, go <direction>, examine <thing>, take <thing>, take <thing>
+from <container or supporter>, drop <thing>, put <thing> on <supporter>, insert <thing> into <container>, open
+<thing>, close <thing>, unlock <thing> with <key>, lock <thing> with <key>, eat <thing>. The prompt is recorded on
+every episode. Stage 1 (the script) and the 8B's self-talk keep the first prompt. Then 1.7B and 4B are screened again
+by the same criteria.
+
+*Step 0 amendment 3, the owner, 2026-11-05:* "the nearest world by seed with the same generator settings" reads as the
+nearest world by seed in the same pool, since every world of Step 0's pool shares its generator. The agent had read it
+as identical rooms, objects and quest length, which almost never coincide (the 4B's screen lost 6 of 6 cross-episode
+pairs).
+
 Retired by this: the harder-worlds search (its criteria and candidates C1–C3 stay in "Runs" as the record); the frozen
 worlds file stands. Unchanged: Step −1's amendments 1–3, Step 0's amendments 1–2, the freeze.
 

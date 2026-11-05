@@ -131,7 +131,7 @@ def runs_of(e: dict, ok: list[int], n: int) -> list[list[int]]:
 def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
     """Reading 1's pairs (amendment 2): each closure window with one pre-progress window, cut to its last n turns, in
     the same episode, nearest the closure window's middle turn, never reused (`taken`: seed -> ascents used); where the
-    episode has none, the nearest world by seed with the same generator settings (cross-episode)."""
+    episode has none, the nearest world by seed in the pool (amendment 3: every world shares the pool's generator)."""
 
     def control_in(seed, n, centre):
         best = None
@@ -149,8 +149,7 @@ def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
         n, seed = len(ev["rows"]), ev["seed"]
         best, where = control_in(seed, n, ev["rows"][n // 2]), seed
         if best is None:
-            same = sorted((s for s in eps if s != seed and eps[s]["params"] == eps[seed]["params"]),
-                          key=lambda s: abs(s - seed))
+            same = sorted((s for s in eps if s != seed), key=lambda s: abs(s - seed))   # amendment 3: the pool
             for s in same:
                 best = control_in(s, n, ev["rows"][n // 2])
                 if best is not None:
@@ -358,7 +357,7 @@ def cmd_play(a) -> None:
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None
-    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
+    agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4, forms=a.forms,
                   **({"context": a.context} if a.context else {}))
     for seed in [s + REHEARSAL * a.rehearsal for s in pool("step0_habitat")[: a.limit or None]]:
         if (seed, None) not in done:
@@ -440,6 +439,7 @@ def main(argv=None) -> None:
             s.add_argument("--rehearsal", action="store_true", help="the pool's mirror seeds (+900000)")
             s.add_argument("--no-cache", action="store_true")
             s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
+            s.add_argument("--forms", action="store_true", help="Stage 2's player: told TextWorld's command forms")
             s.add_argument("--context", type=int, help="a shorter context in tokens: rehearsals only")
             s.add_argument("--generator", help='candidate world settings as JSON, e.g. {"rooms": [10, 20], ...}: rehearsals only')
         if name == "read":

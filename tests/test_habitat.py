@@ -420,3 +420,8 @@ def test_step0_habitat_reads_a_real_episode(tmp_path):
     assert e["scored"][0] == Z.BURN and e["start"] is not None
     assert len(e["turns"]) == 30 and all("action" in t and "room" in t for t in e["turns"])
     Z.labels(e, 5)                                                       # the labels read the real keys
+
+
+def test_stage_2s_prompt_adds_the_command_forms_and_the_first_stays():
+    assert H.SYSTEM_FORMS.startswith(H.SYSTEM) and "unlock <thing> with <key>" in H.SYSTEM_FORMS
+    assert "unlock" not in H.SYSTEM                                       # Stage 1 and self-talk: unchanged

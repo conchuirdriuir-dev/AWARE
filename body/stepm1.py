@@ -254,7 +254,7 @@ def cmd_play(a) -> None:
         raise SystemExit("play needs --model, or --script for Stage 1's scripted player")
     if a.script and a.pool == "self_talk":
         raise SystemExit("self-talk is the perceiver's own words: the 8B writes it, not the script")
-    agent = Script() if a.script else Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4,
+    agent = Script() if a.script else Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4, forms=a.forms,
                                             **({"context": a.context} if a.context else {}))
     seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
     for seed in seeds:
@@ -332,6 +332,7 @@ def main(argv=None) -> None:
             s.add_argument("--limit", type=int, help="the dry run: only the first n seeds of the pool")
             s.add_argument("--no-cache", action="store_true", help="re-read the whole prompt every turn")
             s.add_argument("--nf4", action="store_true", help="a 4-bit model: rehearsals only, recorded on every episode")
+            s.add_argument("--forms", action="store_true", help="Stage 2's player: told TextWorld's command forms")
             s.add_argument("--script", action="store_true", help="Stage 1's scripted player (no model, no GPU)")
             s.add_argument("--context", type=int, help="a shorter context in tokens: rehearsals only")
             s.add_argument("--generator", help='candidate world settings as JSON, e.g. {"rooms": [10, 20], ...}: rehearsals only')

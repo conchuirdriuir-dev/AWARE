@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Stage 2's player is told TextWorld's command forms** (owner): the screened players stalled on the parser
+  in their first turns. Stage 1 and the 8B's self-talk keep the first prompt.
+- 2026-11-05: **Step 0's cross-episode fallback is the nearest world by seed in the pool** (owner; amendment 3): "the same
+  generator settings" is the pool's generator, not identical world sizes.
 - 2026-11-05: **The two stages fixed** (owner, the agent's draft unchanged): the script's policy, Stage 2's player
   candidates and criteria, as written in PLAN.md, "Two stages".
 - 2026-11-05: **The habitat runs in two stages, the player and the perceiver apart** (owner, from two outside

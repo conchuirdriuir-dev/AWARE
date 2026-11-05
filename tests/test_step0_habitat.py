@@ -62,13 +62,13 @@ def test_each_closure_takes_the_nearest_pre_progress_window_once():
     assert m["events"][0]["control"] == list(range(20, 30))
 
 
-def test_a_closure_pairs_with_the_nearest_world_with_the_same_settings_when_its_own_has_no_progress():
-    bare = _toy(3000, ascents=())
-    eps = {3000: bare, 3002: _toy(3002), 3001: _toy(3001, params={"rooms": 9})}
+def test_a_closure_pairs_with_the_nearest_world_in_the_pool_when_its_own_has_no_progress():
+    bare = _toy(3000, ascents=())                                        # amendment 3: any world size will do
+    eps = {3000: bare, 3002: _toy(3002), 3001: _toy(3001, params={"rooms": 9}), 2999: _toy(2999, ascents=())}
     labs = {s: Z.labels(x, 5) for s, x in eps.items()}
     clo = [x for x in Z.windows(bare, labs[3000])[0] if x["kind"] == "closure"]
     m = Z.match(eps, labs, clo, {s: set() for s in eps})
-    assert m["events"][0]["control_seed"] == 3002 and m["cross-episode controls"]
+    assert m["events"][0]["control_seed"] == 3001 and m["cross-episode controls"]
 
 
 def test_the_readings_pass_on_a_signal_and_not_on_noise():
