@@ -410,6 +410,15 @@ moved.
 3. **The quest is winnable:** the 8B wins at least 10% of episodes, so ascents come from progress, not chance.
 Generation time per world is reported; a setting the generator cannot build in reasonable time is not a candidate.
 
+**Candidate C1 (rooms 8–14, objects 15–25, quests of 8–15 steps; the 4-bit 8B at 2,048 tokens, play only, mirror
+seeds; records `runs/cand1-stepm1/`, `runs/cand1-step0h/`).** Worlds build in 2–8 s. 1: 73% of Step −1 episodes still
+running at turn 35 (bar 95%; 15 of 20 plants delivered each kind): fails. 3: won 37%: passes. 2: no event kept at
+k = 10 or 20 (74 dropped, 83 with no control), and not for world size: the episodes split into ones that progress
+steadily (an ascent, a quest step reached, every 1–3 turns) and ones stuck in one closure for most of the episode, so
+almost no turn is outside every closure and 10 turns from every onset and ascent. **Step 0's controls, as registered,
+assume ordinary stretches that this play hardly has.** The player is weakened here (4-bit, 2,048 tokens), which may
+add looping. For the owner. Candidate C2 (rooms 10–20, objects 20–40, quests of 15–25) is played for criterion 1.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
