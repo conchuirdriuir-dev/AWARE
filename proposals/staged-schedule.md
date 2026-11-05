@@ -117,12 +117,12 @@ capacities are the North star's five steps, its senses table and its Dreaming ta
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined (§3.6) |
-| Shape (code length) | Stage 1, shape at the rule change (§4) | instrument | Slot; bars open (Q6) |
+| Shape (code length) | Stage 1, shape at the rule change (§4) | instrument | Decided; window and bar from the 0.6B record, fixed before the 8B reads |
 | Rate, world part | Step 0, Stage 2 | instrument | Fixed |
-| Rate, world part, calibration | Stage 1, contingent vs blind (§3.2) | instrument | Optional (Q3) |
-| Rate, self part (the self/world split) | Stage 3; else babbling (Step 2) | instrument | Slot; home depends on Q1 |
+| Rate, world part, calibration | Stage 1, contingent vs blind (§3.2) | instrument | Decided; reported only |
+| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (Q1: no Stage 3) |
 | Boundary, world | Step −1, Stage 1 | instrument | Fixed; play done |
-| Boundary, efference copy | Tickle test at babbling | instrument | Slot (Q2 decides bar 1's restated part) |
+| Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (Q2) |
 | Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
 | Chords (senses together) | After Step 0W | instrument | Slot |
 | Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
@@ -135,10 +135,21 @@ capacities are the North star's five steps, its senses table and its Dreaming ta
 | Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
 | The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
 
-Every capacity now has a slot. Two depend on answers: rate's self part (Q1) and shape's bars (Q6). Adaptation is
-scored only by the sleep trigger; habituation before Dream is reported, never gating.
+Every capacity now has a slot. Adaptation is scored only by the sleep trigger; habituation before Dream is reported,
+never gating.
 
-## 6. Questions for the owner
+## 6. Questions for the owner (answered 2026-11-05)
+
+*The owner answered all seven on 2026-11-05, each with the agent's recommended option; recorded in DECISIONS.md.*
+Q1: no Stage 3, babbling covers it. Q2: amend, labelled as after rehearsal 3. Q3: add, reported only. Q4: keep the
+fixed screen. Q5: Stage 1 gates, Stage 2 informs. Q6: shape's bar set from the 0.6B record, fixed before the 8B reads.
+Q7: slots count; the table moves into PLAN.
+
+**To carry into PLAN.md once PR #31 is merged** (not edited here, to stay clear of that PR): Step −1 amendment 4 (bar
+1's restated part, Q2); the two-stages section's open Stage 3 question closed (Q1); Stage 1's shape test and rate
+calibration (Q3, Q6); gating (Q5); the coverage table into "Current state and direction" (Q7).
+
+The questions as asked:
 
 - **Q1.** Does Stage 3 (the 8B playing and reading its own play) return after Stages 1–2, or does the babbling gate
   cover it? Q2's bar, the harder worlds and the self/world split depend on the answer.

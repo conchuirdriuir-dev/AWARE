@@ -2,6 +2,18 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **No Stage 3; babbling covers the 8B's own play** (owner, from proposals/staged-schedule.md, Q1): the
+  self/world split (rate's self part) is tested at Step 2, where the 8B acts again. The harder-worlds search stays retired.
+- 2026-11-05: **Step −1's bar 1, restated part, amended** (owner, Q2; made after rehearsal 3's 12%, before any 8B run):
+  reported in Stage 1, gating at the tickle test after babbling, since v0's history predictor cannot cancel self-caused
+  input by design. Bar 1's exact part gates Stage 1 unchanged.
+- 2026-11-05: **Gating and Stage 2's screen** (owner, Q4–Q5): Stage 1 gates Stage 2's scoring; Stage 2 informs and does
+  not gate babbling. Stage 2's player screen stays as fixed that day.
+- 2026-11-05: **Stage 1 adds shape and a rate calibration** (owner, Q3, Q6): shape at the planted rule change, its window
+  and bar set from the 0.6B rehearsal record (mirror seeds) and fixed before the 8B reads Stage 1; a contingent-vs-blind
+  script pair for rate, reported only.
+- 2026-11-05: **Every capacity gets a step** (owner, Q7): a slot (a named step with its question, bars written before its
+  code) counts as scheduled; the coverage table moves into PLAN's "Current state and direction" once PR #31 is merged.
 - 2026-11-04: **The habitat's pre-registration fixed** (owner, the agent's draft unchanged): Step −1's three bars, k's
   procedure, the five disjoint seed pools (`material/habitat_worlds.json`) and Step 0's habitat form (PLAN.md, "The
   habitat"), including the choices marked as the agent's.
