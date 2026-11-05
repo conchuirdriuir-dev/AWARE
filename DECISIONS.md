@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **No sense enters the channel before its own instrument test passes** (owner): shape stays out of the
+  sense tokens until Step −1C passes; babbling runs on rate and boundary until then.
+- 2026-11-05: **Step −1C fixed** (owner, proposals/staged-schedule.md §4a): bars in advance (shape's AUC off- over
+  on-structure ≥ 0.80, lower bound > 0.70; shape's AUC minus boundary's, 90% interval excluding zero), 80 episodes per
+  kind, each ending after the scored description, ±10% length match, TextWorld themes first on the dry run; the 0.6B
+  run is a rehearsal deciding nothing (replaces Q6's answer); gates chords and shape's sense token, not Stage 2.
 - 2026-11-05: **Shape's reading, three details** (owner, on the PR #31 session's questions): the script's phase labels
   are derived by replaying it from the seed, kept only on an exact match with the record; loop vs explore is compared
   within chunk token-length bins; shape keeps Step 0's 256-token cap, the truncated count reported.
