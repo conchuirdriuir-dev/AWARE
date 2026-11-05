@@ -162,6 +162,9 @@ def test_score_passes_on_a_sense_that_hears_the_world():
     assert out["fires"]["fired"] == 40 and out["fires"]["pass"]
     assert out["above_ordinary"]["auc"] == 1.0 and out["above_ordinary"]["pass"]
     assert out["floor_check"]["pass"] and out["pass"]
+    rep = out["reported"]
+    assert set(rep["per_layer"]) == {"layer 0", "layer 1"} and rep["per_layer"]["layer 0"]["plants_fired"] == 40
+    assert rep["play"]["step_minus_1"]["turns"] == 60 * 40 and "shape" in rep["not produced"]
     assert out["k"]["k"] == 10 and out["k"]["episodes"] == 10           # toy stalls of 9 turns between new states
     assert "Stage 2" in out["k"]["note"]                                 # reported only: Stage 2's player sets k
 

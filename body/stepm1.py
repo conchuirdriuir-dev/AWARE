@@ -199,6 +199,41 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -
         "deciding": "nothing", **{k: f"{sum(v)} of {len(v)} fired" for k, v in sorted(collided.items())}}
     out["reported"]["plants_read_appended"] = {
         "deciding": "nothing", **{k: f"{sum(v)} of {len(v)} fired" for k, v in sorted(appended.items())}}
+    # per layer (registered, reported): the third bar's AUC and the plants fired, layer by layer
+    per_layer = {}
+    n_layers = next(iter(news_by.values())).shape[1] if news_by else 0
+    for j in range(n_layers):
+        p_j, n_j, f_j = {}, {}, 0
+        for key in by_pool["step_minus_1"]:
+            ep, N = eps[key], news_by[key]
+            rows = {c["turn"]: i for i, c in enumerate(ep["chunks"]) if c["slot"] == "world" and c["turn"] >= 0}
+            ev = {c["turn"]: i for i, c in enumerate(ep["chunks"]) if c.get("cause") == "spontaneous" and c["turn"] >= 0}
+            here = [t for t, k in ep["keys"].items() if k.get("planted_here")]
+            if here and ep["info"].get("planted_kind"):
+                i = ev.get(here[0], rows.get(here[0]))
+                if i is not None:
+                    p_j[key] = [float(N[i, j])]
+                    f_j += N[i, j] > 1
+            n_j[key] = [float(N[rows[t], j]) for t, k in ep["keys"].items()
+                        if not k["new_state"] and t not in here and t in rows]
+        a_j = auc([v for x in p_j.values() for v in x], [v for x in n_j.values() for v in x])
+        per_layer[f"layer {j}"] = {"above_ordinary_auc": a_j, "plants_fired": int(f_j)}
+    out["reported"]["per_layer"] = per_layer
+    # throughput and turns dropped from context (registered, reported), from the record's own times and fields
+    play = defaultdict(lambda: {"turns": 0, "seconds": 0.0, "turns_with_dropped": 0})
+    for key, ep in eps.items():
+        name = pool_of(key, spec)
+        ats = [c["at"] for c in ep["chunks"] if c.get("at")]
+        acts = [c for c in ep["chunks"] if c["slot"] == "self"]
+        play[name]["turns"] += len(acts)
+        if len(ats) > 1:
+            from datetime import datetime
+            play[name]["seconds"] += (datetime.fromisoformat(ats[-1]) - datetime.fromisoformat(ats[0])).total_seconds()
+        play[name]["turns_with_dropped"] += sum(bool(c.get("dropped")) for c in acts)
+    out["reported"]["play"] = {k: {**v, "turns_per_hour": v["turns"] / v["seconds"] * 3600 if v["seconds"] else None}
+                               for k, v in play.items()}
+    out["reported"]["not produced"] = ("coupling, shape and rate per turn: registered as reported, not yet computed "
+                                       "(shape awaits its definition; PLAN.md, Step -1, 'Reported')")
     out["reported"]["natural_new_state"] = dict(zip(("auc", "lo", "hi"), _boot(natural_new, natural_flat)))
     out["pass"] = all(v["pass"] for v in st.values()) and out["fires"]["pass"] and out["above_ordinary"]["pass"]
     return out

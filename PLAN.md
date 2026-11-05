@@ -207,9 +207,9 @@ who wrote the actions does not enter the reading. The player decides only which 
 
 What it gives up, stated plainly: the North star's boundary is an efference copy of the model's *own* action. Both
 stages read an agent other than the perceiver; they check the instrument before the organism, they do not replace the
-8B reading itself. From Step 2 (babbling) on the 8B is the actor again. *Open, for the owner:* whether a third check,
-the 8B playing and reading its own play, returns once the instrument is validated, or whether the babbling gate covers
-it.
+8B reading itself. From Step 2 (babbling) on the 8B is the actor again. *Answered by the owner, 2026-11-05 (recorded in
+PR #32, `proposals/staged-schedule.md`, with its PLAN edits listed there for after this PR):* no third stage; the
+babbling gate covers the 8B's own play.
 
 **Stage 1, draft: Step −1 with a scripted player.**
 - **The script** (code, labelled as such: action chunks `by: code`, in the player's slot, so the reading is
@@ -304,6 +304,10 @@ The bars, seeds and plants are unchanged.
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
 bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
+*Gap, found 2026-11-05 (by the session drafting PR #32, for the owner): `score` produced only the first of these. It
+now also reports per-layer values (the third bar's AUC and plants fired, layer by layer), throughput and turns dropped
+from context, read from the record. Coupling, shape and rate per turn are not yet computed, and `score` says so;
+shape has no definition yet (one is being drafted for the owner).*
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
