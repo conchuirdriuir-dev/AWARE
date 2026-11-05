@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Shape's reading, three details** (owner, on the PR #31 session's questions): the script's phase labels
+  are derived by replaying it from the seed, kept only on an exact match with the record; loop vs explore is compared
+  within chunk token-length bins; shape keeps Step 0's 256-token cap, the truncated count reported.
 - 2026-11-05: **Shape's Stage 1 test is a dissociation** (owner, option C of proposals/staged-schedule.md §4a): shape
   lower on new on-structure rooms than new off-structure ones, and apart from boundary on the same chunks (Step −1C, its
   own pool). The re-fit test is dropped; the loop-vs-explore reading is reported. Bars and gating still open.

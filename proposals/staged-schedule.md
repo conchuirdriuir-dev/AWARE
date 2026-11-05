@@ -155,7 +155,12 @@ exact repeat, the re-fit test this replaces) cannot tell shape from boundary or 
   every registered pool.
 
 **Reported beside it, deciding nothing (option B):** on the registered scripted play already recorded, shape in the
-script's loop phases against its explore phases, length-matched, with boundary on the same turns.
+script's loop phases against its explore phases, compared within chunk token-length bins, by source, with boundary
+on the same turns. *Owner, 2026-11-05, on the PR #31 session's questions:* the phase labels were never recorded, so
+they are derived by replaying the deterministic script from each seed in a scratch directory, kept only if every
+action matches the record exactly; script play records its phases from now on (`by: code`). Shape keeps Step 0's
+256-token cap per chunk (one lift with rate), with the truncated count reported; if the cap binds on Step −1C's room
+descriptions, the owner is told.
 
 **Dropped (option A):** the re-fit test on the rule's repeated reply.
 
