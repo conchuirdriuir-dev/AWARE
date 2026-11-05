@@ -108,6 +108,46 @@ split:
 **Naming** *(draft's choice, kept)*: new forms take a suffix (0W, and any new Stage 1 form); registered steps keep
 their names, so records, amendments and run folders line up.
 
+### 4a. Shape: the definition (draft, 2026-11-05, for the owner to fix before anything is computed)
+
+*Found while starting Q6: PLAN registers "shape and rate per turn" as reported in Step −1, but `body/stepm1.py`
+computes neither and rehearsal 3's `score.json` holds no shape. The session on PR #31 has been told. Nothing below
+has been computed; no shape value has been looked at.*
+
+**What is already fixed (Spec v0.2, senses table; the owner's decision 4).** Shape is the code length of the current
+chunk under the formula fitted on all earlier chunks, in bits per chunk, tonic (reported every chunk), built from
+`goalspace/formula.py`'s prequential code, which is Lift v0. In code: `prequential(X, floor_var, start)["Lk"]`.
+
+**What the draft fixes, each the agent's choice:**
+1. **The record coded.** One episode at a time, every chunk in order: actions (self), replies (world) and planted
+   events (their own world chunk, Step −1 amendment 3). The fit at chunk t uses every earlier chunk of the episode,
+   both sources, as Step 0's formula does over the whole record.
+2. **The states.** The same alone readings, layer, floor variance (D²/d) and formula as Step 0's habitat form, so
+   shape and rate are read from one lift. No new choice of layer.
+3. **Burn-in.** The episode's first 10 turns fit and never score, as in Step 0's habitat form.
+4. **Rise and re-fit, kept apart.** A planted event's rise in shape is close to boundary's firing (both see a chunk the
+   episode has not seen), so the rise is **reported, deciding nothing**; boundary already gates firing. What shape adds
+   is **re-fit**: whether the code absorbs the new regime.
+
+**The test (rule-change plants only; the new-room plant reported):**
+- *The quantity.* After a rule change the harness returns the rule's fixed reply each time the blocked command is
+  tried. Let S₁ be shape at the rule's first arrival (the planted chunk) and S_m its shape at the m-th arrival.
+- *Pass:* S_m < S₁ in at least **[from the 0.6B record]** of the rule plants that recur at least m times, with m and
+  the count set from the 0.6B record and fixed here before the 8B reads Stage 1.
+- *Control, against a fall from repetition alone:* the same comparison on an ordinary reply that recurs as often
+  (a room description on revisits), matched on length. Re-fit should fall at least as fast. **Reported**, since
+  exact repeats may fall for reasons that have nothing to do with a rule.
+- *Feasibility, from the engine's labels alone (no reading):* how many rule plants in the registered scripted play
+  recur m times or more. Counted before m is fixed; if too few, the owner is asked, not m moved.
+
+**Open, for the owner:**
+- **The source of the window.** Rehearsal 3 is the 0.6B playing *and* reading; a model that loops repeats the blocked
+  command far more often than the script does. Two options: (a) as decided, the 0.6B rehearsal 3 record; (b) the 0.6B
+  reading the *scripted* play on mirror seeds (runs on the 4060), which matches Stage 1's play. The agent recommends
+  (b). Either way the definition above is fixed first, so the window is not tuned to the same data as the definition.
+- Whether m and the count may come from a reading model other than the 8B at all. k's precedent points the other way:
+  k is set from the 8B's own reading of the calibration pool. The 8B way waits for the 3090; the 0.6B way does not.
+
 ## 5. Coverage: every capacity has a step
 
 The draft's purpose (the owner's): every part of the planned system gets a development step, or it will not be built.
