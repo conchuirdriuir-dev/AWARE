@@ -2,6 +2,41 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step 0's event is a stall after progress, and the 8B plays Stage 2** (owner; amendment 5): a closure counts
+  only after a quest step; a post-ascent window starts the turn after; weaker players locked in from their first
+  turns, and only the 8B gave progress then stall. Screened on the 3090.
+- 2026-11-05: **A world that cannot be built is skipped and counted** (owner; Step 0 amendment 4, Step −1C's rule): each
+  build in a subprocess capped at 8 GB and 120 s; about 9% of Stage 2's seeds fail, all dense (30–39 objects).
+- 2026-11-05: **Stage 2 plays its own worlds, with longer quests** (owner): `material/habitat_worlds_stage2.json`, 10–20
+  rooms, quests of 15–25 steps, calibration 4000–4099, Step 0 5000–5399. In the frozen worlds every player's quest
+  steps and stalls fell in the first dozen turns. Stage 1 keeps the frozen file.
+- 2026-11-05: **Stage 2's player is told TextWorld's command forms** (owner): the screened players stalled on the parser
+  in their first turns. Stage 1 and the 8B's self-talk keep the first prompt.
+- 2026-11-05: **Step 0's cross-episode fallback is the nearest world by seed in the pool** (owner; amendment 3): "the same
+  generator settings" is the pool's generator, not identical world sizes.
+- 2026-11-05: **The two stages fixed** (owner, the agent's draft unchanged): the script's policy, Stage 2's player
+  candidates and criteria, as written in PLAN.md, "Two stages".
+- 2026-11-05: **The habitat runs in two stages, the player and the perceiver apart** (owner, from two outside
+  suggestions): Stage 1, instrument validity, a scripted player with the 8B perceiving (Step −1); Stage 2, predictive
+  validity, a weaker model playing with the 8B perceiving (Step 0). The worlds had been reshaped around the player's
+  skill. The harder-worlds search is retired. The stages' specifics are the agent's draft until the owner fixes them.
+- 2026-11-05: **Step 0's habitat form compares a stall with progress** (owner; amendment 2, changing decision 3's
+  "matched ordinary stretches"): the 8B's play has almost none. Pre-stall windows against pre-progress windows (reading
+  1, paired) and post-ascent windows against pre-stall windows (reading 2). Bars unchanged.
+- 2026-11-04: **A planted event is its own chunk** (owner; Step −1 amendment 3): appended to a long reply, the mean over
+  its tokens drowned it. The agent still reads reply and event as one message; the appended form is reported only.
+- 2026-11-04: **The rule change is always delivered at the planted turn** (owner; Step −1 amendment 2): the agent's latest
+  world-changing command, else the walkthrough's next non-move command. A looping player had left 38 of 40 undelivered.
+- 2026-11-04: **The habitat's opening loses TextWorld's ASCII banner** (owner; Step −1 amendment 1, before any 8B run):
+  it sat in the chunk every reply's news is measured against. Bars, seeds and plants unchanged.
+- 2026-11-04: **Work that tests something about the owner is frozen; the habitat is the focus** (owner): Step 1 (the
+  D021 replay), T2's reading 2 and T2b's marking pass freeze with Step 0's owner-label form; what only calibrates the
+  instrument on the owner's text (the 8B echo floor) stays in use. Until it lifts, consolidation's check has held-out
+  worlds and no owner confirmations (T2b was to supply them). Steps 1–3 are to be redesigned for the habitat, made
+  robust by hardening what is built and widening the worlds.
+- 2026-11-04: **A habitat ascent is a quest step reached** (owner, option (a), after the dry run showed one-point
+  worlds that score only on the quest's last command): the remaining walkthrough's non-movement commands reach a new
+  low for the episode. Step 0's habitat form, amendment 1.
 - 2026-11-04: **The habitat's pre-registration fixed** (owner, the agent's draft unchanged): Step −1's three bars, k's
   procedure, the five disjoint seed pools (`material/habitat_worlds.json`) and Step 0's habitat form (PLAN.md, "The
   habitat"), including the choices marked as the agent's.
