@@ -35,9 +35,11 @@ fields logged as diagnostics only; the body entering as learned sense tokens, ne
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test.
 
-**Now (2026-11-05): the habitat in two stages, player and perceiver apart (owner)**, under "Body readout", "Two
-stages": Stage 1, Step −1 with a scripted player; Stage 2, Step 0 with a weaker model playing; the 8B perceives in
-both. The agent's draft of the stages was fixed by the owner the same day. Play for both can run on the 4060; the
+**Now (2026-11-05): the habitat in two stages (owner)**, under "Body readout", "Two stages": Stage 1, Step −1 with
+a scripted player, the 8B perceiving: its play is done (160 episodes, every plant delivered), its reading and the
+8B's self-talk wait for the 3090. Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
+after weaker players locked in early): its screen, k, the owner's read of closures, and its play and reading all
+wait for the 3090. The agent's draft of the stages was fixed by the owner the same day. Play for both can run on the 4060; the
 8B's reading waits for the 3090. *The paragraph below is the state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -258,6 +260,23 @@ Stage 2 gets its own pool file, `material/habitat_worlds_stage2.json`, with long
 frozen file. Stage 2's player, k and Step 0 all come from this file (`body/step0_habitat.py`: `play --pool
 calibration|step0_habitat`, `k`, `read`, `score`). Then 1.7B and 4B, told the forms, are screened on its mirror seeds
 by the same criteria.
+
+*Step 0 amendment 5 and Stage 2's player, the owner, 2026-11-05, after the screens (under "Runs"):*
+- **The event is a stall after progress:** a closure counts only if at least one ascent (a quest step reached) comes
+  before its onset in the same episode. The screened players mostly locked in from their first turns (a failed
+  command, repeated), a failure to engage, not the stall Step 0 asks about; only stalls after progress are its event.
+- **A post-ascent window starts on the turn after the ascent:** the 10 scored turns from turn a + 1 (at least 3), so
+  an ascent before turn 9 has none. As first built, an ascent at turn 2 took turns 10–19, eight turns later; the
+  screens' ascent counts were inflated by it.
+- **Stage 2's player is the 8B itself** (bf16, full context, told the forms, on Stage 2's worlds), replacing "a model
+  smaller than the perceiver": every weaker player locked in early, and only the 8B gave progress then stall at a
+  usable rate (the 4-bit 8B on candidate C2's sizes: 7 such stalls in 14 episodes, about 180 projected against 150).
+  Nothing the owner decided forbids it (the "no third stage" answer was about not adding a stage). Its screen, by the
+  same criteria on Stage 2's mirror seeds, runs on the 3090: `python -m body.step0_habitat play --model Qwen/Qwen3-8B
+  --run R --pool calibration --limit 30 --rehearsal --forms`, the same with `--pool step0_habitat --limit 40`, then
+  `screen --run R` (labels only). *A limit, stated before the result:* the perceiver reads
+  its own actions; X compares coding with and without the world's replies, so self-familiarity should largely cancel,
+  but the reading is of its own play, not another agent's.
 
 *Step 0 amendment 4, the owner, 2026-11-05, Step −1C's rule:* some of Stage 2's longer-quest worlds cannot be built:
 TextWorld's quest search runs past a minute or runs away with memory (the owner's machine was killed twice for memory

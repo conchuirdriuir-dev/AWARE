@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step 0's event is a stall after progress, and the 8B plays Stage 2** (owner; amendment 5): a closure counts
+  only after a quest step; a post-ascent window starts the turn after; weaker players locked in from their first
+  turns, and only the 8B gave progress then stall. Screened on the 3090.
 - 2026-11-05: **A world that cannot be built is skipped and counted** (owner; Step 0 amendment 4, Step −1C's rule): each
   build in a subprocess capped at 8 GB and 120 s; about 9% of Stage 2's seeds fail, all dense (30–39 objects).
 - 2026-11-05: **Stage 2 plays its own worlds, with longer quests** (owner): `material/habitat_worlds_stage2.json`, 10–20

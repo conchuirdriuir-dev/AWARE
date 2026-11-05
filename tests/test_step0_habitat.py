@@ -63,7 +63,7 @@ def test_each_closure_takes_the_nearest_pre_progress_window_once():
 
 
 def test_a_closure_pairs_with_the_nearest_world_in_the_pool_when_its_own_has_no_progress():
-    bare = _toy(3000, ascents=())                                        # amendment 3: any world size will do
+    bare = _toy(3000, ascents=(12,))     # amendment 3: any world size; 12: progress first, too early for a pair
     eps = {3000: bare, 3002: _toy(3002), 3001: _toy(3001, params={"rooms": 9}), 2999: _toy(2999, ascents=())}
     labs = {s: Z.labels(x, 5) for s, x in eps.items()}
     clo = [x for x in Z.windows(bare, labs[3000])[0] if x["kind"] == "closure"]
@@ -104,3 +104,26 @@ def test_codes_score_from_the_tenth_turn_with_the_world_as_partner():
     selves = [i for i, ch in enumerate(chunks) if ch["slot"] == "self"]
     assert np.isnan(c["L_now"][selves[Z.BURN - 1]]) and np.isfinite(c["L_now"][selves[Z.BURN]])
     assert np.isfinite(c["X"][selves[Z.BURN:]]).all() and np.isnan(c["X_w5"]).all()
+
+
+def test_only_a_stall_after_progress_is_an_event_and_ascent_windows_start_the_turn_after():
+    """Amendment 5: a closure with no quest step before its onset is not an event; a post-ascent window starts on the
+    turn after the ascent, so one before turn 9 has none."""
+    e = _toy(3000, ascents=(2, 9, 100))
+    evs, _ = Z.windows(e, Z.labels(e, 5))
+    assert [x["rows"] for x in evs if x["kind"] == "ascent"] == [list(range(10, 20)), list(range(101, 111))]
+    assert [x["at"] for x in evs if x["kind"] == "closure"] == [60]          # after the steps at 2 and 9
+    locked = _toy(3001, ascents=(100,))
+    assert not [x for x in Z.windows(locked, Z.labels(locked, 5))[0] if x["kind"] == "closure"]
+
+
+def test_the_screen_projects_kept_events_to_the_pools_usable_worlds(tmp_path, monkeypatch):
+    eps = {s: _toy(s, ascents=(12, 25, 30, 100)) for s in range(5000, 5010)}
+    raw = {(s, None): {"info": {"seed": s}, "keys": {}} for s in eps}
+    cal = {(4000, None): {"keys": {t: {"new_state": t % 5 == 0} for t in range(30)}}}
+    monkeypatch.setattr(Z, "_episodes", lambda run, name="step0_habitat": raw if name == "step0_habitat" else cal)
+    monkeypatch.setattr(Z, "labels_only", lambda r: eps)
+    (tmp_path / "record.jsonl").write_text('{"kind": "skip", "seed": 5010}\n{"kind": "skip", "seed": 4005}\n')
+    out = Z.screen(tmp_path)
+    assert out["skipped"] == 1 and out["closures kept"] == 10                # the calibration skip is not counted
+    assert abs(out["projected closures"] - 10 * 400 / 11) < 1e-9

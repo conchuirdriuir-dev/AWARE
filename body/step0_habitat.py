@@ -94,14 +94,19 @@ def labels(e: dict, k: int) -> dict:
 
 def windows(e: dict, lab: dict, which: str = "ascents") -> tuple[list[dict], list[str]]:
     """Closure windows: the last W scored turns before the onset (the onset's own action is part of the label, so the
-    window ends before it). Ascent windows: the first W scored turns after the ascent. Fewer than 3: dropped."""
+    window ends before it), for closures after at least one ascent (amendment 5). Ascent windows: the scored turns
+    from the turn after the ascent, within W turns, starting on that turn (amendment 5). Fewer than 3: dropped."""
     out, dropped = [], []
     for onset, n in lab["closures"]:
+        if not any(a < onset for a in lab["ascents"]):    # amendment 5: only a stall after progress is the event
+            continue
         rows = [t for t in e["scored"] if t < onset][-W:]
         ev = {"kind": "closure", "seed": e["seed"], "at": onset, "rows": rows, "stall": list(range(onset, onset + n))}
         (out if len(rows) >= MIN_ROWS else dropped).append(ev)
     for a in lab[which]:
-        rows = [t for t in e["scored"] if t > a][:W]
+        rows = [t for t in e["scored"] if a < t <= a + W]   # amendment 5: from the turn after, within W turns
+        if rows and rows[0] != a + 1:
+            rows = []
         ev = {"kind": "ascent", "seed": e["seed"], "at": a, "rows": rows}
         (out if len(rows) >= MIN_ROWS else dropped).append(ev)
     return out, [f"{d['seed']}/{d['kind']}@{d['at']}" for d in dropped]
@@ -434,6 +439,49 @@ def cmd_k(a) -> None:
     print(json.dumps({"k": k, "episodes": len(flags)}))
 
 
+def labels_only(raw: dict) -> dict:
+    """Episodes as scoring sees them, with no code lengths: what the player screen needs (keys only, no state read).
+    Scored turns are the actions from the BURN-th on, as `codes` scores them."""
+    out = {}
+    for (seed, _), ep in raw.items():
+        turns = turns_of(ep)
+        out[seed] = {"seed": seed, "params": ep["info"].get("pool_params"), "turns": turns,
+                     "scored": [t["turn"] for t in turns if t["turn"] >= BURN], "spaces": [{f: {} for f in FIELDS}],
+                     "start": ep["info"].get("quest_left")}
+    return out
+
+
+def screen(run: Path, pool_size: int = 400) -> dict:
+    """Stage 2's player screen (PLAN.md, "Two stages", with amendments 2-5), from the engine's labels alone: k from the
+    calibration play; closures and ascents kept under the registered rules, projected to the pool's usable worlds;
+    the share of episodes won. Bars: 150 closures, 75 ascents, 10% won."""
+    from body.habitat import choose_k
+
+    cal, raw = _episodes(run, "calibration"), _episodes(run, "step0_habitat")
+    from body.habitat import mirrored, pool, worlds
+
+    mine = set(pool("step0_habitat", worlds(STAGE2)))
+    skips = sum(e["kind"] == "skip" and mirrored(e["seed"]) in mine for e in read(run / "record.jsonl"))
+    k = choose_k([[ep["keys"][t]["new_state"] for t in sorted(ep["keys"])] for ep in cal.values()])
+    w = events_at(labels_only(raw), k)
+    tried = len(raw) + skips
+    usable = pool_size * len(raw) / tried if tried else 0
+    scale = usable / len(raw) if raw else 0
+    won = [any(x.get("score_change", 0) > 0 for x in ep["keys"].values()) for ep in list(cal.values()) + list(raw.values())]
+    out = {"k": k, "calibration episodes": len(cal), "Step 0 episodes": len(raw), "skipped": skips,
+           "closures kept": len(w["closures"]), "ascents kept": len(w["ascents"]),
+           "projected closures": len(w["closures"]) * scale, "projected ascents": len(w["ascents"]) * scale,
+           "won": float(np.mean(won)) if won else float("nan")}
+    out["meets"] = bool(out["projected closures"] >= 150 and out["projected ascents"] >= 75 and out["won"] >= 0.10)
+    return out
+
+
+def cmd_screen(a) -> None:
+    result = screen(Path(a.run))
+    Record(Path(a.run) / "record.jsonl").append("screen", "code", **result)
+    print(json.dumps(result, indent=1))
+
+
 def cmd_score(a) -> None:
     run = Path(a.run)
     eps, n_layers = load(run)
@@ -449,10 +497,10 @@ def cmd_score(a) -> None:
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("play", "read", "score", "k"):
+    for name in ("play", "read", "score", "k", "screen"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
-        if name not in ("score", "k"):
+        if name not in ("score", "k", "screen"):
             s.add_argument("--model", required=True)
             s.add_argument("--device", default="auto")
             s.add_argument("--dtype", default="bfloat16")
@@ -474,7 +522,7 @@ def main(argv=None) -> None:
         if name == "score":
             s.add_argument("--k", type=int, required=True, help="the k fixed in PLAN.md from the calibration pool")
     a = p.parse_args(argv)
-    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "k": cmd_k}[a.cmd](a)
+    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "k": cmd_k, "screen": cmd_screen}[a.cmd](a)
 
 
 if __name__ == "__main__":
