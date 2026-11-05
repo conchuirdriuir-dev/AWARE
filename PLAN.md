@@ -316,6 +316,16 @@ event survived: 41 closures and 5 ascents labelled, 39 dropped for fewer than 3 
 (median) are inside a closure; its ascents fall on turns 1–3 but one. A closure that begins in the burn-in has no
 window, so a player that never makes progress gives Step 0 nothing to read, as it should.
 
+**Step 0 habitat rehearsal 2 (2026-11-04, Qwen3-8B in 4-bit, play only, 30 mirror worlds, decides nothing; record in
+`runs/step0h-8b-nf4-play/`).** On the 8 GB card the 4-bit 8B ran out of memory at 16,384 and at 4,096 tokens of
+context; 28 episodes were played at 2,048 (`--context`, recorded), 2 at 16,384 before the first failure. The labels
+alone, no states read: the 8B won 19 of 30, and episodes last a median 12 turns, since a won quest ends the episode.
+70 ascents, 63 of them on turns 0–9, inside the burn-in; 15 closures at k = 10, most beginning in the first 10 turns
+of episodes looped from the start. No event kept at k = 5, 10 or 20 (68 dropped for fewer than 3 scored turns, 17 with
+no control). Resolved stalls from these episodes would give k = 34. **As registered, Step 0's habitat form reads
+nothing from a player that either wins in about 12 turns or loops from the start: it needs episodes that progress
+for a while and then stall.** For the owner.
+
 #### Keys judge, never supply
 
 The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every
