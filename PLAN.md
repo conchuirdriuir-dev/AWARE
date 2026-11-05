@@ -516,6 +516,15 @@ state and 58% of replies repeating an earlier one. **Stage 1's registered play, 
 160 episodes, all 100 turns, none won; 40 of 40 plants delivered on their turn. Next on the 3090: the 8B's self-talk
 (20 seeds, both variants), then `read` (the 8B, the floor in `material/echo_floor_8b.json`) and `score`.
 
+**Stage 2's player screen (2026-11-05, mirror seeds, engine labels only, no state read; records
+`runs/stage2-1.7b-*`, `runs/stage2-4b-*`).** Qwen3-1.7B (bf16, full context): k = 11 from 30 calibration episodes; won
+14%; ascents kept 16 in 40 (projected 160); closures kept 0, 30 of its 34 stalls beginning in turns 0–9. Qwen3-4B
+(4-bit, full context): k = 8; won 30%; ascents kept 18 (projected 180); closures kept 0, 24 of 30 stalls beginning in
+turns 0–8, and the 6 with a window found no pre-progress pair. Neither meets the criteria; the owner is asked. Seen in
+the episodes: the early stalls are mostly the parser's: "unlock box" or "use key" where TextWorld wants "unlock box
+with key", repeated for the rest of the episode; the system prompt's examples show no two-object command. And the
+cross-episode fallback, read by the agent as identical rooms, objects and quest length, almost never finds a world.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
