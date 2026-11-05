@@ -228,6 +228,10 @@ Q7: slots count; the table moves into PLAN.
 1's restated part, Q2); the two-stages section's open Stage 3 question closed (Q1); Stage 1's shape test and rate
 calibration (Q3, Q6); gating (Q5); the coverage table into "Current state and direction" (Q7).
 
+*Carried into PLAN.md on 2026-11-05, after PR #31 merged:* all five, with Step 0 amendment 5 (the 8B plays Stage 2,
+merged with PR #31) taken into the coverage table and gating. Since amendment 5, §7's third limit applies to Stage 2
+in reverse: the reader perceives its own play, and PLAN states that limit under "Two stages".
+
 The questions as asked:
 
 - **Q1.** Does Stage 3 (the 8B playing and reading its own play) return after Stages 1–2, or does the babbling gate
