@@ -209,11 +209,14 @@ def facts_key(facts, drop: str | None = None) -> frozenset:
 
 @dataclass
 class RuleChange:
-    """From the planted turn on, a command that has already changed the world (not a move) stops working: the turn
-    announces it, and every later use gets a fixed reply and never reaches the engine."""
+    """At the planted turn a command stops working (Step -1 amendment 2, owner, 2026-11-04): the agent's latest command
+    that changed the world (not a move), or, if it has made none, the next non-move command of the engine's
+    walkthrough. The turn announces it; every later use gets a fixed reply and never reaches the engine. `source`
+    says which it was (a key)."""
     turn: int
     blocked: str | None = None
     fired_at: int | None = None
+    source: str | None = None
     changing: list[str] = field(default_factory=list)
 
     def before(self, t: int, command: str) -> str | None:
@@ -221,13 +224,21 @@ class RuleChange:
             return f"You cannot {self.blocked} any more: the rules here have changed."
         return None
 
-    def after(self, t: int, command: str, changed: bool) -> str:
+    def after(self, t: int, command: str, changed: bool, walkthrough=()) -> str:
+        """The announcement, on the planted turn only; empty otherwise (and if there is nothing to block)."""
         cmd = command.strip().lower()
         if changed and not cmd.startswith("go "):
             self.changing.append(cmd)
-        if self.blocked is None and t >= self.turn and self.changing:
-            self.blocked, self.fired_at = self.changing[-1], t
-            return f"\n\nSomething in this place shifts. From now on, you cannot {self.blocked}."
+        if self.blocked is None and t == self.turn:
+            ahead = [c.strip().lower() for c in walkthrough or () if not c.strip().lower().startswith("go ")]
+            if self.changing:
+                self.blocked, self.source = self.changing[-1], "played"
+            elif ahead:
+                self.blocked, self.source = ahead[0], "walkthrough"
+            else:
+                return ""
+            self.fired_at = t
+            return f"Something in this place shifts. From now on, you cannot {self.blocked}."
         return ""
 
 
@@ -383,16 +394,19 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
             reply, changed = blocked, False
         else:
             reply, changed = engine.step(action)
-        note = {}
+        note, event = {}, ""
         if plant and plant["kind"] == "new_room" and t == plant["turn"]:
             note["switched"] = engine.switch()
             if note["switched"]:
-                reply += f"\n\nYou hear a click from the {built['door']}."
+                event = f"You hear a click from the {built['door']}."
         if rule:
-            reply += rule.after(t, action, changed)
+            event = rule.after(t, action, changed, engine.state.policy_commands)
             if rule.fired_at == t:
-                note["blocked"] = rule.blocked
+                note["blocked"], note["blocked_from"] = rule.blocked, rule.source
         record.chunk(reply, "code", "external", cause="elicited", seed=seed, turn=t, slot="world")
+        if event:                            # the plant arrives as its own chunk (Step -1 amendment 3); the agent
+            record.chunk(event, "code", "external", cause="spontaneous", seed=seed, turn=t, slot="world")
+            reply += "\n\n" + event        # still reads reply and event as one message, as a player would
         keys = engine.keys()
         state = frozenset(keys["facts"])
         new = state not in seen

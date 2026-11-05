@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-04: **A planted event is its own chunk** (owner; Step −1 amendment 3): appended to a long reply, the mean over
+  its tokens drowned it. The agent still reads reply and event as one message; the appended form is reported only.
+- 2026-11-04: **The rule change is always delivered at the planted turn** (owner; Step −1 amendment 2): the agent's latest
+  world-changing command, else the walkthrough's next non-move command. A looping player had left 38 of 40 undelivered.
 - 2026-11-04: **The habitat's opening loses TextWorld's ASCII banner** (owner; Step −1 amendment 1, before any 8B run):
   it sat in the chunk every reply's news is measured against. Bars, seeds and plants unchanged.
 - 2026-11-04: **Work that tests something about the owner is frozen; the habitat is the focus** (owner): Step 1 (the

@@ -95,10 +95,17 @@ def test_rule_change_blocks_the_last_world_changing_command():
     assert r.before(4, "Open chest ") is not None and r.before(4, "open box") is None
 
 
-def test_rule_change_waits_for_a_candidate():
-    r = H.RuleChange(turn=0)
-    assert r.after(0, "look", False) == "" and r.after(1, "go east", True) == ""
-    assert r.after(2, "eat apple", True) and r.fired_at == 2
+def test_rule_change_always_fires_at_the_planted_turn():
+    r = H.RuleChange(turn=1)                                             # nothing changed yet: the walkthrough's
+    walk = ["go east", "Unlock box with key", "open box"]                # next non-move command
+    assert r.after(0, "look", False, walk) == ""
+    assert "cannot unlock box with key" in r.after(1, "go east", True, walk)
+    assert (r.fired_at, r.source) == (1, "walkthrough") and r.after(2, "open box", True, walk) == ""
+    r = H.RuleChange(turn=3)
+    r.after(1, "open chest", True)
+    assert "cannot open chest" in r.after(3, "look", False, walk) and r.source == "played"
+    r = H.RuleChange(turn=0)                                             # nothing to block: no plant
+    assert r.after(0, "look", False, ["go north"]) == "" and r.fired_at is None
 
 
 def test_news_is_zero_on_an_echo_and_large_on_news():
@@ -228,7 +235,13 @@ def test_play_appends_turns_and_plants(tmp_path):
     assert isinstance(planted_room[0]["natural_new"], bool)           # the plant's own change left out
     rooms = {k["room"] for k in room["keys"].values()}               # the closure label pairs actions with rooms
     assert None not in rooms and len(rooms) >= 2
-    assert sum(k["planted_here"] for k in rule["keys"].values()) <= 1
+    ruled = [k for k in rule["keys"].values() if k["planted_here"]]      # amendment 2: always delivered, on time
+    assert len(ruled) == 1 and ruled[0]["turn"] == H.planted(2020)["turn"] and ruled[0]["blocked"]
+    for ep, t in ((room, planted_room[0]["turn"]), (rule, ruled[0]["turn"])):   # amendment 3: the plant's own chunk
+        events = [c for c in ep["chunks"] if c.get("cause") == "spontaneous" and c["turn"] >= 0]
+        assert len(events) == 1 and events[0]["turn"] == t and events[0]["slot"] == "world"
+        reply = [c for c in ep["chunks"] if c["turn"] == t and c.get("cause") == "elicited"][0]
+        assert events[0]["text"] not in reply["text"]
     assert all(c["provenance"] == "self" and c["by"] == "model" for c in talk["chunks"][1:])
     assert {c["slot"] for c in talk["chunks"][1:]} == {"self", "world"}
 
@@ -326,3 +339,21 @@ def test_the_opening_loses_the_banner_and_nothing_else():
     text = "Hey, thanks for coming over to the TextWorld today.\n\n-= Kitchen =-\nA $5 note | here."
     assert H.unbanner(banner + text) == text and H.unbanner(text) == text
     assert H.unbanner("") == "" and H.unbanner("|||\n") == ""
+
+
+def test_a_planted_turn_is_read_on_its_own_chunk_and_the_appended_form_is_reported():
+    key, ep, N = _ep(2000, "new_room", fire=False)                    # the reply itself stays quiet
+    t = next(t for t, k in ep["keys"].items() if k["planted_here"])
+    i = next(i for i, c in enumerate(ep["chunks"]) if c["turn"] == t and c["slot"] == "world")
+    for c in ep["chunks"]:
+        c.setdefault("cause", "elicited") if c["slot"] == "world" else None
+    ep["chunks"].insert(i + 1, {"slot": "world", "turn": t, "text": "You hear a click.", "cause": "spontaneous"})
+    N = np.insert(N, i + 1, np.full(2, 3.0), axis=0)                   # the event's own chunk is news
+    J = np.full_like(N, np.nan)
+    J[i + 1] = 0.5                                                     # read inside the reply, it is not
+    assert M.joined(ep) == [(i + 1, ep["chunks"][i]["text"] + "\n\nYou hear a click.")]
+    eps, news = _material()
+    eps[key], news[key] = ep, N
+    out = M.score(eps, news, H.worlds(), {key: J})
+    assert out["fires"]["fired"] == 40
+    assert out["reported"]["plants_read_appended"] == {"deciding": "nothing", "new_room": "0 of 1 fired"}

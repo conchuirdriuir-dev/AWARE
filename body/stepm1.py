@@ -107,13 +107,22 @@ def _boot(pos_by, neg_by, draws=DRAWS, seed=0) -> tuple[float, float, float]:
     return point, float(lo), float(hi)
 
 
-def turn_news(ep: dict, N: np.ndarray) -> dict:
-    """Turn -> the mean over layers of its reply's news."""
+def turn_news(ep: dict, N: np.ndarray, cause: str = "elicited") -> dict:
+    """Turn -> the mean over layers of its reply's news; with cause "spontaneous", of the planted event's own chunk
+    (Step -1 amendment 3). Self-talk replies carry no cause and count as replies."""
     return {c["turn"]: float(np.mean(N[i])) for i, c in enumerate(ep["chunks"])
-            if c["slot"] == "world" and c["turn"] >= 0}
+            if c["slot"] == "world" and c["turn"] >= 0 and c.get("cause", "elicited") == cause}
 
 
-def score(eps: dict, news_by: dict, spec: dict) -> dict:
+def joined(ep: dict) -> list[tuple[int, str]]:
+    """For each planted event's chunk i: the text its turn's reply and event make together, as the agent reads them.
+    Its news is read against every chunk before the reply (reported, deciding nothing)."""
+    ch = ep["chunks"]
+    return [(i, ch[i - 1]["text"] + "\n\n" + c["text"]) for i, c in enumerate(ch)
+            if c.get("cause") == "spontaneous" and c["turn"] >= 0]      # the opening is spontaneous too
+
+
+def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None) -> dict:
     """Step -1's three bars and the floor's habitat check, from episodes and their news (episode -> chunks x layers)."""
     out: dict = {"reported": {}}
     by_pool = defaultdict(list)
@@ -125,7 +134,7 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
     for key in by_pool["calibration"]:
         seen, tn = set(), turn_news(eps[key], news_by[key])
         for c in eps[key]["chunks"]:
-            if c["slot"] == "world" and c["turn"] >= 0:
+            if c["slot"] == "world" and c["turn"] >= 0 and c.get("cause", "elicited") == "elicited":
                 if c["text"] in seen:
                     below.append(tn[c["turn"]] < 1)
                 seen.add(c["text"])
@@ -154,14 +163,20 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
     # 2 and 3. planted novelty; a plant that did not happen counts as not firing
     fired, pos, neg, natural_new, natural_flat = defaultdict(list), {}, {}, {}, {}
     collided = defaultdict(list)   # delivered plants by whether the agent's own action also made a new state there
+    appended = defaultdict(list)   # delivered plants read as before amendment 3: the event inside its turn's reply
     for key in by_pool["step_minus_1"]:
         ep, tn = eps[key], turn_news(eps[key], news_by[key])
         kind = ep["info"].get("planted_kind")
+        ev = turn_news(ep, news_by[key], "spontaneous")               # the plant's own chunk, where recorded apart
+        tn = {**tn, **ev}
+        jn = turn_news(ep, joined_by[key], "spontaneous") if joined_by and key in joined_by else {}
         here = [t for t, k in ep["keys"].items() if k.get("planted_here")]
         delivered = [t for t in here if ep["keys"][t].get("switched", True) and
                      (kind != "rule_change" or ep["keys"][t].get("blocked"))]
         if kind:
             fired[kind].append(bool(delivered) and tn.get(delivered[0], 0) > 1)
+            if delivered and delivered[0] in jn:
+                appended[kind].append(jn[delivered[0]] > 1)
             if delivered:
                 natural = ep["keys"][delivered[0]].get("natural_new")
                 collided[{True: "with", False: "clean", None: "unknown"}[natural]].append(fired[kind][-1])
@@ -181,6 +196,8 @@ def score(eps: dict, news_by: dict, spec: dict) -> dict:
                              "pass": a >= AUC_BAR and lo > AUC_LOWER}
     out["reported"]["plants_on_natural_novelty"] = {
         "deciding": "nothing", **{k: f"{sum(v)} of {len(v)} fired" for k, v in sorted(collided.items())}}
+    out["reported"]["plants_read_appended"] = {
+        "deciding": "nothing", **{k: f"{sum(v)} of {len(v)} fired" for k, v in sorted(appended.items())}}
     out["reported"]["natural_new_state"] = dict(zip(("auc", "lo", "hi"), _boot(natural_new, natural_flat)))
     out["pass"] = all(v["pass"] for v in st.values()) and out["fires"]["pass"] and out["above_ordinary"]["pass"]
     return out
@@ -232,6 +249,13 @@ def cmd_read(a) -> None:
             continue                                      # read already; a replayed episode is read again
         S = reader.states([c["text"] for c in ep["chunks"]], layers)
         np.save(path, news(S, [c["slot"] for c in ep["chunks"]], unit))
+        pairs = joined(ep)
+        if pairs:                                         # reported only: the event read inside its turn's reply
+            J = np.full((len(ep["chunks"]), len(layers)), np.nan)
+            T = reader.states([text for _, text in pairs], layers)
+            for (i, _), state in zip(pairs, T):
+                J[i] = np.min(np.linalg.norm(S[: i - 1] - state[None], axis=2), axis=0) / unit
+            np.save(out / f"{seed}-{variant or 'world'}-joined.npy", J)
 
 
 def cmd_score(a) -> None:
@@ -243,7 +267,8 @@ def cmd_score(a) -> None:
     stale = [k for k in eps if news_by[k].shape[0] != len(eps[k]["chunks"])]
     if stale:
         raise SystemExit(f"news does not match the record for {stale}: run read again")
-    result = score(eps, news_by, worlds())
+    joined_by = {k: np.load(p) for k in eps if (p := run / "news" / f"{k[0]}-{k[1] or 'world'}-joined.npy").exists()}
+    result = score(eps, news_by, worlds(), joined_by)
     Record(run / "record.jsonl").append("score", "code", **result)
     print(json.dumps(result, indent=2))
 

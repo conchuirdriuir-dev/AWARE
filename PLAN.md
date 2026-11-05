@@ -228,6 +228,21 @@ made only of the banner's characters (`_ | \ / $ < >` and spaces) are dropped, i
 letter or digit is never touched (`body/habitat.py`, `unbanner`). Found on the dry run, whose record keeps the banner.
 The bars, seeds and plants are unchanged.
 
+*Amendments 2 and 3 (Step −1), 2026-11-04, the owner, before any 8B run, from the 0.6B rehearsals (under "Runs"):*
+- **2. The rule change is always delivered, at the planted turn.** As registered it waited for a world-changing command
+  other than a move, and a looping player makes none: 38 of 40 rehearsal plants never happened and counted as misses,
+  so Step −1 could fail on the agent's play with the instrument not at fault. Now, at the planted turn, the rule blocks
+  the agent's latest world-changing command (not a move) if it has made one, otherwise the next non-move command of
+  the engine's walkthrough; the key records which (`blocked_from`). Blocking may make the quest unwinnable; Step −1
+  scores no quest. Where there is nothing to block, the plant does not happen and counts as not firing, as before.
+- **3. A planted event is its own chunk.** The click and the rule's announcement were appended to the turn's reply,
+  and a chunk's state is the mean over its tokens: all 6 rehearsal misses of the planted room were 76–104 token replies
+  with the click last. The event is now recorded as its own world chunk, arriving spontaneously, right after the
+  reply, and the planted turn's news is that chunk's. The agent's view is unchanged: it reads reply and event as one
+  message. This is an exception, for planted events only, to "each turn read as the action and the reply" (the owner's
+  decision 2). The event read inside its reply, against every chunk before the reply, is reported beside it, deciding
+  nothing. The floor's habitat check reads replies only. The bars, seeds and planted turns are unchanged.
+
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
 bed, so it does not decide yet); shape and rate per turn; per-layer values; throughput; turns dropped from context.
