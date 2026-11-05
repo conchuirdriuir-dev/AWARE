@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step −1C's pool is drawn until 80 per kind are usable** (owner): seeds in order, skipped (never
+  loosened) on no length match or no room entry, both counted before any reading; length matched in the reader's
+  tokens (Qwen3), PR #33.
 - 2026-11-05: **No sense enters the channel before its own instrument test passes** (owner): shape stays out of the
   sense tokens until Step −1C passes; babbling runs on rate and boundary until then.
 - 2026-11-05: **Step −1C fixed** (owner, proposals/staged-schedule.md §4a): bars in advance (shape's AUC off- over
