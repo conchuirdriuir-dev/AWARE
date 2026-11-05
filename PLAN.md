@@ -288,6 +288,27 @@ walkthrough reaches a new low for the episode, counting only non-movement comman
 several quests, so score rises mid-episode. (a) is closest to the spec's "a quest step reached". The closure label's
 "no score change" is trivially met with one-point worlds and stays as written.
 
+#### Step 0, habitat form: note, 2026-11-04, written with the code, before any run
+
+Code: `body/step0_habitat.py` (`play`, `read`, `score`); tests in `tests/test_step0_habitat.py` on toy episodes, and
+one on a real world in `tests/test_habitat.py`. Where the registered form left a choice, the agent's:
+
+- **Sources:** the world's text (the opening, replies) is the partner and the actions are self (the owner's decision 2),
+  so the reading X_t = L_noworld − L_now is `by_source`'s X. Scored turns are the actions from the 10th on; W is the
+  10 turns before the action (its last 10 replies, 9 actions).
+- **The closure window ends before the onset turn:** the onset's own action is part of the closure label (a repeated
+  pair), so it is left out. The ascent window starts on the turn after the ascent.
+- **Controls are as long as their event** (3–10 scored turns), contiguous among the episode's scored turns; "nearest in
+  time" is nearest the event's middle turn. Controls may overlap another event's window; the registered rules keep
+  them only outside closures and 10 turns from onsets and ascents.
+- **The interval resamples episodes,** each drawn episode bringing all its events with their controls.
+- **Broad ascents (reported):** a room entered for the first time, or a verb first used on a turn that made a new state
+  (not a move); matched and read as ascents are.
+- **Code lengths, not states, are checkpointed** per episode: states are a cache rebuilt from the text, and on the 8B
+  they would be about 16 GB for the pool.
+- Found on toy episodes: at 100 turns, an episode with a closure and two ascents has room for about two 10-turn controls
+  under the 10-turn gap; the rest go to the nearest world with the same settings or have none (counted).
+
 #### Keys judge, never supply
 
 The engine's state and score, the labels, k's stretches and the planted turns are read only by scoring, after every

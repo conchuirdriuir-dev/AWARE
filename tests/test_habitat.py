@@ -357,3 +357,23 @@ def test_a_planted_turn_is_read_on_its_own_chunk_and_the_appended_form_is_report
     out = M.score(eps, news, H.worlds(), {key: J})
     assert out["fires"]["fired"] == 40
     assert out["reported"]["plants_read_appended"] == {"deciding": "nothing", "new_room": "0 of 1 fired"}
+
+
+def test_step0_habitat_reads_a_real_episode(tmp_path):
+    """Step 0's habitat form: a real world through the harness, then the episode as its scoring sees it, with code
+    lengths from random states. Here, not in test_step0_habitat.py: run after tests/test_states.py in one process,
+    TextWorld's game loader fails (jericho, in ctypes); play and read run in separate processes, so no run is touched."""
+    pytest.importorskip("textworld")
+    from body.stepm1 import episodes
+    from substrate.record import Record, read
+    from body import step0_habitat as Z
+
+    record = Record(tmp_path / "record.jsonl")
+    H.play(_FakeAgent(), record, 3000, tmp_path / "games", max_turns=30)
+    ep = episodes(read(record.path))[(3000, None)]
+    srcs = Z.sources(ep["chunks"])
+    X = np.random.default_rng(1).normal(size=(len(srcs), 8))
+    e = Z.episode(ep, [Z.codes(X, srcs, 0.1, variants=False)] * 2)
+    assert e["scored"][0] == Z.BURN and e["start"] is not None
+    assert len(e["turns"]) == 30 and all("action" in t and "room" in t for t in e["turns"])
+    Z.labels(e, 5)                                                       # the labels read the real keys
