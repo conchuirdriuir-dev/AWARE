@@ -582,6 +582,12 @@ GPU out-of-memory at long context on the 4060 ended the run (the 3090 has room);
 (905004, 905007, over 120 s, amendment 4). Won 2% (bar 10%): fails. No closure kept, no pre-progress window in the
 pool, stall onsets still mostly in turns 0–4. The longer quests are beyond it.
 
+**Qwen3-4B (4-bit) on Stage 2's worlds, told the forms (2026-11-05, mirror seeds, labels only; `runs/s2w-4b/`).**
+28 calibration episodes (k = 9) and 36 Step 0 worlds; 6 of 70 seeds skipped as unbuildable (amendment 4). Won 8% (bar
+10%); closures kept 4 in 36, projected 44 to about 365 usable worlds (bar 150); ascents kept 68, projected 756 (bar
+75); 18 pre-progress windows in the pool (none for any player in the frozen worlds); stall onsets still mostly in
+turns 0–5. The closest player screened; it fails criteria 2 and 3. For the owner.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
