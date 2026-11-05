@@ -435,6 +435,16 @@ almost no turn is outside every closure and 10 turns from every onset and ascent
 assume ordinary stretches that this play hardly has.** The player is weakened here (4-bit, 2,048 tokens), which may
 add looping. For the owner. Candidate C2 (rooms 10–20, objects 20–40, quests of 15–25) is played for criterion 1.
 
+**Candidates C2 and C3, and criterion 2 under Step 0's amendment 2 (2026-11-05; the 4-bit 8B at 2,048 tokens, play
+only, mirror seeds).** C2 (rooms 10–20, objects 20–40, quests of 15–25; the Step 0 part stopped at 14 of 30 worlds by
+the 2-hour limit): 75% of Step −1 episodes running at turn 35, plants 17 and 16 of 20, won 24%; the 8B follows the
+opening's step-by-step recipe and wins a quest of 15–25 steps in about 20 turns. C3 (the frozen sizes, with the opening
+stating only the quest's last step, TextWorld's `only_last_action`; `runs/cand3-stepm1/`): 77% running at turn 35,
+plants 14 and 16 of 20, won 27%, a quarter of episodes won within 3–16 turns. Criterion 1 fails for all three. Under
+amendment 2, ascents are plentiful (projected 1,000–2,000 kept against 75) but closures are short (C1 27, C2 57–86
+projected against 150): most stalls begin within the first 10 turns, inside the burn-in, and have no window. No
+candidate meets the criteria; the owner is asked.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants
