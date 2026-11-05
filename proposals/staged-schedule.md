@@ -71,11 +71,9 @@ split:
 - *Reported, deciding nothing:* Stage 1's plants against first-seen replies of the same length (draft control 7; the
   gap rehearsal 3 noted).
 - *Optional, if the owner accepts Q3:* the contingent-vs-blind rate check.
-- **Shape (Stage 1, from the draft's Step 0S; dropped from this proposal's first version by mistake).** On scripted
-  play, shape (the code length of the current fit) rises at the planted rule change and falls back as the code re-fits
-  within **[owner fixes]** turns; the rule change's turn is known, so this is a calibration check with a known answer.
-  Unlike rate it is not circular: it reads the fit to the text, not how much the replies help code the next action.
-  It needs no new play, only scoring the plants already recorded. **(Q6)**
+- **Shape (Stage 1, from the draft's Step 0S; dropped from this proposal's first version by mistake).** The
+  dissociation test of §4a (option C, owner, 2026-11-05): shape reads fit to the learned structure, apart from
+  boundary's novelty. Needs a new plant kind and a new seed pool; scripted, no GPU for the play. **(Q6, superseded)**
 
 **Proposals, no bars yet, each written into PLAN before its code when its step comes:**
 - **Stage 3 and the self/world split**, if Q1 is yes. Learnable structure planted in the world's replies or in the
@@ -108,45 +106,64 @@ split:
 **Naming** *(draft's choice, kept)*: new forms take a suffix (0W, and any new Stage 1 form); registered steps keep
 their names, so records, amendments and run folders line up.
 
-### 4a. Shape: the definition (draft, 2026-11-05, for the owner to fix before anything is computed)
+### 4a. Shape: the definition and its test (option C chosen by the owner, 2026-11-05; bars still open)
 
 *Found while starting Q6: PLAN registers "shape and rate per turn" as reported in Step −1, but `body/stepm1.py`
-computes neither and rehearsal 3's `score.json` holds no shape. The session on PR #31 has been told. Nothing below
-has been computed; no shape value has been looked at.*
+computed neither. The session on PR #31 confirmed the gap and now reports what is not produced. Nothing below has been
+computed; no shape value has been looked at.*
 
 **What is already fixed (Spec v0.2, senses table; the owner's decision 4).** Shape is the code length of the current
 chunk under the formula fitted on all earlier chunks, in bits per chunk, tonic (reported every chunk), built from
 `goalspace/formula.py`'s prequential code, which is Lift v0. In code: `prequential(X, floor_var, start)["Lk"]`.
 
-**What the draft fixes, each the agent's choice:**
+**What this fixes, each the agent's choice:**
 1. **The record coded.** One episode at a time, every chunk in order: actions (self), replies (world) and planted
    events (their own world chunk, Step −1 amendment 3). The fit at chunk t uses every earlier chunk of the episode,
-   both sources, as Step 0's formula does over the whole record.
+   both sources.
 2. **The states.** The same alone readings, layer, floor variance (D²/d) and formula as Step 0's habitat form, so
    shape and rate are read from one lift. No new choice of layer.
 3. **Burn-in.** The episode's first 10 turns fit and never score, as in Step 0's habitat form.
-4. **Rise and re-fit, kept apart.** A planted event's rise in shape is close to boundary's firing (both see a chunk the
-   episode has not seen), so the rise is **reported, deciding nothing**; boundary already gates firing. What shape adds
-   is **re-fit**: whether the code absorbs the new regime.
+4. **Reported by source as well as pooled.** A fit over both sources alternates between short commands and long
+   replies; pooled alone, the tonic reading could track whose turn it is.
+5. **Length reported beside every comparison.** A chunk's state is the mean over its tokens, so long replies code
+   short. Tests are matched on length by construction where they can be.
 
-**The test (rule-change plants only; the new-room plant reported):**
-- *The quantity.* After a rule change the harness returns the rule's fixed reply each time the blocked command is
-  tried. Let S₁ be shape at the rule's first arrival (the planted chunk) and S_m its shape at the m-th arrival.
-- *Pass:* S_m < S₁ in at least **[from the 0.6B record]** of the rule plants that recur at least m times, with m and
-  the count set from the 0.6B record and fixed here before the 8B reads Stage 1.
-- *Control, against a fall from repetition alone:* the same comparison on an ordinary reply that recurs as often
-  (a room description on revisits), matched on length. Re-fit should fall at least as fast. **Reported**, since
-  exact repeats may fall for reasons that have nothing to do with a rule.
-- *Feasibility, from the engine's labels alone (no reading):* how many rule plants in the registered scripted play
-  recur m times or more. Counted before m is fixed; if too few, the owner is asked, not m moved.
+**Why the test is a dissociation.** Boundary asks whether this text was seen before (an instance against the nearest
+earlier reading). Shape asks whether it fits the structure learned so far. The two part on a chunk that is new but
+on-structure: boundary should fire and shape stay low. A test where both fire (a rise at a plant, or the fall of an
+exact repeat, the re-fit test this replaces) cannot tell shape from boundary or from memorising a point.
+
+**The test (Step −1C, a new form, its own seed pool):**
+- *Plants.* Each episode gets one extra room, unlocked at a planted turn as in Step −1's new-room plant, entered by
+  the script (explore phases take an exit not yet taken). Two kinds, one per episode, fixed by the seed:
+  - **On-structure:** the room is generated by the episode's own world generator, with its templates and vocabulary.
+  - **Off-structure:** the room's description comes from a second, disjoint vocabulary and template set, chosen by
+    seed and written once for every world (domain-free; nothing tuned to a world). Its length is matched to the
+    on-structure description it replaces, within **[owner fixes]** tokens.
+  - How the off-structure text is made in TextWorld (a second grammar or theme) is checked on a dry run; if it cannot
+    be done, the owner chooses another way before any reading.
+- *The chunk scored.* The room's first description, on the turn the script enters it. Episodes where the script never
+  enters are counted and drop out; the count is taken from the engine's labels before any reading.
+- *Pass, both:*
+  1. Shape: the AUC of off-structure shape over on-structure shape is at least **[bar]**, its 90% lower bound above
+     **[bar]**.
+  2. Apart from boundary: shape's AUC exceeds boundary's AUC on the same chunks by at least **[bar]**, the interval of
+     the difference excluding zero; 2,000 draws resampling episodes.
+- *Precondition, reported:* boundary fires on both kinds (both are unseen). If it does not fire on on-structure rooms,
+  the dissociation cannot be read and the owner is told.
+- *Pool and size:* 40 episodes of each kind *(agent's choice, mirroring Step −1's 40 plants)*, seeds disjoint from
+  every registered pool.
+
+**Reported beside it, deciding nothing (option B):** on the registered scripted play already recorded, shape in the
+script's loop phases against its explore phases, length-matched, with boundary on the same turns.
+
+**Dropped (option A):** the re-fit test on the rule's repeated reply.
 
 **Open, for the owner:**
-- **The source of the window.** Rehearsal 3 is the 0.6B playing *and* reading; a model that loops repeats the blocked
-  command far more often than the script does. Two options: (a) as decided, the 0.6B rehearsal 3 record; (b) the 0.6B
-  reading the *scripted* play on mirror seeds (runs on the 4060), which matches Stage 1's play. The agent recommends
-  (b). Either way the definition above is fixed first, so the window is not tuned to the same data as the definition.
-- Whether m and the count may come from a reading model other than the 8B at all. k's precedent points the other way:
-  k is set from the 8B's own reading of the calibration pool. The 8B way waits for the 3090; the 0.6B way does not.
+- **Where the bars come from.** As decided for Q6, from a 0.6B reading, now of Step −1C's form on mirror seeds
+  (scripted play, read by the 0.6B on the 4060), fixed here before the 8B reads Step −1C. k's precedent points the other
+  way (k is set from the 8B's own reading); the 8B way waits for the 3090.
+- **Whether Step −1C gates Stage 2** (Q5 made Stage 1 gate it), or is Stage 1's reported part until it has run once.
 
 ## 5. Coverage: every capacity has a step
 
@@ -157,7 +174,7 @@ capacities are the North star's five steps, its senses table and its Dreaming ta
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined (§3.6) |
-| Shape (code length) | Stage 1, shape at the rule change (§4) | instrument | Decided; window and bar from the 0.6B record, fixed before the 8B reads |
+| Shape (code length) | Step −1C, on- vs off-structure rooms (§4a) | instrument | Test chosen (C); bars and gating open |
 | Rate, world part | Step 0, Stage 2 | instrument | Fixed |
 | Rate, world part, calibration | Stage 1, contingent vs blind (§3.2) | instrument | Decided; reported only |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (Q1: no Stage 3) |

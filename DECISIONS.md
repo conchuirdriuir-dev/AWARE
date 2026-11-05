@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Shape's Stage 1 test is a dissociation** (owner, option C of proposals/staged-schedule.md §4a): shape
+  lower on new on-structure rooms than new off-structure ones, and apart from boundary on the same chunks (Step −1C, its
+  own pool). The re-fit test is dropped; the loop-vs-explore reading is reported. Bars and gating still open.
 - 2026-11-05: **No Stage 3; babbling covers the 8B's own play** (owner, from proposals/staged-schedule.md, Q1): the
   self/world split (rate's self part) is tested at Step 2, where the 8B acts again. The harder-worlds search stays retired.
 - 2026-11-05: **Step −1's bar 1, restated part, amended** (owner, Q2; made after rehearsal 3's 12%, before any 8B run):
@@ -11,7 +14,7 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   not gate babbling. Stage 2's player screen stays as fixed that day.
 - 2026-11-05: **Stage 1 adds shape and a rate calibration** (owner, Q3, Q6): shape at the planted rule change, its window
   and bar set from the 0.6B rehearsal record (mirror seeds) and fixed before the 8B reads Stage 1; a contingent-vs-blind
-  script pair for rate, reported only.
+  script pair for rate, reported only. (Shape's test superseded the same day: the dissociation.)
 - 2026-11-05: **Every capacity gets a step** (owner, Q7): a slot (a named step with its question, bars written before its
   code) counts as scheduled; the coverage table moves into PLAN's "Current state and direction" once PR #31 is merged.
 - 2026-11-04: **The habitat's pre-registration fixed** (owner, the agent's draft unchanged): Step −1's three bars, k's
