@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Stage 2 plays its own worlds, with longer quests** (owner): `material/habitat_worlds_stage2.json`, 10–20
+  rooms, quests of 15–25 steps, calibration 4000–4099, Step 0 5000–5399. In the frozen worlds every player's quest
+  steps and stalls fell in the first dozen turns. Stage 1 keeps the frozen file.
 - 2026-11-05: **Stage 2's player is told TextWorld's command forms** (owner): the screened players stalled on the parser
   in their first turns. Stage 1 and the 8B's self-talk keep the first prompt.
 - 2026-11-05: **Step 0's cross-episode fallback is the nearest world by seed in the pool** (owner; amendment 3): "the same

@@ -67,7 +67,10 @@ def mirrored(seed: int) -> int:
 def planted(seed: int, spec: dict | None = None) -> dict | None:
     """The planted event of a Step -1 world: its kind and turn, or None. A key: read by the harness and scoring only.
     A rehearsal seed takes the kind of the seed it mirrors and draws its turn from its own seed."""
-    p = (spec or worlds())["pools"]["step_minus_1"]["planted"]
+    pools = (spec or worlds())["pools"]
+    if "step_minus_1" not in pools:                      # Stage 2's worlds have no plants
+        return None
+    p = pools["step_minus_1"]["planted"]
     for kind in ("new_room", "rule_change"):
         if p[kind][0] <= mirrored(seed) <= p[kind][1]:
             return {"kind": kind, "turn": int(np.random.default_rng(seed + 500000).integers(15, 36))}
@@ -440,10 +443,10 @@ class Agent:
 # --- episodes -----------------------------------------------------------------------------------------------------
 
 def play(agent, record, seed: int, games: Path, max_turns: int | None = None, kind: str | None = "auto",
-         generator: dict | None = None) -> None:
+         generator: dict | None = None, worlds_path: Path | None = None) -> None:
     """One episode on world `seed`, appended to `record` turn by turn. Each turn is two chunks, the action (the
     model's, self) and the reply (the code's, external, elicited), then one key entry the readout never reads."""
-    spec = worlds()
+    spec = worlds(worlds_path) if worlds_path else worlds()
     if generator:                            # a candidate setting, rehearsals only: recorded on the episode
         spec = {**spec, "generator": generator}
     max_turns = max_turns or spec["episode"]["max_turns"]
@@ -458,6 +461,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
                   model=agent.name,
                   revision=agent.revision, kv_cache=getattr(agent, "cache", None), load=getattr(agent, "load", None),
                   context=getattr(agent, "context", None), generator=generator,
+                  worlds=Path(worlds_path).name if worlds_path else WORLDS.name,
                   system=None if scripted else getattr(agent, "system", SYSTEM), planted_kind=plant["kind"] if plant else None,
                   quest_left=engine.keys()["quest_left"])
     opening = engine.opening()

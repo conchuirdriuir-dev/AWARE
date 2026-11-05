@@ -250,6 +250,15 @@ from <container or supporter>, drop <thing>, put <thing> on <supporter>, insert 
 every episode. Stage 1 (the script) and the 8B's self-talk keep the first prompt. Then 1.7B and 4B are screened again
 by the same criteria.
 
+*Stage 2's worlds, the owner, 2026-11-05, after the second screen (under "Runs"):* every player screened puts nearly
+every quest step and stall onset in the first dozen turns of the frozen worlds, inside Step 0's burn-in and windows.
+Stage 2 gets its own pool file, `material/habitat_worlds_stage2.json`, with longer quests (candidate C2's settings:
+10–20 rooms, 20–40 objects, quests of 15–25 steps; they build in under 9 s), episodes of 100 turns, a calibration pool
+(seeds 4000–4099, for k) and Step 0's pool (5000–5399), disjoint from every seed in the frozen file. Stage 1 keeps the
+frozen file. Stage 2's player, k and Step 0 all come from this file (`body/step0_habitat.py`: `play --pool
+calibration|step0_habitat`, `k`, `read`, `score`). Then 1.7B and 4B, told the forms, are screened on its mirror seeds
+by the same criteria.
+
 *Step 0 amendment 3, the owner, 2026-11-05:* "the nearest world by seed with the same generator settings" reads as the
 nearest world by seed in the same pool, since every world of Step 0's pool shares its generator. The agent had read it
 as identical rooms, objects and quest length, which almost never coincide (the 4B's screen lost 6 of 6 cross-episode

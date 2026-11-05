@@ -339,29 +339,33 @@ def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, 
 
 # --- commands ----------------------------------------------------------------------------------------------------
 
-def _episodes(run: Path) -> dict:
-    from body.habitat import mirrored, pool
+STAGE2 = Path(__file__).resolve().parent.parent / "material" / "habitat_worlds_stage2.json"
+
+
+def _episodes(run: Path, name: str = "step0_habitat") -> dict:
+    """The run's complete episodes in Stage 2's pool `name` (or its mirror seeds)."""
+    from body.habitat import mirrored, pool, worlds
     from body.stepm1 import episodes
 
-    mine = set(pool("step0_habitat"))
+    mine = set(pool(name, worlds(STAGE2)))
     return {k: v for k, v in episodes(read(run / "record.jsonl")).items()
             if k[1] is None and mirrored(k[0]) in mine}
 
 
 def cmd_play(a) -> None:
-    from body.habitat import REHEARSAL, Agent, play, pool
+    from body.habitat import REHEARSAL, Agent, play, pool, worlds
 
     run = Path(a.run)
     record = Record(run / "record.jsonl")
-    done = set(_episodes(run)) if record.path.exists() else set()
+    done = set(_episodes(run, a.pool)) if record.path.exists() else set()
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None
     agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4, forms=a.forms,
                   **({"context": a.context} if a.context else {}))
-    for seed in [s + REHEARSAL * a.rehearsal for s in pool("step0_habitat")[: a.limit or None]]:
+    for seed in [s + REHEARSAL * a.rehearsal for s in pool(a.pool, worlds(STAGE2))[: a.limit or None]]:
         if (seed, None) not in done:
-            play(agent, record, seed, run / "games", generator=gen)
+            play(agent, record, seed, run / "games", generator=gen, worlds_path=STAGE2)
 
 
 def cmd_read(a) -> None:
@@ -416,6 +420,19 @@ def load(run: Path) -> tuple[dict, int]:
     return out, n_layers or 0
 
 
+def cmd_k(a) -> None:
+    """k for Stage 2's player (PLAN.md): from its play on Stage 2's calibration pool, the smallest whole number above
+    the 95th percentile of resolved stalls. Keys only; fixed in PLAN.md before Step 0 is scored."""
+    from body.habitat import choose_k
+
+    run = Path(a.run)
+    eps = _episodes(run, "calibration")
+    flags = [[ep["keys"][t]["new_state"] for t in sorted(ep["keys"])] for ep in eps.values()]
+    k = choose_k(flags)
+    Record(run / "record.jsonl").append("k", "code", k=k, episodes=len(flags))
+    print(json.dumps({"k": k, "episodes": len(flags)}))
+
+
 def cmd_score(a) -> None:
     run = Path(a.run)
     eps, n_layers = load(run)
@@ -427,14 +444,16 @@ def cmd_score(a) -> None:
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("play", "read", "score"):
+    for name in ("play", "read", "score", "k"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
-        if name != "score":
+        if name not in ("score", "k"):
             s.add_argument("--model", required=True)
             s.add_argument("--device", default="auto")
             s.add_argument("--dtype", default="bfloat16")
         if name == "play":
+            s.add_argument("--pool", choices=("calibration", "step0_habitat"), default="step0_habitat",
+                           help="Stage 2's pools (material/habitat_worlds_stage2.json)")
             s.add_argument("--limit", type=int, help="only the first n seeds of the pool (a rehearsal)")
             s.add_argument("--rehearsal", action="store_true", help="the pool's mirror seeds (+900000)")
             s.add_argument("--no-cache", action="store_true")
@@ -450,7 +469,7 @@ def main(argv=None) -> None:
         if name == "score":
             s.add_argument("--k", type=int, required=True, help="the k fixed in PLAN.md from the calibration pool")
     a = p.parse_args(argv)
-    {"play": cmd_play, "read": cmd_read, "score": cmd_score}[a.cmd](a)
+    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "k": cmd_k}[a.cmd](a)
 
 
 if __name__ == "__main__":

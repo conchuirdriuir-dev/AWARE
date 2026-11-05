@@ -508,3 +508,19 @@ def test_loop_and_explore_are_compared_within_token_bins_by_source():
     row = out["action, tokens [1, 8)"]
     assert row["loop chunks"] == 100 and row["shape"]["AUC loop over explore"] == 0.0
     assert row["shape"]["loop median"] == 5.0 and "news" in row
+
+
+def test_stage_2s_worlds_are_their_own_pools_with_longer_quests(tmp_path):
+    from body import step0_habitat as Z
+
+    frozen, s2 = H.worlds(), H.worlds(Z.STAGE2)
+    mine = set(H.pool("calibration", s2)) | set(H.pool("step0_habitat", s2))
+    theirs = {x for name in ("calibration", "step_minus_1", "step0_habitat", "behaviour_test")
+              for x in H.pool(name, frozen)} | set(H.pool("self_talk", frozen))
+    assert len(mine) == 500 and not mine & theirs and not {x + H.REHEARSAL for x in mine} & (theirs | mine)
+    assert max(mine) < frozen["pools"]["babbling"]["seeds_from"]
+    assert H.planted(5000, s2) is None and H.planted(905000, s2) is None
+    assert all(15 <= H.params(x, s2)["quest_length"] <= 25 for x in range(5000, 5050))
+    pytest.importorskip("textworld")
+    built = H.build(5000, tmp_path, None, s2)
+    assert H.Engine(built).keys()["quest_left"] is not None
