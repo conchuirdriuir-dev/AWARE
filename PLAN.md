@@ -70,9 +70,10 @@ code) counts as scheduled:
 | Dream: rivals and ascent | Ascent beats both rivals | instrument | Slot |
 | The dyad | After Dream | — | Placeholder; paused (owner, 2026-11-04) |
 
-**Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal on mirror seeds, scripted play read on the 4060,
-deciding nothing; it checks the plumbing, the interval's width and whether boundary sits near its ceiling. Its play
-needs no GPU. The contingent-vs-blind script pair is not built. *The paragraph below is the
+**Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal ran on 2026-11-05 (under "Step −1C: rehearsal"):
+plumbing end to end; boundary not near its ceiling (0.81); shape near chance on the 0.6B (0.525); the interval wider
+than estimated, so **the owner decides the pool's size before the 8B reads**. The contingent-vs-blind script pair is
+not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -517,6 +518,35 @@ in the room.
 1. **Bar 2's direction.** *Answered (owner, 2026-11-05): one-sided, shape above boundary; amendment 1 above.*
 2. **The entry rate.** *Answered (owner, 2026-11-05): the script stays as fixed; about 22% usable is enough for the
    pool as drawn.*
+
+#### Step −1C: rehearsal, 2026-11-05 (Qwen3-0.6B, mirror seeds, deciding nothing)
+
+Record in `runs/stepm1c-06/` (play, read and score logs beside it). Scripted play on mirror seeds of 6000–6999, read by
+the 0.6B in bf16 on the RTX 4060 with its own floor (`runs/echo-floor-0.6b-first/floor.json`, `--draft`), scored by
+`body/stepm1c.py` at main 5127d75.
+
+- **The draw:** full, 80 usable a kind. On-structure: 80 entered, 185 never entered, 121 no length match, 1
+  unplayable, 0 unbuildable. Off-structure: 80, 191, 138, 0, 0. About 796 seeds drawn. The first attempt was killed by
+  the machine at seed 906402 (TextWorld's quest tracking, 28 GB at turn 76); resumed after amendment 2, which skipped
+  that seed as unplayable. The cut-off episode stays in the record, unscored.
+- **Shape:** AUC off over on 0.525, 90% interval 0.448–0.599 (bar 1 for the 8B: 0.80, lower bound above 0.70).
+  Across the 9 layers read, 0.51–0.555.
+- **Boundary on the same chunks:** 0.812; layers 0.73–0.86. **Shape minus boundary:** −0.287, interval −0.378 to −0.191
+  (bar 2 for the 8B: entirely above zero).
+- **Precondition:** boundary above the floor on 80 of 80 of each kind. **Shape given boundary** (amendment 1): 0.476.
+- **Length:** median 37 tokens on, 38 off; token AUC off over on 0.556. 154 of 160 scored chunks fall in the 32–63
+  token bin (shape 0.533, boundary 0.831 there). 23 chunks of the record cut at 256 tokens, none of them scored.
+- **Boundary's ceiling** (amendment 1 asks it be reported): 0.81, not near it.
+- **The interval's width:** about ±0.075 on shape's AUC and ±0.09 on the difference, against the agent's estimate of
+  about ±0.03 for the difference, which assumed the two AUCs strongly correlated. Under the pool rule ("if the interval
+  is much wider than estimated, the pool grows before the 8B reads"), this is wider. **For the owner:** grow the pool
+  before the 8B reads (the 1,000-seed range gives about 110 a kind at this rate), or keep 80. Growing it narrows the
+  intervals; it does not move a shape that reads near 0.5.
+- *The agent's reading, after the result, deciding nothing:* a chunk's shape is about 3,540 bits and the kinds' medians
+  differ by about 10, so nearly all of it codes the noise dimensions (1,024 on the 0.6B), which would swamp a
+  difference in templates. If the 8B reads the same, bar 1 fails, not only bar 2: shape under Lift v0 would not read
+  template structure, the measurement decision 4 asks for before a trained encoder replaces Lift v0. The 0.6B's states
+  are not the 8B's; this says nothing about the 8B.
 
 #### Step 0, habitat form: does rate flatten before the stall? (instrument)
 
