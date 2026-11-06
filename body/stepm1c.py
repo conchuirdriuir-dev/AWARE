@@ -59,8 +59,9 @@ def plan(seed: int) -> dict:
     return {"kind": "new_room", "turn": turn, "vault": "on" if mirrored(seed) % 2 == 0 else "off"}
 
 
-def draw(pool: list[int], play_one, per_kind: int, done: dict | None = None) -> dict:
-    """Seeds in order until `per_kind` episodes of each kind are usable (the owner's rule, 2026-11-05): a seed is
+def draw(pool: list[int], play_one, per_kind: int | None, done: dict | None = None) -> dict:
+    """Seeds in order until `per_kind` episodes of each kind are usable, or every seed of the pool when `per_kind` is
+    None (amendment 3, owner, 2026-11-05: the registered pool is drawn whole). A seed is
     skipped, never loosened, when its world cannot be built, its off-structure description finds no length match,
     the script never enters the planted room, or its play runs past the caps (owner, 2026-11-05: TextWorld's quest
     tracking can explode mid-episode). A seed of a kind already full is not played. `play_one(seed)` returns how the
@@ -70,7 +71,7 @@ def draw(pool: list[int], play_one, per_kind: int, done: dict | None = None) -> 
     usable, counts, drawn = Counter(), {k: Counter() for k in ("on", "off")}, {"on": [], "off": []}
     for seed in pool:
         kind = plan(seed)["vault"]
-        if usable[kind] >= per_kind:
+        if per_kind is not None and usable[kind] >= per_kind:
             if all(usable[k] >= per_kind for k in counts):
                 break
             continue
@@ -78,7 +79,8 @@ def draw(pool: list[int], play_one, per_kind: int, done: dict | None = None) -> 
         counts[kind][how] += 1
         drawn[kind].append(seed)
         usable[kind] += how == "entered"
-    return {"per_kind": per_kind, "usable": dict(usable), "full": all(usable[k] >= per_kind for k in counts),
+    full = per_kind is None or all(usable[k] >= per_kind for k in counts)
+    return {"per_kind": per_kind, "usable": dict(usable), "full": full,
             "counts": {k: {"entered": v["entered"], "unbuildable": v["unbuildable"], "no length match": v["unmatched"],
                            "unplayable": v["unplayable"], "never entered": v["played"]} for k, v in counts.items()},
             "seeds drawn": drawn}
@@ -333,7 +335,7 @@ def main(argv=None) -> None:
         s.add_argument("--run", required=True)
         if name == "play":
             s.add_argument("--rehearsal", action="store_true", help="mirror seeds: new worlds on the pool's plan")
-            s.add_argument("--limit", type=int, help="usable episodes per kind (a dry run); the registered run is 80")
+            s.add_argument("--limit", type=int, help="usable episodes per kind (a dry run); the registered run draws its whole pool")
         if name == "read":
             s.add_argument("--model", required=True)
             s.add_argument("--device", default="auto")
