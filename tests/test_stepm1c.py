@@ -228,3 +228,41 @@ def test_the_kind_changes_only_the_rooms_text_not_the_play(tmp_path):
         acts[vault] = [c["text"] for c in ep["chunks"] if c["slot"] == "self"]
         scored_text[vault] = ep["chunks"][C.scored(ep)]["text"]
     assert acts["on"] == acts["off"] and scored_text["on"] != scored_text["off"]
+
+
+def test_cut_off_finds_episodes_begun_but_never_ended():
+    from body.stepm1c import cut_off
+    e = lambda kind, seed, **k: {"kind": kind, "seed": seed, **k}
+    entries = [e("episode", 1), e("end", 1), e("episode", 2), e("chunk", 2), e("skip", 3, reason="no length match"),
+               e("episode", 4)]
+    assert cut_off(entries) == [2, 4]
+    assert cut_off(entries + [{"kind": "resume", "seed": None, "cut_off": [2, 4]}]) == []
+    assert cut_off(entries + [e("episode", 2), e("end", 2)]) == [4]
+
+
+def test_play_capped_skips_an_episode_past_its_caps_and_numbers_on(tmp_path):
+    from body.stepm1c import outcomes, play_capped
+    from substrate.record import Record, read
+    record = Record(tmp_path / "record.jsonl")
+    record.append("note", "code", text="before")
+    assert play_capped(record, 6001, tmp_path / "games", memory=64 * 2**20) == "unplayable"     # too little to start
+    assert play_capped(record, 6001, tmp_path / "games", seconds=0.01) == "unplayable"         # too little time
+    entries = read(record.path)
+    assert [e["seq"] for e in entries] == list(range(len(entries)))
+    skips = [e for e in entries if e["kind"] == "skip"]
+    assert len(skips) == 2 and all(e["reason"].startswith("unplayable") for e in skips)
+    assert outcomes(entries)[6001] == "unplayable"
+
+
+def test_play_capped_plays_as_play_does(tmp_path):
+    pytest.importorskip("textworld")
+    from body.habitat import Script, play
+    from body.stepm1c import WORLDS, plan, play_capped
+    from substrate.record import Record, read
+    (tmp_path / "a" / "games").mkdir(parents=True)
+    (tmp_path / "b" / "games").mkdir(parents=True)
+    ra, rb = Record(tmp_path / "a" / "r.jsonl"), Record(tmp_path / "b" / "r.jsonl")
+    how_a = play(Script(), ra, 6001, tmp_path / "a" / "games", worlds_path=WORLDS, plan=plan(6001))
+    how_b = play_capped(rb, 6001, tmp_path / "b" / "games")
+    strip = lambda p: [{k: v for k, v in e.items() if k not in ("seq", "at")} for e in read(p)]
+    assert how_a == how_b and strip(ra.path) == strip(rb.path)

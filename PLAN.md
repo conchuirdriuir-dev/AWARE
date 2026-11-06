@@ -453,8 +453,9 @@ cannot be read and the owner is told.
 
 **Pool.** 80 episodes of each kind, seeds disjoint from every registered pool, taken in order until 80 per kind are
 usable. A seed is skipped, never loosened, when its off-structure description finds no length match, the script never
-enters the room, or its world cannot be built (a subprocess capped at 8 GB and 120 s, as Step 0 amendment 4). All three
-counts are taken before any reading and recorded with the seeds drawn.
+enters the room, its world cannot be built (a subprocess capped at 8 GB and 120 s, as Step 0 amendment 4), or its play
+runs past 8 GB or 600 s (each episode in its own capped subprocess; amendment 2 below). All four counts are taken before
+any reading and recorded with the seeds drawn.
 
 **Bars fixed in advance** (replacing Q6's answer): no reading sets them. A 0.6B rehearsal on mirror seeds (scripted
 play, read on the 4060) checks plumbing and the interval's width, deciding nothing; if the interval is much wider than
@@ -473,6 +474,16 @@ estimated, the pool grows before the 8B reads. Gating: under "Two stages".
   that only tracked news read 0.97.
 - **The 0.6B rehearsal reports whether boundary's AUC is near its ceiling.** If it is, the owner is told before the 8B
   reads; any change made then is labelled as made after the rehearsal.
+
+*Amendment 2 (Step −1C), 2026-11-05, the owner, during the 0.6B rehearsal's play, before any reading:* **a seed whose
+play cannot finish is skipped as unplayable.** TextWorld's quest tracking (`GameProgression.update`, on whenever facts or
+admissible commands are asked for, which the labels and the script need) explodes on some states: rehearsal seed 906402
+reached 28 GB at turn 76 and the machine killed the run. It reproduces exactly under a cap. Each episode now plays in a
+subprocess capped at 8 GB and 600 s (`stepm1c.play_capped`); past either, the cut-off episode stays in the record, is
+never scored, and the seed is counted as unplayable. The script's actions do not depend on the kind, so such a seed is
+lost to both kinds alike. Also from this: each episode's game environments are now closed (they were not; this was
+not the cause, about 6 MB over 30 seeds, and changes no play: 30 seeds recorded identically). A resumed run records
+which seeds it found cut off (`resume` entries).
 
 #### Step −1C: note, 2026-11-05, written with the code, before any run
 
