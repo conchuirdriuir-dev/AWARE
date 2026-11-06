@@ -72,7 +72,7 @@ code) counts as scheduled:
 
 **Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal ran on 2026-11-05 (under "Step −1C: rehearsal"):
 plumbing end to end; boundary not near its ceiling (0.81); shape near chance on the 0.6B (0.525); the interval wider
-than estimated, so **the owner decides the pool's size before the 8B reads**. The contingent-vs-blind script pair is
+than estimated, so the pool is drawn whole (amendment 3, owner): its play runs on the CPU, before the 8B reads. The contingent-vs-blind script pair is
 not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
@@ -547,7 +547,7 @@ the 0.6B in bf16 on the RTX 4060 with its own floor (`runs/echo-floor-0.6b-first
 - **Boundary's ceiling** (amendment 1 asks it be reported): 0.81, not near it.
 - **The interval's width:** about ±0.075 on shape's AUC and ±0.09 on the difference, against the agent's estimate of
   about ±0.03 for the difference, which assumed the two AUCs strongly correlated. Under the pool rule ("if the interval
-  is much wider than estimated, the pool grows before the 8B reads"), this is wider. **For the owner:** grow the pool
+  is much wider than estimated, the pool grows before the 8B reads"), this is wider. *Decided (owner, 2026-11-05): the registered pool is drawn whole, about 110 a kind (amendment 3).* grow the pool
   before the 8B reads (the 1,000-seed range gives about 110 a kind at this rate), or keep 80. Growing it narrows the
   intervals; it does not move a shape that reads near 0.5.
 - *The agent's reading, after the result, deciding nothing:* a chunk's shape is about 3,540 bits and the kinds' medians
