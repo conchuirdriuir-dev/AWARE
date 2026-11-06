@@ -5,6 +5,11 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
 - 2026-11-06: **The 8B runs on a rented GPU until the 3090 arrives** (owner): Vast.ai, a 24 GB-or-larger card, for
   Stage 1's self-talk and reading, Stage 2's screen and play, and Step −1C's reading; the GPU model recorded in each
   run; settings, seeds and bars unchanged. The floor is in units of D, which each run measures on its own hardware.
+  Each step's run stays on one GPU model, a 3090 by preference; a run cut off resumes only on the same model. The 8B
+  floor file (PR #29) does not record the hardware it was measured on; every new run records its GPU model.
+- 2026-11-05: **Step −1C skips unplayable seeds** (owner, amendment 2): each episode plays in a subprocess capped at
+  8 GB and 600 s; TextWorld's quest tracking exploded on rehearsal seed 906402 (28 GB at turn 76). Counted before any
+  reading; lost to both kinds alike.
 - 2026-11-05: **Step −1C's pool fixed** (owner, the agent's draft unchanged): seeds 6000–6999, on-structure on even
   seeds and off on odd, Stage 1's generator, the length match drawn for both kinds; the script stays as fixed, about
   22% of seeds usable.
