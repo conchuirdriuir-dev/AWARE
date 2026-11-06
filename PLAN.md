@@ -72,8 +72,9 @@ code) counts as scheduled:
 
 **Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal ran on 2026-11-05 (under "Step −1C: rehearsal"):
 plumbing end to end; boundary not near its ceiling (0.81); shape near chance on the 0.6B (0.525); the interval wider
-than estimated, so the pool is drawn whole (amendment 3, owner): its play runs on the CPU, before the 8B reads. The contingent-vs-blind script pair is
-not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
+than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
+CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"); its reading is the 8B's, on the rented
+GPU (DECISIONS.md, 2026-11-06), from `record.jsonl` alone. The contingent-vs-blind script pair is not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -539,6 +540,19 @@ in the room.
 1. **Bar 2's direction.** *Answered (owner, 2026-11-05): one-sided, shape above boundary; amendment 1 above.*
 2. **The entry rate.** *Answered (owner, 2026-11-05): the script stays as fixed; about 22% usable is enough for the
    pool as drawn.*
+
+#### Step −1C: registered play, 2026-11-05 (the script; no reading)
+
+Record in `runs/stepm1c-8b/` (`record.jsonl`, 39 MB; the compiled games beside it are not needed to read), played from
+main fbe0429 on the CPU here, under a 12 GB limit for the whole run, every world built and every episode played in its
+capped subprocess (amendment 2). Every seed of 6000–6999 drawn, in order, in one run (amendment 3): no resume.
+
+| Kind | Usable (entered) | Never entered | No length match | Unplayable | Unbuildable |
+|---|---|---|---|---|---|
+| On-structure | 101 | 237 | 162 | 0 | 0 |
+| Off-structure | 106 | 212 | 182 | 0 | 0 |
+
+Taken from the record's `drawn` entry, before any reading. Nothing has read this record.
 
 #### Step −1C: rehearsal, 2026-11-05 (Qwen3-0.6B, mirror seeds, deciding nothing)
 
