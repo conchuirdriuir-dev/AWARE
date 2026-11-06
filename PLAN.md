@@ -870,8 +870,11 @@ part failed (12%), and is recorded as such. Bar 3 clears 0.90 by 0.007; every re
   the script's phase, AUC loop over explore 0.43–0.53 across length bins, while news reads 0.25–0.40 (loop below
   explore); 4 chunks cut at 256 tokens; coupling and rate per turn not produced.
 - *Throughput:* the 8B's self-talk at about 6,400 turns an hour.
-- *Not recorded by the run:* its GPU model and its code commit (`commit: null`). A `hardware` entry from the rented
-  machine, appended after the run and labelled so, is to be copied into the record. *Owner to send.*
+- *Hardware, recorded after the run:* an RTX 3090 (24 GB, driver 595.80), Python 3.12.15, CUDA 13.2, torch
+  2.14.1+cu132, transformers 5.22.1, textworld 1.7.0, nnsight 0.7.0, nnterp 1.3.0, numpy 2.5.4; code at main 92b0558.
+  The run itself recorded neither (`commit: null`): a `hardware` entry was appended on the rented machine after the
+  run and copied into the desktop's record (seq 51066, with its origin noted). The rescore used the same commit plus
+  the amendment 4 fix.
 - *A false start:* a first self-talk start went to a fresh record by mistake (the play had not been unpacked into
   `runs/`) and was discarded before restarting; nothing registered was in it.
 
