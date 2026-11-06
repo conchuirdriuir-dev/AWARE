@@ -339,8 +339,16 @@ class Engine:
             state, _, _ = env.step(c)
         same = facts_key(state.facts, door) == facts_key(self.state.facts, door) and state.score == self.state.score
         if same:
+            self.env.close()                 # the environment left behind is closed, or each episode leaks one
             self.env, self.state = env, state
+        else:
+            env.close()
         return same
+
+    def close(self) -> None:
+        """Close the game's environment. Unclosed, each episode kept one or two open: Step -1C's rehearsal ran out of
+        memory after 259 episodes in one process (2026-11-05)."""
+        self.env.close()
 
     def keys(self) -> dict:
         s = self.state
@@ -587,6 +595,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
             break
     record.append("end", "code", seed=seed, turns=t + 1, done=bool(keys["done"]),
                   **({"entered": entered} if plan else {}))
+    engine.close()
     return "entered" if entered else "played"
 
 

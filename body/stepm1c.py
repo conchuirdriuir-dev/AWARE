@@ -62,8 +62,9 @@ def plan(seed: int) -> dict:
 def draw(pool: list[int], play_one, per_kind: int, done: dict | None = None) -> dict:
     """Seeds in order until `per_kind` episodes of each kind are usable (the owner's rule, 2026-11-05): a seed is
     skipped, never loosened, when its world cannot be built, its off-structure description finds no length match,
-    or the script never enters the planted room. A seed of a kind already full is not played. `play_one(seed)`
-    returns how the episode ended ("unbuildable", "unmatched", "entered", "played"); `done` holds outcomes already
+    the script never enters the planted room, or its play runs past the caps (owner, 2026-11-05: TextWorld's quest
+    tracking can explode mid-episode). A seed of a kind already full is not played. `play_one(seed)` returns how the
+    episode ended ("unbuildable", "unmatched", "unplayable", "entered", "played"); `done` holds outcomes already
     in the record, which are counted and not played again. Returns the counts and the seeds drawn, by kind."""
     done = done or {}
     usable, counts, drawn = Counter(), {k: Counter() for k in ("on", "off")}, {"on": [], "off": []}
@@ -79,7 +80,7 @@ def draw(pool: list[int], play_one, per_kind: int, done: dict | None = None) -> 
         usable[kind] += how == "entered"
     return {"per_kind": per_kind, "usable": dict(usable), "full": all(usable[k] >= per_kind for k in counts),
             "counts": {k: {"entered": v["entered"], "unbuildable": v["unbuildable"], "no length match": v["unmatched"],
-                           "never entered": v["played"]} for k, v in counts.items()},
+                           "unplayable": v["unplayable"], "never entered": v["played"]} for k, v in counts.items()},
             "seeds drawn": drawn}
 
 
@@ -89,10 +90,73 @@ def outcomes(entries: list[dict]) -> dict:
     out = {}
     for e in entries:
         if e["kind"] == "skip":
-            out[e["seed"]] = "unmatched" if e["reason"] == "no length match" else "unbuildable"
+            out[e["seed"]] = ("unmatched" if e["reason"] == "no length match"
+                              else "unplayable" if e["reason"].startswith("unplayable") else "unbuildable")
         elif e["kind"] == "end" and "entered" in e:
             out[e["seed"]] = "entered" if e["entered"] else "played"
     return out
+
+
+PLAY_MEMORY = 8 * 2**30      # as a build's cap (Step 0 amendment 4)
+PLAY_SECONDS = 600
+
+
+def play_capped(record: Record, seed: int, games: Path, memory: int = PLAY_MEMORY, seconds: float = PLAY_SECONDS) -> str:
+    """One scripted episode in a subprocess capped at `memory` bytes of address space and `seconds`, appending to the
+    same record. TextWorld's quest tracking (`GameProgression.update`) can explode on some states: seed 906402's play
+    reached 28 GB at turn 76 in the rehearsal of 2026-11-05 and the machine killed it. Past either cap the episode is
+    left cut off in the record (never scored: `stepm1.episodes` keeps complete episodes only) and the seed is skipped
+    as unplayable, counted with the other skips before any reading (owner, 2026-11-05). The script's actions do not
+    depend on the kind, so a seed that cannot be played is lost to both kinds alike."""
+    import os
+    import resource
+    import signal
+    import subprocess
+    import sys
+
+    from body.habitat import ROOT
+
+    def cap():
+        resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+
+    code = ("import sys, warnings; warnings.filterwarnings('ignore'); from pathlib import Path; "
+            "from body.habitat import Script, play; from body.stepm1c import plan, WORLDS; "
+            "from substrate.record import Record; s = int(sys.argv[1]); "
+            "print('PLAYED ' + play(Script(), Record(sys.argv[2]), s, Path(sys.argv[3]), worlds_path=WORLDS, "
+            "plan=plan(s)))")
+    p = subprocess.Popen([sys.executable, "-c", code, str(seed), str(Path(record.path).resolve()), str(Path(games).resolve())], cwd=ROOT,
+                         env={**os.environ, "PYTHONPATH": str(ROOT)}, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         text=True, preexec_fn=cap, start_new_session=True)
+    try:
+        out, err = p.communicate(timeout=seconds)
+        why = None if p.returncode == 0 else f"exit {p.returncode}: {(err.strip().splitlines() or ['no output'])[-1][:200]}"
+    except subprocess.TimeoutExpired:
+        os.killpg(p.pid, signal.SIGKILL)     # the build it may have started goes with it
+        p.communicate()
+        out, why = "", f"over {seconds:.0f} s"
+    record.seq = len(read(record.path))      # the subprocess appended; number on from its last entry
+    line = next((x for x in out.splitlines() if x.startswith("PLAYED ")), None)
+    if why or line is None:
+        record.append("skip", "code", seed=seed, reason=f"unplayable: {why or 'no outcome'}")
+        return "unplayable"
+    return line[7:]
+
+
+def cut_off(entries: list[dict]) -> list[int]:
+    """Seeds whose latest episode began but never ended (the run stopped mid-episode), in record order."""
+    open_, out = None, []
+    for e in entries:
+        if e["kind"] == "episode":
+            if open_ is not None:
+                out.append(open_)
+            open_ = e["seed"]
+        elif e["kind"] == "end":
+            open_ = None
+    if open_ is not None:
+        out.append(open_)
+    ended = {e["seed"] for e in entries if e["kind"] in ("end", "skip")}
+    resumed = {s for e in entries if e["kind"] == "resume" for s in e["cut_off"]}
+    return [s for s in dict.fromkeys(out) if s not in ended and s not in resumed]
 
 
 # --- scoring (the only reader of keys) ----------------------------------------------------------------------------
@@ -215,11 +279,16 @@ def cmd_play(a) -> None:
 
     run = Path(a.run)
     record = Record(run / "record.jsonl")
-    done = outcomes(read(record.path)) if record.path.exists() else {}
+    entries = read(record.path) if record.path.exists() else []
+    done = outcomes(entries)
+    cut = cut_off(entries)
+    if cut:                                  # said in the record before the seed is played again from its start
+        record.append("resume", "code", cut_off=cut, note="episodes begun but never ended; each is played again, "
+                      "and the last attempt is the one kept (stepm1.episodes)")
     per_kind = a.limit or spec()["pools"][POOL]["per_kind"]
 
     def play_one(seed):
-        return play(Script(), record, seed, run / "games", worlds_path=WORLDS, plan=plan(seed))
+        return play_capped(record, seed, run / "games")
 
     result = draw(seeds(a.rehearsal), play_one, per_kind, done)
     record.append("drawn", "code", rehearsal=a.rehearsal, **result)

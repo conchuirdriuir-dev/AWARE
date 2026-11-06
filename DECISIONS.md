@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step −1C skips unplayable seeds** (owner, amendment 2): each episode plays in a subprocess capped at
+  8 GB and 600 s; TextWorld's quest tracking exploded on rehearsal seed 906402 (28 GB at turn 76). Counted before any
+  reading; lost to both kinds alike.
 - 2026-11-05: **Step −1C's pool fixed** (owner, the agent's draft unchanged): seeds 6000–6999, on-structure on even
   seeds and off on odd, Stage 1's generator, the length match drawn for both kinds; the script stays as fixed, about
   22% of seeds usable.
