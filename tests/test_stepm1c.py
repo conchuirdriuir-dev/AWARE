@@ -266,3 +266,9 @@ def test_play_capped_plays_as_play_does(tmp_path):
     how_b = play_capped(rb, 6001, tmp_path / "b" / "games")
     strip = lambda p: [{k: v for k, v in e.items() if k not in ("seq", "at")} for e in read(p)]
     assert how_a == how_b and strip(ra.path) == strip(rb.path)
+
+
+def test_draw_takes_every_seed_when_the_pool_is_drawn_whole():
+    out = C.draw([6000, 6001, 6002, 6003], lambda s: "entered" if s != 6002 else "played", per_kind=None)
+    assert out["full"] and out["usable"] == {"on": 1, "off": 2}
+    assert out["counts"]["on"]["never entered"] == 1
