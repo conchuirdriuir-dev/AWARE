@@ -12,10 +12,10 @@
   "pools": {
     "step_minus_1c": {
       "seeds": [6000, 6999],
-      "per_kind": 80,
+      "per_kind": null,
       "kind": "on-structure on an even seed, off-structure on an odd one (a rehearsal seed takes the kind of the seed it mirrors)",
       "turn": "drawn from 15-35 by numpy.random.default_rng(seed + 500000).integers(15, 36), as Step -1's plants",
-      "drawn": "in order until 80 per kind are usable; a seed of a kind already full is not played"
+      "drawn": "every seed of the range, in order (amendment 3, owner, 2026-11-05, before any play of the pool's seeds: the 0.6B rehearsal's intervals were wider than estimated); the rehearsal drew 80 a kind"
     }
   },
   "ranges_are_inclusive": true

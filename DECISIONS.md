@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-05: **Step −1C's registered pool is drawn whole** (owner, amendment 3, before any play of its seeds): every
+  usable seed of 6000–6999, about 110 a kind, since the rehearsal's intervals were about three times wider than
+  estimated; bars unchanged.
 - 2026-11-05: **Step −1C skips unplayable seeds** (owner, amendment 2): each episode plays in a subprocess capped at
   8 GB and 600 s; TextWorld's quest tracking exploded on rehearsal seed 906402 (28 GB at turn 76). Counted before any
   reading; lost to both kinds alike.

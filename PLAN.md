@@ -451,8 +451,8 @@ the turn the script enters; each episode ends after it.
 *Precondition, reported:* boundary fires on both kinds. If it does not fire on on-structure rooms, the dissociation
 cannot be read and the owner is told.
 
-**Pool.** 80 episodes of each kind, seeds disjoint from every registered pool, taken in order until 80 per kind are
-usable. A seed is skipped, never loosened, when its off-structure description finds no length match, the script never
+**Pool.** Every usable seed of 6000–6999 (amendment 3; about 110 a kind at the rehearsal's rate; first written as 80
+a kind), seeds disjoint from every registered pool, taken in order. A seed is skipped, never loosened, when its off-structure description finds no length match, the script never
 enters the room, its world cannot be built (a subprocess capped at 8 GB and 120 s, as Step 0 amendment 4), or its play
 runs past 8 GB or 600 s (each episode in its own capped subprocess; amendment 2 below). All four counts are taken before
 any reading and recorded with the seeds drawn.
@@ -474,6 +474,14 @@ estimated, the pool grows before the 8B reads. Gating: under "Two stages".
   that only tracked news read 0.97.
 - **The 0.6B rehearsal reports whether boundary's AUC is near its ceiling.** If it is, the owner is told before the 8B
   reads; any change made then is labelled as made after the rehearsal.
+
+*Amendment 3 (Step −1C), 2026-11-05, the owner, after the 0.6B rehearsal, before any play of the pool's seeds and
+before any 8B reading:* **the registered pool is drawn whole**, every usable seed of 6000–6999 instead of the first 80
+a kind. The rule written with the bars said the pool grows before the 8B reads if the rehearsal's interval is much
+wider than estimated; it was about ±0.09 on the difference against the agent's ±0.03. At the rehearsal's rate this
+gives about 110 a kind, narrowing the intervals by about 15%. The kinds may end unequal; both counts are reported. The
+bars are unchanged. Growing the pool narrows the intervals; it cannot move a shape that reads near 0.5, as the 0.6B's
+did (0.525), and it was not chosen for that.
 
 *Amendment 2 (Step −1C), 2026-11-05, the owner, during the 0.6B rehearsal's play, before any reading:* **a seed whose
 play cannot finish is skipped as unplayable.** TextWorld's quest tracking (`GameProgression.update`, on whenever facts or
