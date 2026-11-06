@@ -359,6 +359,145 @@ class Engine:
                 "done": bool(s.done), "won": won, "quest_left": quest_left(s.policy_commands, won)}
 
 
+# --- the engine in a capped subprocess (Stage 2; owner, 2026-11-05) ------------------------------------------------
+
+ENGINE_MEMORY, ENGINE_STEP_SECONDS = 8 << 30, 120
+
+
+class Unplayable(Exception):
+    """The engine ran past its memory or time cap mid-episode (TextWorld's quest tracking can explode on some states)."""
+
+
+def _snapshot(state) -> dict:
+    """What `play` and the script read of a state, in plain values: facts as their text (`facts_key` compares text)."""
+    return {"facts": [str(f) for f in state.facts], "score": state.score,
+            "policy_commands": list(state.policy_commands or []),
+            "admissible_commands": list(getattr(state, "admissible_commands", None) or []),
+            "done": bool(state.done), "won": bool(getattr(state, "won", False)), "feedback": state.feedback}
+
+
+def _engine_server() -> None:
+    """The child's side: one Engine, driven by JSON lines on stdin, answered on stdout."""
+    import sys
+    import warnings
+    warnings.filterwarnings("ignore")
+    engine = None
+    for line in sys.stdin:
+        msg = json.loads(line)
+        op = msg["op"]
+        if op == "init":
+            engine = Engine(msg["built"], admissible=msg["admissible"])
+            out = None
+        elif op == "opening":
+            out = engine.opening()
+        elif op == "step":
+            out = engine.step(msg["command"])
+        elif op == "switch":
+            out = engine.switch()
+        elif op == "keys":
+            out = engine.keys()
+        elif op == "close":
+            engine.close()
+            print(json.dumps({"out": None}), flush=True)
+            return
+        print(json.dumps({"out": out, "state": _snapshot(engine.state)}), flush=True)
+
+
+class _State:
+    def __init__(self, d: dict):
+        self.__dict__.update(d)
+
+
+class CappedEngine:
+    """`Engine`'s interface, served by a subprocess capped at ENGINE_MEMORY bytes of address space, each call at
+    ENGINE_STEP_SECONDS. Past either, the child is killed and `Unplayable` raised. The player (the 8B in Stage 2)
+    stays in this process; only the game runs capped. Its state is a snapshot: facts as text, which is what
+    `facts_key` compares, so `play` reads it unchanged."""
+
+    def __init__(self, built: dict, admissible: bool = False, memory: int = ENGINE_MEMORY,
+                 seconds: float = ENGINE_STEP_SECONDS):
+        import os
+        import resource
+        import subprocess
+        import sys
+
+        def cap():
+            resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+
+        self.built, self.seconds = built, seconds
+        self.p = subprocess.Popen([sys.executable, "-c", "from body.habitat import _engine_server; _engine_server()"],
+                                  cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)}, stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, preexec_fn=cap,
+                                  start_new_session=True)
+        self._call("init", built=built, admissible=admissible)
+
+    def _call(self, op: str, **fields):
+        import select
+        try:
+            self.p.stdin.write(json.dumps({"op": op, **fields}) + "\n")
+            self.p.stdin.flush()
+        except (BrokenPipeError, OSError):
+            self._kill()
+            raise Unplayable(f"engine gone before {op} (exit {self.p.poll()})")
+        ready, _, _ = select.select([self.p.stdout], [], [], self.seconds)
+        line = self.p.stdout.readline() if ready else ""
+        if not line:
+            code = self.p.poll()
+            self._kill()
+            raise Unplayable(f"{op}: over {self.seconds:.0f} s" if code is None else f"{op}: exit {code}")
+        msg = json.loads(line)
+        if "state" in msg:
+            self.state = _State(msg["state"])
+        return msg["out"]
+
+    def _kill(self) -> None:
+        import os
+        import signal
+        try:
+            os.killpg(self.p.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        self.p.wait()
+
+    def opening(self) -> str:
+        return self._call("opening")
+
+    def step(self, command: str) -> tuple[str, bool]:
+        reply, changed = self._call("step", command=command)
+        return reply, changed
+
+    def switch(self) -> bool:
+        return self._call("switch")
+
+    def keys(self) -> dict:
+        return self._call("keys")
+
+    def close(self) -> None:
+        try:
+            self._call("close")
+        except Unplayable:
+            return
+        self.p.wait()
+
+
+def play_or_skip(agent, record, seed: int, games: Path, **kw) -> str:
+    """`play` with the engine capped (`CappedEngine`). Past the cap the episode stays cut off in the record (never
+    scored: an episode counts once its `end` entry follows) and the seed is skipped as unplayable, with the turn it
+    reached, before any reading (owner, 2026-11-05)."""
+    try:
+        return play(agent, record, seed, games, capped=True, **kw)
+    except Unplayable as why:
+        entries = read_record(record.path) if Path(record.path).exists() else []
+        turn = next((e.get("turn") for e in reversed(entries) if e.get("seed") == seed), None)
+        record.append("skip", "code", seed=seed, reason=f"unplayable: {why}", turn=turn)
+        return "unplayable"
+
+
+def read_record(path) -> list[dict]:
+    from substrate.record import read
+    return read(path)
+
+
 # --- Stage 1's player: the script (PLAN.md, "Two stages") -------------------------------------------------------
 
 SCRIPT_SEED, EXPLORE, LOOP, CYCLE = 700000, (8, 15), (5, 12), (2, 4)
@@ -504,7 +643,8 @@ class Agent:
 # --- episodes -----------------------------------------------------------------------------------------------------
 
 def play(agent, record, seed: int, games: Path, max_turns: int | None = None, kind: str | None = "auto",
-         generator: dict | None = None, worlds_path: Path | None = None, plan: dict | None = None) -> str:
+         generator: dict | None = None, worlds_path: Path | None = None, plan: dict | None = None,
+         capped: bool = False) -> str:
     """One episode on world `seed`, appended to `record` turn by turn. Each turn is two chunks, the action (the
     model's, self) and the reply (the code's, external, elicited), then one key entry the readout never reads.
 
@@ -528,7 +668,7 @@ def play(agent, record, seed: int, games: Path, max_turns: int | None = None, ki
                       pool_params=params(seed, spec), worlds=where)
         return "unmatched"
     scripted = getattr(agent, "scripted", False)
-    engine = Engine(built, admissible=scripted)       # the script reads the admissible commands
+    engine = (CappedEngine if capped else Engine)(built, admissible=scripted)   # the script reads the admissible commands
     if scripted:
         agent.start(seed)
     rule = RuleChange(plant["turn"]) if plant and plant["kind"] == "rule_change" else None

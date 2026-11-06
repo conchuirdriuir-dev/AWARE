@@ -302,6 +302,17 @@ frozen file. Stage 2's player, k and Step 0 all come from this file (`body/step0
 calibration|step0_habitat`, `k`, `read`, `score`). Then 1.7B and 4B, told the forms, are screened on its mirror seeds
 by the same criteria.
 
+*Step 0 amendment 6, the owner, 2026-11-05, before any 8B play:* **Stage 2's game runs capped.** TextWorld's quest
+tracking can explode mid-episode (Step −1C amendment 2: rehearsal seed 906402, 28 GB at turn 76). The 8B player stays in
+the main process; the game runs in a subprocess (`habitat.CappedEngine`, stepped over a pipe) capped at 8 GB and 120 s
+a call. Past either, the episode stays cut off in the record, never scored, and the seed is skipped as unplayable (a
+`skip` entry with the turn it reached), before any reading. Checked in code: capped and uncapped play record the same
+episodes (a planted room, a planted rule, the script); seed 906402 is caught at turn 76. *A limit, stated before any
+result:* unlike Step −1C, where the script's actions do not depend on the kind, here the player's own play leads to the
+state that explodes (906402's was in a loop phase), so skipping such a seed could take stalls out of the pool. The
+count and the turns reached are reported; whether a cut episode should instead be kept up to its last turn, as an
+episode that runs out of turns is, is for the owner.
+
 *Step 0 amendment 5 and Stage 2's player, the owner, 2026-11-05, after the screens (under "Runs"):*
 - **The event is a stall after progress:** a closure counts only if at least one ascent (a quest step reached) comes
   before its onset in the same episode. The screened players mostly locked in from their first turns (a failed
