@@ -618,7 +618,8 @@ sees only what a player would.
    (and `step_minus_1`, `self_talk`), then `read --model Qwen/Qwen3-0.6B --run runs/stepm1-06 --floor runs/echo-floor-06-first/floor.json --draft`
    and `score --run runs/stepm1-06`.
 2. Calibration, then k fixed here.
-3. Step −1 on Qwen3-8B on the owner's machine, read against `material/echo_floor_8b.json` (PR #29). That run is the
+3. Step −1 on Qwen3-8B on the owner's machine (or a rented GPU on Vast.ai until the 3090 arrives: owner, 2026-11-06,
+   DECISIONS.md), read against `material/echo_floor_8b.json` (PR #29). That run is the
    result. The floor's 95th percentile of repeats rests on about three chunks; the floor's habitat check, scored first,
    is where that gets tested on many repeats.
 4. Step 0, habitat form, if Step −1 passes.
