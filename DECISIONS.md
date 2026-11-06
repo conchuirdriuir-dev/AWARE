@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-06: **The 8B runs on a rented GPU until the 3090 arrives** (owner): Vast.ai, a 24 GB-or-larger card, for
+  Stage 1's self-talk and reading, Stage 2's screen and play, and Step −1C's reading; the GPU model recorded in each
+  run; settings, seeds and bars unchanged. The floor is in units of D, which each run measures on its own hardware.
+  Each step's run stays on one GPU model, a 3090 by preference; a run cut off resumes only on the same model. The 8B
+  floor file (PR #29) does not record the hardware it was measured on; every new run records its GPU model.
 - 2026-11-05: **Stage 2's game runs capped** (owner, Step 0 amendment 6, before any 8B play): the engine in a
   subprocess at 8 GB and 120 s a call, the 8B in the main process; past either, the episode is kept up to its last
   complete turn, as one that runs out of turns (skipping could take stalls out of the pool); a seed cut before any
