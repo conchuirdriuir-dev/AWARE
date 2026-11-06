@@ -305,13 +305,15 @@ by the same criteria.
 *Step 0 amendment 6, the owner, 2026-11-05, before any 8B play:* **Stage 2's game runs capped.** TextWorld's quest
 tracking can explode mid-episode (Step −1C amendment 2: rehearsal seed 906402, 28 GB at turn 76). The 8B player stays in
 the main process; the game runs in a subprocess (`habitat.CappedEngine`, stepped over a pipe) capped at 8 GB and 120 s
-a call. Past either, the episode stays cut off in the record, never scored, and the seed is skipped as unplayable (a
-`skip` entry with the turn it reached), before any reading. Checked in code: capped and uncapped play record the same
-episodes (a planted room, a planted rule, the script); seed 906402 is caught at turn 76. *A limit, stated before any
-result:* unlike Step −1C, where the script's actions do not depend on the kind, here the player's own play leads to the
-state that explodes (906402's was in a loop phase), so skipping such a seed could take stalls out of the pool. The
-count and the turns reached are reported; whether a cut episode should instead be kept up to its last turn, as an
-episode that runs out of turns is, is for the owner.
+a call. Past either, **the episode is kept up to its last complete turn** (owner, 2026-11-05), as an episode that
+runs out of turns is: an `end` entry marks it cut (`cut`, and `drop_from_turn`, the turn whose action got no reply,
+left out when the episode is read). If the engine fails before any turn is complete, the seed is skipped as unplayable.
+Both counts, and the turns reached, are reported before any reading. Checked in code: capped and uncapped play record
+the same episodes (a planted room, a planted rule, the script); an episode cut at turn 4 reads as one that ran 4
+turns; seed 906402 is caught at turn 76. *Why kept, not skipped (stated before any result):* unlike Step −1C, where
+the script's actions do not depend on the kind, here the player's own play leads to the state that explodes
+(906402's was in a loop phase), so skipping such seeds could take stalls out of the pool; kept, their turns before the
+cut count as any episode's do. A stall running when the cut comes ends with the episode, as at the turn limit.
 
 *Step 0 amendment 5 and Stage 2's player, the owner, 2026-11-05, after the screens (under "Runs"):*
 - **The event is a stall after progress:** a closure counts only if at least one ascent (a quest step reached) comes

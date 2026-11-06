@@ -481,16 +481,26 @@ class CappedEngine:
 
 
 def play_or_skip(agent, record, seed: int, games: Path, **kw) -> str:
-    """`play` with the engine capped (`CappedEngine`). Past the cap the episode stays cut off in the record (never
-    scored: an episode counts once its `end` entry follows) and the seed is skipped as unplayable, with the turn it
-    reached, before any reading (owner, 2026-11-05)."""
+    """`play` with the engine capped (`CappedEngine`). Past the cap mid-episode, the episode is kept up to its last
+    complete turn (owner, 2026-11-05, Step 0 amendment 6): an `end` entry marks it cut, with `drop_from_turn` the
+    turn the engine failed on, whose action has no reply and is left out when the episode is read
+    (`stepm1.episodes`), as an episode that runs out of turns ends after its last full turn. If the engine fails
+    before any turn is complete, nothing is kept and the seed is skipped as unplayable. Either way, before any
+    reading."""
     try:
         return play(agent, record, seed, games, capped=True, **kw)
     except Unplayable as why:
         entries = read_record(record.path) if Path(record.path).exists() else []
-        turn = next((e.get("turn") for e in reversed(entries) if e.get("seed") == seed), None)
-        record.append("skip", "code", seed=seed, reason=f"unplayable: {why}", turn=turn)
-        return "unplayable"
+        start = next((i for i in range(len(entries) - 1, -1, -1)
+                      if entries[i]["kind"] == "episode" and entries[i]["seed"] == seed), None)
+        done = [e["turn"] for e in entries[start:] if e["kind"] == "key"] if start is not None else []
+        if not done:
+            record.append("skip", "code", seed=seed, reason=f"unplayable: {why}", turn=None)
+            return "unplayable"
+        last = max(done)
+        record.append("end", "code", seed=seed, turns=last + 1, done=False, cut=f"unplayable: {why}",
+                      drop_from_turn=last + 1)
+        return "cut"
 
 
 def read_record(path) -> list[dict]:

@@ -60,6 +60,11 @@ def episodes(entries: list[dict], complete_only: bool = True) -> dict:
             out[current]["keys"][e["turn"]] = e
         elif e["kind"] == "end":
             out[current]["complete"] = True
+            if "drop_from_turn" in e:            # cut by the engine's cap (Step 0 amendment 6): kept to its last full turn
+                cut = e["drop_from_turn"]
+                out[current]["chunks"] = [c for c in out[current]["chunks"] if c["turn"] < cut]
+                out[current]["keys"] = {t: k for t, k in out[current]["keys"].items() if t < cut}
+                out[current]["cut"] = e["cut"]
             current = None
     return {k: v for k, v in out.items() if v["complete"] or not complete_only}
 

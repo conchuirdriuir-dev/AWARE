@@ -580,4 +580,33 @@ def test_capped_engine_past_its_cap_is_unplayable(tmp_path):
         H.CappedEngine = real
     skips = [e for e in read(record.path) if e["kind"] == "skip"]
     assert len(skips) == 1 and skips[0]["reason"].startswith("unplayable") and skips[0]["seed"] == 2000
-    assert not M.episodes(read(record.path))                         # the cut-off episode is never scored
+    assert not M.episodes(read(record.path))                         # nothing complete, nothing kept
+
+
+def test_an_episode_cut_by_the_cap_is_kept_to_its_last_full_turn(tmp_path):
+    pytest.importorskip("textworld")
+    from substrate.record import Record, read
+
+    class FailsAtStep4(H.CappedEngine):
+        n = 0
+
+        def step(self, command):
+            FailsAtStep4.n += 1
+            if FailsAtStep4.n == 5:                                   # the fifth step: turn 4
+                self._kill()
+                raise H.Unplayable("step: over 120 s")
+            return super().step(command)
+
+    record, full = Record(tmp_path / "r.jsonl"), Record(tmp_path / "full.jsonl")
+    real = H.CappedEngine
+    H.CappedEngine = FailsAtStep4
+    try:
+        assert H.play_or_skip(_FakeAgent(), record, 2000, tmp_path / "games", max_turns=10) == "cut"
+    finally:
+        H.CappedEngine = real
+    H.play(_FakeAgent(), full, 2000, tmp_path / "games2", max_turns=4)
+    ep, ref = M.episodes(read(record.path))[(2000, None)], M.episodes(read(full.path))[(2000, None)]
+    assert sorted(ep["keys"]) == [0, 1, 2, 3] and ep["cut"].startswith("unplayable")
+    strip = lambda cs: [{k: v for k, v in c.items() if k not in ("seq", "at")} for c in cs]
+    assert strip(ep["chunks"]) == strip(ref["chunks"])               # as an episode that ran 4 turns
+    assert any(c["turn"] == 4 for c in read(record.path) if c["kind"] == "chunk")   # the record keeps turn 4's action
