@@ -358,7 +358,7 @@ def _episodes(run: Path, name: str = "step0_habitat") -> dict:
 
 
 def cmd_play(a) -> None:
-    from body.habitat import REHEARSAL, Agent, play, pool, worlds
+    from body.habitat import REHEARSAL, Agent, play_or_skip, pool, worlds
 
     run = Path(a.run)
     record = Record(run / "record.jsonl")
@@ -371,7 +371,7 @@ def cmd_play(a) -> None:
                   **({"context": a.context} if a.context else {}))
     for seed in [s + REHEARSAL * a.rehearsal for s in pool(a.pool, worlds(STAGE2))[: a.limit or None]]:
         if (seed, None) not in done:
-            play(agent, record, seed, run / "games", generator=gen, worlds_path=STAGE2)
+            play_or_skip(agent, record, seed, run / "games", generator=gen, worlds_path=STAGE2)
 
 
 def cmd_read(a) -> None:
