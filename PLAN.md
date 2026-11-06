@@ -35,12 +35,13 @@ fields logged as diagnostics only; the body entering as learned sense tokens, ne
 habitat of procedurally generated text games (TextWorld first), with the user one environment among others and a
 transfer test.
 
-**Now (2026-11-05): the habitat in two stages (owner)**, under "Body readout", "Two stages": Stage 1, Step −1 with
-a scripted player, the 8B perceiving: its play is done (160 episodes, every plant delivered), its reading and the
-8B's self-talk wait for the 3090. Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
-after weaker players locked in early): its screen, k, the owner's read of closures, and its play and reading all
-wait for the 3090. The agent's draft of the stages was fixed by the owner the same day. Stage 1's play ran on the
-4060; everything else with the 8B in it waits for the 3090.
+**Now (2026-11-06): the habitat in two stages (owner)**, under "Body readout", "Two stages": **Stage 1, Step −1 with
+a scripted player, the 8B perceiving, passes** (2026-11-06, on a rented GPU; under Step −1's "Runs"): exact self-talk
+0 of 600, planted novelty 40 of 40, AUC over ordinary play 0.907; restated self-talk 78.8%, reported, gating at the
+tickle test (amendment 4). Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
+after weaker players locked in early; its game capped, amendment 6): its screen, k, the owner's read of closures,
+and its play and reading run on the rented GPU until the 3090 arrives, as does Step −1C's reading. The agent's draft
+of the stages was fixed by the owner the same day.
 
 **The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
 seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
@@ -56,7 +57,7 @@ code) counts as scheduled:
 | Rate, world part | Step 0, Stage 2 (the 8B playing, amendment 5) | instrument | Fixed; code built; waits for the 3090 |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Decided; reported only; not built |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
-| Boundary, world | Step −1, Stage 1 | instrument | Fixed; play done; reading waits for the 3090 |
+| Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
 | Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
 | Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | Slot |
@@ -89,7 +90,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 
 | Step | Question | Measures | Status |
 |---|---|---|---|
-| −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Fixed (amendments 1–4); code built; Stage 1's scripted play done.** The 8B's reading and self-talk wait for the 3090 |
+| −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Passed** (2026-11-06, the 8B on a rented GPU; amendments 1–4): exact self-talk 0 of 600; plants 40 of 40; AUC 0.907. Restated self-talk 78.8%, gating at the tickle test |
 | −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32, amendment 1); harness built (`body/stepm1c.py`); pool fixed. Next: the 0.6B rehearsal |
 | 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–5); code built (`body/step0_habitat.py`); the 8B plays (amendment 5) and waits for the 3090. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
@@ -839,6 +840,40 @@ world, a planted room, a planted rule change and a context cut to 1,200 tokens (
 free play: prompt tokens read fell from 673k to 12.7k over 200 turns, and time per turn from 0.41 to 0.19 s; the 8B's
 gain is read on calibration. `play --no-cache` restores the old path. Every real run uses the cache, calibration
 included, so all pools are played by the same code.
+
+**Step −1 on Qwen3-8B (2026-11-06, a rented GPU on Vast.ai; DECISIONS.md, 2026-11-06): the registered result.**
+Record in `runs/stage1-script/` (the scripted play of 2026-11-05 below the 8B's lines; the first 48,521 lines checked
+byte for byte against the play before upload; the pre-8B copy kept as `runs/stage1-script.before-8b/`). The 8B wrote
+40 self-talk episodes and read every chunk in bf16 (layers 24–35, sink "first"), against `material/echo_floor_8b.json`.
+
+| Part | Result | Bar | |
+|---|---|---|---|
+| Floor check (scored first) | 5,809 repeats, all below the floor | ≥ 95% below | pass |
+| **Bar 1, exact self-talk** | 0 of 600 arrivals above the floor | ≤ 1% | **pass** |
+| Bar 1, restated self-talk | 78.8% of 600 above the floor | ≤ 5% | fails; *reported, gates at the tickle test (amendment 4)* |
+| **Bar 2, fires at planted novelty** | 40 of 40 (new room 20 of 20, rule change 20 of 20) | ≥ 36, ≥ 17 a kind | **pass** |
+| **Bar 3, above ordinary play** | AUC 0.907, 90% interval 0.894–0.919 | ≥ 0.90, lower bound > 0.80 | **pass** |
+
+**Stage 1 passes** on its bars as amended before the run. Amendment 4 was made after the 0.6B rehearsal's restated
+part failed (12%), and is recorded as such. Bar 3 clears 0.90 by 0.007; every read layer gives 0.902–0.909.
+
+- *The score's own verdict:* the run's first score entry said `pass: false`, because `body/stepm1.py` still counted the
+  restated part in its overall verdict: amendment 4 had not been carried into the code. Fixed (the restated part is
+  reported with its `gates` named; every other bar unchanged) and rescored from the same readings, no model loaded:
+  every number and every reported quantity identical, the verdict `pass: true`. Both score entries are in the record.
+- *Restated self-talk, deciding nothing here:* 78.8% on the 8B against 12% on the 0.6B. Boundary under the history
+  predictor reads the 8B's own restatements as news nearly every time; the tickle test after babbling, where this part
+  gates, starts from there.
+- *Reported, deciding nothing:* natural new states over no-new-state turns, AUC 0.68 (0.67–0.69); plants read inside
+  their reply, as before amendment 3, 13 of 20 rooms and 17 of 20 rule changes; plants that coincided with natural
+  novelty all fired (11 of 11), as did clean ones (29 of 29); k = 16 (reported only: Stage 2's player sets k); shape by
+  the script's phase, AUC loop over explore 0.43–0.53 across length bins, while news reads 0.25–0.40 (loop below
+  explore); 4 chunks cut at 256 tokens; coupling and rate per turn not produced.
+- *Throughput:* the 8B's self-talk at about 6,400 turns an hour.
+- *Not recorded by the run:* its GPU model and its code commit (`commit: null`). A `hardware` entry from the rented
+  machine, appended after the run and labelled so, is to be copied into the record. *Owner to send.*
+- *A false start:* a first self-talk start went to a fresh record by mistake (the play had not been unpacked into
+  `runs/`) and was discarded before restarting; nothing registered was in it.
 
 #### Note, 2026-11-04, written with the code, before any run
 

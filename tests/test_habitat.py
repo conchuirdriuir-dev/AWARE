@@ -138,7 +138,7 @@ def _ep(seed, kind, n=40, planted=25, fire=True, variant=None):
     return (seed, variant), {"info": info, "chunks": chunks, "keys": keys}, np.array(rows)
 
 
-def _material(fire_rooms=20, st_value=0.2):
+def _material(fire_rooms=20, st_value=0.2, restated_value=None):
     eps, news = {}, {}
     for i, seed in enumerate(range(2000, 2060)):
         kind = H.planted(seed)["kind"] if H.planted(seed) else None
@@ -147,7 +147,7 @@ def _material(fire_rooms=20, st_value=0.2):
     for seed in range(2100, 2120):
         for variant in ("exact", "restated"):
             k, e, n = _ep(seed, None, n=30, variant=variant)
-            n[2::2] = st_value
+            n[2::2] = restated_value if variant == "restated" and restated_value is not None else st_value
             eps[k], news[k] = e, n
     for seed in range(1000, 1010):
         k, e, n = _ep(seed, None)
@@ -610,3 +610,10 @@ def test_an_episode_cut_by_the_cap_is_kept_to_its_last_full_turn(tmp_path):
     strip = lambda cs: [{k: v for k, v in c.items() if k not in ("seq", "at")} for c in cs]
     assert strip(ep["chunks"]) == strip(ref["chunks"])               # as an episode that ran 4 turns
     assert any(c["turn"] == 4 for c in read(record.path) if c["kind"] == "chunk")   # the record keeps turn 4's action
+
+
+def test_restated_self_talk_is_reported_not_gating_amendment_4():
+    eps, news = _material(restated_value=1.5)                          # restated fires, exact stays quiet
+    out = M.score(eps, news, H.worlds())
+    assert not out["self_talk"]["restated"]["pass"] and "tickle" in out["self_talk"]["restated"]["gates"]
+    assert out["self_talk"]["exact"]["pass"] and out["pass"]

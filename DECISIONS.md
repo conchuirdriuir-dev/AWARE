@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-06: **The Step −1 score applies amendment 4** (owner): the restated self-talk part is reported, not counted
+  in Stage 1's verdict; the 8B's record rescored from the same readings, every number unchanged, the verdict now pass.
 - 2026-11-06: **The 8B runs on a rented GPU until the 3090 arrives** (owner): Vast.ai, a 24 GB-or-larger card, for
   Stage 1's self-talk and reading, Stage 2's screen and play, and Step −1C's reading; the GPU model recorded in each
   run; settings, seeds and bars unchanged. The floor is in units of D, which each run measures on its own hardware.
