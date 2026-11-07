@@ -647,34 +647,41 @@ decision on fresh seeds.
   below bar 1. **The owner (2026-11-07): no deciding run of shape by source; a trained lift is drafted instead**
   (decision 4: this is the measurement it asks for).
 
-**Shape, a trained lift (a draft only, 2026-11-07, for the owner to fix; no code).**
-- **What changes:** the space shape is coded in. Lift v0 codes a chunk's 4,096 numbers (the 8B), most of its bits
-  going to dimensions at the noise floor. A trained lift is a fixed linear map to K dimensions, learned once,
-  frozen, before any reading of a deciding pool; shape is then coded in it, by source, prequentially within the
-  episode, as now. Everything after the map is unchanged (the formula, the floor in the new space, the burn-in).
-- **The simplest form** *(the agent's choice)*: the top K principal directions of chunk states from a training
-  corpus, whitened. No gradient training. A learned encoder (contrastive or predictive) is a later form, only if this
-  one fails.
-- **The training corpus, and the risk that decides it.** If the basis is learned from habitat text, it learns
-  `house`'s templates, which are Step −1C's on-structure side. Then either the off-structure templates fall outside
-  the basis and are projected away (shape misses them), or shape comes to measure "unlike the training text"
-  instead of "unlike what this episode has learned", a second, global boundary. Either would undo shape's claim. So
-  the corpus is **domain-free text, never the habitat**: *options for the owner:* (a) a public general-text corpus,
-  fixed by name and version, read once by the 8B (a download, and states for some 10,000 chunks); (b) the 8B's own
-  generations from fixed neutral prompts (no download; the model's own distribution); (c) the repository's
-  paraphrase sets (20 sets: too few for K beyond about 20).
-- **K** *(the agent's choice, for the owner)*: 64, so a chunk's code is dominated by the directions that carry
-  text, not noise. One value, fixed before any reading; no sweep on any habitat pool.
-- **Its own check before Step −1C** *(the agent's choice)*: Lift's re-skin invariance, the slot already in the
-  coverage table, written then as its own form; or, minimally, that shape in the lift still reproduces the
-  registered shape's ordering of chunks within an episode (the lift must not scramble what Lift v0 sees).
-- **Development:** the Step −1C rehearsal seeds (`runs/stepm1c-06-src/` and its mirrors), read by the 0.6B with a
-  0.6B lift trained the same way, deciding nothing.
-- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on the fresh pool 8000–8999,
-  played by the script and read by the 8B through the 8B's lift. The 6000–6999 pool and the rehearsal seeds never
-  train the lift.
-- **What it would also serve:** rate's X_c already codes in a basis of the past (R = 8); whether it should code in the
-  trained lift instead is a separate question, not part of this draft.
+**Shape, a trained lift: Lift v1 (a draft, 2026-11-07, discussed with the owner; for the owner to fix; no code).**
+- **What changes:** only the space shape is coded in. Lift v0 codes a chunk's 4,096 numbers (the 8B), most of its
+  bits going to dimensions at the noise floor, so a template difference barely registers. Lift v1 is a fixed linear
+  map per read layer to K whitened dimensions, learned once and frozen before any reading of a deciding pool. Shape
+  is then coded in it, by source, prequentially within the episode, as now; the formula, the floor in the new space
+  and the burn-in are unchanged.
+- **The simplest form** *(the agent's choice)*: the top K principal directions of chunk states from a training corpus,
+  whitened. No gradient training; a learned encoder is a later form, only if this one fails.
+- **The training text, and the risk that decides it.** A basis helps only if template and register differences lie
+  among its top directions, so the corpus must carry register variety. It is **never the habitat**: a basis learned
+  from `house`'s templates (Step −1C's on-structure side) would either project the off-structure templates away or
+  turn shape into "unlike the training text", a global boundary. **The agent's recommendation: MASC**, the 500,000-word
+  balanced subset of the Open American National Corpus, 19 written and spoken genres (fiction, letters, email, blogs,
+  spoken transcripts, technical, news and more), announced as free for research and commercial use from the ANC site
+  (the LDC copy carries LDC terms; the current terms are checked before download). **Fallback:** a fixed random sample
+  of FineWeb's sample-10BT (ODC-BY, attribution), pinned by revision and sample seed. *Considered and not
+  recommended:* the Brown Corpus (written only; licence unclear); an encyclopedic corpus such as WikiText (varies by
+  topic more than register, so would likely rebuild the blindness); the 8B's own generations (someone writes the
+  prompts, which shape the basis); the paraphrase sets (too few chunks).
+- **Chunks:** the corpus cut into chunks whose token lengths follow the habitat's chunk-length distribution (a
+  chunk's state is the mean over its tokens, and length has confounded both senses once): sentences in document
+  order, grouped up to a length drawn from that distribution, by a fixed seed. About 10,000 chunks, with 2,000 more
+  held out; about 10–15 minutes of the 8B's reading.
+- **K, chosen by the corpus:** the formula's own two-part code on the held-out chunks (the rule the formula already
+  uses for its rank), so no number is picked by hand and no habitat pool is touched. 64 only if that rule misbehaves,
+  as a recorded fallback.
+- **Whitened:** within the K directions, each scaled to unit variance on the training chunks.
+- **Its own check, before Step −1C:** the lift codes the held-out corpus chunks in fewer bits than Lift v0 does. If not,
+  it is not a better model of text, and Step −1C is not read through it. Lift's re-skin invariance stays its own slot.
+- **The artefact:** derived and rebuildable (the record comes first): the corpus's name, version and file hashes, the
+  chunking seed, the model and revision, and the code; the bases kept as a cache beside the run, not hand-edited.
+- **Development:** a 0.6B lift trained the same way; the Step −1C rehearsal seeds (`runs/stepm1c-06-src/`), deciding
+  nothing. **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on the fresh pool
+  8000–8999, played by the script and read by the 8B through the 8B's lift. No habitat pool ever trains the lift.
+- **Not part of this draft:** whether rate's X_c should code in the lift too (it uses a basis of the past, R = 8).
 
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
