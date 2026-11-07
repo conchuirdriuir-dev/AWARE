@@ -560,17 +560,17 @@ decision on fresh seeds.
 **Rate, conditional (`body/conditional.py`, built with this draft; tests in `tests/test_conditional.py`).**
 - **What it reads:** each scored action y_t, the agent's previous action s_t, and the world's chunks between them w_t
   (their mean: the reply, and a planted event if any). Domain-free: states and sources only.
-- **The space:** at each scored action, every chunk before it projected on the top R principal directions of the
+- **The space:** at each scored action, every chunk before it projected on the top R = 8 principal directions of the
   chunks before it (a basis from the past only).
-- **Two predictors**, ridge regressions (λ, predictors scaled by the past's spread) fitted on the earlier pairs of
+- **Two predictors**, ridge regressions (λ = 10, predictors scaled by the past's spread) fitted on the earlier pairs of
   the same episode: self-only, y from s; with the world, y from s and w.
 - **Code length:** y_t's residual under an isotropic Gaussian whose variance is that predictor's mean squared
   *prequential* error on the earlier turns, with the past's variance as one prior observation, floored at the floor
   variance (Step 0's, D²/d).
 - **X_c(t) = bits(self-only) − bits(with the world):** the bits the world's last reply saves in predicting the action.
   S_c(t) = bits(mean only) − bits(self-only), reported: what the agent's own last action saves.
-- **Scored** from turn 10 (as X), once enough earlier pairs are there to fit on. *R, λ and the pairs: drafted as 16,
-  1 and 20 (the code's values still); not yet fixed: below, for the owner, before the deciding seeds are played.*
+- **Scored** from turn 10 (as X), once 20 earlier pairs are there to fit on. *R = 8, λ = 10 and 20 pairs, fixed by the
+  owner on 2026-11-07, before the deciding seeds are played (below); first drafted as 16, 1 and 20.*
 - **The defaults (2026-11-07, the agent, at the owner's request; `probes/x_c_defaults.py`).** *The rule, committed
   (9449237) before any candidate was scored:* candidates R ∈ {4, 8, 16, 32} × λ ∈ {0.1, 1, 10} at 20 pairs, then
   the pairs ∈ {10, 20, 30} at the chosen R and λ; scored on synthetic episodes (d = 1,024: category at 0.5 and 1,
@@ -615,6 +615,9 @@ decision on fresh seeds.
   development can't-go check (0.852) and passes the earlier test (2.30). Choosing it is an override of the rule after
   seeing the added checks, on development material only; a second, declared round with a spread-out cell in the rule
   is the alternative. Either is recorded here as the owner's.
+- **Fixed (owner, 2026-11-07): R = 8, λ = 10, 20 pairs**, an override of the rule's pick, made after seeing the two
+  added checks and the earlier test, on synthetic episodes and the development seeds only; 7100–7139 unplayed. With
+  these, `tests/test_conditional.py` passes.
 - **Synthetic check** (as above): **X_c's AUC 1.000** (median 5.18 bits contingent, −5.34 blind; an irrelevant reply
   costs bits, never pays). The planted dependence is far stronger than the calibration's (about a bit), so this shows
   X_c can see a dependence, not that it will see that one.
