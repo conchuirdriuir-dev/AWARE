@@ -84,8 +84,8 @@ CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play")
 (2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
 the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's calibration: the result"): AUC 0.486,
 the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
-out of the sense tokens, and its predictive test, the chords and Dream's rate-based parts are blocked until a repaired
-rate passes on new seeds. **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
+out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
+repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
 boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
