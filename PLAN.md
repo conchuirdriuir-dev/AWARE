@@ -635,11 +635,46 @@ decision on fresh seeds.
 - **Why:** under one fit to two-token commands and 40-token replies, a long reply is far from the mean for being a long
   reply, whatever its templates; boundary, which compares a reply with its nearest earlier reading (another reply),
   is free of that and parted the kinds (0.82) where shape did not (0.575).
-- **If it still fails,** that is the measurement decision 4 asks for before a trained lift: shape coded in a learned
-  low-dimensional basis, a larger build, its own form.
+- **If it still fails,** that is the measurement decision 4 asks for before a trained lift (below).
 - **Development:** the Step −1C rehearsal's mirror seeds, read again by the 0.6B on the 4060, deciding nothing.
 - **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on a fresh pool **8000–8999**
   (outside every pool; 6000–6999 is spent), played by the script and read by the 8B.
+- **Development, 2026-11-07 (the 0.6B, Step −1C's rehearsal record read again into `runs/stepm1c-06-src/`, deciding
+  nothing; `stepm1c score --shape joint|by_source`):** joint (registered) 0.525 [0.448, 0.599], exactly the
+  rehearsal's, so the plumbing reproduces; **by source 0.610 [0.535, 0.683]**, every layer 0.59–0.63; boundary 0.812;
+  shape − boundary −0.202 [−0.285, −0.114]; given boundary 0.522. The median gap between kinds grows from about 10
+  bits to about 220. So mixing commands and replies in one fit was part of shape's blindness, but by source stays far
+  below bar 1. **The owner (2026-11-07): no deciding run of shape by source; a trained lift is drafted instead**
+  (decision 4: this is the measurement it asks for).
+
+**Shape, a trained lift (a draft only, 2026-11-07, for the owner to fix; no code).**
+- **What changes:** the space shape is coded in. Lift v0 codes a chunk's 4,096 numbers (the 8B), most of its bits
+  going to dimensions at the noise floor. A trained lift is a fixed linear map to K dimensions, learned once,
+  frozen, before any reading of a deciding pool; shape is then coded in it, by source, prequentially within the
+  episode, as now. Everything after the map is unchanged (the formula, the floor in the new space, the burn-in).
+- **The simplest form** *(the agent's choice)*: the top K principal directions of chunk states from a training
+  corpus, whitened. No gradient training. A learned encoder (contrastive or predictive) is a later form, only if this
+  one fails.
+- **The training corpus, and the risk that decides it.** If the basis is learned from habitat text, it learns
+  `house`'s templates, which are Step −1C's on-structure side. Then either the off-structure templates fall outside
+  the basis and are projected away (shape misses them), or shape comes to measure "unlike the training text"
+  instead of "unlike what this episode has learned", a second, global boundary. Either would undo shape's claim. So
+  the corpus is **domain-free text, never the habitat**: *options for the owner:* (a) a public general-text corpus,
+  fixed by name and version, read once by the 8B (a download, and states for some 10,000 chunks); (b) the 8B's own
+  generations from fixed neutral prompts (no download; the model's own distribution); (c) the repository's
+  paraphrase sets (20 sets: too few for K beyond about 20).
+- **K** *(the agent's choice, for the owner)*: 64, so a chunk's code is dominated by the directions that carry
+  text, not noise. One value, fixed before any reading; no sweep on any habitat pool.
+- **Its own check before Step −1C** *(the agent's choice)*: Lift's re-skin invariance, the slot already in the
+  coverage table, written then as its own form; or, minimally, that shape in the lift still reproduces the
+  registered shape's ordering of chunks within an episode (the lift must not scramble what Lift v0 sees).
+- **Development:** the Step −1C rehearsal seeds (`runs/stepm1c-06-src/` and its mirrors), read by the 0.6B with a
+  0.6B lift trained the same way, deciding nothing.
+- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on the fresh pool 8000–8999,
+  played by the script and read by the 8B through the 8B's lift. The 6000–6999 pool and the rehearsal seeds never
+  train the lift.
+- **What it would also serve:** rate's X_c already codes in a basis of the past (R = 8); whether it should code in the
+  trained lift instead is a separate question, not part of this draft.
 
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
