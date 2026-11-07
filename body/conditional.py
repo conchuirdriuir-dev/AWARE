@@ -30,9 +30,12 @@ import math
 
 import numpy as np
 
-R = 16            # principal directions of the past (agent's choice)
-LAMBDA = 1.0      # ridge, on scaled predictors (agent's choice)
-MIN_PAIRS = 20    # earlier scored pairs before an action is scored (agent's choice)
+# Fixed by the owner, 2026-11-07, before 7100-7139 are played (PLAN.md, "Rate, conditional", "The defaults"): an
+# override of probes/x_c_defaults.py's rule (its pick, 4, 0.1, 10, misses a spread-out dependence), chosen on
+# synthetic episodes and the development seeds 907000-907039 only. First drafted as 16, 1 and 20.
+R = 8             # principal directions of the past
+LAMBDA = 10.0     # ridge, on scaled predictors
+MIN_PAIRS = 20    # earlier scored pairs before an action is scored
 LN2 = math.log(2)
 
 

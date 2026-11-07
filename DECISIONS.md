@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-07: **X_c's defaults: R = 8, ridge 10, 20 earlier pairs** (owner, before 7100–7139 are played): an override
+  of `probes/x_c_defaults.py`'s rule, whose pick (4, 0.1, 10) misses a spread-out dependence; 8, 10, 20 scored best
+  under the rule, holds the confound null and is best on the development can't-go check. The drafted 16, 1, 20 fails
+  the confound null.
 - 2026-11-07: **Rate failed its calibration; rate stays out of the sense tokens** (by the gate fixed before any play):
   AUC 0.486 and the can't-go check 0.488, both lower bounds under 0.5; the text baseline fails too (0.363). Rate's
   predictive test, the chords and Dream's rate-based parts would be blocked until a repaired rate passes on new seeds
