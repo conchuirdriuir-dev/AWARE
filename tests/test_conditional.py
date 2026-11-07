@@ -46,3 +46,11 @@ def test_nothing_scored_before_the_burn_in_or_enough_pairs():
     out = conditional(X, slots, turns, floor_var=1e-3, burn_turns=10, min_pairs=20)["X_c"]
     scored = [turns[i] for i in np.flatnonzero(~np.isnan(out))]
     assert scored and min(scored) >= 21
+
+
+def test_the_conditional_form_reads_fresh_seeds_and_the_registered_one_is_unchanged():
+    from body import rate_calibration as rc
+    assert rc.seeds() == list(range(7000, 7040))                           # v1 as registered
+    assert rc.seeds(form="conditional") == list(range(7100, 7140))
+    assert rc.seeds(rehearsal=True, form="conditional")[0] == 907100
+    assert not set(rc.seeds(form="conditional")) & set(rc.seeds())

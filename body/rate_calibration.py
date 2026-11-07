@@ -30,11 +30,16 @@ from pathlib import Path
 
 import numpy as np
 
+from body.conditional import conditional
 from body.machine import record_machine
 from goalspace.formula import Tfidf, auc
 from substrate.record import Record, read
 
 SEEDS = (7000, 7039)          # 20 pairs of worlds, outside every pool in the three world files (the agent's choice)
+# The forms: v1, X as first built (registered, run 2026-11-07: failed); conditional, X_c (body/conditional.py; drafted
+# 2026-11-07, PLAN.md "Repairs"), read on fresh seeds. The statistic, the can't-go check and the gate are the same.
+FORMS = {"v1": {"seeds": SEEDS, "field": "X", "self": "S"},
+         "conditional": {"seeds": (7100, 7139), "field": "X_c", "self": "S_c"}}
 SCRIPT_SEED = 710000          # the contingent script's draws: default_rng(seed + 710000)
 ARMS = ("contingent", "blind")
 DIRECTIONS = ("north", "south", "east", "west")
@@ -47,10 +52,11 @@ MIN_CLEAN_TURNS, MIN_CLEAN_WORLDS = 3, 10   # the agent's choice, 2026-11-07, be
 W = 10                                       # the window in turns, as Step 0's reading (body/step0_habitat.py)
 
 
-def seeds(rehearsal: bool = False, limit: int | None = None) -> list[int]:
+def seeds(rehearsal: bool = False, limit: int | None = None, form: str = "v1") -> list[int]:
     from body.habitat import REHEARSAL
 
-    out = list(range(SEEDS[0], SEEDS[1] + 1))[: limit or None]
+    lo, hi = FORMS[form]["seeds"]
+    out = list(range(lo, hi + 1))[: limit or None]
     if limit and len(out) % 2:
         out = out[:-1]                                   # whole pairs only
     return [s + REHEARSAL * rehearsal for s in out]
@@ -138,7 +144,7 @@ def cmd_play(a) -> None:
     from body.stepm1 import episodes
 
     run = Path(a.run)
-    todo = seeds(a.rehearsal, a.limit)
+    todo = seeds(a.rehearsal, a.limit, getattr(a, "form", "v1"))
     for arm in ARMS:
         record = _arm(run, arm)
         entries = read(record.path) if record.path.exists() else []
@@ -187,14 +193,20 @@ def cmd_read(a) -> None:
                 srcs = sources(ep["chunks"])
                 S = reader.states(texts, layers)
                 arrays = {}
+                slots, turns = [c["slot"] for c in ep["chunks"]], [c["turn"] for c in ep["chunks"]]
                 for j, layer in enumerate(layers):
                     X = S[:, j].astype(float)
-                    for f, v in codes(X, srcs, float(D[j]) ** 2 / X.shape[1], not a.no_variants).items():
+                    fv = float(D[j]) ** 2 / X.shape[1]
+                    for f, v in codes(X, srcs, fv, not a.no_variants).items():
+                        arrays[f"L{layer}:{f}"] = v
+                    for f, v in conditional(X, slots, turns, fv).items():     # both forms, from one reading
                         arrays[f"L{layer}:{f}"] = v
                 tf = Tfidf(texts[:TEXT_VOCAB])
                 T = tf(texts)
                 d_text = spread([tf(s["texts"]) for s in sets])
                 for f, v in codes(T, srcs, d_text ** 2 / max(T.shape[1], 1), not a.no_variants).items():
+                    arrays[f"text:{f}"] = v
+                for f, v in conditional(T, slots, turns, d_text ** 2 / max(T.shape[1], 1)).items():
                     arrays[f"text:{f}"] = v
                 return arrays, {"seed": seed, "chunks": len(texts), "layers": layers, "attempt": ep["attempts"]}
             session_resumable(record, f"{arm}-{seed}-a{ep['attempts']}", compute)
@@ -243,19 +255,22 @@ def clean_rows(ep: dict) -> list[int]:
             if c["slot"] == "self" and not bad & set(range(c["turn"] - W, c["turn"]))]
 
 
-def clean_mean(data, rows: list[int], spaces: list[str]) -> tuple[float, int]:
-    """The mean over `spaces` of each space's mean X over the scored turns among `rows`, and how many there are."""
+def clean_mean(data, rows: list[int], spaces: list[str], field: str = "X") -> tuple[float, int]:
+    """The mean over `spaces` of each space's mean `field` over the scored turns among `rows`, and how many there
+    are."""
     per, n = [], 0
     for sp in spaces:
-        v = np.asarray(data[f"{sp}:X"], dtype=float)[rows] if rows else np.array([])
+        v = np.asarray(data[f"{sp}:{field}"], dtype=float)[rows] if rows else np.array([])
         v = v[np.isfinite(v)]
         n = len(v)
         per.append(float(v.mean()) if len(v) else np.nan)
     return (float(np.mean(per)) if per and np.isfinite(per).all() else float("nan")), n
 
 
-def score(run: Path, draws: int = DRAWS) -> dict:
+def score(run: Path, draws: int = DRAWS, form: str = "v1") -> dict:
     from body.stepm1 import episodes
+
+    F, SF = FORMS[form]["field"], FORMS[form]["self"]
 
     eps = {arm: episodes(read(run / arm / "record.jsonl")) for arm in ARMS}
     means = {arm: {} for arm in ARMS}
@@ -266,25 +281,26 @@ def score(run: Path, draws: int = DRAWS) -> dict:
             if not path.exists():
                 raise SystemExit(f"{arm} episode {seed} has no code lengths: run read first")
             data = np.load(path)
-            means[arm][seed] = {f: episode_means(data, f) for f in ("X", "S", "L_now", "X_w5", "X_w20")}
-            layer_names = [nm for nm in means[arm][seed]["X"] if nm != "text"]
-            clean[arm][seed] = clean_mean(data, clean_rows(ep), layer_names)
+            fields = (F, SF) + (("L_now", "X_w5", "X_w20") if form == "v1" else ())
+            means[arm][seed] = {f: episode_means(data, f) for f in fields}
+            layer_names = [nm for nm in means[arm][seed][F] if nm != "text"]
+            clean[arm][seed] = clean_mean(data, clean_rows(ep), layer_names, F)
     worlds = sorted(set(means["contingent"]) & set(means["blind"]))
-    layers = [nm for nm in means["contingent"][worlds[0]]["X"] if nm != "text"] if worlds else []
+    layers = [nm for nm in means["contingent"][worlds[0]][F] if nm != "text"] if worlds else []
 
     def table(field: str, spaces: list[str]) -> dict:
         return {w: {arm: float(np.nanmean([means[arm][w][field][sp] for sp in spaces])) for arm in ARMS}
                 for w in worlds}
 
-    main = compare(table("X", layers), draws)
+    main = compare(table(F, layers), draws)
     ok = [w for w in worlds if all(clean[arm][w][1] >= MIN_CLEAN_TURNS for arm in ARMS)]
     check = compare({w: {arm: clean[arm][w][0] for arm in ARMS} for w in ok}, draws)
     check["clean scored turns, per arm"] = {arm: int(sum(clean[arm][w][1] for w in worlds)) for arm in ARMS}
     too_few = check.get("worlds", 0) < MIN_CLEAN_WORLDS
     main_ok = bool(main.get("90% interval", [np.nan])[0] > BAR)
     check_ok = (not too_few) and bool(check["90% interval"][0] > BAR)
-    out = {"worlds played by both": len(worlds),
-           "X, mean over the read layers": main,
+    out = {"form": form, "worlds played by both": len(worlds),
+           f"{F}, mean over the read layers": main,
            "the can't-go check": {**check, "too few to decide": too_few},
            "gate": {"main, lower bound above 0.5": main_ok,
                     "can't-go check, lower bound above 0.5": None if too_few else check_ok,
@@ -293,12 +309,13 @@ def score(run: Path, draws: int = DRAWS) -> dict:
                                 if main_ok and check_ok else "rate stays out of the sense tokens")},
            "reported": {}}
     rep = out["reported"]
-    rep["X, text baseline (TF-IDF)"] = compare(table("X", ["text"]), draws)
-    rep["X per layer"] = {sp: compare(table("X", [sp]), 0).get("AUC") for sp in layers}
-    rep["X with W = 5, 20"] = {f: compare(table(f, layers), 0).get("AUC") for f in ("X_w5", "X_w20")}
-    rep["self-progress S (no direction expected)"] = compare(table("S", layers), 0)
-    rep["median X per arm (bits)"] = {arm: float(np.median([np.nanmean([means[arm][w]["X"][sp] for sp in layers])
-                                                            for w in worlds])) for arm in ARMS} if worlds else {}
+    rep[f"{F}, text baseline (TF-IDF)"] = compare(table(F, ["text"]), draws)
+    rep[f"{F} per layer"] = {sp: compare(table(F, [sp]), 0).get("AUC") for sp in layers}
+    if form == "v1":
+        rep["X with W = 5, 20"] = {f: compare(table(f, layers), 0).get("AUC") for f in ("X_w5", "X_w20")}
+    rep[f"self-progress {SF} (no direction expected)"] = compare(table(SF, layers), 0)
+    rep[f"median {F} per arm (bits)"] = {arm: float(np.median([np.nanmean([means[arm][w][F][sp] for sp in layers])
+                                                               for w in worlds])) for arm in ARMS} if worlds else {}
     # what the worlds said, per arm (keys and text; reported only)
     for arm in ARMS:
         new, moved, looks, turns = 0, 0, 0, 0
@@ -318,7 +335,7 @@ def score(run: Path, draws: int = DRAWS) -> dict:
 
 def cmd_score(a) -> None:
     run = Path(a.run)
-    result = score(run)
+    result = score(run, form=getattr(a, "form", "v1"))
     Record(run / "record.jsonl").append("score", "code", step="rate_calibration", **result)
     print(json.dumps(result, indent=1, default=float))
 
@@ -329,6 +346,9 @@ def main(argv=None) -> None:
     for name in ("play", "read", "score"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
+        if name in ("play", "score"):
+            s.add_argument("--form", choices=tuple(FORMS), default="v1",
+                           help="v1: X as first built (registered, run); conditional: X_c on fresh seeds")
         if name == "play":
             s.add_argument("--limit", type=int, help="only the first n seeds, in whole pairs (a rehearsal)")
             s.add_argument("--rehearsal", action="store_true", help="the mirror seeds (+900000), deciding nothing")
