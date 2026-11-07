@@ -325,6 +325,28 @@ def shape(S: np.ndarray, turns: list[int], floor_var: list[float]) -> np.ndarray
     return out
 
 
+def shape_by_source(S: np.ndarray, turns: list[int], slots: list[str], floor_var: list[float]) -> np.ndarray:
+    """Shape by source (a repair drafted 2026-11-07, PLAN.md "Repairs", for the owner to fix; reported beside the
+    registered shape until fixed): each chunk's bits under the formula fitted on the earlier chunks **of its own
+    source** only, the agent's actions under earlier actions, the world's chunks (replies, the opening, events) under
+    earlier world chunks. Everything else as `shape`: Lift v0, the same states, floor and burn-in. A chunk with fewer
+    than two earlier chunks of its source is NaN."""
+    from body.progress import code
+
+    n, L, d = S.shape
+    out = np.full((n, L), np.nan)
+    start = next((i for i, t in enumerate(turns) if t >= SHAPE_BURN), n)
+    own = np.array([s == "self" for s in slots])
+    for j in range(L):
+        X = S[:, j].astype(np.float64)
+        G = X @ X.T
+        for t in range(start, n):
+            idx = np.flatnonzero(own[:t] == own[t])
+            if len(idx) >= 2:
+                out[t, j] = code(G, idx, t, d, floor_var[j])[0]
+    return out
+
+
 def cmd_read(a) -> None:
     from substrate.echo_floor import d_resumable
     from substrate.measure_d import load_sets
@@ -350,7 +372,8 @@ def cmd_read(a) -> None:
     out.mkdir(exist_ok=True)
     for (seed, variant), ep in eps.items():
         path = out / f"{seed}-{variant or 'world'}.npy"
-        done = [path, out / f"{seed}-{variant or 'world'}-shape.npy", out / f"{seed}-{variant or 'world'}-tokens.npy"]
+        done = [path, out / f"{seed}-{variant or 'world'}-shape.npy", out / f"{seed}-{variant or 'world'}-tokens.npy",
+                out / f"{seed}-{variant or 'world'}-shape_src.npy"]
         if all(p.exists() and np.load(p).shape[0] == len(ep["chunks"]) for p in done):
             counts["already_read"] += 1
             continue                                      # read already; a replayed episode is read again
@@ -364,8 +387,10 @@ def cmd_read(a) -> None:
         Sc = S.copy()
         if long_:
             Sc[long_] = reader.states([tok.decode(ids[i][:SHAPE_CAP]) for i in long_], layers)
-        np.save(out / f"{seed}-{variant or 'world'}-shape.npy",
-                shape(Sc, [c["turn"] for c in ep["chunks"]], [float(x) ** 2 / S.shape[2] for x in D]))
+        fv = [float(x) ** 2 / S.shape[2] for x in D]
+        np.save(out / f"{seed}-{variant or 'world'}-shape.npy", shape(Sc, [c["turn"] for c in ep["chunks"]], fv))
+        np.save(out / f"{seed}-{variant or 'world'}-shape_src.npy",
+                shape_by_source(Sc, [c["turn"] for c in ep["chunks"]], [c["slot"] for c in ep["chunks"]], fv))
         np.save(out / f"{seed}-{variant or 'world'}-tokens.npy", np.array([len(x) for x in ids]))
         pairs = joined(ep)
         if pairs:                                         # reported only: the event read inside its turn's reply
