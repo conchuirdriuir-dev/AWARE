@@ -514,8 +514,20 @@ not tell a player whose next move follows the world's last reply from one replay
   relative to blind in both spaces; the can't-go check removes those windows and still fails, on 16 worlds. An earlier
   note by the agent (in chat, 2026-11-07) put the lift as the common factor of shape's and rate's failures; the text
   baseline argues against that for rate.
+- *A limit, stated after the result:* no one checked, before the run, whether X can see a dependence of this size at
+  all. The contingent link is at most about a bit (which of the 2–4 directions a reply names is taken), carried by a
+  short action chunk against long replies. The bar was fixed before any play and the result stands as registered; but
+  the calibration tested whether the gauge works at all, not only how well. *A first step toward a repair (the agent's
+  suggestion, deciding nothing):* a synthetic check that plants a known dependence between reply states and the next
+  action's state and asks whether X finds it. If it does, the fault is in what the calibration hands X (the 8B's
+  states, or the text); if not, X as built cannot see this kind of dependence, and a repaired X is a new form. Either
+  way it bears on whether to repair X, the lift, or both.
 
-**What this failure blocks** (the draft's rule: a failed instrument is fixed before what depends on it runs):
+**What this failure blocks.** *The agent's reading, for the owner to confirm:* PLAN's written rule ("No sense enters
+the channel before its own instrument test passes", under "Two stages", gating by dependency) keeps rate out of the
+sense tokens and no more. The items below beyond the first extend it as "a failed instrument is fixed before what
+depends on it runs", a rule not yet written anywhere in this repository (if the North star or Spec v0.2 states it,
+cite it here); until the owner confirms it, they read as proposed, not as fixed:
 - **Rate in the sense tokens,** both parts: the world part fails here; the self part (the self/world split, slotted
   for babbling) is the same quantity, read by source, and is not trusted either until a repaired X passes this
   calibration.
