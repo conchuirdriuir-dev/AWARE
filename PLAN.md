@@ -595,8 +595,11 @@ decision on fresh seeds.
 - **Why the pick is not in the code:** `tests/test_conditional.py`'s sensitivity test (written with X_c, before the
   rule) plants a dependence spread over all 40 dimensions, and fails at the pick. Mean X_c over 3 seeds, contingent
   against blind: 4, 0.1, 10: 0.03 against −1.58 (the test needs above 1); 4, 0.1, 20: 0.34; 8, 1, 20: 1.28; **8, 10,
-  20: 2.30 against −0.94.** A basis of 4 directions misses a dependence that does not lie along the past's top 4
-  directions; the rule's synthetic cells all planted it along one strong direction, so they could not see that cost.
+  20: 2.30 against −0.94;** 16, 1, 20: 6.39 against −6.24; 16, 10, 20: 7.96 against −2.39. A basis of 4 directions
+  misses a dependence that does not lie along the past's top 4 directions; the rule's synthetic cells all planted it
+  along one strong direction, so they could not see that cost. The trade-off: a larger R sees a spread-out dependence
+  better, but from R = 16 the confound null leans toward reading repeated replies as contingency (16, 10, 20 holds it
+  only at the edge, 0.65 [0.49, 0.80], the direction that would favour a pass).
   Where the 8B carries a direction word in its states is not known.
 - ***Two checks added after the selection had started scoring (the #49 session's review), reported, never part of
   the rule; the defaults were not re-picked after seeing them.*** (1) A **confound null**: both arms blind, but 36% of
