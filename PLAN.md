@@ -542,6 +542,58 @@ cite it here); until the owner confirms it, they read as proposed, not as fixed:
 - **Repair and rerun:** a changed X, or a changed lift (decision 4), is a new form, written here before its code, and
   read on new seeds (not 7000–7039); this pool is spent.
 
+*The synthetic check proposed above, run 2026-11-07 (the agent, deciding nothing; `tests/test_conditional.py`'s
+episodes):* 20 pairs of episodes, each action a linear function of the reply before it plus noise (contingent), or
+the same actions against other replies (blind). **The old X: AUC 0.530** (median 0.81 bits contingent, 0.79 blind):
+it cannot see a planted, strong dependence. So the calibration's failure is in X as built, not in the 8B's states or
+the text. The reason is structural: X codes the action under one Gaussian fitted to every earlier chunk, with and
+without the window's world chunks *in the fit*; nothing predicts the action from the reply before it. The blind arm
+replays the contingent arm's actions, so the arms share their actions by construction, and a marginal measure can
+only differ through which replies enter the fit (the blind arm's repeated "You can't go that way.").
+
+#### Repairs: rate, conditional; shape, by source (drafted by the agent 2026-11-07, for the owner to fix)
+
+The tests stay as they are: the contingent-vs-blind calibration for rate, Step −1C for shape, their gates and bars
+unchanged. Only the senses change. Each repair is a new form, developed on seeds that decide nothing and read for the
+decision on fresh seeds.
+
+**Rate, conditional (`body/conditional.py`, built with this draft; tests in `tests/test_conditional.py`).**
+- **What it reads:** each scored action y_t, the agent's previous action s_t, and the world's chunks between them w_t
+  (their mean: the reply, and a planted event if any). Domain-free: states and sources only.
+- **The space:** at each scored action, every chunk before it projected on the top R = 16 principal directions of
+  the chunks before it (a basis from the past only).
+- **Two predictors**, ridge regressions (λ = 1, predictors scaled by the past's spread) fitted on the earlier pairs of
+  the same episode: self-only, y from s; with the world, y from s and w.
+- **Code length:** y_t's residual under an isotropic Gaussian whose variance is that predictor's mean squared
+  *prequential* error on the earlier turns, with the past's variance as one prior observation, floored at the floor
+  variance (Step 0's, D²/d).
+- **X_c(t) = bits(self-only) − bits(with the world):** the bits the world's last reply saves in predicting the action.
+  S_c(t) = bits(mean only) − bits(self-only), reported: what the agent's own last action saves.
+- **Scored** from turn 10 (as X), once 20 earlier pairs are there to fit on. *R, λ and the 20 are the agent's choices,
+  fixed here before any reading.*
+- **Synthetic check** (as above): **X_c's AUC 1.000** (median 5.18 bits contingent, −5.34 blind; an irrelevant reply
+  costs bits, never pays). The planted dependence is far stronger than the calibration's (about a bit), so this shows
+  X_c can see a dependence, not that it will see that one.
+- **Development, deciding nothing:** the calibration's mirror seeds (907000–907039), played on the CPU; first in the
+  text space (TF-IDF, no model): X_c must find the surface link there, or the code is wrong. Then the 0.6B on the
+  4060, for plumbing and the interval's width.
+- **The decision:** the calibration as fixed (its statistic, its can't-go check, its gate), with X_c in place of X, on
+  fresh seeds **7100–7139** (outside every pool; 7000–7039 is spent), read by the 8B. On a pass, rate enters the sense
+  tokens as calibrated, its predictive validity untested.
+
+**Shape, by source (a draft only; no code yet).**
+- **The change:** a chunk is coded under the formula fitted on the earlier chunks **of its own source** (a reply under
+  earlier replies and events, an action under earlier actions), not on both sources together. Everything else as
+  fixed (Lift v0, Step 0's states and floor, burn-in 10 turns).
+- **Why:** under one fit to two-token commands and 40-token replies, a long reply is far from the mean for being a long
+  reply, whatever its templates; boundary, which compares a reply with its nearest earlier reading (another reply),
+  is free of that and parted the kinds (0.82) where shape did not (0.575).
+- **If it still fails,** that is the measurement decision 4 asks for before a trained lift: shape coded in a learned
+  low-dimensional basis, a larger build, its own form.
+- **Development:** the Step −1C rehearsal's mirror seeds, read again by the 0.6B on the 4060, deciding nothing.
+- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on a fresh pool **8000–8999**
+  (outside every pool; 6000–6999 is spent), played by the script and read by the 8B.
+
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
