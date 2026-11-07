@@ -24,7 +24,7 @@ Research track (parked) · Translations · The record: state and direction befor
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-05.
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-07.
 The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
 near the end.*
 
@@ -41,7 +41,10 @@ a scripted player, the 8B perceiving, passes** (2026-11-06, on a rented GPU; und
 tickle test (amendment 4). Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
 after weaker players locked in early; its game capped, amendment 6): its screen, k, the owner's read of closures,
 and its play and reading run on the rented GPU until the 3090 arrives, as does Step −1C's reading. The agent's draft
-of the stages was fixed by the owner the same day.
+of the stages was fixed by the owner the same day. **The bf16 8B's Stage 2 screen fails on closures** (2026-11-07:
+60 projected against 150; under Step 0 habitat's "Runs"): its stalls start abruptly and never end, as every player's
+have. Stage 2's full play waits for the owner's choice in
+[proposals/stage2-lock-in.md](proposals/stage2-lock-in.md) (three options).
 
 **The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
 seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
@@ -824,6 +827,15 @@ pool, stall onsets still mostly in turns 0–4. The longer quests are beyond it.
 10%); closures kept 4 in 36, projected 44 to about 365 usable worlds (bar 150); ascents kept 68, projected 756 (bar
 75); 18 pre-progress windows in the pool (none for any player in the frozen worlds); stall onsets still mostly in
 turns 0–5. The closest player screened; it fails criteria 2 and 3. For the owner.
+
+**Qwen3-8B (bf16, full context) on Stage 2's worlds, told the forms (2026-11-07, mirror seeds, labels only; a rented
+RTX 3090; record in `runs/s2-screen/`).** 28 calibration episodes (k = 7) and 36 Step 0 worlds; 4 Step 0 seeds and 2
+calibration seeds skipped as unbuildable (amendment 4). Won 26.6% (bar 10%); ascents kept 41, projected 410 (bar 75);
+**closures kept 6, projected 60 (bar 150): fails.** Of 34 labelled closures, 20 have no ascent before them (onsets on
+turns 1–9) and 8 start inside the burn-in; all 6 kept are paired across episodes. 47 of the 52 closures in both pools
+run 50 turns or more, to the episode's end: one reply that changes nothing, then the action copied (21 after a parser
+reply, 20 cycling through rooms, 6 a real dead end; the agent's sorting, after seeing them). Play: 5,060 turns in 55
+minutes. For the owner: [proposals/stage2-lock-in.md](proposals/stage2-lock-in.md).
 
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
