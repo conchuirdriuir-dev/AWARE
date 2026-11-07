@@ -21,11 +21,13 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import time
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
+from body.machine import record_machine
 from body.progress import by_source, cost
 from goalspace.formula import Tfidf, auc
 from substrate.record import Record, read
@@ -367,6 +369,7 @@ def cmd_play(a) -> None:
     if (a.nf4 or a.context or a.generator) and not a.rehearsal:
         raise SystemExit("--nf4, --context and --generator change the player or worlds: rehearsals only")
     gen = json.loads(a.generator) if a.generator else None
+    record_machine(record, f"step0_habitat play --pool {a.pool}")
     agent = Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4, forms=a.forms,
                   **({"context": a.context} if a.context else {}))
     for seed in [s + REHEARSAL * a.rehearsal for s in pool(a.pool, worlds(STAGE2))[: a.limit or None]]:
@@ -383,6 +386,8 @@ def cmd_read(a) -> None:
     run = Path(a.run)
     record = Record(run / "record.jsonl")
     eps = _episodes(run)
+    record_machine(record, "step0_habitat read")
+    started = time.time()
     sets = load_sets(a.sets)
     reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory, sink="first")
     n = reader.info["layers"]
@@ -408,6 +413,8 @@ def cmd_read(a) -> None:
                 arrays[f"text:{f}"] = v
             return arrays, {"seed": seed, "chunks": len(texts), "layers": layers, "attempt": ep["attempts"]}
         session_resumable(record, f"step0h-{seed}-a{ep['attempts']}", compute)
+    record.append("read_end", "code", step="step0_habitat", episodes=len(eps), seconds=round(time.time() - started, 1),
+                  chunks=sum(len(ep["chunks"]) for ep in eps.values()))
 
 
 def load(run: Path) -> tuple[dict, int]:

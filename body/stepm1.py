@@ -21,11 +21,13 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import time
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
+from body.machine import record_machine
 from goalspace.formula import auc
 from substrate.record import Record, read
 
@@ -292,6 +294,7 @@ def cmd_play(a) -> None:
         raise SystemExit("self-talk is the perceiver's own words: the 8B writes it, not the script")
     agent = Script() if a.script else Agent(a.model, device=a.device, dtype=a.dtype, cache=not a.no_cache, nf4=a.nf4, forms=a.forms,
                                             **({"context": a.context} if a.context else {}))
+    record_machine(record, f"stepm1 play --pool {a.pool}")
     seeds = [s + REHEARSAL * a.rehearsal for s in pool(a.pool, spec)[: a.limit or None]]
     for seed in seeds:
         if a.pool == "self_talk":
@@ -330,6 +333,8 @@ def cmd_read(a) -> None:
     run = Path(a.run)
     record = Record(run / "record.jsonl")
     eps = episodes(read(record.path))
+    record_machine(record, "stepm1 read")
+    started, counts = time.time(), {"read": 0, "already_read": 0}
     floor = {int(k): float(v) for k, v in json.loads(Path(a.floor).read_text()).items()}
     reader = Reader(a.model, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory, sink="first")
     n = reader.info["layers"]
@@ -347,7 +352,9 @@ def cmd_read(a) -> None:
         path = out / f"{seed}-{variant or 'world'}.npy"
         done = [path, out / f"{seed}-{variant or 'world'}-shape.npy", out / f"{seed}-{variant or 'world'}-tokens.npy"]
         if all(p.exists() and np.load(p).shape[0] == len(ep["chunks"]) for p in done):
+            counts["already_read"] += 1
             continue                                      # read already; a replayed episode is read again
+        counts["read"] += 1
         S = reader.states([c["text"] for c in ep["chunks"]], layers)
         np.save(path, news(S, [c["slot"] for c in ep["chunks"]], unit))
         # shape on Step 0's readings: each chunk cut at 256 tokens, so only longer chunks are read again
@@ -367,6 +374,8 @@ def cmd_read(a) -> None:
             for (i, _), state in zip(pairs, T):
                 J[i] = np.min(np.linalg.norm(S[: i - 1] - state[None], axis=2), axis=0) / unit
             np.save(out / f"{seed}-{variant or 'world'}-joined.npy", J)
+    record.append("read_end", "code", episodes=len(eps), **counts, seconds=round(time.time() - started, 1),
+                  chunks=sum(len(ep["chunks"]) for ep in eps.values()))
 
 
 BINS = (1, 8, 16, 32, 64, 257)              # chunk token lengths (the agent's choice, PLAN.md, before any run)
