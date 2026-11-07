@@ -27,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
+from body.machine import record_machine
 from goalspace.formula import auc
 from substrate.record import Record, read
 
@@ -311,8 +312,7 @@ def shape(S: np.ndarray, turns: list[int], floor_var: list[float]) -> np.ndarray
     """Shape per chunk and layer (Spec v0.2; reported, deciding nothing): the bits of each chunk under the formula
     fitted on every earlier chunk of the episode, both sources (Lift v0: `goalspace.formula.prequential`'s Lk,
     computed from the Gram matrix as Step 0 does). Chunks in the first SHAPE_BURN turns fit and never score: NaN."""
-    from body.machine import record_machine
-from body.progress import code
+    from body.progress import code
 
     n, L, d = S.shape
     out = np.full((n, L), np.nan)
