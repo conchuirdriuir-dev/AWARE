@@ -59,7 +59,7 @@ code) counts as scheduled:
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
-| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed (amendment 1); harness built; pool fixed; 0.6B rehearsal next |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Failed** (2026-11-07): shape 0.575 against bar 0.80; out of the sense tokens; a trained lift is the owner's open question |
 | Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Slot; Stage 2 rests (owner, 2026-11-07): the 8B's screen found no stall with a lead |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Gates rate's entry into the sense tokens (owner, 2026-11-07); form fixed, code built; play (CPU) and the 8B's reading next |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
@@ -80,11 +80,13 @@ code) counts as scheduled:
 **Next, while waiting for the 3090:** Step −1C's 0.6B rehearsal ran on 2026-11-05 (under "Step −1C: rehearsal"):
 plumbing end to end; boundary not near its ceiling (0.81); shape near chance on the 0.6B (0.525); the interval wider
 than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
-CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"); its reading is the 8B's, on the rented
-GPU (DECISIONS.md, 2026-11-06), from `record.jsonl` alone. The contingent-vs-blind script pair is built
-(`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its play (CPU) and the
-8B's reading.
-The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
+CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"). **The 8B's reading fails both bars**
+(2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
+the sense tokens; babbling's sense tokens are those whose own test has passed: boundary, and rate if its Stage 1
+calibration passes. Whether a trained lift replaces Lift v0 (decision 4) is open for the owner. The contingent-vs-blind
+script pair is built (`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its
+play (CPU) and the 8B's reading, with the maths library's threads set to 1 (under Step 0 habitat's "Runs", "Reading
+time on a rented GPU"). The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -611,6 +613,42 @@ in the room.
 1. **Bar 2's direction.** *Answered (owner, 2026-11-05): one-sided, shape above boundary; amendment 1 above.*
 2. **The entry rate.** *Answered (owner, 2026-11-05): the script stays as fixed; about 22% usable is enough for the
    pool as drawn.*
+
+#### Step −1C: the 8B's reading, 2026-11-06–07 (a rented GPU): the registered result
+
+Record in `runs/stepm1c-8b/` (the registered play's 172,541 lines checked byte for byte against the play before the
+reading; the play-only record kept as `runs/stepm1c-8b.before-8b/record.jsonl`). Read by Qwen3-8B in bf16 (layers
+24–35) against `material/echo_floor_8b.json`, on an RTX 3090 (24 GB, driver 595.80; Python 3.12.15, CUDA 13.2, torch
+2.14.1+cu132, transformers 5.22.1, textworld 1.7.0), the `hardware` entry appended before the reading. The run recorded
+no commit (`commit: null`); the instance was the one that ran Step −1 at main 92b0558. *Owner to confirm.*
+
+| | Result | Bar | |
+|---|---|---|---|
+| **Bar 1: shape**, AUC off over on | 0.575, 90% interval 0.511–0.641 | ≥ 0.80, lower bound > 0.70 | **fail** |
+| Boundary, same chunks | 0.823 | — | |
+| **Bar 2: shape − boundary** | −0.249, interval −0.324 to −0.176 | entirely above zero | **fail** |
+| Precondition: boundary above the floor | 101 of 101 on, 106 of 106 off | reported | holds |
+| Shape given boundary (amendment 1) | 0.490 | reported | |
+
+**Step −1C fails: shape under Lift v0 does not read template structure.** It fails bar 1, not only bar 2, on a
+contrast matched in length (median 37 and 37.5 tokens; token AUC off over on 0.529) and in vocabulary (`offhouse`
+uses only `house`'s words), where boundary fires on both kinds and parts them (0.82). The 0.6B rehearsal read the same
+(0.525; boundary 0.812).
+
+- *Per layer, reported:* shape 0.560–0.582; boundary 0.733–0.917 (highest at layer 35). 200 of 207 scored chunks in the
+  32–63 token bin. Boundary's ceiling (amendment 1): not near it overall.
+- **What follows, under the rules fixed before the reading:** Step −1C gates chords and shape's entry into the sense
+  tokens (gating by dependency), so **shape stays out of the sense tokens** (the owner's rule, 2026-11-05: no sense
+  enters the channel before its own instrument test passes). Babbling's sense tokens are those that have passed:
+  boundary (Step −1), and rate if its Stage 1 calibration passes (PR #45, which makes that calibration gate rate).
+  Stage 2, which read rate only, rests (Step 0 amendment 7, PR #45). Nothing is retuned on this pool: a new lift, if any, is a new run on new seeds.
+- **For the owner (decision 4):** a trained encoder replaces Lift v0 "only if a measurement earns it". This is such a
+  measurement, and a stronger one than PLAN anticipated (bar 1 passing, bar 2 failing would have meant redundancy;
+  here shape does not read the structure at all). Whether to build one, and the test it must pass before any
+  reading, is open.
+- *The agent's reading, after the result, deciding nothing:* a chunk's shape on the 8B is about 16,000–24,000 bits,
+  and the kinds' medians differ by a sliver of that, so nearly all of it codes the noise dimensions (4,096 on the 8B),
+  which would swamp a difference in templates. That points at the lift, not at the test.
 
 #### Step −1C: registered play, 2026-11-05 (the script; no reading)
 

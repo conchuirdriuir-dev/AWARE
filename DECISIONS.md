@@ -10,6 +10,10 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   Step 0 amendment 7): the 8B's screen kept 6 closures (projected 60 against 150), its stalls abrupt and endless; rate's
   predictive test moves to a second engine or babbling, not yet chosen; the contingent-vs-blind calibration is built,
   its form for the owner to fix before its seeds are played.
+- 2026-11-07: **Step −1C failed on the 8B; shape stays out of the sense tokens** (by the rules fixed before the
+  reading): shape 0.575 against 0.80, below boundary by 0.249; babbling's sense tokens are boundary, and rate if its
+  calibration passes (PR #45). Whether a trained
+  lift replaces Lift v0 (decision 4) is open for the owner.
 - 2026-11-06: **The Step −1 score applies amendment 4** (owner): the restated self-talk part is reported, not counted
   in Stage 1's verdict; the 8B's record rescored from the same readings, every number unchanged, the verdict now pass.
 - 2026-11-06: **The 8B runs on a rented GPU until the 3090 arrives** (owner): Vast.ai, a 24 GB-or-larger card, for
