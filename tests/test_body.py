@@ -183,3 +183,19 @@ def test_the_floor_file_takes_the_midpoint_of_repeats_95th_and_news_5th():
     dist = np.r_[np.zeros(20), np.linspace(0.1, 0.2, 20), np.linspace(0.5, 1.5, 100), np.full(10, 9.0)][:, None]
     want = 0.5 * (np.percentile(dist[:40, 0], 95) + np.percentile(dist[40:140, 0], 5))
     assert floors(dist, kinds, [24]) == {"24": want}
+
+
+def test_shape_by_source_codes_a_chunk_against_its_own_source_only():
+    from body.stepm1 import shape, shape_by_source
+    rng = np.random.default_rng(0)
+    n, d = 60, 30
+    slots = ["world"] + ["self", "world"] * ((n - 1) // 2)
+    turns = [-1] + [t for t in range(30) for _ in (0, 1)]
+    S = np.zeros((len(slots), 1, d))
+    for i, s in enumerate(slots):                     # two sources far apart: commands near 0, replies near 10
+        S[i, 0] = rng.normal(size=d) + (0 if s == "self" else 10)
+    S[-1, 0] = rng.normal(size=d) + 10                # an ordinary reply, last
+    joint = shape(S, turns, [1.0])[-1, 0]
+    by_src = shape_by_source(S, turns, slots, [1.0])[-1, 0]
+    assert np.isfinite(by_src) and by_src < joint     # under replies alone, a reply is no longer far from the mean
+    assert np.isnan(shape_by_source(S, turns, slots, [1.0])[: 2 * 10, 0]).all()   # the burn-in never scores

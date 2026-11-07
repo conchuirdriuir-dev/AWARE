@@ -542,6 +542,140 @@ cite it here); until the owner confirms it, they read as proposed, not as fixed:
 - **Repair and rerun:** a changed X, or a changed lift (decision 4), is a new form, written here before its code, and
   read on new seeds (not 7000–7039); this pool is spent.
 
+*The synthetic check proposed above, run 2026-11-07 (the agent, deciding nothing; `tests/test_conditional.py`'s
+episodes):* 20 pairs of episodes, each action a linear function of the reply before it plus noise (contingent), or
+the same actions against other replies (blind). **The old X: AUC 0.530** (median 0.81 bits contingent, 0.79 blind):
+it cannot see a planted, strong dependence. So the calibration's failure is in X as built, not in the 8B's states or
+the text. The reason is structural: X codes the action under one Gaussian fitted to every earlier chunk, with and
+without the window's world chunks *in the fit*; nothing predicts the action from the reply before it. The blind arm
+replays the contingent arm's actions, so the arms share their actions by construction, and a marginal measure can
+only differ through which replies enter the fit (the blind arm's repeated "You can't go that way.").
+
+#### Repairs: rate, conditional; shape, by source (drafted by the agent 2026-11-07, for the owner to fix)
+
+The tests stay as they are: the contingent-vs-blind calibration for rate, Step −1C for shape, their gates and bars
+unchanged. Only the senses change. Each repair is a new form, developed on seeds that decide nothing and read for the
+decision on fresh seeds.
+
+**Rate, conditional (`body/conditional.py`, built with this draft; tests in `tests/test_conditional.py`).**
+- **What it reads:** each scored action y_t, the agent's previous action s_t, and the world's chunks between them w_t
+  (their mean: the reply, and a planted event if any). Domain-free: states and sources only.
+- **The space:** at each scored action, every chunk before it projected on the top R = 8 principal directions of the
+  chunks before it (a basis from the past only).
+- **Two predictors**, ridge regressions (λ = 10, predictors scaled by the past's spread) fitted on the earlier pairs of
+  the same episode: self-only, y from s; with the world, y from s and w.
+- **Code length:** y_t's residual under an isotropic Gaussian whose variance is that predictor's mean squared
+  *prequential* error on the earlier turns, with the past's variance as one prior observation, floored at the floor
+  variance (Step 0's, D²/d).
+- **X_c(t) = bits(self-only) − bits(with the world):** the bits the world's last reply saves in predicting the action.
+  S_c(t) = bits(mean only) − bits(self-only), reported: what the agent's own last action saves.
+- **Scored** from turn 10 (as X), once 20 earlier pairs are there to fit on. *R = 8, λ = 10 and 20 pairs, fixed by the
+  owner on 2026-11-07, before the deciding seeds are played (below); first drafted as 16, 1 and 20.*
+- **The defaults (2026-11-07, the agent, at the owner's request; `probes/x_c_defaults.py`).** *The rule, committed
+  (9449237) before any candidate was scored:* candidates R ∈ {4, 8, 16, 32} × λ ∈ {0.1, 1, 10} at 20 pairs, then
+  the pairs ∈ {10, 20, 30} at the chosen R and λ; scored on synthetic episodes (d = 1,024: category at 0.5 and 1,
+  content at 1, and a null cell with both arms blind) and on 907000–907039 in the text space (main AUC); eligible if
+  the null cell's 90% interval holds 0.5; the highest mean of the four AUCs wins; within 0.01 of the best, the drafted
+  16, 1, 20 if there, else the smaller R, then the larger λ, then (as coded; the rule's text is silent on it) the
+  fewer pairs. Never 7000–7039 or 7100–7139. **The rule's pick: R = 4, λ = 0.1, 10 pairs; not written into the code
+  (below).**
+
+  | R, λ, pairs | Score | Null | Dev main | *Confound null* | *Dev can't-go* |
+  |---|---|---|---|---|---|
+  | **4, 0.1, 10 (the rule's pick)** | 0.940 | 0.64 | 0.759 | *0.36 [0.22, 0.52]* | *0.711* |
+  | 4, 0.1, 20 | 0.948 | 0.44 | 0.794 | *0.57 [0.42, 0.73]* | *0.745* |
+  | 4, 0.1, 30 | 0.949 | 0.51 | 0.797 | *0.40 [0.28, 0.54]* | *0.791* |
+  | 8, 10, 20 (the best score, lost the tie) | 0.958 | 0.56 | 0.834 | *0.42 [0.26, 0.60]* | *0.852* |
+  | 16, 1, 20 (as drafted) | 0.927 | 0.60 | 0.709 | ***0.75 [0.61, 0.88]*** | *0.714* |
+  | 32, 1, 20 | 0.927 | 0.67 (ineligible) | 0.709 | ***0.77 [0.62, 0.88]*** | *0.714* |
+
+  All 14 candidates are in `probes/x_c_defaults.py`'s output; the table shows the chosen, its neighbours, the best and
+  the drafted. Every synthetic sensitivity cell read 0.95–1.00 for every candidate, so the synthetic cells did not
+  discriminate and the choice rested on the development main AUC and the tie-break: a limit of the rule.
+- **Why the pick is not in the code:** `tests/test_conditional.py`'s sensitivity test (written with X_c, before the
+  rule) plants a dependence spread over all 40 dimensions, and fails at the pick. Mean X_c over 3 seeds, contingent
+  against blind: 4, 0.1, 10: 0.03 against −1.58 (the test needs above 1); 4, 0.1, 20: 0.34; 8, 1, 20: 1.28; **8, 10,
+  20: 2.30 against −0.94;** 16, 1, 20: 6.39 against −6.24; 16, 10, 20: 7.96 against −2.39. A basis of 4 directions
+  misses a dependence that does not lie along the past's top 4 directions; the rule's synthetic cells all planted it
+  along one strong direction, so they could not see that cost. The trade-off: a larger R sees a spread-out dependence
+  better, but from R = 16 the confound null leans toward reading repeated replies as contingency (16, 10, 20 holds it
+  only at the edge, 0.65 [0.49, 0.80], the direction that would favour a pass).
+  Where the 8B carries a direction word in its states is not known.
+- ***Two checks added after the selection had started scoring (the #49 session's review), reported, never part of
+  the rule; the defaults were not re-picked after seeing them.*** (1) A **confound null**: both arms blind, but 36% of
+  one arm's replies are one repeated state, as the calibration's blind arm hears "You can't go that way."; a setting
+  that reads that difference as contingency leaves 0.5. **The drafted 16, 1, 20 fails it (0.75), as do 16, 0.1 and
+  every R = 32;** every R = 4 and R = 8 candidate holds 0.5. The chosen setting holds it at the edge and leans the
+  other way (0.36), so in the deciding run the confound would work against a pass, not for it. (2) The development
+  **can't-go AUC** in the score: the chosen setting 0.711 [0.54, 0.86]; R = 8, λ = 10 scores best on every version of
+  the score (0.852).
+- ***For the owner, before 7100–7139 are played:*** the rule's pick (4, 0.1, 10) holds the confound null at its edge
+  but fails the test written before the rule; the drafted 16, 1, 20 fails the confound null. **8, 10, 20** had the best
+  score under the rule (it lost only the tie-break to a smaller R), holds the confound null (0.42), is best on the
+  development can't-go check (0.852) and passes the earlier test (2.30). Choosing it is an override of the rule after
+  seeing the added checks, on development material only; a second, declared round with a spread-out cell in the rule
+  is the alternative. Either is recorded here as the owner's.
+- **Fixed (owner, 2026-11-07): R = 8, λ = 10, 20 pairs**, an override of the rule's pick, made after seeing the two
+  added checks and the earlier test, on synthetic episodes and the development seeds only; 7100–7139 unplayed. With
+  these, `tests/test_conditional.py` passes.
+- **Synthetic check** (as above): **X_c's AUC 1.000** (median 5.18 bits contingent, −5.34 blind; an irrelevant reply
+  costs bits, never pays). The planted dependence is far stronger than the calibration's (about a bit), so this shows
+  X_c can see a dependence, not that it will see that one.
+- **Development, deciding nothing:** the calibration's mirror seeds (907000–907039), played on the CPU; first in the
+  text space (TF-IDF, no model): X_c must find the surface link there, or the code is wrong. Then the 0.6B on the
+  4060, for plumbing and the interval's width.
+- **The decision:** the calibration as fixed (its statistic, its can't-go check, its gate), with X_c in place of X, on
+  fresh seeds **7100–7299**, 100 pairs (outside every pool; 7000–7039 is spent), read by the 8B. *Grown from 7100–7139 by the owner, 2026-11-07, before any of them was played: at 20 pairs the can't-go check rested on about 14 worlds in every development run; at the development rate (about 35% eligible) 100 pairs gives about 70. Pool size is not a threshold; the gate is unchanged.* On a pass, rate enters the sense
+  tokens as calibrated, its predictive validity untested.
+
+**Shape, by source (a draft only; no code yet).**
+- **The change:** a chunk is coded under the formula fitted on the earlier chunks **of its own source** (a reply under
+  earlier replies and events, an action under earlier actions), not on both sources together. Everything else as
+  fixed (Lift v0, Step 0's states and floor, burn-in 10 turns).
+- **Why:** under one fit to two-token commands and 40-token replies, a long reply is far from the mean for being a long
+  reply, whatever its templates; boundary, which compares a reply with its nearest earlier reading (another reply),
+  is free of that and parted the kinds (0.82) where shape did not (0.575).
+- **If it still fails,** that is the measurement decision 4 asks for before a trained lift (below).
+- **Development:** the Step −1C rehearsal's mirror seeds, read again by the 0.6B on the 4060, deciding nothing.
+- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on a fresh pool **8000–8999**
+  (outside every pool; 6000–6999 is spent), played by the script and read by the 8B.
+- **Development, 2026-11-07 (the 0.6B, Step −1C's rehearsal record read again into `runs/stepm1c-06-src/`, deciding
+  nothing; `stepm1c score --shape joint|by_source`):** joint (registered) 0.525 [0.448, 0.599], exactly the
+  rehearsal's, so the plumbing reproduces; **by source 0.610 [0.535, 0.683]**, every layer 0.59–0.63; boundary 0.812;
+  shape − boundary −0.202 [−0.285, −0.114]; given boundary 0.522. The median gap between kinds grows from about 10
+  bits to about 220. So mixing commands and replies in one fit was part of shape's blindness, but by source stays far
+  below bar 1. **The owner (2026-11-07): no deciding run of shape by source; a trained lift is drafted instead**
+  (decision 4: this is the measurement it asks for).
+
+**Shape, a trained lift (a draft only, 2026-11-07, for the owner to fix; no code).**
+- **What changes:** the space shape is coded in. Lift v0 codes a chunk's 4,096 numbers (the 8B), most of its bits
+  going to dimensions at the noise floor. A trained lift is a fixed linear map to K dimensions, learned once,
+  frozen, before any reading of a deciding pool; shape is then coded in it, by source, prequentially within the
+  episode, as now. Everything after the map is unchanged (the formula, the floor in the new space, the burn-in).
+- **The simplest form** *(the agent's choice)*: the top K principal directions of chunk states from a training
+  corpus, whitened. No gradient training. A learned encoder (contrastive or predictive) is a later form, only if this
+  one fails.
+- **The training corpus, and the risk that decides it.** If the basis is learned from habitat text, it learns
+  `house`'s templates, which are Step −1C's on-structure side. Then either the off-structure templates fall outside
+  the basis and are projected away (shape misses them), or shape comes to measure "unlike the training text"
+  instead of "unlike what this episode has learned", a second, global boundary. Either would undo shape's claim. So
+  the corpus is **domain-free text, never the habitat**: *options for the owner:* (a) a public general-text corpus,
+  fixed by name and version, read once by the 8B (a download, and states for some 10,000 chunks); (b) the 8B's own
+  generations from fixed neutral prompts (no download; the model's own distribution); (c) the repository's
+  paraphrase sets (20 sets: too few for K beyond about 20).
+- **K** *(the agent's choice, for the owner)*: 64, so a chunk's code is dominated by the directions that carry
+  text, not noise. One value, fixed before any reading; no sweep on any habitat pool.
+- **Its own check before Step −1C** *(the agent's choice)*: Lift's re-skin invariance, the slot already in the
+  coverage table, written then as its own form; or, minimally, that shape in the lift still reproduces the
+  registered shape's ordering of chunks within an episode (the lift must not scramble what Lift v0 sees).
+- **Development:** the Step −1C rehearsal seeds (`runs/stepm1c-06-src/` and its mirrors), read by the 0.6B with a
+  0.6B lift trained the same way, deciding nothing.
+- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on the fresh pool 8000–8999,
+  played by the script and read by the 8B through the 8B's lift. The 6000–6999 pool and the rehearsal seeds never
+  train the lift.
+- **What it would also serve:** rate's X_c already codes in a basis of the past (R = 8); whether it should code in the
+  trained lift instead is a separate question, not part of this draft.
+
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
