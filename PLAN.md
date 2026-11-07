@@ -24,7 +24,7 @@ Research track (parked) · Translations · The record: state and direction befor
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-05.
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-07.
 The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
 near the end.*
 
@@ -41,7 +41,13 @@ a scripted player, the 8B perceiving, passes** (2026-11-06, on a rented GPU; und
 tickle test (amendment 4). Stage 2, Step 0 on its own longer-quest worlds with the 8B playing (amendment 5,
 after weaker players locked in early; its game capped, amendment 6): its screen, k, the owner's read of closures,
 and its play and reading run on the rented GPU until the 3090 arrives, as does Step −1C's reading. The agent's draft
-of the stages was fixed by the owner the same day.
+of the stages was fixed by the owner the same day. **The bf16 8B's Stage 2 screen fails on closures** (2026-11-07:
+60 projected against 150; under Step 0 habitat's "Runs"): its stalls start abruptly and never end, as every player's
+have. **Stage 2 rests** (owner, 2026-11-07, option 2 of
+[proposals/stage2-lock-in.md](proposals/stage2-lock-in.md); Step 0 amendment 7): rate's predictive test moves to where
+its event exists, a second engine or babbling, not yet chosen. Rate's calibration in Stage 1 (contingent vs blind
+script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
+can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
 **The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
 seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
@@ -54,8 +60,8 @@ code) counts as scheduled:
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Failed** (2026-11-07): shape 0.575 against bar 0.80; out of the sense tokens; a trained lift is the owner's open question |
-| Rate, world part | Step 0, Stage 2 (the 8B playing, amendment 5) | instrument | Fixed; code built; waits for the 3090 |
-| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Decided; reported only; not built |
+| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Slot; Stage 2 rests (owner, 2026-11-07): the 8B's screen found no stall with a lead |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Gates rate's entry into the sense tokens (owner, 2026-11-07); form fixed, code built; play (CPU) and the 8B's reading next |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
@@ -77,8 +83,10 @@ than estimated, so the pool is drawn whole (amendment 3, owner). **Its registere
 CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"). **The 8B's reading fails both bars**
 (2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
 the sense tokens; babbling's sense tokens are those whose own test has passed: boundary, and rate if its Stage 1
-calibration passes (PR #45). Whether a trained lift replaces Lift v0 (decision 4) is open for
-the owner. The contingent-vs-blind script pair is not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
+calibration passes. Whether a trained lift replaces Lift v0 (decision 4) is open for the owner. The contingent-vs-blind
+script pair is built (`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its
+play (CPU) and the 8B's reading, with the maths library's threads set to 1 (under Step 0 habitat's "Runs", "Reading
+time on a rented GPU"). The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -95,7 +103,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Passed** (2026-11-06, the 8B on a rented GPU; amendments 1–4): exact self-talk 0 of 600; plants 40 of 40; AUC 0.907. Restated self-talk 78.8%, gating at the tickle test |
 | −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32, amendment 1); harness built (`body/stepm1c.py`); pool fixed. Next: the 0.6B rehearsal |
-| 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–5); code built (`body/step0_habitat.py`); the 8B plays (amendment 5) and waits for the 3090. The owner-label form is paused (below) |
+| 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–6); code built (`body/step0_habitat.py`); **rests** (amendment 7, 2026-11-07): the 8B's screen fails on closures, its stalls abrupt and endless. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
 | 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
@@ -258,7 +266,8 @@ play, with the limit stated there; the self/world split still waits for babbling
 Stage 2 informs and does not gate babbling. Step −1C gates chords and shape's entry into the sense tokens; Step −1 alone
 gates Stage 2, which never reads shape. **No sense enters the channel before its own instrument test passes:** shape
 stays out of the sense tokens until Step −1C passes, and babbling runs on rate and boundary until then, so a functional
-pass at babbling can never stand in for a sense's accuracy.
+pass at babbling can never stand in for a sense's accuracy. *Since Step 0 amendment 7 (owner, 2026-11-07): rate's
+calibration in Stage 1 gates rate's entry into the sense tokens, as Step −1C gates shape's; Stage 2 rests.*
 
 **Stage 1, draft: Step −1 with a scripted player.**
 - **The script** (code, labelled as such: action chunks `by: code`, in the player's slot, so the reading is
@@ -307,6 +316,16 @@ Stage 2 gets its own pool file, `material/habitat_worlds_stage2.json`, with long
 frozen file. Stage 2's player, k and Step 0 all come from this file (`body/step0_habitat.py`: `play --pool
 calibration|step0_habitat`, `k`, `read`, `score`). Then 1.7B and 4B, told the forms, are screened on its mirror seeds
 by the same criteria.
+
+*Step 0 amendment 7, the owner, 2026-11-07, after the 8B's screen and before any reading:* **Stage 2 rests** (option 2
+of [proposals/stage2-lock-in.md](proposals/stage2-lock-in.md)). The bf16 8B's screen kept 6 closures in 36 worlds
+(projected 60 against 150; under "Runs"), and its stalls, like every Qwen player's, start on one reply and run to the
+episode's end, so the event Step 0 asks about (a slide in world rate before a stall after progress) may not be in this
+habitat, and its pairs would all be across episodes. No state of Stage 2's has been read. Rate's predictive test moves
+to where its event exists, a second engine (PR #38) or babbling (Step 2), not yet chosen; Step 0's habitat form, its
+code and its record stay as they are, so returning is a rerun. By the gating above, nothing waits on it. Rate enters
+babbling with no predictive test of its own; its instrument check before then is the contingent-vs-blind calibration,
+built first (under Step −1, "Rate's calibration: the form").
 
 *Step 0 amendment 6, the owner, 2026-11-05, before any 8B play:* **Stage 2's game runs capped.** TextWorld's quest
 tracking can explode mid-episode (Step −1C amendment 2: rehearsal seed 906402, 28 GB at turn 76). The 8B player stays in
@@ -420,6 +439,56 @@ not a bar left standing. Bar 1's exact part gates Stage 1 unchanged.
 only in contingency on the same worlds, one choosing its next action from the reply (an exit the reply names), one
 blind to it. World rate should be higher under the contingent script. It uses the script's circularity as a known
 answer: it tests the gauge's calibration, never lead. Its form is written here before its code.
+
+*Rate's calibration: the form (drafted by the agent 2026-11-07, with its code, `body/rate_calibration.py`, before any
+play of its seeds; the gate, its bar and the can't-go check set by the owner the same day, before any play).*
+- **Worlds:** seeds 7000–7039, in pairs (7000 with 7001, 7002 with 7003, …), outside every pool of the three world
+  files, built by the frozen file's generator (Stage 1's sizes), no plants, 100 turns, the engine capped (amendment 6's
+  `play_or_skip`). Rehearsals take the mirror seeds (+900000) and decide nothing.
+- **The contingent script** (`contingent-v1`, code): each turn, `go <d>` for a direction d drawn uniformly, from
+  `default_rng(seed + 710000)`, among the directions (north, south, east, west, as whole words) that the last thing the
+  world said names: the opening without its banner, then each reply. `look` when it names none.
+- **The blind script** (`blind-v1`, code): in each world, the contingent script's actions from the partner world,
+  move for move, in order; `look` once they run out. Its actions follow the same law as the contingent script's but
+  never depend on what it is told: the two differ only in contingency.
+- Both never issue the quest's last command (it becomes `look`), as Stage 1's script, so no episode ends early. Both
+  play every world: each world has one episode of each arm, kept in its own record (`<run>/contingent/`,
+  `<run>/blind/`). A world that cannot be built or played is skipped and counted, and its partner's blind episode
+  with it.
+- **The reading:** Step 0's formula and fit unchanged (`codes`, as `body/step0_habitat.py` reads): the world's text in
+  the partner slot, the actions self; layers 24–35 of the 8B, bf16, sink "first", chunks cut at 256 tokens; W = 10
+  turns, burn-in 10 turns; X_t = L_noworld − L_now on every scored action. Read label-blind: `read` computes the same
+  for both arms; only `score` reads which arm an episode is.
+- **The statistic:** per episode, the mean of X over its scored turns, averaged over the read layers. The AUC of the
+  contingent episodes over the blind ones, its 90% interval from 2,000 draws resampling worlds (each world brings its
+  two episodes); the median paired difference and the share of worlds where contingent is higher.
+- **Expected, written before any play:** contingent above blind.
+- **It gates rate's entry into the sense tokens** (owner, 2026-11-07, before any play of its seeds; this replaces
+  "reported only", PR #32 Q3, decided while Stage 2 was rate's test). **Pass:** both of
+  1. the AUC above, its 90% lower bound above 0.5;
+  2. **the can't-go check:** the same comparison on the scored turns whose window (the replies to the 10 turns before
+     the action) holds no "You can't go that way." reply, in either arm: per episode, the mean X over those turns,
+     averaged over the read layers; a world counts when both its episodes have at least 3 such turns; the AUC's 90%
+     lower bound above 0.5. Fewer than 10 such worlds: too few to decide, and rate stays out *(the minimums 3 and 10
+     are the agent's choice, written here before any play of the seeds)*.
+
+  On a pass, rate enters the sense tokens as **calibrated, its predictive validity untested** (Step 0's question,
+  moved by amendment 7). On a fail or too few, rate stays out of the sense tokens; it is still read and logged as a
+  diagnostic, and babbling runs on boundary, and on shape if Step −1C passes.
+- **Feasibility of the check, from a rehearsal of the mirror seeds** (play only, CPU, 2026-11-07, labels and text,
+  no state read, deciding nothing): every contingent episode has 89–90 clean scored turns; the blind ones a median of
+  0, and 15 of 40 worlds have at least 3. So the check is expected to rest on about 15 worlds, above its minimum of
+  10 but not by much.
+- **Reported beside it:** the same in the text space (TF-IDF), which reads the same circularity from the words alone;
+  the AUC per layer; X at W = 5 and 20; self-progress S by arm (no direction expected); per arm, the share of turns that
+  made a new state, moved the player, or were `look`; the skips.
+- **Limits, stated before any result:** the blind arm hears different replies: in a 4-world rehearsal (CPU, 2026-11-07,
+  deciding nothing) 145 of its 400 turns drew "You can't go that way.", against 1 for the contingent arm, so
+  the arms differ in what the world says as well as in whether the next action follows it. The contingent link is
+  surface-level (a direction word in the reply, the same word in the action), so the text baseline should find it too;
+  the 8B reading it says the gauge can see a known dependence, not that it reads anything subtler. 40 episodes of 100
+  turns per arm, about 16,000 chunks to read: about 16 minutes of the 8B (59 ms a chunk on the rented 3090) and about
+30 minutes of fitting on the CPU, with the maths library's threads set to 1 (below, "Reading time on a rented GPU").
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
@@ -863,6 +932,26 @@ pool, stall onsets still mostly in turns 0–4. The longer quests are beyond it.
 10%); closures kept 4 in 36, projected 44 to about 365 usable worlds (bar 150); ascents kept 68, projected 756 (bar
 75); 18 pre-progress windows in the pool (none for any player in the frozen worlds); stall onsets still mostly in
 turns 0–5. The closest player screened; it fails criteria 2 and 3. For the owner.
+
+**Qwen3-8B (bf16, full context) on Stage 2's worlds, told the forms (2026-11-07, mirror seeds, labels only; a rented
+RTX 3090; record in `runs/s2-screen/`).** 28 calibration episodes (k = 7) and 36 Step 0 worlds; 4 Step 0 seeds and 2
+calibration seeds skipped as unbuildable (amendment 4). Won 26.6% (bar 10%); ascents kept 41, projected 410 (bar 75);
+**closures kept 6, projected 60 (bar 150): fails.** Of 34 labelled closures, 20 have no ascent before them (onsets on
+turns 1–9) and 8 start inside the burn-in; all 6 kept are paired across episodes. 47 of the 52 closures in both pools
+run 50 turns or more, to the episode's end: one reply that changes nothing, then the action copied (21 after a parser
+reply, 20 cycling through rooms, 6 a real dead end; the agent's sorting, after seeing them). Play: 5,060 turns in 55
+minutes. For the owner: [proposals/stage2-lock-in.md](proposals/stage2-lock-in.md).
+
+**Reading time on a rented GPU (2026-11-07, two probes by the agent on the rented 3090, deciding nothing).** Step −1C's
+reading took 15.9 hours: 1.4 of them the 8B's states (8 s an episode), 14.5 shape's fit on the CPU (median 51 s an
+episode). The instance shows 32 CPUs under a quota of about 5 (`cpu.cfs_quota_us` 512000), so the maths library's
+default 32 threads fight over 5 cores: on Step −1C's longest episode (202 chunks), shape took 986 s on the default
+threads, 725 s on 32, 2.8 s on 4 and 2.4 s on 1; the 8B's states took 59 ms a chunk. **Every `read` now runs with
+`OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1`.** The `hardware` entry records the thread settings, the
+CPUs shown and the quota, and warns when the threads are unset and the machine shows more than twice its quota. The
+thread count can change floating-point sums in the last places (around 1e-12), far below any bar; Step −1 and Step
+−1C were read on the default threads and stand as recorded. Stage 1's record mixes two time zones (the record's local
+time against file times 6 hours apart), so its reading time is not known.
 
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
