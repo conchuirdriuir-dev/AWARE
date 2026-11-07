@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-07: **Rate's calibration gates rate's entry into the sense tokens** (owner, before any play of its seeds;
+  replaces "reported only", PR #32 Q3): the AUC of contingent over blind, 90% lower bound above 0.5, and the same on
+  turns whose window holds no can't-go reply (at least 10 worlds, else too few and rate stays out). A pass enters rate
+  as calibrated, its predictive validity untested.
 - 2026-11-07: **Stage 2 rests; rate's calibration is built first** (owner, option 2 of `proposals/stage2-lock-in.md`;
   Step 0 amendment 7): the 8B's screen kept 6 closures (projected 60 against 150), its stalls abrupt and endless; rate's
   predictive test moves to a second engine or babbling, not yet chosen; the contingent-vs-blind calibration is built,

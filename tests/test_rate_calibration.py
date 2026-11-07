@@ -64,9 +64,9 @@ def test_blind_replays_the_partner_whatever_it_is_told():
 def test_compare_reads_the_direction():
     up = {w: {"contingent": 2.0 + w * 0.01, "blind": 0.0 + w * 0.01} for w in range(20)}
     r = rc.compare(up, draws=200)
-    assert r["AUC"] == 1.0 and r["as expected"] and r["worlds contingent higher"] == 1.0
+    assert r["AUC"] == 1.0 and r["lower bound above 0.5"] and r["worlds contingent higher"] == 1.0
     same = {w: {"contingent": float(w), "blind": float(w)} for w in range(20)}
-    assert not rc.compare(same, draws=200)["as expected"]
+    assert not rc.compare(same, draws=200)["lower bound above 0.5"]
 
 
 def _toy_run(tmp_path: Path, gap: float) -> Path:
@@ -178,3 +178,59 @@ def test_read_then_score_on_a_tiny_model(tmp_path, monkeypatch):
     assert out["worlds played by both"] == 2
     assert np.isfinite(out["X, mean over the read layers"]["AUC"])
     assert set(out["reported"]["X per layer"]) == {"L4", "L5"}
+
+
+def _gate_run(tmp_path: Path, worlds: int, artifact: bool) -> Path:
+    """Toy arms over `worlds` worlds of 40 turns. The blind arm hears can't-go on turns 12, 16, 20 and 24, so its
+    clean scored turns are 10-12 and 35-39. X is 2 under contingent on every turn and 0 under blind; with `artifact`,
+    blind's X is 2 on its clean turns too, so the whole gap lives where blind heard can't-go."""
+    run = tmp_path / "run"
+    rng = np.random.default_rng(0)
+    for arm in rc.ARMS:
+        r = Record(run / arm / "record.jsonl")
+        for seed in range(7000, 7000 + worlds):
+            r.append("episode", "code", seed=seed)
+            r.chunk("opening", "code", "external", cause="spontaneous", seed=seed, turn=-1, slot="world")
+            for t in range(40):
+                r.chunk("go north", "code", "self", seed=seed, turn=t, slot="self")
+                cant = arm == "blind" and t in (12, 16, 20, 24)
+                r.chunk("You can't go that way." if cant else "a room", "code", "external", cause="elicited",
+                        seed=seed, turn=t, slot="world")
+                r.append("key", "code", seed=seed, turn=t, new_state=False, score_change=0, room="r")
+            r.append("end", "code", seed=seed, turns=40, done=False)
+            n = 81
+            arrays = {}
+            for nm in ("L24", "L25", "text"):
+                for f in ("X", "S", "L_now", "X_w5", "X_w20", "C"):
+                    v = np.full(n, np.nan)
+                    for row in range(21, n, 2):              # the actions of turns 10-39
+                        t = (row - 1) // 2
+                        high = arm == "contingent" or (artifact and (t <= 12 or t >= 35))
+                        v[row] = rng.normal(2.0 if high else 0.0, 0.1)
+                    arrays[f"{nm}:{f}"] = v
+            (run / "checkpoints").mkdir(parents=True, exist_ok=True)
+            np.savez(run / "checkpoints" / f"{arm}-{seed}-a1.npz", **arrays)
+    return run
+
+
+def test_clean_rows_leave_out_any_window_with_a_cant_go():
+    chunks = [{"slot": "world", "turn": -1, "text": "o"}]
+    for t in range(15):
+        chunks += [{"slot": "self", "turn": t, "text": "go north"},
+                   {"slot": "world", "turn": t, "text": "You can't go that way." if t == 2 else "a room"}]
+    turns = [chunks[i]["turn"] for i in rc.clean_rows({"chunks": chunks})]
+    assert turns == [0, 1, 2, 13, 14]                         # turns 3-12 have turn 2's reply in their window
+
+
+def test_the_gate_passes_only_when_both_hold(tmp_path):
+    out = rc.score(_gate_run(tmp_path / "a", 12, artifact=False), draws=200)
+    assert out["the can't-go check"]["worlds"] == 12 and out["gate"]["pass"]
+    out = rc.score(_gate_run(tmp_path / "b", 12, artifact=True), draws=200)   # the gap lives only where can't-go is
+    assert out["gate"]["main, lower bound above 0.5"] and not out["gate"]["pass"]
+    assert "stays out" in out["gate"]["meaning"]
+
+
+def test_too_few_clean_worlds_keep_rate_out(tmp_path):
+    out = rc.score(_gate_run(tmp_path, 8, artifact=False), draws=200)
+    assert out["the can't-go check"]["too few to decide"] and not out["gate"]["pass"]
+    assert out["gate"]["can't-go check, lower bound above 0.5"] is None

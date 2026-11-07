@@ -3,7 +3,13 @@ under "Rate's calibration: the form"): two scripts that differ only in contingen
 script takes its next action from the reply (a direction the reply names); the blind script replays, move for move,
 what the contingent script did in another world, so its actions follow the same law and never depend on what it is
 told. World rate (Step 0's X: the bits the window's world parts save in coding the next action) should be higher under
-the contingent script. A known answer by construction: it calibrates the gauge, never lead. Reported only.
+the contingent script. A known answer by construction: it calibrates the gauge, never lead.
+
+It gates (owner, 2026-11-07, Step 0 amendment 7's sequel): rate enters the sense tokens only if the AUC of contingent
+over blind has its 90% lower bound above 0.5, and so does the can't-go check, the same comparison on the scored turns
+whose window holds no "You can't go that way." reply, in either arm (the blind arm hears that reply far more often).
+The check needs 10 worlds where both episodes have at least 3 such turns, or it is too few to decide and rate stays
+out. A pass says the gauge sees a dependence built in; rate's predictive validity stays untested.
 
     python -m body.rate_calibration play  --run runs/rate-cal
     python -m body.rate_calibration read  --model Qwen/Qwen3-8B --run runs/rate-cal
@@ -34,6 +40,11 @@ ARMS = ("contingent", "blind")
 DIRECTIONS = ("north", "south", "east", "west")
 NAMED = re.compile(r"\b(north|south|east|west)\b", re.I)
 DRAWS = 2000
+# The gate (owner, 2026-11-07): rate enters the sense tokens only if both lower bounds are above 0.5
+BAR = 0.5
+CANT = "You can't go that way"   # the can't-go check: scored turns whose window holds no such reply, in either arm
+MIN_CLEAN_TURNS, MIN_CLEAN_WORLDS = 3, 10   # the agent's choice, 2026-11-07, before any play of the seeds
+W = 10                                       # the window in turns, as Step 0's reading (body/step0_habitat.py)
 
 
 def seeds(rehearsal: bool = False, limit: int | None = None) -> list[int]:
@@ -221,7 +232,26 @@ def compare(by_world: dict, draws: int = DRAWS, seed: int = 0) -> dict:
     return {"worlds": len(worlds), "AUC": auc(c, b), "90% interval": [float(lo), float(hi)],
             "median paired difference (bits)": float(np.median(diff)),
             "worlds contingent higher": float(np.mean(diff > 0)),
-            "as expected": bool(lo > 0.5)}
+            "lower bound above 0.5": bool(lo > BAR)}
+
+
+def clean_rows(ep: dict) -> list[int]:
+    """The chunk rows of the episode's actions whose window (the replies to the W turns before) holds no can't-go
+    reply. Scoring only: it reads the world's text, never the reading."""
+    bad = {c["turn"] for c in ep["chunks"] if c["slot"] == "world" and c["turn"] >= 0 and CANT in c["text"]}
+    return [i for i, c in enumerate(ep["chunks"])
+            if c["slot"] == "self" and not bad & set(range(c["turn"] - W, c["turn"]))]
+
+
+def clean_mean(data, rows: list[int], spaces: list[str]) -> tuple[float, int]:
+    """The mean over `spaces` of each space's mean X over the scored turns among `rows`, and how many there are."""
+    per, n = [], 0
+    for sp in spaces:
+        v = np.asarray(data[f"{sp}:X"], dtype=float)[rows] if rows else np.array([])
+        v = v[np.isfinite(v)]
+        n = len(v)
+        per.append(float(v.mean()) if len(v) else np.nan)
+    return (float(np.mean(per)) if per and np.isfinite(per).all() else float("nan")), n
 
 
 def score(run: Path, draws: int = DRAWS) -> dict:
@@ -229,6 +259,7 @@ def score(run: Path, draws: int = DRAWS) -> dict:
 
     eps = {arm: episodes(read(run / arm / "record.jsonl")) for arm in ARMS}
     means = {arm: {} for arm in ARMS}
+    clean = {arm: {} for arm in ARMS}
     for arm in ARMS:
         for (seed, _), ep in eps[arm].items():
             path = run / "checkpoints" / f"{arm}-{seed}-a{ep['attempts']}.npz"
@@ -236,6 +267,8 @@ def score(run: Path, draws: int = DRAWS) -> dict:
                 raise SystemExit(f"{arm} episode {seed} has no code lengths: run read first")
             data = np.load(path)
             means[arm][seed] = {f: episode_means(data, f) for f in ("X", "S", "L_now", "X_w5", "X_w20")}
+            layer_names = [nm for nm in means[arm][seed]["X"] if nm != "text"]
+            clean[arm][seed] = clean_mean(data, clean_rows(ep), layer_names)
     worlds = sorted(set(means["contingent"]) & set(means["blind"]))
     layers = [nm for nm in means["contingent"][worlds[0]]["X"] if nm != "text"] if worlds else []
 
@@ -243,8 +276,21 @@ def score(run: Path, draws: int = DRAWS) -> dict:
         return {w: {arm: float(np.nanmean([means[arm][w][field][sp] for sp in spaces])) for arm in ARMS}
                 for w in worlds}
 
+    main = compare(table("X", layers), draws)
+    ok = [w for w in worlds if all(clean[arm][w][1] >= MIN_CLEAN_TURNS for arm in ARMS)]
+    check = compare({w: {arm: clean[arm][w][0] for arm in ARMS} for w in ok}, draws)
+    check["clean scored turns, per arm"] = {arm: int(sum(clean[arm][w][1] for w in worlds)) for arm in ARMS}
+    too_few = check.get("worlds", 0) < MIN_CLEAN_WORLDS
+    main_ok = bool(main.get("90% interval", [np.nan])[0] > BAR)
+    check_ok = (not too_few) and bool(check["90% interval"][0] > BAR)
     out = {"worlds played by both": len(worlds),
-           "X, mean over the read layers": compare(table("X", layers), draws),
+           "X, mean over the read layers": main,
+           "the can't-go check": {**check, "too few to decide": too_few},
+           "gate": {"main, lower bound above 0.5": main_ok,
+                    "can't-go check, lower bound above 0.5": None if too_few else check_ok,
+                    "pass": main_ok and check_ok,
+                    "meaning": ("rate may enter the sense tokens (calibrated; its predictive validity untested)"
+                                if main_ok and check_ok else "rate stays out of the sense tokens")},
            "reported": {}}
     rep = out["reported"]
     rep["X, text baseline (TF-IDF)"] = compare(table("X", ["text"]), draws)

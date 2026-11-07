@@ -46,8 +46,8 @@ of the stages was fixed by the owner the same day. **The bf16 8B's Stage 2 scree
 have. **Stage 2 rests** (owner, 2026-11-07, option 2 of
 [proposals/stage2-lock-in.md](proposals/stage2-lock-in.md); Step 0 amendment 7): rate's predictive test moves to where
 its event exists, a second engine or babbling, not yet chosen. Rate's calibration in Stage 1 (contingent vs blind
-script) is built first: its form is under Step −1, "Rate's calibration: the form", drafted by the agent for the owner
-to fix before its seeds are played.
+script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
+can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
 **The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
 seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
@@ -61,7 +61,7 @@ code) counts as scheduled:
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | Fixed (amendment 1); harness built; pool fixed; 0.6B rehearsal next |
 | Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Slot; Stage 2 rests (owner, 2026-11-07): the 8B's screen found no stall with a lead |
-| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Form drafted, code built (2026-11-07); reported only; waits for the owner's fix |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Gates rate's entry into the sense tokens (owner, 2026-11-07); form fixed, code built; play (CPU) and the 8B's reading next |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
@@ -82,7 +82,8 @@ plumbing end to end; boundary not near its ceiling (0.81); shape near chance on 
 than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
 CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"); its reading is the 8B's, on the rented
 GPU (DECISIONS.md, 2026-11-06), from `record.jsonl` alone. The contingent-vs-blind script pair is built
-(`body/rate_calibration.py`, 2026-11-07); its form waits for the owner's fix, then its play (CPU) and the 8B's reading.
+(`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its play (CPU) and the
+8B's reading.
 The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
@@ -263,7 +264,8 @@ play, with the limit stated there; the self/world split still waits for babbling
 Stage 2 informs and does not gate babbling. Step −1C gates chords and shape's entry into the sense tokens; Step −1 alone
 gates Stage 2, which never reads shape. **No sense enters the channel before its own instrument test passes:** shape
 stays out of the sense tokens until Step −1C passes, and babbling runs on rate and boundary until then, so a functional
-pass at babbling can never stand in for a sense's accuracy.
+pass at babbling can never stand in for a sense's accuracy. *Since Step 0 amendment 7 (owner, 2026-11-07): rate's
+calibration in Stage 1 gates rate's entry into the sense tokens, as Step −1C gates shape's; Stage 2 rests.*
 
 **Stage 1, draft: Step −1 with a scripted player.**
 - **The script** (code, labelled as such: action chunks `by: code`, in the player's slot, so the reading is
@@ -437,7 +439,7 @@ blind to it. World rate should be higher under the contingent script. It uses th
 answer: it tests the gauge's calibration, never lead. Its form is written here before its code.
 
 *Rate's calibration: the form (drafted by the agent 2026-11-07, with its code, `body/rate_calibration.py`, before any
-play of its seeds; for the owner to fix before they are played).*
+play of its seeds; the gate, its bar and the can't-go check set by the owner the same day, before any play).*
 - **Worlds:** seeds 7000–7039, in pairs (7000 with 7001, 7002 with 7003, …), outside every pool of the three world
   files, built by the frozen file's generator (Stage 1's sizes), no plants, 100 turns, the engine capped (amendment 6's
   `play_or_skip`). Rehearsals take the mirror seeds (+900000) and decide nothing.
@@ -458,10 +460,23 @@ play of its seeds; for the owner to fix before they are played).*
 - **The statistic:** per episode, the mean of X over its scored turns, averaged over the read layers. The AUC of the
   contingent episodes over the blind ones, its 90% interval from 2,000 draws resampling worlds (each world brings its
   two episodes); the median paired difference and the share of worlds where contingent is higher.
-- **Expected, written before any play:** contingent above blind; read as calibrated when the interval's lower bound is
-  above 0.5. **Reported only, deciding nothing** (owner, PR #32, Q3). *For the owner:* with Stage 2 resting
-  (amendment 7), this is rate's only instrument check before babbling; whether it should gate rate's entry into the
-  sense tokens, as Step −1C gates shape's, is the owner's call.
+- **Expected, written before any play:** contingent above blind.
+- **It gates rate's entry into the sense tokens** (owner, 2026-11-07, before any play of its seeds; this replaces
+  "reported only", PR #32 Q3, decided while Stage 2 was rate's test). **Pass:** both of
+  1. the AUC above, its 90% lower bound above 0.5;
+  2. **the can't-go check:** the same comparison on the scored turns whose window (the replies to the 10 turns before
+     the action) holds no "You can't go that way." reply, in either arm: per episode, the mean X over those turns,
+     averaged over the read layers; a world counts when both its episodes have at least 3 such turns; the AUC's 90%
+     lower bound above 0.5. Fewer than 10 such worlds: too few to decide, and rate stays out *(the minimums 3 and 10
+     are the agent's choice, written here before any play of the seeds)*.
+
+  On a pass, rate enters the sense tokens as **calibrated, its predictive validity untested** (Step 0's question,
+  moved by amendment 7). On a fail or too few, rate stays out of the sense tokens; it is still read and logged as a
+  diagnostic, and babbling runs on boundary, and on shape if Step −1C passes.
+- **Feasibility of the check, from a rehearsal of the mirror seeds** (play only, CPU, 2026-11-07, labels and text,
+  no state read, deciding nothing): every contingent episode has 89–90 clean scored turns; the blind ones a median of
+  0, and 15 of 40 worlds have at least 3. So the check is expected to rest on about 15 worlds, above its minimum of
+  10 but not by much.
 - **Reported beside it:** the same in the text space (TF-IDF), which reads the same circularity from the words alone;
   the AUC per layer; X at W = 5 and 20; self-progress S by arm (no direction expected); per arm, the share of turns that
   made a new state, moved the player, or were `look`; the skips.
