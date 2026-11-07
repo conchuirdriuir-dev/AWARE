@@ -188,6 +188,10 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None, s
                 for v in turn_news(eps[key], news_by[key]).values()]
         above = float(np.mean([v > 1 for v in vals])) if vals else math.nan
         st[variant] = {"arrivals": len(vals), "above_floor": above, "bar": bar, "pass": bool(vals) and above <= bar}
+    # Amendment 4 (owner, 2026-11-05, before any 8B run): the restated part is reported in Stage 1 and gates at the
+    # tickle test after babbling; the exact part gates Stage 1 unchanged.
+    st["exact"]["gates"] = "Stage 1"
+    st["restated"]["gates"] = "the tickle test after babbling (amendment 4): reported here, deciding nothing"
     out["self_talk"] = st
 
     # 2 and 3. planted novelty; a plant that did not happen counts as not firing
@@ -266,7 +270,7 @@ def score(eps: dict, news_by: dict, spec: dict, joined_by: dict | None = None, s
     out["reported"]["not produced"] = ("coupling and rate per turn: registered as reported, not yet computed"
                                        + ("" if shape_by else "; shape: no shape files (run read again)"))
     out["reported"]["natural_new_state"] = dict(zip(("auc", "lo", "hi"), _boot(natural_new, natural_flat)))
-    out["pass"] = all(v["pass"] for v in st.values()) and out["fires"]["pass"] and out["above_ordinary"]["pass"]
+    out["pass"] = st["exact"]["pass"] and out["fires"]["pass"] and out["above_ordinary"]["pass"]   # amendment 4
     return out
 
 
