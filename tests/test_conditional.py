@@ -51,6 +51,6 @@ def test_nothing_scored_before_the_burn_in_or_enough_pairs():
 def test_the_conditional_form_reads_fresh_seeds_and_the_registered_one_is_unchanged():
     from body import rate_calibration as rc
     assert rc.seeds() == list(range(7000, 7040))                           # v1 as registered
-    assert rc.seeds(form="conditional") == list(range(7100, 7140))
+    assert rc.seeds(form="conditional") == list(range(7100, 7300))
     assert rc.seeds(rehearsal=True, form="conditional")[0] == 907100
     assert not set(rc.seeds(form="conditional")) & set(rc.seeds())
