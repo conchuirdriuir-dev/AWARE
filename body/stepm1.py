@@ -347,6 +347,18 @@ def shape_by_source(S: np.ndarray, turns: list[int], slots: list[str], floor_var
     return out
 
 
+def shape_in_lift(S: np.ndarray, turns: list[int], slots: list[str], lift: dict) -> np.ndarray:
+    """Shape by source coded in Lift v1 (PLAN.md, "Shape, a trained lift"): each read layer's states mapped into the
+    lift (whitened, K dimensions), then `shape_by_source` there, with the lift's own floor."""
+    from body.lift import apply
+
+    out = np.full((S.shape[0], S.shape[1]), np.nan)
+    for j in range(S.shape[1]):
+        Z = apply(lift, j, S[:, j])[:, None, :]
+        out[:, j] = shape_by_source(Z, turns, slots, [lift["floor"][j]])[:, 0]
+    return out
+
+
 def cmd_read(a) -> None:
     from substrate.echo_floor import d_resumable
     from substrate.measure_d import load_sets
@@ -370,10 +382,22 @@ def cmd_read(a) -> None:
                   D=[float(x) for x in D], draft=a.draft)
     out = run / "news"
     out.mkdir(exist_ok=True)
+    lift = None
+    if getattr(a, "lift", None):
+        from body import lift as lift_mod
+        lift = lift_mod.load(Path(a.lift))
+        if lift["layers"] != layers:
+            raise SystemExit(f"the lift covers layers {lift['layers']}, the read layers are {layers}")
+        if not lift["ok"]:
+            raise SystemExit("the lift failed its own check (held-out corpus coded no better than Lift v0): not used")
+        record.append("lift_used", "code", path=str(a.lift), sha256=__import__("hashlib").sha256(
+            Path(a.lift).read_bytes()).hexdigest())
     for (seed, variant), ep in eps.items():
         path = out / f"{seed}-{variant or 'world'}.npy"
         done = [path, out / f"{seed}-{variant or 'world'}-shape.npy", out / f"{seed}-{variant or 'world'}-tokens.npy",
                 out / f"{seed}-{variant or 'world'}-shape_src.npy"]
+        if lift is not None:
+            done.append(out / f"{seed}-{variant or 'world'}-shape_lift.npy")
         if all(p.exists() and np.load(p).shape[0] == len(ep["chunks"]) for p in done):
             counts["already_read"] += 1
             continue                                      # read already; a replayed episode is read again
@@ -391,6 +415,9 @@ def cmd_read(a) -> None:
         np.save(out / f"{seed}-{variant or 'world'}-shape.npy", shape(Sc, [c["turn"] for c in ep["chunks"]], fv))
         np.save(out / f"{seed}-{variant or 'world'}-shape_src.npy",
                 shape_by_source(Sc, [c["turn"] for c in ep["chunks"]], [c["slot"] for c in ep["chunks"]], fv))
+        if lift is not None:                              # Lift v1: shape by source, coded in the trained lift
+            np.save(out / f"{seed}-{variant or 'world'}-shape_lift.npy",
+                    shape_in_lift(Sc, [c["turn"] for c in ep["chunks"]], [c["slot"] for c in ep["chunks"]], lift))
         np.save(out / f"{seed}-{variant or 'world'}-tokens.npy", np.array([len(x) for x in ids]))
         pairs = joined(ep)
         if pairs:                                         # reported only: the event read inside its turn's reply
