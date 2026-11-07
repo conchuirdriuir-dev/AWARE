@@ -1,5 +1,8 @@
 # Proposal: Stage 2 after the 8B's screen — the players lock in, they do not slide
 
+**Accepted 2026-11-07: option 2** (owner; Step 0 amendment 7, DECISIONS.md). Where rate's predictive test goes, a
+second engine or babbling, is not yet chosen.
+
 For the owner. Nothing here is decided until accepted. Drafted by the agent, 2026-11-07, after the bf16 8B's Stage 2
 screen (Step 0 amendment 5) failed on closures. It is read against PLAN.md on `main` after PR #44. It asks one
 question: is Step 0's event in this habitat at all, and if not, where does rate's predictive test go?
