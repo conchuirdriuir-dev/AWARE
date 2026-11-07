@@ -625,7 +625,7 @@ decision on fresh seeds.
   text space (TF-IDF, no model): X_c must find the surface link there, or the code is wrong. Then the 0.6B on the
   4060, for plumbing and the interval's width.
 - **The decision:** the calibration as fixed (its statistic, its can't-go check, its gate), with X_c in place of X, on
-  fresh seeds **7100–7139** (outside every pool; 7000–7039 is spent), read by the 8B. On a pass, rate enters the sense
+  fresh seeds **7100–7299**, 100 pairs (outside every pool; 7000–7039 is spent), read by the 8B. *Grown from 7100–7139 by the owner, 2026-11-07, before any of them was played: at 20 pairs the can't-go check rested on about 14 worlds in every development run; at the development rate (about 35% eligible) 100 pairs gives about 70. Pool size is not a threshold; the gate is unchanged.* On a pass, rate enters the sense
   tokens as calibrated, its predictive validity untested.
 
 **Shape, by source (a draft only; no code yet).**
