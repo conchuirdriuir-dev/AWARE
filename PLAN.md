@@ -60,13 +60,13 @@ code) counts as scheduled:
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Failed** (2026-11-07): shape 0.575 against bar 0.80; out of the sense tokens; a trained lift is the owner's open question |
-| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Slot; Stage 2 rests (owner, 2026-11-07): the 8B's screen found no stall with a lead |
-| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Gates rate's entry into the sense tokens (owner, 2026-11-07); form fixed, code built; play (CPU) and the 8B's reading next |
-| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
+| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | **Blocked**: rate failed its calibration (2026-11-07); Stage 2 rests |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Failed** (2026-11-07): AUC 0.486, can't-go check 0.488; rate out of the sense tokens; text baseline fails too |
+| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | **Blocked** until a repaired X passes the calibration |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
-| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
-| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | Slot |
+| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial; the sleep trigger reads rate: **blocked** |
+| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | **Blocked**: shape and rate both failed |
 | Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
 | Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
 | Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
@@ -82,11 +82,11 @@ plumbing end to end; boundary not near its ceiling (0.81); shape near chance on 
 than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
 CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"). **The 8B's reading fails both bars**
 (2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
-the sense tokens; babbling's sense tokens are those whose own test has passed: boundary, and rate if its Stage 1
-calibration passes. Whether a trained lift replaces Lift v0 (decision 4) is open for the owner. The contingent-vs-blind
-script pair is built (`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its
-play (CPU) and the 8B's reading, with the maths library's threads set to 1 (under Step 0 habitat's "Runs", "Reading
-time on a rented GPU"). The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
+the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's calibration: the result"): AUC 0.486,
+the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
+out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
+repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
+boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -489,6 +489,111 @@ play of its seeds; the gate, its bar and the can't-go check set by the owner the
   the 8B reading it says the gauge can see a known dependence, not that it reads anything subtler. 40 episodes of 100
   turns per arm, about 16,000 chunks to read: about 16 minutes of the 8B (59 ms a chunk on the rented 3090) and about
 30 minutes of fitting on the CPU, with the maths library's threads set to 1 (below, "Reading time on a rented GPU").
+
+*Rate's calibration: the result (2026-11-07, Qwen3-8B on a rented RTX 3090, driver 610.57.04; main d8940f8, no
+uncommitted changes, recorded by the code in each record).* Record in `runs/rate-cal/` (`contingent/` and `blind/`,
+40 complete 100-turn episodes each, no skips; the reading in `record.jsonl`). Played on the rented machine, so no
+earlier copy to check it against.
+
+| Gate | Result | Needs | |
+|---|---|---|---|
+| X, AUC contingent over blind, 40 worlds | 0.486, 90% interval 0.377–0.599 | lower bound > 0.5 | **fail** |
+| The can't-go check, 16 worlds eligible (≥ 10: decides) | 0.488, 0.281–0.680 | lower bound > 0.5 | **fail** |
+
+**Rate fails its calibration and stays out of the sense tokens**, read and logged as a diagnostic only. The gauge did
+not tell a player whose next move follows the world's last reply from one replaying the same moves blind.
+
+- *Reported, deciding nothing:* the text baseline (TF-IDF) 0.363, 0.275–0.454, below chance (blind above contingent),
+  though the form expected it to find the surface link; X per layer 0.459–0.516; X at W = 5, 0.573, and at W = 20,
+  0.469; self-progress S 0.505; median X −1.52 bits contingent, −1.71 blind (the world's recent replies make the next
+  action dearer to code, in both arms); new-state share 4.5% contingent, 2.5% blind; moves 61% and 34%; `look` 19% in
+  both; clean scored turns 3,592 contingent, 398 blind.
+- *The agent's reading, after the result, deciding nothing:* the text space fails too, and in the wrong direction, so
+  the fault is not only Lift v0's states: it is in X as built or in what the calibration hands it. The blind arm's
+  replies repeat ("You can't go that way."), which may make them cheap to code from and so lower X for contingent
+  relative to blind in both spaces; the can't-go check removes those windows and still fails, on 16 worlds. An earlier
+  note by the agent (in chat, 2026-11-07) put the lift as the common factor of shape's and rate's failures; the text
+  baseline argues against that for rate.
+- *A limit, stated after the result:* no one checked, before the run, whether X can see a dependence of this size at
+  all. The contingent link is at most about a bit (which of the 2–4 directions a reply names is taken), carried by a
+  short action chunk against long replies. The bar was fixed before any play and the result stands as registered; but
+  the calibration tested whether the gauge works at all, not only how well. *A first step toward a repair (the agent's
+  suggestion, deciding nothing):* a synthetic check that plants a known dependence between reply states and the next
+  action's state and asks whether X finds it. If it does, the fault is in what the calibration hands X (the 8B's
+  states, or the text); if not, X as built cannot see this kind of dependence, and a repaired X is a new form. Either
+  way it bears on whether to repair X, the lift, or both.
+
+**What this failure blocks.** *The agent's reading, for the owner to confirm:* PLAN's written rule ("No sense enters
+the channel before its own instrument test passes", under "Two stages", gating by dependency) keeps rate out of the
+sense tokens and no more. The items below beyond the first extend it as "a failed instrument is fixed before what
+depends on it runs", a rule not yet written anywhere in this repository (if the North star or Spec v0.2 states it,
+cite it here); until the owner confirms it, they read as proposed, not as fixed:
+- **Rate in the sense tokens,** both parts: the world part fails here; the self part (the self/world split, slotted
+  for babbling) is the same quantity, read by source, and is not trusted either until a repaired X passes this
+  calibration.
+- **Step 0's predictive test** (rate flat before a stall; moved by amendment 7 to a second engine or babbling): a lead
+  read by a gauge that fails its known answer cannot be read. Blocked until a repaired rate passes.
+- **The chords:** the closure chord (cheap shape, flat rate, silent boundary) and its thinking control (rising rate)
+  need shape and rate, and both have failed. Blocked.
+- **Adaptation and Dream:** rate sensing slowed learning; Dream's sleep trigger (rate flat across episodes) and its
+  replay selection by high rate. Blocked as specified, until rate passes or the owner respecifies them.
+- **Babbling** can still run on boundary alone, the one sense that has passed (Step −1). Whether a one-sense channel
+  serves babbling's test, or babbling waits for a repaired sense, is for the owner.
+- **Repair and rerun:** a changed X, or a changed lift (decision 4), is a new form, written here before its code, and
+  read on new seeds (not 7000–7039); this pool is spent.
+
+*The synthetic check proposed above, run 2026-11-07 (the agent, deciding nothing; `tests/test_conditional.py`'s
+episodes):* 20 pairs of episodes, each action a linear function of the reply before it plus noise (contingent), or
+the same actions against other replies (blind). **The old X: AUC 0.530** (median 0.81 bits contingent, 0.79 blind):
+it cannot see a planted, strong dependence. So the calibration's failure is in X as built, not in the 8B's states or
+the text. The reason is structural: X codes the action under one Gaussian fitted to every earlier chunk, with and
+without the window's world chunks *in the fit*; nothing predicts the action from the reply before it. The blind arm
+replays the contingent arm's actions, so the arms share their actions by construction, and a marginal measure can
+only differ through which replies enter the fit (the blind arm's repeated "You can't go that way.").
+
+#### Repairs: rate, conditional; shape, by source (drafted by the agent 2026-11-07, for the owner to fix)
+
+The tests stay as they are: the contingent-vs-blind calibration for rate, Step −1C for shape, their gates and bars
+unchanged. Only the senses change. Each repair is a new form, developed on seeds that decide nothing and read for the
+decision on fresh seeds.
+
+**Rate, conditional (`body/conditional.py`, built with this draft; tests in `tests/test_conditional.py`).**
+- **What it reads:** each scored action y_t, the agent's previous action s_t, and the world's chunks between them w_t
+  (their mean: the reply, and a planted event if any). Domain-free: states and sources only.
+- **The space:** at each scored action, every chunk before it projected on the top R = 16 principal directions of
+  the chunks before it (a basis from the past only).
+- **Two predictors**, ridge regressions (λ = 1, predictors scaled by the past's spread) fitted on the earlier pairs of
+  the same episode: self-only, y from s; with the world, y from s and w.
+- **Code length:** y_t's residual under an isotropic Gaussian whose variance is that predictor's mean squared
+  *prequential* error on the earlier turns, with the past's variance as one prior observation, floored at the floor
+  variance (Step 0's, D²/d).
+- **X_c(t) = bits(self-only) − bits(with the world):** the bits the world's last reply saves in predicting the action.
+  S_c(t) = bits(mean only) − bits(self-only), reported: what the agent's own last action saves.
+- **Scored** from turn 10 (as X), once 20 earlier pairs are there to fit on. *R, λ and the 20 are the agent's choices,
+  fixed here before any reading.*
+- **Synthetic check** (as above): **X_c's AUC 1.000** (median 5.18 bits contingent, −5.34 blind; an irrelevant reply
+  costs bits, never pays). The planted dependence is far stronger than the calibration's (about a bit), so this shows
+  X_c can see a dependence, not that it will see that one.
+- **Development, deciding nothing:** the calibration's mirror seeds (907000–907039), played on the CPU; first in the
+  text space (TF-IDF, no model): X_c must find the surface link there, or the code is wrong. Then the 0.6B on the
+  4060, for plumbing and the interval's width.
+- **The decision:** the calibration as fixed (its statistic, its can't-go check, its gate), with X_c in place of X, on
+  fresh seeds **7100–7139** (outside every pool; 7000–7039 is spent), read by the 8B. On a pass, rate enters the sense
+  tokens as calibrated, its predictive validity untested.
+
+**Shape, by source (a draft only; no code yet).**
+- **The change:** a chunk is coded under the formula fitted on the earlier chunks **of its own source** (a reply under
+  earlier replies and events, an action under earlier actions), not on both sources together. Everything else as
+  fixed (Lift v0, Step 0's states and floor, burn-in 10 turns).
+- **Why:** under one fit to two-token commands and 40-token replies, a long reply is far from the mean for being a long
+  reply, whatever its templates; boundary, which compares a reply with its nearest earlier reading (another reply),
+  is free of that and parted the kinds (0.82) where shape did not (0.575).
+- **If it still fails,** that is the measurement decision 4 asks for before a trained lift: shape coded in a learned
+  low-dimensional basis, a larger build, its own form.
+- **Development:** the Step −1C rehearsal's mirror seeds, read again by the 0.6B on the 4060, deciding nothing.
+- **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on a fresh pool **8000–8999**
+  (outside every pool; 6000–6999 is spent), played by the script and read by the 8B.
+
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
