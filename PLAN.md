@@ -485,7 +485,8 @@ play of its seeds; the gate, its bar and the can't-go check set by the owner the
   the arms differ in what the world says as well as in whether the next action follows it. The contingent link is
   surface-level (a direction word in the reply, the same word in the action), so the text baseline should find it too;
   the 8B reading it says the gauge can see a known dependence, not that it reads anything subtler. 40 episodes of 100
-  turns per arm, about 16,000 chunks to read: about 2.7 hours at Step −1's reading rate on the rented 3090.
+  turns per arm, about 16,000 chunks to read: about 16 minutes of the 8B (59 ms a chunk on the rented 3090) and about
+30 minutes of fitting on the CPU, with the maths library's threads set to 1 (below, "Reading time on a rented GPU").
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
@@ -902,6 +903,17 @@ turns 1–9) and 8 start inside the burn-in; all 6 kept are paired across episod
 run 50 turns or more, to the episode's end: one reply that changes nothing, then the action copied (21 after a parser
 reply, 20 cycling through rooms, 6 a real dead end; the agent's sorting, after seeing them). Play: 5,060 turns in 55
 minutes. For the owner: [proposals/stage2-lock-in.md](proposals/stage2-lock-in.md).
+
+**Reading time on a rented GPU (2026-11-07, two probes by the agent on the rented 3090, deciding nothing).** Step −1C's
+reading took 15.9 hours: 1.4 of them the 8B's states (8 s an episode), 14.5 shape's fit on the CPU (median 51 s an
+episode). The instance shows 32 CPUs under a quota of about 5 (`cpu.cfs_quota_us` 512000), so the maths library's
+default 32 threads fight over 5 cores: on Step −1C's longest episode (202 chunks), shape took 986 s on the default
+threads, 725 s on 32, 2.8 s on 4 and 2.4 s on 1; the 8B's states took 59 ms a chunk. **Every `read` now runs with
+`OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1`.** The `hardware` entry records the thread settings, the
+CPUs shown and the quota, and warns when the threads are unset and the machine shows more than twice its quota. The
+thread count can change floating-point sums in the last places (around 1e-12), far below any bar; Step −1 and Step
+−1C were read on the default threads and stand as recorded. Stage 1's record mixes two time zones (the record's local
+time against file times 6 hours apart), so its reading time is not known.
 
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
