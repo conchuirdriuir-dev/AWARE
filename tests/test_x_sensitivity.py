@@ -20,5 +20,10 @@ def test_the_contingent_action_carries_the_last_reply():
 
 
 def test_a_strong_topic_separates_the_arms():
-    r = xs.run(kinds=("topic",), strengths=(2.0,), worlds=6, d=256, turns=40, draws=100)
-    assert r["topic, strength 2"]["AUC"] > 0.9
+    r = xs.run(kinds=("topic",), strengths=(2.0,), worlds=6, d=256, turns=40, draws=100, estimators=("X",))
+    assert r["X: topic, strength 2"]["AUC"] > 0.9
+
+
+def test_x_c_sees_a_strong_one_step_copy_where_x_does_not_have_to():
+    r = xs.run(kinds=("content",), strengths=(2.0,), worlds=6, d=256, turns=40, draws=100)
+    assert r["X_c: content, strength 2"]["AUC"] > 0.9

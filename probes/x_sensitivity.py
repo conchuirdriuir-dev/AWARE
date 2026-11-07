@@ -4,7 +4,8 @@ the agent's suggested first step toward a repair, 2026-11-07).
 Rate's calibration failed: X did not tell a player whose next move follows the world's last reply from one replaying
 the same moves blind, and neither did the text baseline. This asks whether X, as built (Step 0's formula and fit,
 `body.step0_habitat.codes`, unchanged), can see such a dependence at all, on states made here where the answer is
-known. No model, no record: plain numpy on synthetic states, on the CPU.
+known; and, on the same episodes, whether the conditional repair X_c (`body.conditional`, PR #49, its parameters
+unchanged) can. No model, no record: plain numpy on synthetic states, on the CPU.
 
 Each episode is laid out as the calibration's: an opening, then 100 turns of an action (self) and a reply (partner),
 201 chunks; W = 10 turns, burn-in 10. States live in d dimensions, replies and actions around two far-apart means (as
@@ -20,9 +21,10 @@ a room description and "go north" sit apart in the 8B), with isotropic noise. Tw
 
 Both arms hear replies from the same law, unlike the calibration (where the blind arm heard "You can't go that way."
 a third of the time). The signal's strength is its norm against the noise's. Per kind and strength: the AUC of the
-contingent episodes' mean X over the blind ones', 20 pairs as the calibration, with the same interval.
+contingent episodes' mean X over the blind ones', 20 pairs as the calibration, with the same interval; the same for
+X_c.
 
-    python -m probes.x_sensitivity                       # the full grid; a few minutes on a CPU
+    python -m probes.x_sensitivity                       # the full grid, both estimators; about an hour on a CPU
     python -m probes.x_sensitivity --out x_sensitivity.json
 """
 from __future__ import annotations
@@ -74,34 +76,45 @@ def episode(kind: str, contingent: bool, strength: float, rng, d: int = D, turns
     return np.array(rows), srcs
 
 
-def mean_x(X: np.ndarray, srcs: list[str], floor_var: float = 1.0) -> float:
-    """The episode's mean X over its scored turns, by Step 0's codes, unchanged (no W = 5 or 20 variants)."""
-    from body.step0_habitat import codes
+ESTIMATORS = ("X", "X_c")
 
-    x = codes(X, srcs, floor_var, variants=False)["X"]
-    return float(np.nanmean(x))
+
+def mean_x(X: np.ndarray, srcs: list[str], floor_var: float = 1.0, estimators=ESTIMATORS) -> dict:
+    """The episode's mean over its scored turns of X (Step 0's codes, unchanged, no W = 5 or 20 variants) and of X_c
+    (`body.conditional`, unchanged: R = 16, ridge 1, 20 earlier pairs, burn-in 10 turns)."""
+    out = {}
+    if "X" in estimators:
+        from body.step0_habitat import codes
+        out["X"] = float(np.nanmean(codes(X, srcs, floor_var, variants=False)["X"]))
+    if "X_c" in estimators:
+        from body.conditional import conditional
+        slots = ["self" if x == "self" else "world" for x in srcs]
+        turns = [-1] + [i // 2 for i in range(len(srcs) - 1)]
+        out["X_c"] = float(np.nanmean(conditional(X, slots, turns, floor_var)["X_c"]))
+    return out
 
 
 def run(kinds=KINDS, strengths=STRENGTHS, worlds: int = WORLDS, d: int = D, turns: int = TURNS, draws: int = 2000,
-        seed: int = 0) -> dict:
+        seed: int = 0, estimators=ESTIMATORS) -> dict:
     from body.rate_calibration import compare
 
     out = {}
     for kind in kinds:
         for s in strengths:
             rng = np.random.default_rng([seed, KINDS.index(kind), int(s * 1000)])
-            by_world = {}
+            by_world = {e: {} for e in estimators}
             for w in range(worlds):
-                means = None
-                vals = {}
+                for e in estimators:
+                    by_world[e][w] = {}
                 for arm, cont in (("contingent", True), ("blind", False)):
-                    X, srcs = episode(kind, cont, s, rng, d=d, turns=turns, means=means)
-                    vals[arm] = mean_x(X, srcs)
-                by_world[w] = vals
-            r = compare(by_world, draws)
-            r["median X (bits)"] = {arm: float(np.median([v[arm] for v in by_world.values()]))
-                                    for arm in ("contingent", "blind")}
-            out[f"{kind}, strength {s:g}"] = r
+                    X, srcs = episode(kind, cont, s, rng, d=d, turns=turns)
+                    for e, v in mean_x(X, srcs, estimators=estimators).items():
+                        by_world[e][w][arm] = v
+            for e in estimators:
+                r = compare(by_world[e], draws)
+                r["median (bits)"] = {arm: float(np.median([v[arm] for v in by_world[e].values()]))
+                                      for arm in ("contingent", "blind")}
+                out[f"{e}: {kind}, strength {s:g}"] = r
     return out
 
 
@@ -112,8 +125,9 @@ def main(argv=None) -> None:
     a = p.parse_args(argv)
     result = run(worlds=a.worlds)
     for name, r in result.items():
-        print(f"{name:24s} AUC {r['AUC']:.3f}  90% {r['90% interval'][0]:.3f}-{r['90% interval'][1]:.3f}  "
-              f"median X contingent {r['median X (bits)']['contingent']:8.2f}  blind {r['median X (bits)']['blind']:8.2f}")
+        print(f"{name:28s} AUC {r['AUC']:.3f}  90% {r['90% interval'][0]:.3f}-{r['90% interval'][1]:.3f}  "
+              f"median contingent {r['median (bits)']['contingent']:8.2f}  blind {r['median (bits)']['blind']:8.2f}",
+              flush=True)
     if a.out:
         with open(a.out, "w") as f:
             json.dump(result, f, indent=1)
