@@ -318,9 +318,11 @@ def cmd_score(a) -> None:
     stale = [k for k in eps if news_by[k].shape[0] != len(eps[k]["chunks"])]
     if stale:
         raise SystemExit(f"news does not match the record for {stale}: run read again")
-    shape_by = {k: load(k, "-shape") for k in eps}
+    which = getattr(a, "shape", "joint")                  # joint: as fixed; by_source: the repair's draft
+    shape_by = {k: load(k, "-shape" if which == "joint" else "-shape_src") for k in eps}
     tokens_by = {k: load(k, "-tokens") for k in eps}
     result = score(eps, news_by, shape_by, tokens_by)
+    result["shape_form"] = which
     drawn = [e for e in entries if e["kind"] == "drawn"]
     if drawn:
         result["drawn"] = {k: v for k, v in drawn[-1].items() if k in ("usable", "full", "counts", "rehearsal")}
@@ -338,6 +340,9 @@ def main(argv=None) -> None:
         if name == "play":
             s.add_argument("--rehearsal", action="store_true", help="mirror seeds: new worlds on the pool's plan")
             s.add_argument("--limit", type=int, help="usable episodes per kind (a dry run); the registered run draws its whole pool")
+        if name == "score":
+            s.add_argument("--shape", choices=("joint", "by_source"), default="joint",
+                           help="joint: shape as fixed; by_source: the repair drafted 2026-11-07 (PLAN.md, Repairs)")
         if name == "read":
             s.add_argument("--model", required=True)
             s.add_argument("--device", default="auto")
