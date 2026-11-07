@@ -29,6 +29,7 @@ from pathlib import Path
 
 import numpy as np
 
+from body.machine import record_machine
 from goalspace.formula import auc
 from substrate.record import Record, read
 
@@ -282,6 +283,7 @@ def cmd_play(a) -> None:
     run = Path(a.run)
     record = Record(run / "record.jsonl")
     entries = read(record.path) if record.path.exists() else []
+    record_machine(record, "stepm1c play")
     done = outcomes(entries)
     cut = cut_off(entries)
     if cut:                                  # said in the record before the seed is played again from its start
