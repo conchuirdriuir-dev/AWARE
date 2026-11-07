@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-07: **Rate failed its calibration; rate stays out of the sense tokens** (by the gate fixed before any play):
+  AUC 0.486 and the can't-go check 0.488, both lower bounds under 0.5; the text baseline fails too (0.363). Rate's
+  predictive test, the chords and Dream's rate-based parts would be blocked until a repaired rate passes on new seeds
+  (the agent's reading of a rule not yet written; for the owner to confirm).
 - 2026-11-07: **Rate's calibration gates rate's entry into the sense tokens** (owner, before any play of its seeds;
   replaces "reported only", PR #32 Q3): the AUC of contingent over blind, 90% lower bound above 0.5, and the same on
   turns whose window holds no can't-go reply (at least 10 worlds, else too few and rate stays out). A pass enters rate
