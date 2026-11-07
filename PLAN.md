@@ -1140,6 +1140,52 @@ thread count can change floating-point sums in the last places (around 1e-12), f
 −1C were read on the default threads and stand as recorded. Stage 1's record mixes two time zones (the record's local
 time against file times 6 hours apart), so its reading time is not known.
 
+**X's sensitivity: a synthetic check (2026-11-07, the agent, deciding nothing; `probes/x_sensitivity.py`).** After rate
+failed its calibration (X 0.486, the text baseline 0.363), the question is whether X as built can see the kind of
+dependence the calibration planted at all. Synthetic states in d = 4,096 (no model), laid out as the calibration's
+episodes (an opening, 100 turns of action and reply; W = 10, burn-in 10), replies and actions around two far-apart
+means with unit noise, read by Step 0's `codes` unchanged; 20 pairs per cell, the calibration's AUC and interval. The
+signal's strength is its norm against the noise's. Both arms hear replies from the same law.
+
+| Dependence (the contingent action carries…) | Estimator | 0.25 | 0.5 | 1 | 2 |
+|---|---|---|---|---|---|
+| **category:** one of 4 recurring vectors, the one the last reply carried (the calibration's kind) | X | 0.46 | 0.48 | 0.48 | 0.54 |
+| | X_c | **1.00** | **1.00** | **1.00** | **1.00** |
+| **content:** a fresh vector, the one the last reply carried | X | 0.51 | 0.49 | 0.46 | 0.35 |
+| | X_c | **0.71** | **1.00** | **1.00** | **1.00** |
+| **topic:** the world's topic, fresh every 10 turns, carried by its replies | X | 0.19 | 0.02 | **1.00** | **1.00** |
+| | X_c | 0.48 | **0.92** | 0.64 | 0.54 |
+
+AUC of contingent over blind episode means (blind: a random category, a fresh vector, or a topic of its own on an
+offset schedule). X: every category and content cell's interval contains 0.5 except content at 2 (0.25–0.45). X_c
+(`body/conditional.py` with the owner's defaults, R = 8, λ = 10, 20 pairs; read on the same episodes, a second run of
+2026-11-07): content at 0.25 is 0.61–0.80; topic at 0.5 is 0.86–0.97, at 1 0.53–0.76, at 0.25 and 2 the intervals
+contain 0.5 (0.36–0.60, 0.43–0.64); no X_c cell lies below 0.5.
+
+- **X does not see a turn-by-turn contingency**, whether the move picks among recurring categories or copies new content
+  from one reply, at any strength up to twice the noise. It **does see a shared topic** that the world introduces and
+  the actions carry over several turns, perfectly once the topic is as strong as the noise. X codes the next action
+  with a low-rank fit (at most 20 axes) over all earlier chunks, with the window's world chunks in or out: a
+  direction that appears once, or that every earlier chunk already spans, changes the fit little, while a topic held
+  over several turns gets its own axis. So the calibration asked X about a dependence it was not built to measure.
+  This fits the text baseline failing too: the fault is in what X measures, not only in the 8B's states.
+- **Below that strength, the shared topic reads inverted** (0.19 at 0.25, 0.02 at 0.5): contingent X is lower than
+  blind in almost every world. A sign of X near threshold is not to be trusted.
+- *For the owner, deciding nothing:* a rate that should read contingency (does the world's last reply shape the next
+  move?) needs a different estimator, a conditional one (the next action predicted from the replies just before it),
+  not the leave-out of a low-rank fit. Calibrating X instead with a topic-style dependence would choose the test the
+  gauge passes, which the known failure mode warns against; either is a new form, on new seeds.
+- **X_c, the conditional repair (PR #49), sees what X does not:** the calibration's kind of dependence at every
+  strength down to a quarter of the noise, and copied content from half the noise up. **It mostly does not see a
+  held topic**, the one thing X sees: once a topic runs for several turns, the agent's own last action already
+  carries it, so the reply adds little beyond it, and only the turns where the topic changes count; at strength 2,
+  both arms' X_c are about −6.5 bits. The two estimators measure different things: X_c, whether the last reply shapes
+  the next move beyond the agent's own last move; X, whether recent world chunks share lasting variance with the
+  action. X_c never read inverted here. What the calibration asks is X_c's kind.
+- *Limits:* synthetic, isotropic noise; one separation of the two means (3 noise norms); the floor at the noise's
+  variance (the 8B's is D²/d); one seed per cell. The large positive X in every cell (about 400–500 bits, both arms;
+  the 8B's was about −1.5) comes from this geometry and is not compared with the 8B's.
+
 **Hardening (2026-11-04, the agent, after the freeze).** An episode cut off mid-run is played again, not counted as
 done (`end` entries; the stub stays in the record; score refuses stale news). Each planted turn records whether play
 was also new there (`natural_new`, the plant's own door left out), and scoring reports clean and colliding plants

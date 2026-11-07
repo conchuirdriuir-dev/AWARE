@@ -24,7 +24,7 @@ a third of the time). The signal's strength is its norm against the noise's. Per
 contingent episodes' mean X over the blind ones', 20 pairs as the calibration, with the same interval; the same for
 X_c.
 
-    python -m probes.x_sensitivity                       # the full grid, both estimators; about an hour on a CPU
+    OMP_NUM_THREADS=1 python -m probes.x_sensitivity     # the full grid, both estimators, cells in parallel
     python -m probes.x_sensitivity --out x_sensitivity.json
 """
 from __future__ import annotations
@@ -118,12 +118,36 @@ def run(kinds=KINDS, strengths=STRENGTHS, worlds: int = WORLDS, d: int = D, turn
     return out
 
 
+def _cell(args) -> dict:
+    kind, s, worlds = args
+    return run(kinds=(kind,), strengths=(s,), worlds=worlds)
+
+
 def main(argv=None) -> None:
+    import os
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--worlds", type=int, default=WORLDS)
+    p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1),
+                   help="cells run in parallel; set OMP_NUM_THREADS=1 so they do not fight over cores")
     p.add_argument("--out", help="also write the result as JSON here")
     a = p.parse_args(argv)
-    result = run(worlds=a.worlds)
+    result = {}
+    with ProcessPoolExecutor(a.workers) as pool:
+        futures = [pool.submit(_cell, (k, s, a.worlds)) for k in KINDS for s in STRENGTHS]
+        for f in as_completed(futures):
+            part = f.result()
+            result.update(part)
+            for name, r in part.items():
+                print(f"{name:28s} AUC {r['AUC']:.3f}  90% {r['90% interval'][0]:.3f}-{r['90% interval'][1]:.3f}  "
+                      f"median contingent {r['median (bits)']['contingent']:8.2f}  blind {r['median (bits)']['blind']:8.2f}",
+                      flush=True)
+            if a.out:
+                with open(a.out, "w") as fh:
+                    json.dump(result, fh, indent=1)
+    result = dict(sorted(result.items()))
+    print("--- sorted ---")
     for name, r in result.items():
         print(f"{name:28s} AUC {r['AUC']:.3f}  90% {r['90% interval'][0]:.3f}-{r['90% interval'][1]:.3f}  "
               f"median contingent {r['median (bits)']['contingent']:8.2f}  blind {r['median (bits)']['blind']:8.2f}",
