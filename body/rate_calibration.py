@@ -39,7 +39,7 @@ SEEDS = (7000, 7039)          # 20 pairs of worlds, outside every pool in the th
 # The forms: v1, X as first built (registered, run 2026-11-07: failed); conditional, X_c (body/conditional.py; drafted
 # 2026-11-07, PLAN.md "Repairs"), read on fresh seeds. The statistic, the can't-go check and the gate are the same.
 FORMS = {"v1": {"seeds": SEEDS, "field": "X", "self": "S"},
-         "conditional": {"seeds": (7100, 7139), "field": "X_c", "self": "S_c"}}
+         "conditional": {"seeds": (7100, 7299), "field": "X_c", "self": "S_c"}}   # 100 pairs (owner, 2026-11-07)
 SCRIPT_SEED = 710000          # the contingent script's draws: default_rng(seed + 710000)
 ARMS = ("contingent", "blind")
 DIRECTIONS = ("north", "south", "east", "west")
