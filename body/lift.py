@@ -186,7 +186,7 @@ def cmd_build(a) -> None:
     ok = all(x["ok"] for x in report)
     out["floor"], out["ok"] = np.array(floors), np.array(ok)
     np.savez(run / "lift.npz", **out)
-    record.append("lift", "code", **reader.info, read_layers=layers, layers=report, ok=ok, draft=a.draft,
+    record.append("lift", "code", **reader.info, read_layers=layers, per_layer=report, ok=ok, draft=a.draft,
                   seconds=round(time.time() - started, 1),
                   lift_sha256=hashlib.sha256((run / "lift.npz").read_bytes()).hexdigest())
     print(json.dumps({"ok": ok, "layers": [{k: x[k] for k in ("layer", "K", "k_v0", "held_b_bits_per_chunk", "ok")}
