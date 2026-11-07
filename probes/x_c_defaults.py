@@ -159,3 +159,59 @@ def main(argv=None) -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# --- Added after the selection had started scoring candidates (2026-11-07; the #49 session's review): reported
+# beside the result, never part of the rule above, so the defaults are not re-picked after seeing results. ---------
+
+CANT_SHARE = 0.36        # the share of turns the calibration's blind arm heard "You can't go that way." (145 of 400)
+
+
+def confound_cell(r: int, lam: float, pairs: int, worlds: int = WORLDS, d: int = D_SYN, strength: float = 1.0) -> dict:
+    """The confound null: both arms blind (no dependence), but in the 'blind' arm about 36% of replies are one and the
+    same state, repeated exactly (as "You can't go that way." reads the same each time), while the other arm's replies
+    are all as usual. A setting that rewards that difference reads away from 0.5 here."""
+    from body.conditional import conditional
+    from body.rate_calibration import compare
+    from probes.x_sensitivity import episode
+
+    rng = np.random.default_rng([7, 99, int(strength * 1000)])
+    by_world = {}
+    for w in range(worlds):
+        by_world[w] = {}
+        for arm in ("contingent", "blind"):
+            X, srcs = episode("category", False, strength, rng, d=d)
+            if arm == "blind":
+                same = X[0] + rng.standard_normal(d)              # one fixed reply state, near the replies' mean
+                for i in range(2, len(X), 2):
+                    if rng.random() < CANT_SHARE:
+                        X[i] = same
+            slots, turns = _slots_turns(srcs)
+            x = conditional(X, slots, turns, 1.0, r=r, lam=lam, min_pairs=pairs)["X_c"]
+            by_world[w][arm] = float(np.nanmean(x))
+    return compare(by_world, 2000)
+
+
+def after(result_path: str, out: str | None = None, workers: int = 3) -> dict:
+    """The two checks, for every candidate scored: the confound null cell, and the score recomputed with the
+    development can't-go AUC in place of the main AUC (and beside it). Reported only."""
+    res = json.loads(Path(result_path).read_text())
+    cands = {(x["R"], x["lambda"], x["pairs"]): x for x in res["stage 1"] + res["stage 2"]}
+    keys = sorted(cands)
+    with ProcessPoolExecutor(workers) as pool:
+        cells = dict(zip(keys, pool.map(confound_cell, *zip(*keys))))
+    rows = {}
+    for k in keys:
+        x = cands[k]
+        syn = [x["cells"][c]["AUC"] for c in ("category 0.5", "category 1", "content 1")]
+        cg = x["dev"]["can't-go check"].get("AUC", float("nan")) if x["dev"] else float("nan")
+        ci = cells[k]["90% interval"]
+        rows[f"R {k[0]} λ {k[1]:g} pairs {k[2]}"] = {
+            "confound null AUC": cells[k]["AUC"], "confound null interval": ci,
+            "confound null holds 0.5": bool(ci[0] <= 0.5 <= ci[1]),
+            "dev can't-go AUC": cg, "dev can't-go interval": x["dev"]["can't-go check"].get("90% interval"),
+            "score with can't-go in place of main": float(np.mean(syn + [cg])),
+            "score with both": float(np.mean(syn + [x["dev"]["main"]["AUC"], cg]))}
+    if out:
+        Path(out).write_text(json.dumps(rows, indent=1, default=float))
+    return rows

@@ -560,17 +560,58 @@ decision on fresh seeds.
 **Rate, conditional (`body/conditional.py`, built with this draft; tests in `tests/test_conditional.py`).**
 - **What it reads:** each scored action y_t, the agent's previous action s_t, and the world's chunks between them w_t
   (their mean: the reply, and a planted event if any). Domain-free: states and sources only.
-- **The space:** at each scored action, every chunk before it projected on the top R = 16 principal directions of
-  the chunks before it (a basis from the past only).
-- **Two predictors**, ridge regressions (λ = 1, predictors scaled by the past's spread) fitted on the earlier pairs of
+- **The space:** at each scored action, every chunk before it projected on the top R principal directions of the
+  chunks before it (a basis from the past only).
+- **Two predictors**, ridge regressions (λ, predictors scaled by the past's spread) fitted on the earlier pairs of
   the same episode: self-only, y from s; with the world, y from s and w.
 - **Code length:** y_t's residual under an isotropic Gaussian whose variance is that predictor's mean squared
   *prequential* error on the earlier turns, with the past's variance as one prior observation, floored at the floor
   variance (Step 0's, D²/d).
 - **X_c(t) = bits(self-only) − bits(with the world):** the bits the world's last reply saves in predicting the action.
   S_c(t) = bits(mean only) − bits(self-only), reported: what the agent's own last action saves.
-- **Scored** from turn 10 (as X), once 20 earlier pairs are there to fit on. *R, λ and the 20 are the agent's choices,
-  fixed here before any reading.*
+- **Scored** from turn 10 (as X), once enough earlier pairs are there to fit on. *R, λ and the pairs: drafted as 16,
+  1 and 20 (the code's values still); not yet fixed: below, for the owner, before the deciding seeds are played.*
+- **The defaults (2026-11-07, the agent, at the owner's request; `probes/x_c_defaults.py`).** *The rule, committed
+  (9449237) before any candidate was scored:* candidates R ∈ {4, 8, 16, 32} × λ ∈ {0.1, 1, 10} at 20 pairs, then
+  the pairs ∈ {10, 20, 30} at the chosen R and λ; scored on synthetic episodes (d = 1,024: category at 0.5 and 1,
+  content at 1, and a null cell with both arms blind) and on 907000–907039 in the text space (main AUC); eligible if
+  the null cell's 90% interval holds 0.5; the highest mean of the four AUCs wins; within 0.01 of the best, the drafted
+  16, 1, 20 if there, else the smaller R, then the larger λ, then (as coded; the rule's text is silent on it) the
+  fewer pairs. Never 7000–7039 or 7100–7139. **The rule's pick: R = 4, λ = 0.1, 10 pairs; not written into the code
+  (below).**
+
+  | R, λ, pairs | Score | Null | Dev main | *Confound null* | *Dev can't-go* |
+  |---|---|---|---|---|---|
+  | **4, 0.1, 10 (the rule's pick)** | 0.940 | 0.64 | 0.759 | *0.36 [0.22, 0.52]* | *0.711* |
+  | 4, 0.1, 20 | 0.948 | 0.44 | 0.794 | *0.57 [0.42, 0.73]* | *0.745* |
+  | 4, 0.1, 30 | 0.949 | 0.51 | 0.797 | *0.40 [0.28, 0.54]* | *0.791* |
+  | 8, 10, 20 (the best score, lost the tie) | 0.958 | 0.56 | 0.834 | *0.42 [0.26, 0.60]* | *0.852* |
+  | 16, 1, 20 (as drafted) | 0.927 | 0.60 | 0.709 | ***0.75 [0.61, 0.88]*** | *0.714* |
+  | 32, 1, 20 | 0.927 | 0.67 (ineligible) | 0.709 | ***0.77 [0.62, 0.88]*** | *0.714* |
+
+  All 14 candidates are in `probes/x_c_defaults.py`'s output; the table shows the chosen, its neighbours, the best and
+  the drafted. Every synthetic sensitivity cell read 0.95–1.00 for every candidate, so the synthetic cells did not
+  discriminate and the choice rested on the development main AUC and the tie-break: a limit of the rule.
+- **Why the pick is not in the code:** `tests/test_conditional.py`'s sensitivity test (written with X_c, before the
+  rule) plants a dependence spread over all 40 dimensions, and fails at the pick. Mean X_c over 3 seeds, contingent
+  against blind: 4, 0.1, 10: 0.03 against −1.58 (the test needs above 1); 4, 0.1, 20: 0.34; 8, 1, 20: 1.28; **8, 10,
+  20: 2.30 against −0.94.** A basis of 4 directions misses a dependence that does not lie along the past's top 4
+  directions; the rule's synthetic cells all planted it along one strong direction, so they could not see that cost.
+  Where the 8B carries a direction word in its states is not known.
+- ***Two checks added after the selection had started scoring (the #49 session's review), reported, never part of
+  the rule; the defaults were not re-picked after seeing them.*** (1) A **confound null**: both arms blind, but 36% of
+  one arm's replies are one repeated state, as the calibration's blind arm hears "You can't go that way."; a setting
+  that reads that difference as contingency leaves 0.5. **The drafted 16, 1, 20 fails it (0.75), as do 16, 0.1 and
+  every R = 32;** every R = 4 and R = 8 candidate holds 0.5. The chosen setting holds it at the edge and leans the
+  other way (0.36), so in the deciding run the confound would work against a pass, not for it. (2) The development
+  **can't-go AUC** in the score: the chosen setting 0.711 [0.54, 0.86]; R = 8, λ = 10 scores best on every version of
+  the score (0.852).
+- ***For the owner, before 7100–7139 are played:*** the rule's pick (4, 0.1, 10) holds the confound null at its edge
+  but fails the test written before the rule; the drafted 16, 1, 20 fails the confound null. **8, 10, 20** had the best
+  score under the rule (it lost only the tie-break to a smaller R), holds the confound null (0.42), is best on the
+  development can't-go check (0.852) and passes the earlier test (2.30). Choosing it is an override of the rule after
+  seeing the added checks, on development material only; a second, declared round with a spread-out cell in the rule
+  is the alternative. Either is recorded here as the owner's.
 - **Synthetic check** (as above): **X_c's AUC 1.000** (median 5.18 bits contingent, −5.34 blind; an irrelevant reply
   costs bits, never pays). The planted dependence is far stronger than the calibration's (about a bit), so this shows
   X_c can see a dependence, not that it will see that one.
