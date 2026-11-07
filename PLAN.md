@@ -60,13 +60,13 @@ code) counts as scheduled:
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Failed** (2026-11-07): shape 0.575 against bar 0.80; out of the sense tokens; a trained lift is the owner's open question |
-| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Slot; Stage 2 rests (owner, 2026-11-07): the 8B's screen found no stall with a lead |
-| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | Gates rate's entry into the sense tokens (owner, 2026-11-07); form fixed, code built; play (CPU) and the 8B's reading next |
-| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot (no Stage 3) |
+| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | **Blocked**: rate failed its calibration (2026-11-07); Stage 2 rests |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Failed** (2026-11-07): AUC 0.486, can't-go check 0.488; rate out of the sense tokens; text baseline fails too |
+| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | **Blocked** until a repaired X passes the calibration |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
-| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial: reported only before Dream |
-| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | Slot |
+| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial; the sleep trigger reads rate: **blocked** |
+| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | **Blocked**: shape and rate both failed |
 | Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
 | Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
 | Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
@@ -82,11 +82,11 @@ plumbing end to end; boundary not near its ceiling (0.81); shape near chance on 
 than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
 CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"). **The 8B's reading fails both bars**
 (2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
-the sense tokens; babbling's sense tokens are those whose own test has passed: boundary, and rate if its Stage 1
-calibration passes. Whether a trained lift replaces Lift v0 (decision 4) is open for the owner. The contingent-vs-blind
-script pair is built (`body/rate_calibration.py`, 2026-11-07) and gates rate's entry into the sense tokens; next, its
-play (CPU) and the 8B's reading, with the maths library's threads set to 1 (under Step 0 habitat's "Runs", "Reading
-time on a rented GPU"). The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
+the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's calibration: the result"): AUC 0.486,
+the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
+out of the sense tokens, and its predictive test, the chords and Dream's rate-based parts are blocked until a repaired
+rate passes on new seeds. **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
+boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -489,6 +489,47 @@ play of its seeds; the gate, its bar and the can't-go check set by the owner the
   the 8B reading it says the gauge can see a known dependence, not that it reads anything subtler. 40 episodes of 100
   turns per arm, about 16,000 chunks to read: about 16 minutes of the 8B (59 ms a chunk on the rented 3090) and about
 30 minutes of fitting on the CPU, with the maths library's threads set to 1 (below, "Reading time on a rented GPU").
+
+*Rate's calibration: the result (2026-11-07, Qwen3-8B on a rented RTX 3090, driver 610.57.04; main d8940f8, no
+uncommitted changes, recorded by the code in each record).* Record in `runs/rate-cal/` (`contingent/` and `blind/`,
+40 complete 100-turn episodes each, no skips; the reading in `record.jsonl`). Played on the rented machine, so no
+earlier copy to check it against.
+
+| Gate | Result | Needs | |
+|---|---|---|---|
+| X, AUC contingent over blind, 40 worlds | 0.486, 90% interval 0.377–0.599 | lower bound > 0.5 | **fail** |
+| The can't-go check, 16 worlds eligible (≥ 10: decides) | 0.488, 0.281–0.680 | lower bound > 0.5 | **fail** |
+
+**Rate fails its calibration and stays out of the sense tokens**, read and logged as a diagnostic only. The gauge did
+not tell a player whose next move follows the world's last reply from one replaying the same moves blind.
+
+- *Reported, deciding nothing:* the text baseline (TF-IDF) 0.363, 0.275–0.454, below chance (blind above contingent),
+  though the form expected it to find the surface link; X per layer 0.459–0.516; X at W = 5, 0.573, and at W = 20,
+  0.469; self-progress S 0.505; median X −1.52 bits contingent, −1.71 blind (the world's recent replies make the next
+  action dearer to code, in both arms); new-state share 4.5% contingent, 2.5% blind; moves 61% and 34%; `look` 19% in
+  both; clean scored turns 3,592 contingent, 398 blind.
+- *The agent's reading, after the result, deciding nothing:* the text space fails too, and in the wrong direction, so
+  the fault is not only Lift v0's states: it is in X as built or in what the calibration hands it. The blind arm's
+  replies repeat ("You can't go that way."), which may make them cheap to code from and so lower X for contingent
+  relative to blind in both spaces; the can't-go check removes those windows and still fails, on 16 worlds. An earlier
+  note by the agent (in chat, 2026-11-07) put the lift as the common factor of shape's and rate's failures; the text
+  baseline argues against that for rate.
+
+**What this failure blocks** (the draft's rule: a failed instrument is fixed before what depends on it runs):
+- **Rate in the sense tokens,** both parts: the world part fails here; the self part (the self/world split, slotted
+  for babbling) is the same quantity, read by source, and is not trusted either until a repaired X passes this
+  calibration.
+- **Step 0's predictive test** (rate flat before a stall; moved by amendment 7 to a second engine or babbling): a lead
+  read by a gauge that fails its known answer cannot be read. Blocked until a repaired rate passes.
+- **The chords:** the closure chord (cheap shape, flat rate, silent boundary) and its thinking control (rising rate)
+  need shape and rate, and both have failed. Blocked.
+- **Adaptation and Dream:** rate sensing slowed learning; Dream's sleep trigger (rate flat across episodes) and its
+  replay selection by high rate. Blocked as specified, until rate passes or the owner respecifies them.
+- **Babbling** can still run on boundary alone, the one sense that has passed (Step −1). Whether a one-sense channel
+  serves babbling's test, or babbling waits for a repaired sense, is for the owner.
+- **Repair and rerun:** a changed X, or a changed lift (decision 4), is a new form, written here before its code, and
+  read on new seeds (not 7000–7039); this pool is spent.
+
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);
 boundary's coupling part on the same turns (v10's coupling over the last p turns; window fits were fragile in the toy
