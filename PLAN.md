@@ -76,7 +76,8 @@ plumbing end to end; boundary not near its ceiling (0.81); shape near chance on 
 than estimated, so the pool is drawn whole (amendment 3, owner). **Its registered play is done** (2026-11-05, on the
 CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play"). **The 8B's reading fails both bars**
 (2026-11-07, under "Step −1C: the 8B's reading"): shape 0.575 against 0.80, 0.249 below boundary. Shape stays out of
-the sense tokens; babbling runs on rate and boundary. Whether a trained lift replaces Lift v0 (decision 4) is open for
+the sense tokens; babbling's sense tokens are those whose own test has passed: boundary, and rate if its Stage 1
+calibration passes (PR #45). Whether a trained lift replaces Lift v0 (decision 4) is open for
 the owner. The contingent-vs-blind script pair is not built. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
@@ -568,9 +569,10 @@ uses only `house`'s words), where boundary fires on both kinds and parts them (0
 - *Per layer, reported:* shape 0.560–0.582; boundary 0.733–0.917 (highest at layer 35). 200 of 207 scored chunks in the
   32–63 token bin. Boundary's ceiling (amendment 1): not near it overall.
 - **What follows, under the rules fixed before the reading:** Step −1C gates chords and shape's entry into the sense
-  tokens (gating by dependency), so **shape stays out of the sense tokens and babbling runs on rate and boundary**
-  (the owner's rule, 2026-11-05: no sense enters the channel before its own instrument test passes). Stage 2 reads
-  rate only and is unaffected. Nothing is retuned on this pool: a new lift, if any, is a new run on new seeds.
+  tokens (gating by dependency), so **shape stays out of the sense tokens** (the owner's rule, 2026-11-05: no sense
+  enters the channel before its own instrument test passes). Babbling's sense tokens are those that have passed:
+  boundary (Step −1), and rate if its Stage 1 calibration passes (PR #45, which makes that calibration gate rate).
+  Stage 2, which read rate only, rests (Step 0 amendment 7, PR #45). Nothing is retuned on this pool: a new lift, if any, is a new run on new seeds.
 - **For the owner (decision 4):** a trained encoder replaces Lift v0 "only if a measurement earns it". This is such a
   measurement, and a stronger one than PLAN anticipated (bar 1 passing, bar 2 failing would have meant redundancy;
   here shape does not read the structure at all). Whether to build one, and the test it must pass before any
