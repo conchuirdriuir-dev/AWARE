@@ -112,7 +112,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 | Step | Question | Measures | Status |
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Passed** (2026-11-06, the 8B on a rented GPU; amendments 1–4): exact self-talk 0 of 600; plants 40 of 40; AUC 0.907. Restated self-talk 78.8%, gating at the tickle test |
-| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Fixed** (PR #32, amendment 1); harness built (`body/stepm1c.py`); pool fixed. Next: the 0.6B rehearsal |
+| −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Failed** (2026-11-07, the 8B): shape 0.575 against 0.80, below boundary. **Shape parked** (owner, 2026-11-07): by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
 | 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–6); code built (`body/step0_habitat.py`); **rests** (amendment 7, 2026-11-07): the 8B's screen fails on closures, its stalls abrupt and endless. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | Not written |
