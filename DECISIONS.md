@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-07: **Shape is parked** (owner): three forms on Step −1C's development seeds (joint 0.525, by source 0.610,
+  in Lift v1 0.573), none near the bar of 0.80 or above boundary; no deciding run. It returns only as a new form.
 - 2026-11-07: **X_c's deciding pool grows to 7100–7299** (owner, before any of it is played): 100 pairs, so the
   can't-go check rests on about 70 worlds instead of about 14; the gate is unchanged.
 - 2026-11-07: **X_c's defaults: R = 8, ridge 10, 20 earlier pairs** (owner, before 7100–7139 are played): an override
