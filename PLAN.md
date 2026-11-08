@@ -1481,6 +1481,37 @@ channel can work either way.
   8B with a graft, so the screen may fail again. If it does, rate's predictive test rests again, and the second engine
   is the remaining place.
 
+#### Step 2: the code, and what building it found (2026-11-08, the agent; for the owner)
+
+`body/babble.py` (play, read, fit, train, score), `body/senses.py` (the senses chunk by chunk), `body/lora.py` (the
+graft), with tests in `tests/test_babble.py` and `tests/test_senses.py`. The live senses are the tested ones:
+`body/senses.py` reproduces Step −1's `news` and `conditional`'s X_c to 1e-9 (tested), and in a smoke run the vectors
+the grafted player was given matched the offline reading within 1.6e-8 (boundary) and exactly (X_c). One model plays
+and reads: the Reader wraps the player's own model with the LoRA switched off, which reads exactly as a separately
+loaded base model (maximum difference 0.0, measured on the 0.6B), so the 8B fits on 24 GB.
+
+**Found, each for the owner to rule on:**
+1. **The yoked arm is degenerate as drafted.** Training runs in offline rounds, so the active graft trains on a fixed
+   recorded text; a yoked graft on the same text in the same steps differs only by seed. Not built. A yoked arm that
+   means something needs a different contrast (for example, a graft trained without the actions in its context).
+2. **The z-scores and the reply space are fitted on round 0's play, not on the calibration pool.** The calibration
+   pool (1000–1099) is Stage 1's worlds played by the script; babbling plays Stage 2's worlds with the model. Round 0
+   (the base model, no tokens) matches what the channel carries. The draft said the calibration pool.
+3. **A looping episode sends X_c to 2 × 10¹⁴ bits** (smoke run: the grafted 0.6B typing "look" every turn; identical
+   chunks collapse the past's variance to the floor). The instrument is unchanged; the channel cuts the body vector's
+   z-scores at ±10, in tokens and targets (agent's choice).
+4. **An empty action cannot be read.** The grafted player samples again, up to 10 times (counted in the record); then
+   the episode is cut at its last full turn, as an engine failure is. The code never writes an action.
+5. **One rendering for training and play:** every assistant turn is the header, the two sense tokens, an empty think
+   block, then the action. The base player of round 0 and the held-out pool saw Qwen's own template; every arm reads
+   the held-out text in this one rendering.
+6. **Not built yet (all reported only):** the swap within an episode, quest completion played live, the phantom-limb
+   and rubber-hand diagnostics.
+
+**The rehearsal** (running from 2026-11-08 11:12, `runs/babble-06-rehearsal/`): Qwen3-0.6B on the 4060, mirror seeds,
+three rounds of 40 and 40 held-out, its own floor (`runs/echo-floor-0.6b-first/floor.json`, D measured as a draft).
+It decides nothing; it reports each ratio's interval, from which the owner fixes bars 1–3.
+
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
 *Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
