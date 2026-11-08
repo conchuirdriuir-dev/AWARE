@@ -25,7 +25,7 @@ every fault the layout could have and labels every turn. It never acts and never
 | 7. Scale | Yes: an engine step is milliseconds |
 | 8. A second domain | Yes, and a third behind it: real cases from a garage, in the same log schema |
 
-## 3. What has run (nothing read)
+## 3. What had run before the read
 
 - Scripted players over 100 scenarios per level: the oracle's greedy policy 100% correct at every level.
 - Qwen3-4B and Qwen3-8B played 20 level-1 scenarios each through Fault Garage's own harness (its system prompt,
@@ -87,9 +87,38 @@ lists the valid ones, with a hint where a component name was used; a cap of 100 
 the owner's: whether the player's system prompt says what an apprentice would be told, that the car starts with the
 key off and most faults show only under load.
 
+## 4a. Result (2026-11-08)
+
+Read by the 8B on the pool above, Fault Garage at commit `f40aacd` (clean); scored by `score_boundary.py`.
+
+| Measure | Bar | Result | |
+|---|---|---|---|
+| R0, exact repeats | under 0.01 | max 0.000 over 961 | pass |
+| R1, words | AUC at least 0.75, lower bound at least 0.65 | 0.212 [0.159, 0.273] | **fail** |
+
+Reported: R1 on all replies 0.746 [0.718, 0.771]; readings 0.826 [0.800, 0.851]; scans 0.093; customer answers 0.289.
+R2 (Spearman with information gain): all 0.492, words −0.443, readings 0.518. R4 had no self-caused scans (the scripted
+players never unplug). **The agent's registered prediction was wrong on both halves:** words reversed, not separated;
+readings well above chance, not near it.
+
+**Post hoc, report only** (`experiments/boundary_breakdown.py` in Fault Garage; none of this moves the verdict):
+
+- Split by player, readings fall to chance: greedy 0.535 [0.473, 0.594], random 0.574 [0.526, 0.625]; within turn bands
+  of the random player, 0.41 to 0.56. Boundary falls with position in the episode (Spearman −0.79 on readings, −0.73 on
+  acknowledgements): a nearest-earlier-chunk distance shrinks as the episode grows. Unexpected readings came mostly from
+  greedy's short episodes (median turn 1), expected ones from random's long ones (median turn 23), so the pooled 0.826
+  measured position, not surprise.
+- The words reversal holds within the greedy player: 0.235 [0.171, 0.305]. Unexpected scans mostly repeat the intake's
+  code list with only the responding modules changed; customer answers fall on both sides with identical sentences
+  ("It's like that all the time": 12 unexpected, 36 expected).
+- The agent's reading: on templated text boundary tracks how familiar a reply looks, not how improbable its content is.
+  The Architecture Brief's boundary has a second half, whether an arrival improves prediction of the next step, which
+  Step −1 did not build; that half is what the oracle measures.
+- The reading machine recorded neither AWARE's commit nor the model revision.
+
 ## 5. Later: rate's home
 
-Rate's calibration failed in Stage 1 (AUC 0.486), and Stage 2 rests because TextWorld's stalls start abruptly and
+Rate's calibration failed in Stage 1 (AUC 0.486; it has since passed with X_c, DECISIONS 2026-11-08), and Stage 2 rests because TextWorld's stalls start abruptly and
 never end. Fault Garage gives rate an exact event: the oracle's information gain per turn, split by where it came
 from (the customer, tools, the model's own reasoning). Its stalls also end, in a diagnosis or the action cap. A rate
 test here would be written in PLAN, with its bars, before any reading; nothing for it is built.
