@@ -1,5 +1,9 @@
 # Proposal: rate's predictive test on Fault Garage
 
+**Fixed by the owner, 2026-11-08** (DECISIONS.md): option (A); the load line in the player's prompt; the labels, cap
+and seeds as drafted; pairs within ±3 turns. Section 9's questions are answered below. The agent's prediction
+(section 7) stands as written.
+
 *Drafted by the agent 2026-11-08 at the owner's request, for the owner to fix. Nothing here is built or run. Every
 number marked (agent) is the agent's proposal; the bars are Step 0's, unchanged. Follows
 [fault-garage.md](fault-garage.md) section 5 ("Later: rate's home").*
@@ -138,6 +142,8 @@ placebo (200 rounds of pretend events matched by the same rules); same-episode p
   closure running to the episode's end.
 
 ## 9. Questions for the owner
+
+*Answered by the owner, 2026-11-08: (A); the load line; as drafted; yes.*
 
 - **Q1.** Where rate's predictive test runs: (A), (B) or (C) in section 1.
 - **Q2.** The player's prompt: the load line or not (fault-garage.md Q3). (A) and (B) need an answer first.

@@ -49,7 +49,9 @@ its event exists, a second engine or babbling, not yet chosen. Rate's calibratio
 script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
 can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
-**Now (2026-11-08): Step 2's gate is fixed by the owner except its three ratios** (under "Babbling (v0.2 Step 2): the gate"); next, the 0.6B rehearsal on mirror seeds, whose intervals the ratios are fixed from: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test and rate's predictive test, placed at babbling. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
+**Now (2026-11-08): Step 2's gate is fixed by the owner except its three ratios** (under "Babbling (v0.2 Step 2): the gate"); next, the 0.6B rehearsal on mirror seeds, whose intervals the ratios are fixed from: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
+[proposals/fault-garage-rate.md](proposals/fault-garage-rate.md)): Step 0's bars in Stage 2's form, a weaker model
+playing; next, its build in Fault Garage and the player screen; the grafted player's TextWorld run is reported only. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
 repair, PR #49): its deciding run on the 8B passes both parts of the calibration's gate, AUC 0.781 [0.742, 0.818] and
 the can't-go check 0.825 [0.768, 0.879] on 78 worlds (under "Repairs", "Rate, conditional: the deciding result").
 Rate enters the sense tokens as calibrated, its predictive validity untested. **Shape is parked** (owner, 2026-11-07):
@@ -70,7 +72,7 @@ code) counts as scheduled:
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Lift v1 built (MASC; codes held-out text 5–19% shorter than Lift v0, 0.6B); its re-skin test still a slot |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Parked** (owner, 2026-11-07): failed on the 8B (0.575); by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
-| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Calibrated (X_c, 2026-11-08); its predictive test not yet placed (a second engine or babbling); Stage 2 rests |
+| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Calibrated (X_c, 2026-11-08); its predictive test placed on Fault Garage (owner, 2026-11-08; proposals/fault-garage-rate.md), not yet built; TextWorld's Stage 2 rests |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Passed with X_c** (2026-11-08, the 8B): AUC 0.781 [0.742, 0.818], can't-go check 0.825 [0.768, 0.879] on 78 worlds; rate enters the sense tokens, calibrated, its predictive validity untested. X (v1) failed (2026-11-07: 0.486) |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot; no longer blocked by the calibration (X_c passed) |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
@@ -113,7 +115,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 |---|---|---|---|
 | −1 | Does boundary hear the world and not itself? Zero through self-talk; fires at planted novelty, above ordinary play | the instrument | **Passed** (2026-11-06, the 8B on a rented GPU; amendments 1–4): exact self-talk 0 of 600; plants 40 of 40; AUC 0.907. Restated self-talk 78.8%, gating at the tickle test |
 | −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Failed** (2026-11-07, the 8B): shape 0.575 against 0.80, below boundary. **Shape parked** (owner, 2026-11-07): by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
-| 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–6); code built (`body/step0_habitat.py`); **rests** (amendment 7, 2026-11-07): the 8B's screen fails on closures, its stalls abrupt and endless. The owner-label form is paused (below) |
+| 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–6); code built (`body/step0_habitat.py`); **rests** (amendment 7, 2026-11-07): the 8B's screen fails on closures, its stalls abrupt and endless. **Placed on Fault Garage** (owner, 2026-11-08; proposals/fault-garage-rate.md): the same bars, oracle labels, pairs within ±3 turns. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
 | 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | **Fixed except bars 1–3's ratios** (owner, 2026-11-08, under "Babbling (v0.2 Step 2): the gate"); the ratios wait on the 0.6B rehearsal |
 | 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
@@ -1475,7 +1477,8 @@ channel can work either way.
   **restated self-talk at most 5%, now gating (amendment 4)**; plants fired as Step −1; and plants over ordinary turns
   matched within ±3 turns at least 0.84 (v0's matched reading), lower bound above 0.75 (agent). Reported: control 4,
   self-caused against spontaneous novelty. On a fail, boundary stays v0 in the tokens.
-- **Rate's predictive test (Step 0's question, amendment 7: placed here).** Step 0's habitat form, unchanged, on new
+- *Moved to Fault Garage (owner, 2026-11-08, proposals/fault-garage-rate.md): the run below on the grafted player is
+  reported only, deciding nothing.* **Rate's predictive test (Step 0's question, amendment 7: placed here).** Step 0's habitat form, unchanged, on new
   episodes played by the grafted 8B on fresh seeds (from 9600–9999), X_c in place of X. Stage 2's screen runs first, unchanged. *The
   agent's caution, and a correction of its own earlier advice:* placing it here mostly defers the question. Stage 2 failed because the 8B's stalls start abruptly and never end; the grafted player is the same
   8B with a graft, so the screen may fail again. If it does, rate's predictive test rests again, and the second engine

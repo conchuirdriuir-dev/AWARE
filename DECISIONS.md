@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Rate's predictive test runs on Fault Garage, now** (owner, option (A) of
+  proposals/fault-garage-rate.md, PR #58): Step 0's question and bars, unchanged, in Stage 2's form (a weaker Qwen3
+  plays, chosen by the screen; the base 8B reads). The player's prompt says the car starts with the key off and most
+  faults show only under load. The adapted labels, the cap of 100 accepted actions (150 replies) and Fault Garage's
+  level-2 seeds (calibration 3500–3599, Step 0 3600–3999, screen on their +900000 mirrors) as drafted. Pre-stall and
+  pre-progress windows paired within ±3 turns. PR #56's rate test on the grafted player becomes a reported rerun,
+  deciding nothing; babbling does not wait on this.
 - 2026-11-08: **Step 2's babbling gate fixed except its ratios** (owner, PR #56): settings as drafted (three rounds of
   200, 64-dimensional reply space, LM weight 0.1, held-out 9500–9599, 9600–9999 for the tickle and rate tests); the
   tickle test's bars as drafted; base probe and yoked arm reported only. Bars 1–3's ratios are fixed after the 0.6B
