@@ -41,16 +41,16 @@ every fault the layout could have and labels every turn. It never acts and never
 
 Boundary passed Step −1 on TextWorld. Read on Fault Garage, whose text and mechanics it has never seen, it is
 `habitat-engine.md`'s transfer test (its Q4), on the one sense that has passed. As in Stage 1, **a scripted player
-acts and the 8B only reads**: 300 episodes at level 2, seeds 3000–3299, the greedy player on the first 200 and the
-random player on the next 100. `export_aware.py --scripted` writes the record turn by turn as play runs (the actions
+acts and the 8B only reads**: 500 episodes at level 2, seeds 3000–3499, the greedy player on 3000–3399 and the
+random player on 3400–3499 (the owner enlarged the pool from 300 on 2026-11-08, before any reading). `export_aware.py --scripted` writes the record turn by turn as play runs (the actions
 by the code, in the self slot); `body.stepm1 read` runs unchanged on it; `score_boundary.py` alone reads the keys.
 
 **The pool, counted from the keys before any reading** (exact repeats left out):
 
 | Replies | Unexpected by the oracle | Expected |
 |---|---|---|
-| Readings (measure V, measure R) | 207 | 838 |
-| Words (scans, pages, customer answers, road tests) | 47 | 48 |
+| Readings (measure V, measure R) | 338 | 884 |
+| Words (scans, pages, customer answers, road tests) | 93 | 80 |
 
 Measures:
 
@@ -67,14 +67,20 @@ further than a 1 V change, and boundary is a distance in that space. If this hol
 sense: a frozen readout at the number's last token, layers 2 to 4, which recovered values from unseen phrasings
 within 1 to 4% of range.
 
-**Draft bars, for the owner to fix or replace before the read:**
+**Bars, fixed by the owner on 2026-11-08, before the read** (the drafts, with the pool enlarged):
 
-| Measure | Draft bar |
+| Measure | Bar |
 |---|---|
 | R0 | Every exact repeat under 0.01 floor units |
-| R1, words | AUC at least 0.75, lower bound at least 0.65 (47 against 48: the interval will be wide) |
+| R1, words | AUC at least 0.75, lower bound at least 0.65 (93 against 80) |
 | R1, readings | Prediction only: interval contains 0.5 |
 | R1, all kinds; R2; R3; R4 | Reported |
+
+**What a fail would mean, written before the read.** A fail on R1 for words shows that boundary does not track the
+oracle's surprise in this domain. It does not show that boundary is broken: R0 checks the plumbing, and R3 shows
+whether boundary still responds to new text. Boundary measures how new an arrival is against everything held; the
+oracle measures how improbable it is under every fault the car could have. The two usually move together but are
+not the same event.
 
 **What the model's own play needs before it is used again.** Two interface fixes are made (an unknown test point now
 lists the valid ones, with a hint where a component name was used; a cap of 100 replies of any kind). One question is
@@ -101,7 +107,8 @@ test here would be written in PLAN, with its bars, before any reading; nothing f
 ## 7. Questions for the owner
 
 - **Q1.** Fault Garage as a candidate second engine, beside `habitat-engine.md`'s B?
-- **Q2.** Boundary's first reading on it: the scripted pool above, with the draft bars, other bars, or report only?
+- **Q2.** ~~Boundary's first reading on it: the pool, the bars, or report only?~~ Answered by the owner, 2026-11-08: the
+  draft bars with the pool enlarged to 500 (section 4; DECISIONS.md).
 - **Q3.** The 8B's own play: accept its exported record for later readings, or re-play with AWARE appending as it
   plays? And the system prompt: add the apprentice's line about the key and load, or leave the model to find it?
 - **Q4.** The readings sense: into Spec v0.2 now, or after this reading?

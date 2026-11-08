@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Boundary's first reading on Fault Garage: a scripted pool, bars fixed** (owner, before any of it
+  is read): 500 level-2 scenarios, seeds 3000–3499 (greedy 3000–3399, random 3400–3499), the 8B only reading. Exact
+  repeats under 0.01 floor units; on unexpected over expected replies whose surprise is in the words (93 against
+  80), AUC at least 0.75 with the lower bound at least 0.65. A fail shows boundary does not track the oracle's
+  surprise in this domain, not that boundary is broken (exact repeats and the by-kind report check that).
 - 2026-11-07: **X_c's deciding pool grows to 7100–7299** (owner, before any of it is played): 100 pairs, so the
   can't-go check rests on about 70 worlds instead of about 14; the gate is unchanged.
 - 2026-11-07: **X_c's defaults: R = 8, ridge 10, 20 earlier pairs** (owner, before 7100–7139 are played): an override

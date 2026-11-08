@@ -86,7 +86,7 @@ the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's ca
 the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
 out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
 repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
-boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine, with boundary's first reading on it in Stage 1's form ([proposals/fault-garage.md](proposals/fault-garage.md)); nothing in it is decided, and its bars are the owner's, fixed before any read. *The paragraph below is the
+boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine, with boundary's first reading on it in Stage 1's form ([proposals/fault-garage.md](proposals/fault-garage.md)); its first reading's pool and bars are fixed (DECISIONS, 2026-11-08); the engine itself and the rest of the proposal are not decided. *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
