@@ -2,6 +2,8 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Boundary stays as it is, for now** (owner, from the position check): AWARE still lacks capacities and
+  proceeds; every later boundary test, babbling's included, matches on position in its design.
 - 2026-11-08: **Step −1's position check reads between** (report only, the reading fixed before it ran): matched
   within ±3 turns, plants over ordinary turns 0.840 [0.789, 0.884] against the registered 0.907; Spearman of news with
   turn −0.25 on ordinary turns. Step −1's pass stands; whether boundary is normalised is the owner's read.
