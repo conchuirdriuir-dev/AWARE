@@ -1385,6 +1385,10 @@ senses (they are read with the graft off and never retrained) and not a test of 
 (X_c, its calibration). Shape is parked; S_c (rate's self part) is reported, never in the tokens. The body vector after
 turn t is b_t = (boundary of reply t, X_c of action t), each z-scored on the calibration pool (1000–1099), both read by
 the base 8B with the graft off. A learned projection maps b_t to k = 2 soft tokens, inserted just before action t+1.
+*Revised 2026-11-08 (the agent's review):* X_c is undefined until 20 earlier action–reply pairs are there to fit on
+(`body/conditional.py`), so the body vector carries a third number, a flag: b_t = (boundary, X_c or 0, 1 if X_c is
+defined else 0). The self-prediction loss and every bar's error on X_c count only turns where the target's X_c is
+defined; boundary counts on every turn.
 
 **The graft and its heads.** LoRA rank 16 on q, k, v, o, gate, up and down of Qwen3-8B in bf16, plus the projection and
 two linear heads (the memory worked out below: episodes up to 8k tokens whole, longer ones in windows of 8k (agent)).
@@ -1413,6 +1417,13 @@ them. Fewer than 80 usable episodes: too few to decide.
   and test.
 - *Swapped:* the live graft, with each turn's tokens taken from another held-out episode at the same turn number
   (matched on position, as the owner's position rule asks; an episode that has no partner at that turn drops the turn).
+- *Tokens alone:* ridge regression (λ = 10) from b_t to b_{t+1}, fitted on the training rounds, no text. *Revised
+  2026-11-08:* the senses carry over from turn to turn, and boundary falls with position, so a graft that only copies
+  its tokens forward would beat the zeroed graft and suffer from a swap without reading anything in context. Bar 1
+  compares against this arm too.
+- *Base probe (reported; whether it gates is for the owner):* a linear head on the base model's hidden state (graft
+  off) at the last token of action t+1, predicting reply t+1's state in the same space, fitted on the training rounds.
+  It asks whether babbling adds anything a probe on the frozen 8B does not already have.
 - *Linear history predictor:* ridge regression (λ = 10, as X_c) from the mean state of the last 10 chunks and action
   t+1's state to reply t+1's state, in the same 64-dimensional space, fitted on the training rounds' text. This defines
   the spec's "linear history predictor": boundary v0 in the code is a nearest-earlier distance, not a predictor, so the
@@ -1420,16 +1431,26 @@ them. Fewer than 80 usable episodes: too few to decide.
 
 **Pass, all three (the spec's gate; thresholds agent):** 2,000 draws resampling episodes, 90% intervals, errors paired
 by turn, so every comparison is matched on position.
-1. **The tokens are used:** live's self-prediction error over zeroed's at most 0.90, its upper bound below 1.
+1. **The tokens are used, in context:** live's self-prediction error over the lower of zeroed's and tokens-alone's
+   (the lower chosen per draw) at most 0.90, its upper bound below 1. A pass means the graft does better with the
+   tokens and the text together than with either alone.
 2. **The tokens are read, not the text around them:** swapped's self-prediction error over live's at least 1.10, its
    lower bound above 1.
 3. **The forward model beats the linear predictor:** the forward-model head's error over the linear predictor's at most
    0.90, its upper bound below 1.
 
+*A limit, stated:* the held-out text is the base 8B's play, so the forward model is scored on actions that are not
+its own. That keeps the arms' routing identical; the graft's own actions are scored only in the reported live play.
+
 If 1 or 2 fails, the channel is wrong, not the senses: the residual-stream fallback (the spec's) is tried, on new
 held-out seeds, behind the same bars. If 3 fails, boundary stays v0 and the tickle test does not run.
 
-**Reported, deciding nothing.** Persistence baselines for the self-prediction (b_{t+1} = b_t; ridge on b_t); errors by
+**Rehearsal first (agent; deciding nothing).** The ratios' spread is unknown, and Step −1C's interval came out wider
+than estimated. So before the owner fixes 0.90 and 1.10: the whole step on Qwen3-0.6B on mirror seeds (+900000), one
+round of each size scaled to fit, reporting each ratio's interval. The thresholds are then fixed, and the 8B's run
+uses only the registered seeds.
+
+**Reported, deciding nothing.** Persistence for the self-prediction (b_{t+1} = b_t); the base probe; errors by
 sense (boundary, X_c) and by turn band; the swap within the same episode (±3 turns); the grafted player's quest
 completion on the held-out worlds against the base's, played live (a functional measure, kept apart from the gate);
 the phantom-limb and rubber-hand diagnostics (their measures fixed before they run).
@@ -1442,14 +1463,17 @@ channel can work either way.
 
 **After the gate, two tests with their own bars (draft):**
 - **The tickle test (boundary v1, instrument).** The forward model is frozen as its own graft (decision 1). Boundary
-  v1 is reply t+1's distance from the forward model's prediction, in echo-floor units, as v0's unit. It must pass
+  v1 is reply t+1's distance from the forward model's prediction, in the forward model's 64-dimensional space. *Revised
+  2026-11-08:* v0's echo floor is per layer on full states and does not carry over, so v1's floor is measured on the
+  calibration pool (1000–1099) by the registered midpoint rule (between the 95th percentile of exact repeats and the
+  5th of first-seen replies), before any tickle seed is read; v1 is in units of that floor. `substrate/` is unchanged. It must pass
   Step −1 again on fresh seeds (from 9600–9999, drawn as Step −1's): exact self-talk at most 1% above the floor;
   **restated self-talk at most 5%, now gating (amendment 4)**; plants fired as Step −1; and plants over ordinary turns
   matched within ±3 turns at least 0.84 (v0's matched reading), lower bound above 0.75 (agent). Reported: control 4,
   self-caused against spontaneous novelty. On a fail, boundary stays v0 in the tokens.
 - **Rate's predictive test (Step 0's question, amendment 7: placed here).** Step 0's habitat form, unchanged, on new
   episodes played by the grafted 8B on fresh seeds (from 9600–9999), X_c in place of X. Stage 2's screen runs first, unchanged. *The
-  agent's caution:* Stage 2 failed because the 8B's stalls start abruptly and never end; the grafted player is the same
+  agent's caution, and a correction of its own earlier advice:* placing it here mostly defers the question. Stage 2 failed because the 8B's stalls start abruptly and never end; the grafted player is the same
   8B with a graft, so the screen may fail again. If it does, rate's predictive test rests again, and the second engine
   is the remaining place.
 
