@@ -96,7 +96,7 @@ the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's ca
 the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
 out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
 repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** *(Superseded 2026-11-08: rate passed with X_c; shape parked; above.)* Open for the owner: whether babbling runs on
-boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine ([proposals/fault-garage.md](proposals/fault-garage.md)); the engine itself is not decided. Boundary's first reading on Fault Garage failed its bar (AUC 0.212 on the words group, reversed; DECISIONS, 2026-11-08): on templated text it tracks how familiar a reply looks, not how improbable its content is, and it falls with position in the episode. Boundary gets no second half (owner, 2026-11-08): whether an arrival improves prediction of the next step is rate's question (staged schedule, Q3), and the words bar asked boundary for what it does not claim. Whether boundary is normalised for position waits on Step −1's position check (under Step −1). *The paragraph below is the
+boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine ([proposals/fault-garage.md](proposals/fault-garage.md)); the engine itself is not decided. Boundary's first reading on Fault Garage failed its bar (AUC 0.212 on the words group, reversed; DECISIONS, 2026-11-08): on templated text it tracks how familiar a reply looks, not how improbable its content is, and it falls with position in the episode. Boundary gets no second half (owner, 2026-11-08): whether an arrival improves prediction of the next step is rate's question (staged schedule, Q3), and the words bar asked boundary for what it does not claim. Whether boundary is normalised for position waits on Step −1's position check (under Step −1): it reads between, 0.840 [0.789, 0.884] matched within ±3 turns against the registered 0.907, for the owner to read. *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -578,6 +578,13 @@ This check reads that; it changes nothing in Step −1's registered pass.
   as it is, and later boundary tests match on position in their design. If its point falls below 0.80, Step −1's pass
   was partly position, and a position-normalised boundary is proposed as a new form, to pass Step −1 again on fresh
   seeds before it enters the sense tokens. Between the two, the owner reads it.
+
+**Result (2026-11-08, `python -m body.stepm1 position`, AWARE at `b9533a9`; the entry `position` in
+`runs/stage1-script/record.jsonl`):** **between, so the owner reads it.** Unmatched, it reproduces the registered
+0.907 [0.894, 0.919] (40 episodes). Within ±3 turns: **0.840 [0.789, 0.884]** (40 episodes, 154 ordinary turns);
+within ±1, 0.772 [0.682, 0.855] (30 episodes, 45 turns); within ±5, 0.834 [0.792, 0.874] (265 turns). Spearman of news
+with turn over ordinary turns −0.25 (2,924 turns), against −0.79 on Fault Garage's readings. Position accounts for
+part of Step −1's 0.907; matched on it, boundary still separates plants from ordinary turns, below Step −1's bars.
 
 #### Repairs: rate, conditional; shape, by source (drafted by the agent 2026-11-07, for the owner to fix)
 

@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Step −1's position check reads between** (report only, the reading fixed before it ran): matched
+  within ±3 turns, plants over ordinary turns 0.840 [0.789, 0.884] against the registered 0.907; Spearman of news with
+  turn −0.25 on ordinary turns. Step −1's pass stands; whether boundary is normalised is the owner's read.
 - 2026-11-08: **Boundary gets no predictive half; position is checked first** (owner, from PR #55): whether an arrival
   improves prediction of the next step stays rate's question (staged schedule, Q3); Fault Garage's words bar asked
   boundary for what it does not claim. Normalising for position waits on Step −1's position check, its form and
