@@ -139,7 +139,8 @@ form, for the owner: [fault-garage-rate.md](fault-garage-rate.md) (2026-11-08).*
 - **Q1.** Fault Garage as a candidate second engine, beside `habitat-engine.md`'s B?
 - **Q2.** ~~Boundary's first reading on it: the pool, the bars, or report only?~~ Answered by the owner, 2026-11-08: the
   draft bars with the pool enlarged to 500 (section 4; DECISIONS.md).
-- **Q3.** The 8B's own play: accept its exported record for later readings, or re-play with AWARE appending as it
+- **Q3.** *The prompt half answered by the owner, 2026-11-08: the load line is added for rate's test
+  (fault-garage-rate.md).* The 8B's own play: accept its exported record for later readings, or re-play with AWARE appending as it
   plays? And the system prompt: add the apprentice's line about the key and load, or leave the model to find it?
 - **Q4.** The readings sense: into Spec v0.2 now, or after this reading?
 - **Q5.** The packages stay apart, with only records crossing?
