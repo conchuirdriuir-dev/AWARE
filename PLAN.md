@@ -1512,6 +1512,30 @@ loaded base model (maximum difference 0.0, measured on the 0.6B), so the 8B fits
 three rounds of 40 and 40 held-out, its own floor (`runs/echo-floor-0.6b-first/floor.json`, D measured as a draft).
 It decides nothing; it reports each ratio's interval, from which the owner fixes bars 1–3.
 
+**The rehearsal's result (2026-11-08, 11:12–16:22; deciding nothing; the entry `score` in
+`runs/babble-06-rehearsal/record.jsonl`).** 34 held-out episodes, 101 training episodes (rounds of 34, 32 and 35
+after the engine cap's skips). Ratios with 90% intervals, against the proposed values (not fixed):
+
+| | Ratio | 90% interval | Proposed |
+|---|---|---|---|
+| Bar 1, live over the lower of zeroed and tokens alone | 0.795 | [0.729, 0.862] | at most 0.90 |
+| Bar 2, swapped over live | 1.297 | [1.172, 1.444] | at least 1.10 |
+| Bar 3, forward model over the linear history predictor | **1.394** | [1.271, 1.598] | at most 0.90 |
+
+Reported: live over zeroed 0.727, over tokens alone 0.795, over persistence 0.564; the forward model over the base
+probe 0.752; the base probe over the linear predictor 1.854. The intervals' half-widths are about 0.07 (bar 1), 0.14
+(bar 2) and 0.16 (bar 3) at 34 episodes; at the 8B's 100 they would be about 0.6 times that.
+
+*The agent's reading, for the owner:* on the 0.6B, the tokens are used and read (bars 1 and 2 on the right side of
+their proposed values, with room), and the forward model loses to the linear history predictor by 39%. The linear
+predictor reads the reply's own space directly (the action's and the last ten chunks' states), and TextWorld's
+replies repeat, so it is a strong baseline; the forward model reads the grafted model's last hidden state through a
+head trained for three passes. Bar 3's value should be fixed from the spread, not moved toward this point estimate.
+
+**The player during the rehearsal (reported):** round 0's base 0.6B used 28 distinct actions (17% "look"); the grafted
+player of round 1 used 4 (86% "look"); round 2's used 73, with 3 episodes cut after ten empty actions. The cause of
+round 1's collapse is not known; a check before the 8B: grafted play with the tokens zeroed.
+
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
 *Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
