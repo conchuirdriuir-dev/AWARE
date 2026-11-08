@@ -2,6 +2,15 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Boundary stays as it is, for now** (owner, from the position check): AWARE still lacks capacities and
+  proceeds; every later boundary test, babbling's included, matches on position in its design.
+- 2026-11-08: **Step −1's position check reads between** (report only, the reading fixed before it ran): matched
+  within ±3 turns, plants over ordinary turns 0.840 [0.789, 0.884] against the registered 0.907; Spearman of news with
+  turn −0.25 on ordinary turns. Step −1's pass stands; whether boundary is normalised is the owner's read.
+- 2026-11-08: **Boundary gets no predictive half; position is checked first** (owner, from PR #55): whether an arrival
+  improves prediction of the next step stays rate's question (staged schedule, Q3); Fault Garage's words bar asked
+  boundary for what it does not claim. Normalising for position waits on Step −1's position check, its form and
+  reading fixed in PLAN before it runs.
 - 2026-11-08: **Boundary on Fault Garage: exact repeats pass, surprise fails** (by the bars fixed before the read):
   exact repeats read 0.000 (961); on the words group, unexpected over expected AUC 0.212 [0.159, 0.273], reversed.
   The agent's prediction was wrong on both halves (words reversed; readings 0.826). Post hoc, report only: split by
