@@ -24,7 +24,7 @@ Research track (parked) · Translations · The record: state and direction befor
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-07.
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-08.
 The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
 near the end.*
 
@@ -49,6 +49,16 @@ its event exists, a second engine or babbling, not yet chosen. Rate's calibratio
 script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
 can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
+**Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
+repair, PR #49): its deciding run on the 8B passes both parts of the calibration's gate, AUC 0.781 [0.742, 0.818] and
+the can't-go check 0.825 [0.768, 0.879] on 78 worlds (under "Repairs", "Rate, conditional: the deciding result").
+Rate enters the sense tokens as calibrated, its predictive validity untested. **Shape is parked** (owner, 2026-11-07):
+three forms failed in development (0.525, 0.610, 0.573 in Lift v1), and it returns only as a new form. So
+**babbling's channel is boundary and rate (X_c)**. What waited on rate's calibration (rate's self part, Dream's
+rate-based parts) is no longer blocked by it; rate's predictive test (Step 0's question) is still unplaced, a second
+engine or babbling. Lift v1 (PR #51) is built and checked on text, kept for other uses. *The paragraphs below are the
+state before this.*
+
 **The staged schedule (owner, 2026-11-05; PR #32, [proposals/staged-schedule.md](proposals/staged-schedule.md), its
 seven questions answered).** No third stage: the self/world split waits for babbling. Step −1's bar 1, restated part,
 moves to the tickle test (Step −1 amendment 4). Shape gets its own instrument test, Step −1C (below, under "The
@@ -60,13 +70,13 @@ code) counts as scheduled:
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Lift v1 built (MASC; codes held-out text 5–19% shorter than Lift v0, 0.6B); its re-skin test still a slot |
 | Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Parked** (owner, 2026-11-07): failed on the 8B (0.575); by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
-| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | **Blocked**: rate failed its calibration (2026-11-07); Stage 2 rests |
-| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Failed** (2026-11-07): AUC 0.486, can't-go check 0.488; rate out of the sense tokens; text baseline fails too |
-| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | **Blocked** until a repaired X passes the calibration |
+| Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Calibrated (X_c, 2026-11-08); its predictive test not yet placed (a second engine or babbling); Stage 2 rests |
+| Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Passed with X_c** (2026-11-08, the 8B): AUC 0.781 [0.742, 0.818], can't-go check 0.825 [0.768, 0.879] on 78 worlds; rate enters the sense tokens, calibrated, its predictive validity untested. X (v1) failed (2026-11-07: 0.486) |
+| Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot; no longer blocked by the calibration (X_c passed) |
 | Boundary, world | Step −1, Stage 1 | instrument | **Passed** (2026-11-06) |
 | Boundary, efference copy | Tickle test at babbling | instrument | Slot; bar 1's restated part gates here (amendment 4) |
-| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial; the sleep trigger reads rate: **blocked** |
-| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | **Blocked**: shape and rate both failed |
+| Adaptation | Habituation's recovery (Stage 1, reported); sleep trigger (Dream) | instrument | Partial; the sleep trigger reads rate: no longer blocked by the calibration, still a slot |
+| Chords (senses together) | After Step 0 has data, and after Step −1C | instrument | **Blocked**: shape is parked (the closure chord needs it); rate passed its calibration |
 | Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
 | Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
 | Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
@@ -85,7 +95,7 @@ CPU here: 101 usable on-structure, 106 off, under "Step −1C: registered play")
 the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's calibration: the result"): AUC 0.486,
 the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
 out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
-repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** Open for the owner: whether babbling runs on
+repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** *(Superseded 2026-11-08: rate passed with X_c; shape parked; above.)* Open for the owner: whether babbling runs on
 boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). *The paragraph below is the
 state before this.*
 
@@ -627,6 +637,34 @@ decision on fresh seeds.
 - **The decision:** the calibration as fixed (its statistic, its can't-go check, its gate), with X_c in place of X, on
   fresh seeds **7100–7299**, 100 pairs (outside every pool; 7000–7039 is spent), read by the 8B. *Grown from 7100–7139 by the owner, 2026-11-07, before any of them was played: at 20 pairs the can't-go check rested on about 14 worlds in every development run; at the development rate (about 35% eligible) 100 pairs gives about 70. Pool size is not a threshold; the gate is unchanged.* On a pass, rate enters the sense
   tokens as calibrated, its predictive validity untested.
+
+*Rate, conditional: the deciding result (2026-11-07–08, Qwen3-8B on a rented RTX 3090, driver 610.57.04; main
+a0573b7, no uncommitted changes, recorded by the code's `hardware` entry).* Record in `runs/rate-cal-c/`
+(`contingent/` and `blind/`, 200 complete 100-turn episodes each, no skips; the reading, 80,400 chunks in 10.4 hours,
+and the score in `record.jsonl`). Form `conditional`, seeds 7100–7299, the fixed defaults R = 8, λ = 10, 20 pairs.
+Rescored from the record with main's code by a second session (2026-11-08): every number identical.
+
+| Gate | Result | Needs | |
+|---|---|---|---|
+| X_c, AUC contingent over blind, 200 worlds | 0.781, 90% interval 0.742–0.818 | lower bound > 0.5 | **pass** |
+| The can't-go check, 78 worlds eligible (≥ 10: decides) | 0.825, 0.768–0.879 | lower bound > 0.5 | **pass** |
+
+**Rate passes its calibration with X_c and enters the sense tokens as calibrated, its predictive validity untested**
+(Step 0's question, moved by amendment 7). The gauge tells a player whose next move follows the world's last reply
+from one replaying the same moves blind.
+
+- *Reported, deciding nothing:* median paired difference 9.06 bits (contingent higher in 78% of worlds); on the
+  can't-go check 16.56 bits (82%); clean scored turns 15,800 contingent, 1,373 blind. The text baseline (TF-IDF)
+  0.816, 0.780–0.851, so the link is the surface one the form expected (the agent's reading: the 8B's states carry it no better than the
+  words). X_c per layer 0.777 (L24) rising to 0.806 (L35). Self-progress S_c 0.498 (no direction expected). Median X_c
+  16.38 bits contingent, 0.83 blind. New-state share 4.2% contingent, 2.7% blind; moves 65% and 42%; `look` 17% in
+  both.
+- *Development, for comparison (deciding nothing; `runs/rate-cal-dev2/`, the 0.6B on the 4060, the mirror seeds):*
+  main 0.726, 0.629–0.814; can't-go 0.684, 0.526–0.832, on 14 worlds; text 0.834. The defaults were chosen partly on
+  the development seeds; the deciding seeds were fresh and unplayed until the defaults and the pool were fixed.
+- *Limits, as stated before the run, still standing:* the contingent link is surface-level, so this shows the gauge
+  can see a known dependence of about a bit, not that it reads anything subtler; and it says nothing yet about whether
+  rate leads a stall, which waits for its predictive test.
 
 **Shape, by source (a draft only; no code yet).**
 - **The change:** a chunk is coded under the formula fitted on the earlier chunks **of its own source** (a reply under
