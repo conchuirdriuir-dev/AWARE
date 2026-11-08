@@ -2,11 +2,16 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Rate passes its calibration with X_c** (the registered gate, fixed before play): AUC 0.781 [0.742, 0.818],
+  can't-go check 0.825 [0.768, 0.879] on 78 worlds, the 8B on seeds 7100–7299; rate enters the sense tokens,
+  calibrated, its predictive validity untested. Babbling's channel: boundary and rate; shape parked.
 - 2026-11-08: **Boundary's first reading on Fault Garage: a scripted pool, bars fixed** (owner, before any of it
   is read): 500 level-2 scenarios, seeds 3000–3499 (greedy 3000–3399, random 3400–3499), the 8B only reading. Exact
   repeats under 0.01 floor units; on unexpected over expected replies whose surprise is in the words (93 against
   80), AUC at least 0.75 with the lower bound at least 0.65. A fail shows boundary does not track the oracle's
   surprise in this domain, not that boundary is broken (exact repeats and the by-kind report check that).
+- 2026-11-07: **Shape is parked** (owner): three forms on Step −1C's development seeds (joint 0.525, by source 0.610,
+  in Lift v1 0.573), none near the bar of 0.80 or above boundary; no deciding run. It returns only as a new form.
 - 2026-11-07: **X_c's deciding pool grows to 7100–7299** (owner, before any of it is played): 100 pairs, so the
   can't-go check rests on about 70 worlds instead of about 14; the gate is unchanged.
 - 2026-11-07: **X_c's defaults: R = 8, ridge 10, 20 earlier pairs** (owner, before 7100–7139 are played): an override
