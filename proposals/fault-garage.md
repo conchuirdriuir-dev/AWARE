@@ -121,7 +121,8 @@ readings well above chance, not near it.
 Rate's calibration failed in Stage 1 (AUC 0.486; it has since passed with X_c, DECISIONS 2026-11-08), and Stage 2 rests because TextWorld's stalls start abruptly and
 never end. Fault Garage gives rate an exact event: the oracle's information gain per turn, split by where it came
 from (the customer, tools, the model's own reasoning). Its stalls also end, in a diagnosis or the action cap. A rate
-test here would be written in PLAN, with its bars, before any reading; nothing for it is built.
+test here would be written in PLAN, with its bars, before any reading; nothing for it is built. *A draft of its
+form, for the owner: [fault-garage-rate.md](fault-garage-rate.md) (2026-11-08).*
 
 ## 6. Risks
 
