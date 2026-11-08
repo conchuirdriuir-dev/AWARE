@@ -8,6 +8,7 @@ recorded text alone, with no graft, and checkpoints them; `score` alone reads th
     python -m body.stepm1 play --model Qwen/Qwen3-8B --run runs/stepm1-8b --pool self_talk
     python -m body.stepm1 read --model Qwen/Qwen3-8B --run runs/stepm1-8b
     python -m body.stepm1 score --run runs/stepm1-8b
+    python -m body.stepm1 position --run runs/stepm1-8b     # the position check (report only)
 
 The floor file holds the echo floor per layer of the last third, in units of D, measured with `read`'s own settings by
 `body/floor_file.py`; for Qwen3-8B it is `material/echo_floor_8b.json` (the default). Another model needs its own:
@@ -540,13 +541,73 @@ def cmd_score(a) -> None:
     print(json.dumps(result, indent=2))
 
 
+def _spearman(x, y) -> float:
+    """Spearman's rho, ties given their mean rank."""
+    def ranks(v):
+        v = np.asarray(v, float)
+        order = np.argsort(v, kind="stable")
+        r = np.empty(len(v))
+        r[order] = np.arange(len(v), dtype=float)
+        for u in np.unique(v):
+            r[v == u] = r[v == u].mean()
+        return r
+    return float(np.corrcoef(ranks(x), ranks(y))[0, 1]) if len(x) > 1 else math.nan
+
+
+def position_check(eps: dict, news_by: dict, spec: dict, windows=(1, 3, 5)) -> dict:
+    """Step -1's third bar with ordinary turns kept only within w turns of the plant (PLAN.md, "Step -1: the position
+    check"; report only, fixed 2026-11-08 before it ran). The pairs are the third bar's own: each delivered plant over
+    the same episode's ordinary no-new-state turns."""
+    plants, ordinary = {}, {}
+    for key in eps:
+        if pool_of(key, spec) != "step_minus_1" or not eps[key]["info"].get("planted_kind"):
+            continue
+        ep, kind = eps[key], eps[key]["info"]["planted_kind"]
+        tn = {**turn_news(ep, news_by[key]), **turn_news(ep, news_by[key], "spontaneous")}
+        here = [t for t, k in ep["keys"].items() if k.get("planted_here")]
+        delivered = [t for t in here if ep["keys"][t].get("switched", True) and
+                     (kind != "rule_change" or ep["keys"][t].get("blocked"))]
+        ordinary[key] = [(t, tn[t]) for t, k in ep["keys"].items() if not k["new_state"] and t not in here and t in tn]
+        if delivered:
+            plants[key] = (delivered[0], tn[delivered[0]])
+    out: dict = {"deciding": "nothing about Step -1's registered pass; the reading is fixed in PLAN.md"}
+    pos_all = {k: [v] for k, (_, v) in plants.items()}
+    a, lo, hi = _boot(pos_all, {k: [v for _, v in ordinary[k]] for k in plants})
+    out["unmatched"] = {"auc": a, "interval_90": [lo, hi], "episodes": len(plants)}
+    for w in windows:
+        neg = {k: [v for t, v in ordinary[k] if abs(t - plants[k][0]) <= w] for k in plants}
+        kept = [k for k in plants if neg[k]]
+        a, lo, hi = _boot({k: pos_all[k] for k in kept}, {k: neg[k] for k in kept})
+        out[f"within {w}"] = {"auc": a, "interval_90": [lo, hi], "episodes": len(kept),
+                              "ordinary turns": sum(len(neg[k]) for k in kept)}
+    pairs = [(t, v) for k in ordinary for t, v in ordinary[k]]
+    out["spearman news with turn, ordinary"] = {"rho": _spearman([t for t, _ in pairs], [v for _, v in pairs]),
+                                                "n": len(pairs)}
+    m = out["within 3"]
+    out["reading"] = ("survives: boundary stays as it is" if m["auc"] >= AUC_BAR and m["interval_90"][0] > AUC_LOWER
+                      else "partly position: propose a normalised form" if m["auc"] < AUC_LOWER
+                      else "between: the owner reads it")
+    return out
+
+
+def cmd_position(a) -> None:
+    from body.habitat import worlds
+
+    run = Path(a.run)
+    eps = episodes(read(run / "record.jsonl"))
+    news_by = {k: np.load(run / "news" / f"{k[0]}-{k[1] or 'world'}.npy") for k in eps}
+    result = position_check(eps, news_by, worlds())
+    Record(run / "record.jsonl").append("position", "code", **result)
+    print(json.dumps(result, indent=2))
+
+
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("play", "read", "score", "phases"):
+    for name in ("play", "read", "score", "phases", "position"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
-        if name not in ("score", "phases"):
+        if name not in ("score", "phases", "position"):
             s.add_argument("--model", required=name == "read", help="the player (play) or the perceiver (read)")
             s.add_argument("--device", default="auto")
             s.add_argument("--dtype", default="bfloat16")
@@ -567,7 +628,7 @@ def main(argv=None) -> None:
             s.add_argument("--gpu-memory", type=float)
             s.add_argument("--draft", action="store_true")
     a = p.parse_args(argv)
-    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "phases": cmd_phases}[a.cmd](a)
+    {"play": cmd_play, "read": cmd_read, "score": cmd_score, "phases": cmd_phases, "position": cmd_position}[a.cmd](a)
 
 
 if __name__ == "__main__":

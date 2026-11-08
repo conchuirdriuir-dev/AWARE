@@ -272,3 +272,33 @@ def test_draw_takes_every_seed_when_the_pool_is_drawn_whole():
     out = C.draw([6000, 6001, 6002, 6003], lambda s: "entered" if s != 6002 else "played", per_kind=None)
     assert out["full"] and out["usable"] == {"on": 1, "off": 2}
     assert out["counts"]["on"]["never entered"] == 1
+
+
+def test_position_check_keeps_ordinary_turns_near_the_plant():
+    """Step -1's position check (body/stepm1.py): ordinary turns far from the plant drop out of the matched AUC, and
+    a news that falls with turn reads as a negative Spearman."""
+    import numpy as np
+    from body.stepm1 import _spearman, position_check
+
+    spec = {"step_minus_1": {"seeds": [1, 2]}}
+    eps, news = {}, {}
+    for seed in (1, 2):
+        chunks, keys, vals = [], {}, []
+        for t in range(30):
+            chunks += [{"slot": "self", "turn": t, "text": "a"}, {"slot": "world", "turn": t, "text": "r"}]
+            vals += [0.0, 10.0 - t * 0.3]                       # news falls with turn
+            keys[t] = {"turn": t, "new_state": False, "planted_here": t == 20}
+        news[(seed, None)] = np.array(vals)[:, None]
+        eps[(seed, None)] = {"info": {"planted_kind": "new_room"}, "chunks": chunks, "keys": keys}
+    import body.stepm1 as M
+    real = M.pool_of
+    M.pool_of = lambda key, s: "step_minus_1"
+    try:
+        out = position_check(eps, news, spec)
+    finally:
+        M.pool_of = real
+    assert out["within 1"]["ordinary turns"] == 4             # turns 19 and 21, in each of two episodes
+    assert abs(out["unmatched"]["auc"] - 9 / 29) < 1e-9       # the plant beats only the 9 later ordinary turns
+    assert abs(out["within 1"]["auc"] - 0.5) < 1e-9           # matched on position, it ties
+    assert out["spearman news with turn, ordinary"]["rho"] < -0.99
+    assert abs(_spearman([1, 2, 2, 3], [1, 2, 2, 3]) - 1) < 1e-9
