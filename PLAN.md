@@ -96,7 +96,7 @@ the sense tokens. **Rate's calibration fails too** (2026-11-07, under "Rate's ca
 the can't-go check 0.488, and the text baseline 0.363, so the fault is in X or its input, not only the lift; rate stays
 out of the sense tokens; its predictive test, the chords and Dream's rate-based parts would be blocked too until a
 repaired rate passes on new seeds (the agent's reading, for the owner to confirm). **Boundary is the one sense that has passed.** *(Superseded 2026-11-08: rate passed with X_c; shape parked; above.)* Open for the owner: whether babbling runs on
-boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine ([proposals/fault-garage.md](proposals/fault-garage.md)); the engine itself is not decided. Boundary's first reading on Fault Garage failed its bar (AUC 0.212 on the words group, reversed; DECISIONS, 2026-11-08): on templated text it tracks how familiar a reply looks, not how improbable its content is, and it falls with position in the episode. Open for the owner: whether boundary's second half (whether an arrival improves prediction of the next step) is built and tested, and whether boundary is normalised for position. *The paragraph below is the
+boundary alone or waits; whether to repair X, the lift (decision 4), or both. The habitat's engine after TextWorld is proposed (PR #38). Fault Garage ([conchuirdriuir-dev/fault-garage](https://github.com/conchuirdriuir-dev/fault-garage)) is proposed as a second engine ([proposals/fault-garage.md](proposals/fault-garage.md)); the engine itself is not decided. Boundary's first reading on Fault Garage failed its bar (AUC 0.212 on the words group, reversed; DECISIONS, 2026-11-08): on templated text it tracks how familiar a reply looks, not how improbable its content is, and it falls with position in the episode. Boundary gets no second half (owner, 2026-11-08): whether an arrival improves prediction of the next step is rate's question (staged schedule, Q3), and the words bar asked boundary for what it does not claim. Whether boundary is normalised for position waits on Step −1's position check (under Step −1). *The paragraph below is the
 state before this.*
 
 **Before (2026-11-04): v0.2's Step −1**, the instrument check in the habitat (no training): boundary stays at zero through self-talk
@@ -560,6 +560,24 @@ the text. The reason is structural: X codes the action under one Gaussian fitted
 without the window's world chunks *in the fit*; nothing predicts the action from the reply before it. The blind arm
 replays the contingent arm's actions, so the arms share their actions by construction, and a marginal measure can
 only differ through which replies enter the fit (the blind arm's repeated "You can't go that way.").
+
+#### Step −1: the position check (form fixed 2026-11-08, before it runs; report only)
+
+*Owner, 2026-11-08 (PR #55's second question): check Step −1 for position before deciding whether boundary is
+normalised for it.* On Fault Garage boundary fell with position in the episode (Spearman −0.79 on readings). Step −1's
+plants fall at turns 15–35 and its ordinary turns span the whole episode, so its AUC of 0.907 could be partly position.
+This check reads that; it changes nothing in Step −1's registered pass.
+
+- **Input:** `runs/stage1-script/` as scored (the 8B's news; no new play or reading).
+- **Measure:** Step −1's third bar (each delivered plant over the same episode's ordinary no-new-state turns), with the
+  ordinary turns restricted to those within ±3 turns of the plant's turn; an episode with none drops out. The same
+  bootstrap over episodes (2000 draws, seed 0, 90% interval).
+- **Reported:** the same at ±1 and ±5; the number of episodes kept; Spearman of news with turn over ordinary
+  no-new-state turns, pooled.
+- **Reading (fixed now):** if the ±3 AUC meets Step −1's own bars (at least 0.90, lower bound above 0.80), boundary stays
+  as it is, and later boundary tests match on position in their design. If its point falls below 0.80, Step −1's pass
+  was partly position, and a position-normalised boundary is proposed as a new form, to pass Step −1 again on fresh
+  seeds before it enters the sense tokens. Between the two, the owner reads it.
 
 #### Repairs: rate, conditional; shape, by source (drafted by the agent 2026-11-07, for the owner to fix)
 

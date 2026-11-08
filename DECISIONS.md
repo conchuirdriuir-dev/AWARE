@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Boundary gets no predictive half; position is checked first** (owner, from PR #55): whether an arrival
+  improves prediction of the next step stays rate's question (staged schedule, Q3); Fault Garage's words bar asked
+  boundary for what it does not claim. Normalising for position waits on Step −1's position check, its form and
+  reading fixed in PLAN before it runs.
 - 2026-11-08: **Boundary on Fault Garage: exact repeats pass, surprise fails** (by the bars fixed before the read):
   exact repeats read 0.000 (961); on the words group, unexpected over expected AUC 0.212 [0.159, 0.273], reversed.
   The agent's prediction was wrong on both halves (words reversed; readings 0.826). Post hoc, report only: split by
