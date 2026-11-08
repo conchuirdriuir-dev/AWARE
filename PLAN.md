@@ -1401,8 +1401,9 @@ noise); rounds 1 and 2 the grafted 8B plays with live tokens. The graft trains o
 round, one epoch per round, AdamW at 1e-4. Every turn and every reading goes in the record before training; the graft
 is a derived artefact, rebuilt from the record, the base revision and the seed.
 
-**Held-out pool (agent).** Seeds 20000–20099, disjoint from every registered pool (calibration, Step −1, Step 0, the
-behavioural pool 9000–9099, Step −1C's 6000–6999, rate's 7000–7299). Played once by the base 8B with the graft off;
+**Held-out pool (agent).** Seeds 9500–9599, outside babbling's training range (10000 and up, training only) and disjoint
+from every registered pool (calibration, Step −1, Step 0, the behavioural pool 9000–9099, Step −1C's 6000–6999,
+rate's 7000–7299); 9600–9999 are kept for the tickle test and rate's predictive test below. Played once by the base 8B with the graft off;
 every arm below is scored teacher-forced on that same recorded text, so the arms differ only in what code routes to
 them. Fewer than 80 usable episodes: too few to decide.
 
@@ -1442,12 +1443,12 @@ channel can work either way.
 **After the gate, two tests with their own bars (draft):**
 - **The tickle test (boundary v1, instrument).** The forward model is frozen as its own graft (decision 1). Boundary
   v1 is reply t+1's distance from the forward model's prediction, in echo-floor units, as v0's unit. It must pass
-  Step −1 again on fresh seeds (new pools, drawn as Step −1's): exact self-talk at most 1% above the floor;
+  Step −1 again on fresh seeds (from 9600–9999, drawn as Step −1's): exact self-talk at most 1% above the floor;
   **restated self-talk at most 5%, now gating (amendment 4)**; plants fired as Step −1; and plants over ordinary turns
   matched within ±3 turns at least 0.84 (v0's matched reading), lower bound above 0.75 (agent). Reported: control 4,
   self-caused against spontaneous novelty. On a fail, boundary stays v0 in the tokens.
 - **Rate's predictive test (Step 0's question, amendment 7: placed here).** Step 0's habitat form, unchanged, on new
-  episodes played by the grafted 8B on fresh seeds, X_c in place of X. Stage 2's screen runs first, unchanged. *The
+  episodes played by the grafted 8B on fresh seeds (from 9600–9999), X_c in place of X. Stage 2's screen runs first, unchanged. *The
   agent's caution:* Stage 2 failed because the 8B's stalls start abruptly and never end; the grafted player is the same
   8B with a graft, so the screen may fail again. If it does, rate's predictive test rests again, and the second engine
   is the remaining place.
