@@ -58,8 +58,8 @@ code) counts as scheduled:
 
 | Capacity | Step | Kind | State |
 |---|---|---|---|
-| Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Slot; the distance on Lift v0 is not yet defined |
-| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Failed** (2026-11-07): shape 0.575 against bar 0.80; out of the sense tokens; a trained lift is the owner's open question |
+| Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Lift v1 built (MASC; codes held-out text 5–19% shorter than Lift v0, 0.6B); its re-skin test still a slot |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Parked** (owner, 2026-11-07): failed on the 8B (0.575); by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
 | Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | **Blocked**: rate failed its calibration (2026-11-07); Stage 2 rests |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Failed** (2026-11-07): AUC 0.486, can't-go check 0.488; rate out of the sense tokens; text baseline fails too |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | **Blocked** until a repaired X passes the calibration |
@@ -682,6 +682,34 @@ decision on fresh seeds.
   nothing. **The decision:** Step −1C as fixed (both bars, the precondition, amendments 1–3), on the fresh pool
   8000–8999, played by the script and read by the 8B through the 8B's lift. No habitat pool ever trains the lift.
 - **Not part of this draft:** whether rate's X_c should code in the lift too (it uses a basis of the past, R = 8).
+
+*Lift v1, built and read in development, 2026-11-07 (the agent; deciding nothing; PR #51):*
+- **The 0.6B's lift** (`runs/lift-06b/`; MASC's 390 texts split 312, 39 and 39 by document; 10,000, 1,000 and 1,000
+  chunks; 7 minutes on the RTX 4060) **passes its own check on all 9 read layers:** held-out B coded 4.9–19.4% shorter
+  than at Lift v0's own rank. K is 281–512 against Lift v0's 13–20, so general text carries far more structure than
+  Lift v0 kept. On five layers K reached the ceiling of 512 (`KMAX_LIFT`, fixed before any habitat reading). A first
+  build (`runs/lift-06/`, kept) crashed writing its last entry (a field-name collision), fixed and rebuilt.
+- **Shape through it, on Step −1C's rehearsal seeds** (`runs/stepm1c-06-lift/`, the 0.6B):
+
+  | Shape | AUC off over on [90%] | Shape − boundary | Given boundary |
+  |---|---|---|---|
+  | joint (registered) | 0.525 [0.448, 0.599] | −0.287 | 0.476 |
+  | by source | 0.610 [0.535, 0.683] | −0.202 | 0.522 |
+  | by source, in Lift v1 | 0.573 [0.496, 0.646] | −0.239 | 0.475 |
+
+  Boundary 0.812 throughout; the lift's layers 0.56–0.59.
+- *The agent's reading, after the result, deciding nothing:* the lift models general text well, but shape fits a
+  Gaussian within one episode, to some 50–150 earlier chunks of a source; in 300–500 directions that is far fewer
+  samples than dimensions, so most of a chunk's code again goes where the episode's fit cannot reach. K was chosen
+  for a 10,000-chunk corpus. Choosing a smaller K to suit episodes would be choosing it on habitat material after
+  this result.
+
+**Shape is parked (owner, 2026-11-07).** Three forms on the same development seeds (joint 0.525, by source 0.610, in
+Lift v1 0.573), none near the bar of 0.80, none above boundary. Shape stays out of the sense tokens and off the build
+path; no deciding run of any of the three. It returns only with a different idea of what shape measures (for
+example a learned encoder after babbling), as a new form, not another variant of these. The code (`shape_by_source`,
+`body/lift.py`, `--shape by_source|lift`) and its records stay as they are; Lift v1 remains available, checked on text,
+for other uses.
 
 
 **Reported, deciding nothing:** the AUC of natural new-state turns over no-new-state turns (the engine's own novelty);

@@ -318,8 +318,8 @@ def cmd_score(a) -> None:
     stale = [k for k in eps if news_by[k].shape[0] != len(eps[k]["chunks"])]
     if stale:
         raise SystemExit(f"news does not match the record for {stale}: run read again")
-    which = getattr(a, "shape", "joint")                  # joint: as fixed; by_source: the repair's draft
-    shape_by = {k: load(k, "-shape" if which == "joint" else "-shape_src") for k in eps}
+    which = getattr(a, "shape", "joint")    # joint: as fixed; by_source and lift: the repairs' drafts
+    shape_by = {k: load(k, {"joint": "-shape", "by_source": "-shape_src", "lift": "-shape_lift"}[which]) for k in eps}
     tokens_by = {k: load(k, "-tokens") for k in eps}
     result = score(eps, news_by, shape_by, tokens_by)
     result["shape_form"] = which
@@ -341,7 +341,7 @@ def main(argv=None) -> None:
             s.add_argument("--rehearsal", action="store_true", help="mirror seeds: new worlds on the pool's plan")
             s.add_argument("--limit", type=int, help="usable episodes per kind (a dry run); the registered run draws its whole pool")
         if name == "score":
-            s.add_argument("--shape", choices=("joint", "by_source"), default="joint",
+            s.add_argument("--shape", choices=("joint", "by_source", "lift"), default="joint",
                            help="joint: shape as fixed; by_source: the repair drafted 2026-11-07 (PLAN.md, Repairs)")
         if name == "read":
             s.add_argument("--model", required=True)
@@ -351,6 +351,7 @@ def main(argv=None) -> None:
             s.add_argument("--sets", default="material/paraphrases.jsonl")
             s.add_argument("--gpu-memory", type=float)
             s.add_argument("--draft", action="store_true")
+            s.add_argument("--lift", help="Lift v1's bases (lift.npz from `body.lift build`): shape coded in it too")
     a = p.parse_args(argv)
     {"play": cmd_play, "read": cmd_read, "score": cmd_score}[a.cmd](a)
 
