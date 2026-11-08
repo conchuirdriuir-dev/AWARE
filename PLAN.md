@@ -1536,6 +1536,21 @@ head trained for three passes. Bar 3's value should be fixed from the spread, no
 player of round 1 used 4 (86% "look"); round 2's used 73, with 3 episodes cut after ten empty actions. The cause of
 round 1's collapse is not known; a check before the 8B: grafted play with the tokens zeroed.
 
+**Fixed by the owner, 2026-11-08, after the rehearsal:** bars 1–3 as proposed (bar 1 at most 0.90 and bar 3 at most
+0.90, each with its interval's upper bound below 1; bar 2 at least 1.10, its lower bound above 1). The findings
+accepted: z-scores and the reply space fitted on round 0's play; the body vector clipped at ±10 z; empty actions
+resampled up to 10 times, then the episode cut. Deferred: the yoked arm stays a slot (it needs a new contrast); the
+reported diagnostics are built after the gate runs, their measures fixed first. Next: the collapse check, then the 8B
+as fixed; a fail of bar 3 is a result (boundary stays v0, the tickle test does not run).
+
+**The collapse check (form fixed 2026-11-08, before its code; reported, deciding nothing).** Why the grafted 0.6B of
+round 1 typed "look" 86% of the time. The graft that played round 1 (`live-r0`) plays the same 10 fresh mirror seeds
+(910120–910129, Stage 2's worlds) in three arms: **live** (its own tokens, as round 1), **zeroed** (the graft, zeros
+at the sense places), **base** (no graft, no sense places, in the same one rendering). Per arm: distinct actions,
+the share of "look", the share of the most common action, episodes cut for empty actions. An arm has collapsed if its
+most common action is over half its actions. *The reading:* live collapsed and zeroed not: the tokens; both collapsed
+and base not: the graft's weights; all three: the rendering; none: round 1's collapse is not reproduced.
+
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
 *Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
