@@ -51,7 +51,9 @@ can't-go check, is under Step −1, "Rate's calibration: the form". Next: its pl
 
 **Now (2026-11-08): Step 2's gate is fixed by the owner except its three ratios** (under "Babbling (v0.2 Step 2): the gate"); next, the 0.6B rehearsal on mirror seeds, whose intervals the ratios are fixed from: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
 [proposals/fault-garage-rate.md](proposals/fault-garage-rate.md)): Step 0's bars in Stage 2's form, a weaker model
-playing; next, its build in Fault Garage and the player screen; the grafted player's TextWorld run is reported only. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
+playing; its code is built (`body/step0_fg.py`, with Fault Garage's `run_model.py --pool` and export); next, the
+player screen (Qwen3-4B, then 1.7B, on the pools' mirror seeds; labels only); the grafted player's TextWorld run is
+reported only. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
 repair, PR #49): its deciding run on the 8B passes both parts of the calibration's gate, AUC 0.781 [0.742, 0.818] and
 the can't-go check 0.825 [0.768, 0.879] on 78 worlds (under "Repairs", "Rate, conditional: the deciding result").
 Rate enters the sense tokens as calibrated, its predictive validity untested. **Shape is parked** (owner, 2026-11-07):
