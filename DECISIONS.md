@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Step 2's babbling gate fixed except its ratios** (owner, PR #56): settings as drafted (three rounds of
+  200, 64-dimensional reply space, LM weight 0.1, held-out 9500–9599, 9600–9999 for the tickle and rate tests); the
+  tickle test's bars as drafted; base probe and yoked arm reported only. Bars 1–3's ratios are fixed after the 0.6B
+  rehearsal reports their intervals, before the 8B reads a registered seed.
 - 2026-11-08: **Boundary stays as it is, for now** (owner, from the position check): AWARE still lacks capacities and
   proceeds; every later boundary test, babbling's included, matches on position in its design.
 - 2026-11-08: **Step −1's position check reads between** (report only, the reading fixed before it ran): matched

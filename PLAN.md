@@ -49,7 +49,7 @@ its event exists, a second engine or babbling, not yet chosen. Rate's calibratio
 script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
 can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
-**Now (2026-11-08): Step 2's gate is drafted** (under "Babbling (v0.2 Step 2): the gate"), for the owner to fix before any code: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test and rate's predictive test, placed at babbling. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
+**Now (2026-11-08): Step 2's gate is fixed by the owner except its three ratios** (under "Babbling (v0.2 Step 2): the gate"); next, the 0.6B rehearsal on mirror seeds, whose intervals the ratios are fixed from: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test and rate's predictive test, placed at babbling. Boundary stays v0, matched on position (owner, 2026-11-08). **Now (2026-11-08): two senses have passed.** Boundary (Step −1, 2026-11-06) and **rate, with X_c** (the conditional
 repair, PR #49): its deciding run on the 8B passes both parts of the calibration's gate, AUC 0.781 [0.742, 0.818] and
 the can't-go check 0.825 [0.768, 0.879] on 78 worlds (under "Repairs", "Rate, conditional: the deciding result").
 Rate enters the sense tokens as calibrated, its predictive validity untested. **Shape is parked** (owner, 2026-11-07):
@@ -115,7 +115,7 @@ pool, then k fixed here and the owner's read of 20 closures and 20 ordinary stre
 | −1C | Does shape read fit to learned structure, apart from boundary's novelty? On- vs off-structure rooms | the instrument | **Failed** (2026-11-07, the 8B): shape 0.575 against 0.80, below boundary. **Shape parked** (owner, 2026-11-07): by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
 | 0 | Does the world part of rate flatten before a stall after progress, and not after an ascent? Habitat form first, then the owner's labels without retuning | the instrument | Habitat form fixed (amendments 1–6); code built (`body/step0_habitat.py`); **rests** (amendment 7, 2026-11-07): the 8B's screen fails on closures, its stalls abrupt and endless. The owner-label form is paused (below) |
 | 1 | D021 replay: rate flat and boundary at zero before 23:54, the owner's first return; then D020 | the instrument | **Frozen** (owner, 2026-11-04): tests the owner. Steps 1–3 to be redesigned for the habitat |
-| 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | **Drafted** (2026-11-08, under "Babbling (v0.2 Step 2): the gate"), for the owner to fix; no code |
+| 2 | Babbling gate: the graft reads its sense tokens, and its forward model beats the linear predictor | the channel | **Fixed except bars 1–3's ratios** (owner, 2026-11-08, under "Babbling (v0.2 Step 2): the gate"); the ratios wait on the 0.6B rehearsal |
 | 3 | Poem task and held-out habitat worlds: Felt beats Tell and Felt-shuffled | behaviour | Not written |
 
 **Decided by the owner, 2026-11-04, from a coherence review of the three docs** (DECISIONS.md; written into Spec v0.2).
@@ -1376,8 +1376,12 @@ section left it open:
 ### Babbling (v0.2 Step 2): the gate (draft)
 
 *Drafted by the agent 2026-11-08 at the owner's request, from Spec v0.2's "Babbling" and the slots in
-[proposals/staged-schedule.md](proposals/staged-schedule.md); for the owner to fix. No code until it is fixed. Every
-number marked (agent) is the agent's proposal.* Step 2 measures the channel: whether the graft reads its sense tokens,
+[proposals/staged-schedule.md](proposals/staged-schedule.md). Every number marked (agent) is the agent's proposal.*
+**Fixed by the owner, 2026-11-08:** the settings as drafted (three rounds of 200 episodes, the 64-dimensional reply
+space, language-modelling weight 0.1, held-out seeds 9500–9599, 9600–9999 kept for the tickle and rate tests); the
+tickle test's bars as drafted; the base probe and the yoked passive arm reported only, deciding nothing. **Bars 1–3's
+ratios (0.90, 1.10, 0.90) stay open until the 0.6B rehearsal reports their intervals**, and are fixed before the 8B
+reads any registered seed. Code may now be written for the rehearsal. Step 2 measures the channel: whether the graft reads its sense tokens,
 and whether its forward model predicts what comes back better than a linear history predictor. It is not a test of the
 senses (they are read with the graft off and never retrained) and not a test of behaviour (Step 3).
 
