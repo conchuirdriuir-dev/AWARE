@@ -1551,6 +1551,20 @@ the share of "look", the share of the most common action, episodes cut for empty
 most common action is over half its actions. *The reading:* live collapsed and zeroed not: the tokens; both collapsed
 and base not: the graft's weights; all three: the rendering; none: round 1's collapse is not reproduced.
 
+**Result (2026-11-08, `runs/babble-06-rehearsal/collapse/`; the entry `collapse_check` in the run's record): the
+graft's weights.** 10 episodes and 1,000 actions per arm, none cut:
+
+| Arm | Distinct actions | Most common | Its share | "look" |
+|---|---|---|---|---|
+| live | 4 | look | 0.90 | 0.90 |
+| zeroed | 6 | look | 0.89 | 0.89 |
+| base (no graft, same rendering) | 13 | inventory | 0.37 | 0.28 |
+
+The tokens do not cause it (zeroed collapses as live does), nor the rendering (the base model in it plays as round 0's
+base did). Training on round 0 moved the LoRA so that the player says "look"; round 0's own text was 17% "look".
+*The agent's reading, unconfirmed:* the self-prediction and forward-model losses, at weight 1 each against language
+modelling's 0.1, push the shared LoRA more than the action loss holds it. Round 2's player recovered (73 distinct).
+
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
 *Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
