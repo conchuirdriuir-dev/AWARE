@@ -247,7 +247,9 @@ class GraftedAgent:
     vector b_{t-1} at its sense places. Each turn's vector is appended to the record before the model acts."""
 
     def __init__(self, model_name: str, graft_path: Path, z: dict, unit, floor_var, layers, record,
-                 device="cuda", dtype="bfloat16", seed: int = 0):
+                 device="cuda", dtype="bfloat16", seed: int = 0, mode: str = "live"):
+        """mode: "live" (the episode's own tokens), "zeroed" (zeros at the sense places) or "base" (the graft off and
+        no sense places, in the same rendering): the last two for the collapse check only."""
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -264,6 +266,7 @@ class GraftedAgent:
         self.reader = Reader(self.model, tokenizer=self.tok, sink="first")
         self.z, self.unit, self.fv, self.layers = z, unit, floor_var, layers
         self.system, self.cache, self.load, self.context = SYSTEM_FORMS, None, f"{dtype} + graft {graft_path.name}", 16384
+        self.mode = mode
         torch.manual_seed(seed)
 
     def _read(self, text: str):
@@ -310,19 +313,25 @@ class GraftedAgent:
                            X_c=None if b[1] is None or not np.isfinite(b[1]) else float(b[1]))
         keep = list(self.turns)
         while True:
-            r = render(self.tok, self.system, self.chunks[0]["text"], keep, prompt=True)
+            r = render(self.tok, self.system, self.chunks[0]["text"], keep, prompt=True,
+                       k=0 if self.mode == "base" else K)
             if len(r["ids"]) <= self.context - MAX_ACTION_TOKENS or not keep:
                 break
             keep = keep[1:]
         rows = np.vstack([sense_rows(zscore(body_vectors(self.chunks, self.senses), self.z, CLIP), keep).reshape(-1, 3),
                           row[None]]) if keep else row[None]
-        with torch.no_grad():
+        from body import lora
+
+        with torch.no_grad(), (lora.off(self.graft.lora) if self.mode == "base" else _nothing()):
             ids = r["ids"]
             t_ids = torch.tensor([max(i, 0) for i in ids], device=self.model.device)
             emb = self.model.get_input_embeddings()(t_ids)
             pos = torch.tensor([i for i, x in enumerate(ids) if x == -1], device=emb.device)
-            soft = self.graft.proj(torch.as_tensor(rows, dtype=torch.float32, device=emb.device))
-            emb = emb.index_put((pos,), soft.view(-1, self.graft.hidden).to(emb.dtype))
+            if len(pos):
+                soft = self.graft.proj(torch.as_tensor(rows, dtype=torch.float32, device=emb.device))
+                if self.mode == "zeroed":
+                    soft = torch.zeros_like(soft)
+                emb = emb.index_put((pos,), soft.view(-1, self.graft.hidden).to(emb.dtype))
             for tries in range(1, EMPTY_TRIES + 1):    # an empty action cannot be read: sample again, counted
                 out = self.model.generate(inputs_embeds=emb[None], attention_mask=torch.ones(
                     1, len(ids), device=emb.device, dtype=torch.long), max_new_tokens=MAX_ACTION_TOKENS,
@@ -336,6 +345,11 @@ class GraftedAgent:
             from body.habitat import Unplayable
             raise Unplayable(f"{EMPTY_TRIES} empty actions in a row")
         return action
+
+
+def _nothing():
+    import contextlib
+    return contextlib.nullcontext()
 
 
 # --- commands -----------------------------------------------------------------------------------------------------
@@ -749,16 +763,67 @@ def cmd_score(a) -> None:
     print(json.dumps(result, indent=1))
 
 
+COLLAPSE_SEEDS = (10120, 10129)   # mirrored: 910120-910129, beyond the rehearsal's rounds (PLAN, the collapse check)
+
+
+def cmd_collapse(a) -> None:
+    """The collapse check (PLAN.md, form fixed 2026-11-08): the graft `--graft` plays the same seeds in three arms,
+    live, zeroed and base, each into its own record under the run's `collapse/`."""
+    from collections import Counter
+
+    from body.habitat import REHEARSAL, play_or_skip
+    from body.step0_habitat import STAGE2
+
+    run = Path(a.run)
+    u = json.loads((run / "units.json").read_text())
+    z = json.loads((run / "z.json").read_text())
+    summary = {}
+    agent = None
+    for mode in ("live", "zeroed", "base"):
+        out = run / "collapse" / mode
+        record = Record(out / "record.jsonl")
+        record_machine(record, f"babble collapse --mode {mode}")
+        if agent is None:
+            agent = GraftedAgent(a.model, run / "grafts" / a.graft, z, np.array(u["unit"]), np.array(u["floor_var"]),
+                                 u["layers"], record, device=a.device, dtype=a.dtype, seed=1, mode=mode)
+        agent.record, agent.mode = record, mode
+        agent.torch.manual_seed(1)
+        done = set(episodes(out))
+        record.append("round", "code", round="collapse", heldout=False, player=f"{agent.load}, {mode}")
+        for s in range(COLLAPSE_SEEDS[0], COLLAPSE_SEEDS[1] + 1):
+            if s + REHEARSAL not in done:
+                play_or_skip(agent, record, s + REHEARSAL, out / "games", worlds_path=STAGE2, kind=None)
+        E = read(record.path)
+        acts = [e["text"] for e in E if e["kind"] == "chunk" and e["slot"] == "self"]
+        c = Counter(acts)
+        top = c.most_common(1)[0] if c else ("", 0)
+        summary[mode] = {"actions": len(acts), "distinct": len(c), "look": c["look"] / max(len(acts), 1),
+                         "most common": [top[0], top[1] / max(len(acts), 1)],
+                         "collapsed": bool(acts) and top[1] / len(acts) > 0.5,
+                         "cut for empty actions": sum(1 for e in E if e["kind"] == "end" and "empty" in str(e.get("cut"))),
+                         "episodes": sum(1 for e in E if e["kind"] == "end")}
+    col = {m: v["collapsed"] for m, v in summary.items()}
+    reading = ("the tokens" if col["live"] and not col["zeroed"] else
+               "the graft's weights" if col["live"] and col["zeroed"] and not col["base"] else
+               "the rendering" if all(col.values()) else
+               "round 1's collapse not reproduced" if not col["live"] else "unclassified: read the table")
+    result = {"graft": a.graft, "arms": summary, "reading": reading, "deciding": "nothing"}
+    Record(run / "record.jsonl").append("collapse_check", "code", **result)
+    print(json.dumps(result, indent=1))
+
+
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("play", "read", "fit", "train", "score"):
+    for name in ("play", "read", "fit", "train", "score", "collapse"):
         s = sub.add_parser(name)
         s.add_argument("--run", required=True)
         if name != "fit":
             s.add_argument("--model", required=True)
             s.add_argument("--device", default="cuda")
             s.add_argument("--dtype", default="bfloat16")
+        if name == "collapse":
+            s.add_argument("--graft", default="live-r0.pt")
         if name in ("play", "train"):
             s.add_argument("--round", type=int, default=0)
         if name == "play":
@@ -771,7 +836,8 @@ def main(argv=None) -> None:
             s.add_argument("--sets", default="material/paraphrases.jsonl")
             s.add_argument("--draft", action="store_true")
     a = p.parse_args(argv)
-    {"play": cmd_play, "read": cmd_read, "fit": cmd_fit, "train": cmd_train, "score": cmd_score}[a.cmd](a)
+    {"play": cmd_play, "read": cmd_read, "fit": cmd_fit, "train": cmd_train, "score": cmd_score,
+     "collapse": cmd_collapse}[a.cmd](a)
 
 
 if __name__ == "__main__":
