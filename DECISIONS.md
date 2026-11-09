@@ -2,6 +2,11 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-09: **Shape as position is not shape's new form** (owner, on the agent's reading of the trajectory
+  mathematics): a path's signature, its shape, is blind to where the path sits, so position is what shape discards;
+  area stays shape's new form. proposals/shape-as-position.md is not adopted as shape; its pairing test (one engine
+  state across two renderings, against a text baseline) goes to Lift's re-skin slot as a candidate, decided there.
+  Its section 6 report (shape-as-cost against boundary on the Step −1C record) is optional and decides nothing.
 - 2026-11-09: **Area's noise reading finds the sink by its norm** (owner): the habitat's "first" rule left the
   four "Find" paraphrases' sink in the mean and made the ratio meaningless; fixed before any re-read. Stage A then
   passed: 0.979 against 0.90 (PR #64). Stage B waits for Fault Garage's wording as data.
