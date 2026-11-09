@@ -18,6 +18,11 @@ substrate changes only by the owner's decision.
 A step's pass criterion is written here before its code, and its thresholds are fixed before it runs. A step is done
 when its test passes, not when its code exists.
 
+**The transfer rule (owner, 2026-11-09; proposals/world-family.md).** A sense that passes in a world built for it is
+accurate in that world. The claim that it is accurate in general needs it to read a world not built for that sense,
+with its own bars written before it runs. A world, its labels, its settings for a pool and every bar are committed
+before any sense reads that pool, and a world may plant an event but never encode a sense's computation.
+
 **Sections, current work first:** Current state and direction · Body readout (the habitat: Step −1 and Step 0's
 habitat form; then Step 0 on the owner's corpus, paused) · Goal-space tests · Substrate · Product track (resting) ·
 Research track (parked) · Translations · The record: state and direction before 2026-11-04 · Retired.
@@ -49,7 +54,7 @@ its event exists, a second engine or babbling, not yet chosen. Rate's calibratio
 script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
 can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
-**Now (2026-11-09): a family of worlds is proposed** ([proposals/world-family.md](proposals/world-family.md), for the owner): the 0.6B rehearsals showed the player stuck on about 98% of turns in any TextWorld world, so failures could not be traced; one contract for worlds (seeds, an oracle's labels for scoring only, controls as data, scripted players), Fault Garage as world one, a new world only on a component's need, and a transfer rule (a sense certified in a world built for it needs a world not built for it before the claim is general). Babbling's world would be chosen by the 8B's measured reach before Step 2 runs. **Now (2026-11-08): Step 2's gate is fixed** (under "Babbling (v0.2 Step 2): the gate"; ratios fixed after the 0.6B rehearsal: bars 1 and 3 at most 0.90, bar 2 at least 1.10). The rehearsal put bars 1 and 2 on the right side of their values and bar 3 on the wrong (1.39); the grafted player collapsed in round 1, and the collapse check traced it to the graft's weights. Next: the 0.6B re-run with the language-modelling weight at 1 (owner, option 2), then the 8B as fixed. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
+**Now (2026-11-09): a family of worlds, accepted by the owner** ([proposals/world-family.md](proposals/world-family.md)); next, the 8B's reach measurement that chooses babbling's world, its bar drafted there (section 6a) for the owner to fix: the 0.6B rehearsals showed the player stuck on about 98% of turns in any TextWorld world, so failures could not be traced; one contract for worlds (seeds, an oracle's labels for scoring only, controls as data, scripted players), Fault Garage as world one, a new world only on a component's need, and a transfer rule (a sense certified in a world built for it needs a world not built for it before the claim is general). Babbling's world would be chosen by the 8B's measured reach before Step 2 runs. **Now (2026-11-08): Step 2's gate is fixed** (under "Babbling (v0.2 Step 2): the gate"; ratios fixed after the 0.6B rehearsal: bars 1 and 3 at most 0.90, bar 2 at least 1.10). The rehearsal put bars 1 and 2 on the right side of their values and bar 3 on the wrong (1.39); the grafted player collapsed in round 1, and the collapse check traced it to the graft's weights. Next: the 0.6B re-run with the language-modelling weight at 1 (owner, option 2), then the 8B as fixed. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
 [proposals/fault-garage-rate.md](proposals/fault-garage-rate.md)): Step 0's bars in Stage 2's form, a weaker model
 playing; its code is built (`body/step0_fg.py`, with Fault Garage's `run_model.py --pool` and export); next, the
 player screen (Qwen3-4B, then 1.7B, on the pools' mirror seeds; labels only); the grafted player's TextWorld run is

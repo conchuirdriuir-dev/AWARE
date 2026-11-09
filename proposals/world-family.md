@@ -1,9 +1,12 @@
 # Proposal: a family of worlds, with Fault Garage as the first
 
-For the owner. Nothing here is decided until accepted. Drafted by the agent, 2026-11-09, from the owner's direction of
+**Accepted by the owner, 2026-11-09** (DECISIONS.md): all five of section 8's questions, as recommended. The reach
+bar of section 6a is the agent's draft, for the owner to fix before the measurement runs.
+
+Drafted by the agent, 2026-11-09, from the owner's direction of
 2026-11-08 ("bespoke worlds with more granular control, possibly under different paradigms, that more specifically
 test different components; Fault Garage can act as one of those worlds"). It takes up
-[habitat-engine.md](habitat-engine.md) (PR #38, open), whose option B, an engine of our own, it widens into a family.
+[habitat-engine.md](habitat-engine.md) (merged as a proposal in PR #38, no decision recorded), whose option B, an engine of our own, it widens into a family.
 Fault Garage's design is [Fault Garage — Habitat Spec v0.1](https://claude.ai/artifact/R1tVctU5dJnvFk3qinsrLq).
 
 ## 1. Why
@@ -104,6 +107,27 @@ CLAUDE.md's known failure mode. Held three ways:
 - **Fault Garage's wording gap** becomes an item in its build order (phrasings as data, a wording dial), in its own
   repository, before boundary is read there again.
 
+## 6a. The reach measurement (the agent's draft, for the owner to fix before it runs)
+
+- **What it decides:** babbling's world only. No sense is read; nothing here is evidence about a sense.
+- **The player:** Qwen3-8B, thinking off, as Step 2's player would be, graft off. *Where it runs, for the owner:*
+  in bf16 on the 3090 or a rented GPU, or now in 4-bit (NF4) on the 4060, as the 8B's earlier TextWorld plays here
+  were (`runs/step0h-8b-nf4-play`, `runs/stepm1-8b-nf4-play`). NF4 is a rehearsal setting in AWARE; the agent would
+  accept it for this choice only, since it decides a world, not a reading.
+- **The worlds (agent):** TextWorld with Stage 1's generator (`material/habitat_worlds.json`), on mirror seeds
+  910600–910619, beyond every rehearsal's; Fault Garage at level 1 and at level 2, with the load line in the prompt,
+  20 scenarios each, on seeds 4000–4019 (level 1) and 4020–4039 (level 2), registered in Fault Garage first. Each
+  world's own episode cap (TextWorld 100 turns; Fault Garage 100 accepted actions).
+- **One measure across worlds, from each world's own label:** a *progress turn* is a turn whose reply reaches a new
+  state (TextWorld) or gains at least 0.05 bits (Fault Garage's `NO_CHANGE_BITS`). A *stall* is a run of at least 5
+  turns without progress (agent); it *ends* if a progress turn follows it in the episode.
+- **Enough reach (agent):** the progress share is between 10% and 50% of turns (at least as much as the 8B's low end on
+  Stage 1, at most well short of always progressing), and at least a quarter of episodes hold a stall that ends. Both
+  stuck stretches and stretches that come unstuck are what babbling learns from.
+- **The choice:** among the worlds meeting the bar, the one with the larger share of episodes holding a stall that
+  ends; reported for all: the progress share, stalls per episode, the share that end, and (Fault Garage) correct
+  diagnoses. If none meets it, the owner is asked; the bar is not moved.
+
 ## 7. Risks
 
 - **More worlds, more to validate.** Each world is an engine, an oracle, labels and scripted players. Held by section
@@ -121,5 +145,6 @@ CLAUDE.md's known failure mode. Held three ways:
 - **Q2.** The transfer rule of section 4, written into PLAN as a rule beside "measures kept apart"?
 - **Q3.** Babbling's world chosen by measured reach (section 6), with the 8B measured on Fault Garage levels 1–2 and on
   TextWorld Stage 1 before Step 2 runs? And what counts as enough reach (the agent would draft a bar for the owner)?
-- **Q4.** PR #38 (habitat-engine.md): closed as taken up here, or kept open for an own TextWorld-like engine?
+- **Q4.** habitat-engine.md (merged in PR #38 with no decision): marked as taken up here, or kept for an own
+  TextWorld-like engine?
 - **Q5.** Fault Garage's wording gap: into its build order now, before boundary's next reading there?
