@@ -3,8 +3,11 @@
     python -m proposals.area_noise --run runs/area-noise-8b --device auto --gpu-memory 5
 
 Reads the frozen paraphrase sets (`material/paraphrases.jsonl`, 20 sets of 5) with the 8B, as `stepm1 read` reads a
-chunk: each text on its own, mean over its tokens, the first token left out (sink "first"), bf16, every layer of the
-last third. Per layer, fixed before the run:
+chunk: each text on its own, mean over its tokens, bf16, every layer of the last third, except the sink: found by its
+norm (the substrate's rule, owner 2026-11-02), not by position. Owner, 2026-11-09: a first reading with the habitat's
+"first" rule (`runs/area-noise-8b-first`) left the sink on the second token of the four texts beginning "Find", whose
+massive activation made the ratio meaningless (layer 24: between-set distance 0 after correction); fixed before any
+re-read number was seen. Per layer, fixed before the run:
 
 - **within:** the spread of a paraphrase about its set's mean, as a root-mean-square distance, corrected for the mean
   being taken from 5 members (x sqrt(5/4));
@@ -49,6 +52,7 @@ def main(argv=None):
     p.add_argument("--device", default="auto")
     p.add_argument("--gpu-memory", type=float)
     p.add_argument("--dtype", default="bfloat16")
+    p.add_argument("--sink", default="norm", choices=["norm", "first"])
     a = p.parse_args(argv)
     from substrate.measure_d import load_sets
     from substrate.states import Reader
@@ -57,7 +61,7 @@ def main(argv=None):
     texts = [t for s in sets for t in s["texts"]]
     groups = np.array([i for i, s in enumerate(sets) for _ in s["texts"]])
     reader = Reader(a.model, revision=a.revision, device=a.device, dtype=a.dtype, gpu_memory=a.gpu_memory,
-                    sink="first")
+                    sink=a.sink)
     n = reader.info["layers"]
     layers = list(range(math.ceil(2 * n / 3), n))
     S = np.concatenate([reader.states(texts[b:b + 8], layers) for b in range(0, len(texts), 8)])  # texts x layers x w
