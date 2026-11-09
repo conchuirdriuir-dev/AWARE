@@ -27,3 +27,20 @@ def test_signature_of_one_segment_is_its_exponential():
     s1, s2, s3, s4 = T.signature(np.array([[0.0, 0.0], dx]), 4)
     assert np.allclose(s3, np.einsum("i,j,k->ijk", dx, dx, dx) / 6.0)
     assert np.allclose(s4, np.einsum("i,j,k,l->ijkl", dx, dx, dx, dx) / 24.0)
+
+
+def test_stage_a_runs_and_area_reads_order(tmp_path):
+    import json
+    noise = tmp_path / "noise.json"
+    noise.write_text(json.dumps({"mean_ratio": 0.05, "max_ratio": 0.05, "groups": []}))
+    out = T.stage_a(str(noise), quick=True)
+    assert out["toy"]["rho"][0] > 0.9                       # little noise: the loop is plain
+    assert 0.2 < out["toy"]["boundary"][0] < 0.8            # same contents, same counts: boundary near chance
+
+
+def test_visit_orders():
+    rng = np.random.default_rng(0)
+    d = T.visit_order("dither", rng, 4, 6)
+    assert (np.bincount(d) == 6).all() and (d[1:] != d[:-1]).all()
+    l = T.visit_order("loop", rng, 4, 6)
+    assert (l[4:] == l[:-4]).all()

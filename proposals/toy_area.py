@@ -2,6 +2,8 @@
 
     python -m proposals.toy_area            # all four checks, prints a table, exits 1 if any fails
     python -m proposals.toy_area --quick    # smaller sizes (what the unit test runs)
+    python -m proposals.toy_area --stage-a material/area_noise_8b.json [--states runs/area-noise-8b/states.npy]
+                                            # area-sense.md's stage A: loop against dither at AWARE's size
 
 No language and no model: each check is built so its answer is known in closed form. It checks the math of the
 doc's "One quantity: signed area" section before any reading on text relies on it. Nothing here is a sense or a
@@ -187,6 +189,142 @@ def check_flux(k=1.0, s=1.0, ws=(0.0, 0.25, 0.5, 1.0), quick=False):
     return rows
 
 
+# --------------------------------------------------------------------------------------------------------------
+# Stage A of proposals/area-sense.md (section 4): can area part a loop from a dither in one 24-turn window?
+# Accepted by the owner 2026-11-09; the bar and every setting below are fixed before the noise is measured.
+# --------------------------------------------------------------------------------------------------------------
+STAGE_A = dict(d=8, contents=4, rounds=6, burn=10, R=8, episodes=40, draws=2000, bar=0.90, seed=50000)
+
+
+def area_rho(path):
+    """The sense on a path already in its basis: (sigma_max(A), ||A||_F), each over the sum of squared steps."""
+    A = levy_area(path)
+    steps = float((np.diff(path, axis=0) ** 2).sum())
+    return float(np.linalg.svd(A, compute_uv=False)[0]) / steps, float(np.linalg.norm(A)) / steps
+
+
+def basis(X, R):
+    """The episode's own R principal directions of the rows of X (as rate's X_c)."""
+    mu = X.mean(0)
+    Vt = np.linalg.svd(X - mu, full_matrices=False)[2]
+    return mu, Vt[: min(R, Vt.shape[0])].T
+
+
+def visit_order(kind, rng, m, rounds):
+    """Loop: one fixed cycle, `rounds` times. Dither: each content `rounds` times, shuffled, never twice running."""
+    if kind == "loop":
+        return np.tile(rng.permutation(m), rounds)
+    while True:
+        o = rng.permutation(np.repeat(np.arange(m), rounds))
+        if (o[1:] != o[:-1]).all():
+            return o
+
+
+def nearest_mean(W, start):
+    """Boundary's analogue: each window state's distance to its nearest earlier state, averaged over the window."""
+    return float(np.mean([np.linalg.norm(W[:i] - W[i], axis=1).min() for i in range(start, len(W))]))
+
+
+def toy_episode(kind, ratio, rng, d, contents, rounds, burn, R):
+    """Four contents at median distance 1 in d dimensions; burn replies are other contents; each visit adds isotropic
+    noise of expected norm `ratio`. Commands are fixed points (the same text, the same state)."""
+    pts = rng.normal(size=(contents + burn + contents, d))
+    iu = np.triu_indices(contents, 1)
+    scale = np.median(np.linalg.norm(pts[:contents, None] - pts[None, :contents], axis=-1)[iu])
+    pts = pts / scale
+    C, B, K = pts[:contents], pts[contents:contents + burn], pts[contents + burn:]
+    noise = lambda n: rng.normal(size=(n, d)) * ratio / np.sqrt(d)
+    o = visit_order(kind, rng, contents, rounds)
+    world = np.vstack([B + noise(burn), C[o] + noise(len(o))])
+    mu, V = basis(world, R)
+    rho, frob = area_rho((world[burn:] - mu) @ V)
+    inter = np.empty((2 * len(o), d))
+    inter[0::2], inter[1::2] = K[o], world[burn:]
+    mu2, V2 = basis(np.vstack([world[:burn], inter]), R)
+    return {"rho": rho, "frob": frob, "boundary": nearest_mean(world, burn),
+            "inter": area_rho((inter - mu2) @ V2)[0]}
+
+
+def real_episode(kind, S, groups, rng, contents, rounds, burn, R):
+    """Reported only: the 8B's own paraphrase states (texts x layers x width). Contents are four sets' means; a visit
+    adds a residual (a paraphrase less its set's mean) from the other sets; burn replies are paraphrases of other
+    sets. Read at full width through the episode's R-direction basis, per layer, then the mean over layers."""
+    ids = rng.permutation(np.unique(groups))
+    cs, others = ids[:contents], ids[contents:]
+    o = visit_order(kind, rng, contents, rounds)
+    out = {"rho": [], "frob": [], "boundary": []}
+    pick_b = [rng.choice(np.flatnonzero(groups == g)) for g in rng.choice(others, burn, replace=False)]
+    pool = np.flatnonzero(np.isin(groups, others))
+    pick_r = rng.choice(pool, len(o))
+    for j in range(S.shape[1]):
+        X = S[:, j].astype(np.float64)
+        mean = {g: X[groups == g].mean(0) for g in np.unique(groups)}
+        res = X[pick_r] - np.stack([mean[g] for g in groups[pick_r]])
+        world = np.vstack([X[pick_b], np.stack([mean[cs[i]] for i in o]) + res])
+        mu, V = basis(world, R)
+        rho, frob = area_rho((world[burn:] - mu) @ V)
+        out["rho"].append(rho)
+        out["frob"].append(frob)
+        out["boundary"].append(nearest_mean(world, burn))
+    return {k: float(np.mean(v)) for k, v in out.items()}
+
+
+def auc(pos, neg):
+    pos, neg = np.asarray(pos), np.asarray(neg)
+    return float(((pos[:, None] > neg[None]).sum() + 0.5 * (pos[:, None] == neg[None]).sum()) / (len(pos) * len(neg)))
+
+
+def auc_interval(pos, neg, rng, draws):
+    pos, neg = np.asarray(pos), np.asarray(neg)
+    a = [auc(rng.choice(pos, len(pos)), rng.choice(neg, len(neg))) for _ in range(draws)]
+    return float(np.percentile(a, 5)), float(np.percentile(a, 95))
+
+
+def stage_a(noise_file, states_file=None, quick=False):
+    cfg = dict(STAGE_A)
+    if quick:
+        cfg.update(episodes=10, draws=200)
+    noise = __import__("json").loads(open(noise_file).read())
+    keys = ("d", "contents", "rounds", "burn", "R")
+
+    def pool(make):
+        eps = {k: [] for k in ("loop", "dither")}
+        for i in range(2 * cfg["episodes"]):
+            kind = "loop" if i % 2 == 0 else "dither"
+            eps[kind].append(make(kind, np.random.default_rng(cfg["seed"] + i)))
+        return eps
+
+    def table(eps, fields):
+        rng = np.random.default_rng(cfg["seed"] - 1)
+        return {f: (auc([e[f] for e in eps["loop"]], [e[f] for e in eps["dither"]]),
+                    *auc_interval([e[f] for e in eps["loop"]], [e[f] for e in eps["dither"]], rng, cfg["draws"]))
+                for f in fields}
+
+    out = {"config": cfg, "noise": {"mean_ratio": noise["mean_ratio"], "max_ratio": noise["max_ratio"]}}
+    toy = lambda r: pool(lambda kind, rng: toy_episode(kind, r, rng, *(cfg[k] for k in keys)))
+    out["toy"] = table(toy(noise["mean_ratio"]), ("rho", "frob", "boundary", "inter"))
+    out["toy_max_ratio"] = table(toy(noise["max_ratio"]), ("rho", "boundary"))
+    if states_file:
+        S, groups = np.load(states_file), np.array(noise["groups"])
+        out["real"] = table(pool(lambda kind, rng: real_episode(kind, S, groups, rng, *(cfg[k] for k in keys[1:]))),
+                            ("rho", "frob", "boundary"))
+    out["pass"] = out["toy"]["rho"][0] >= cfg["bar"]
+
+    print(f"noise ratio (within / between): mean over layers {noise['mean_ratio']:.3f}, "
+          f"max {noise['max_ratio']:.3f}")
+    names = {"rho": "area, sigma_max (the sense)", "frob": "area, Frobenius", "boundary": "boundary's analogue",
+             "inter": "area on the interleaved path"}
+    for part, label in (("toy", "toy at the mean ratio"), ("toy_max_ratio", "toy at the largest layer's ratio"),
+                        ("real", "the 8B's own paraphrase states (reported)")):
+        if part in out:
+            print(f"\n{label}: AUC loop over dither [90%]")
+            for f, (a, lo, hi) in out[part].items():
+                print(f"  {names[f]:<30} {a:.3f}  [{lo:.3f}, {hi:.3f}]")
+    print(f"\nBar: the sense's AUC on the toy at the mean ratio >= {cfg['bar']}: "
+          f"{'PASS' if out['pass'] else 'FAIL'} ({out['toy']['rho'][0]:.3f})")
+    return out
+
+
 def run(quick=False):
     rows = check_bag() + check_area() + check_holonomy() + check_flux(quick=quick)
     width = max(len(r[0]) for r in rows)
@@ -197,8 +335,17 @@ def run(quick=False):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--quick", action="store_true", help="smaller flux simulation")
-    ok = run(quick=ap.parse_args().quick)
+    ap.add_argument("--quick", action="store_true", help="smaller sizes")
+    ap.add_argument("--stage-a", metavar="NOISE_JSON", help="area-sense.md's stage A, with the measured noise")
+    ap.add_argument("--states", help="with --stage-a: the 8B's paraphrase states, for the reported real variant")
+    ap.add_argument("--out", help="with --stage-a: write the result here as JSON")
+    a = ap.parse_args()
+    if a.stage_a:
+        out = stage_a(a.stage_a, a.states, quick=a.quick)
+        if a.out:
+            open(a.out, "w").write(__import__("json").dumps(out, indent=1))
+        sys.exit(0)
+    ok = run(quick=a.quick)
     print("all checks pass" if ok else "SOME CHECKS FAIL")
     sys.exit(0 if ok else 1)
 
