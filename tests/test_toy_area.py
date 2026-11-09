@@ -20,3 +20,10 @@ def test_expm_matches_rotation():
 
 def test_all_checks_pass_quick():
     assert T.run(quick=True)
+
+
+def test_signature_of_one_segment_is_its_exponential():
+    dx = np.array([0.3, -1.2])
+    s1, s2, s3, s4 = T.signature(np.array([[0.0, 0.0], dx]), 4)
+    assert np.allclose(s3, np.einsum("i,j,k->ijk", dx, dx, dx) / 6.0)
+    assert np.allclose(s4, np.einsum("i,j,k,l->ijkl", dx, dx, dx, dx) / 24.0)

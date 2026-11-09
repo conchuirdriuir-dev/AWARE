@@ -8,20 +8,22 @@ doc's "One quantity: signed area" section before any reading on text relies on i
 step's test; it decides nothing in PLAN.md.
 
   1. bag      The mean of a path (minus its start) is the (i, t) term of the depth-2 signature of (t, X).
-              Reordering the points keeps the bag and changes the area: order lives in the area.
+              Shuffling the interior points (ends held) keeps that term exactly and changes the area.
   2. area     Level 2 of the log-signature is the Levy area; reversing a path flips it, and the symmetric part of
               level 2 is fixed by level 1 (shuffle identity), so it carries no order.
   3. holonomy A fixed connection A_1, A_2 carried round a circle: holonomy = exp(area * [A_1, A_2]) to leading
-              order (error per unit area falls with the radius), and the depth-N signature expansion converges to
-              the exact holonomy as N grows (transport is a function of the signature).
+              order (error per unit area falls with the radius), and the depth-N signature expansion stays within
+              the closed-form tail bound at depths 1-6 (transport is a function of the signature).
   4. flux     dX = -(k I + w J) X dt + s dW in 2-D. Mean area rate = -w s^2 / (2k) in closed form: zero for a pure
-              landscape (w = 0) and proportional to the flux w otherwise. Reversed paths flip its sign.
+              landscape (w = 0) and proportional to the flux w otherwise. (Reversing a path flips its area: check 2.)
+              The four w share one seed, so their errors are correlated, not independent confirmations.
 
 Numpy only. Tolerances are set from the closed forms before running and printed beside each result.
 """
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 
 import numpy as np
@@ -31,18 +33,17 @@ import numpy as np
 # Signatures of piecewise-linear paths (depth <= 3) via Chen's identity, and the Levy area
 # --------------------------------------------------------------------------------------------------------------
 def signature(path, depth=3):
-    """Levels 1..depth of the signature of a piecewise-linear path, as a list of arrays (d,), (d, d), (d, d, d)."""
+    """Levels 1..depth of the signature of a piecewise-linear path, as a list of arrays (d,), (d, d), (d, d, d), ...
+    Built segment by segment with Chen's identity: S <- S (x) exp(dx), where exp(dx) has level k = dx^(x)k / k!."""
     path = np.asarray(path, dtype=np.float64)
     d = path.shape[1]
-    s1, s2, s3 = np.zeros(d), np.zeros((d, d)), np.zeros((d, d, d))
+    S = [np.ones(())] + [np.zeros((d,) * k) for k in range(1, depth + 1)]
     for dx in np.diff(path, axis=0):
-        b2 = np.outer(dx, dx) / 2.0
-        if depth >= 3:
-            b3 = np.einsum("i,j,k->ijk", dx, dx, dx) / 6.0
-            s3 = s3 + b3 + np.einsum("ij,k->ijk", s2, dx) + np.einsum("i,jk->ijk", s1, b2)
-        s2 = s2 + b2 + np.outer(s1, dx)
-        s1 = s1 + dx
-    return [s1, s2, s3][:depth]
+        E = [np.ones(())]
+        for k in range(1, depth + 1):
+            E.append(np.multiply.outer(E[-1], dx) / k)
+        S = [sum(np.multiply.outer(S[j], E[k - j]) for j in range(k + 1)) for k in range(depth + 1)]
+    return S[1:]
 
 
 def levy_area(path):
@@ -77,14 +78,16 @@ def check_bag(seed=0, n=9, d=3):
     mean_pl = (((X[:-1] + X[1:]) / 2.0) * np.diff(t, axis=0)).sum(axis=0)   # mean of the piecewise-linear path
     err = float(np.abs(term - (mean_pl - X[0])).max())
 
-    # Same points, other order: the bag of points is unchanged, the area is not.
-    perm = rng.permutation(n)
-    bag_moved = float(np.abs(X.mean(0) - X[perm].mean(0)).max())
-    area_moved = float(np.abs(levy_area(X) - levy_area(X[perm])).max())
+    # Same points, other order, ends held: the time-weighted mean gives the two ends half weight, so only an
+    # interior shuffle leaves the bag term itself unchanged (shuffling the ends moves it as much as the area).
+    perm = np.r_[0, 1 + rng.permutation(n - 2), n - 1]
+    Y = X[perm]
+    bag_moved = float(np.abs(term - signature(np.hstack([Y, t]), 2)[1][:d, d]).max())
+    area_moved = float(np.abs(levy_area(X) - levy_area(Y)).max())
     return [
         ("bag: S^(i,t) = mean - start, max error", err, "< 1e-12", err < 1e-12),
-        ("bag: reorder moves the point mean by", bag_moved, "< 1e-12", bag_moved < 1e-12),
-        ("bag: reorder moves the Levy area by", area_moved, "> 0.1", area_moved > 0.1),
+        ("bag: interior reorder moves S^(i,t) by", bag_moved, "< 1e-12", bag_moved < 1e-12),
+        ("bag: interior reorder moves the Levy area by", area_moved, "> 0.1", area_moved > 0.1),
     ]
 
 
@@ -138,13 +141,19 @@ def check_holonomy(seed=2, m=3, radii=(0.3, 0.1, 0.03), steps=2000):
     falls = all(b < a * 0.6 for a, b in zip(ratios, ratios[1:]))
     rows = [(n, v, b, falls) for n, v, b, _ in rows]
 
-    # Transport is a function of the signature: depth-N expansion converges to the exact transport.
-    P = np.cumsum(0.15 * rng.normal(size=(30, 2)), axis=0)
+    # Transport is a function of the signature: the depth-N expansion converges to the exact transport. Bar, fixed
+    # from the closed form: |H - rho(S_N)| <= sum_{k > N} (L a)^k / k!, with L the path's l1 length and
+    # a = max_i ||A_i||_2. The path is scaled so that L a = 2, where the bound is informative.
+    P = np.cumsum(rng.normal(size=(30, 2)), axis=0)
+    a = max(np.linalg.norm(A1, 2), np.linalg.norm(A2, 2))
+    P = P * 2.0 / (np.abs(np.diff(P, axis=0)).sum() * a)
     H = _transport(A1, A2, P)
-    errs = [float(np.abs(H - _rho(signature(P, N), (A1, A2))).max()) for N in (1, 2, 3)]
-    conv = errs[0] > errs[1] > errs[2]
-    for N, e in zip((1, 2, 3), errs):
-        rows.append((f"holonomy: |H - rho(S_depth{N})| on an open path", e, "falls with depth", conv))
+    depths = range(1, 7)
+    sig = signature(P, max(depths))
+    for N in depths:
+        e = float(np.abs(H - _rho(sig[:N], (A1, A2))).max())
+        tail = float(sum(2.0 ** k / math.factorial(k) for k in range(N + 1, 40)))
+        rows.append((f"holonomy: |H - rho(S_depth{N})| on an open path", e, f"<= tail bound {tail:.2g}", e <= tail))
     return rows
 
 
@@ -175,9 +184,6 @@ def check_flux(k=1.0, s=1.0, ws=(0.0, 0.25, 0.5, 1.0), quick=False):
         theory = -w * s * s / (2 * k)
         ok = abs(est - theory) < 4 * se + 0.02
         rows.append((f"flux: area rate, w = {w} (theory {theory:+.3f})", est, f"theory +/- 4se ({se:.3f})", ok))
-    est_r, se_r = area_rate(k, 1.0, s, reverse=True, **kw)
-    ok = abs(est_r - s * s / (2 * k)) < 4 * se_r + 0.02
-    rows.append(("flux: reversed paths, w = 1 (theory +0.500)", est_r, f"theory +/- 4se ({se_r:.3f})", ok))
     return rows
 
 
