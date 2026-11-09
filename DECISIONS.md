@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-08: **Step 2's language-modelling weight goes from 0.1 to 1** (owner, option 2, PR #61): the collapse check
+  traced the grafted player's collapse to the graft's weights. A 0.6B re-run on the same seeds confirms the player
+  stays varied before the 8B.
+- 2026-11-08: **Step 2's ratios fixed** (owner, after the 0.6B rehearsal, PR #61): bars 1 and 3 at most 0.90, bar 2
+  at least 1.10, each with its interval past 1. Accepted: z-scores and space from round 0, the ±10 clip, the
+  empty-action rule. Deferred: the yoked arm (a slot), the reported diagnostics (after the gate). Next: the collapse
+  check, then the 8B as fixed.
 - 2026-11-08: **Rate's predictive test runs on Fault Garage, now** (owner, option (A) of
   proposals/fault-garage-rate.md, PR #58): Step 0's question and bars, unchanged, in Stage 2's form (a weaker Qwen3
   plays, chosen by the screen; the base 8B reads). The player's prompt says the car starts with the key off and most

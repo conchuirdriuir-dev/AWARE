@@ -49,7 +49,7 @@ its event exists, a second engine or babbling, not yet chosen. Rate's calibratio
 script) is built first and **gates rate's entry into the sense tokens** (owner, 2026-11-07): its form, with the
 can't-go check, is under Step −1, "Rate's calibration: the form". Next: its play (CPU) and the 8B's reading.
 
-**Now (2026-11-08): Step 2's gate is fixed by the owner except its three ratios** (under "Babbling (v0.2 Step 2): the gate"); next, the 0.6B rehearsal on mirror seeds, whose intervals the ratios are fixed from: the channel is boundary and X_c; three bars (the tokens are used, they are read, the forward model beats a linear predictor), all paired by turn; then the tickle test. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
+**Now (2026-11-08): Step 2's gate is fixed** (under "Babbling (v0.2 Step 2): the gate"; ratios fixed after the 0.6B rehearsal: bars 1 and 3 at most 0.90, bar 2 at least 1.10). The rehearsal put bars 1 and 2 on the right side of their values and bar 3 on the wrong (1.39); the grafted player collapsed in round 1, and the collapse check traced it to the graft's weights. Next: the 0.6B re-run with the language-modelling weight at 1 (owner, option 2), then the 8B as fixed. **Rate's predictive test runs on Fault Garage, now** (owner, 2026-11-08, option (A) of
 [proposals/fault-garage-rate.md](proposals/fault-garage-rate.md)): Step 0's bars in Stage 2's form, a weaker model
 playing; its code is built (`body/step0_fg.py`, with Fault Garage's `run_model.py --pool` and export); next, the
 player screen (Qwen3-4B, then 1.7B, on the pools' mirror seeds; labels only); the grafted player's TextWorld run is
@@ -1485,6 +1485,99 @@ channel can work either way.
   agent's caution, and a correction of its own earlier advice:* placing it here mostly defers the question. Stage 2 failed because the 8B's stalls start abruptly and never end; the grafted player is the same
   8B with a graft, so the screen may fail again. If it does, rate's predictive test rests again, and the second engine
   is the remaining place.
+
+#### Step 2: the code, and what building it found (2026-11-08, the agent; for the owner)
+
+`body/babble.py` (play, read, fit, train, score), `body/senses.py` (the senses chunk by chunk), `body/lora.py` (the
+graft), with tests in `tests/test_babble.py` and `tests/test_senses.py`. The live senses are the tested ones:
+`body/senses.py` reproduces Step −1's `news` and `conditional`'s X_c to 1e-9 (tested), and in a smoke run the vectors
+the grafted player was given matched the offline reading within 1.6e-8 (boundary) and exactly (X_c). One model plays
+and reads: the Reader wraps the player's own model with the LoRA switched off, which reads exactly as a separately
+loaded base model (maximum difference 0.0, measured on the 0.6B), so the 8B fits on 24 GB.
+
+**Found, each for the owner to rule on:**
+1. **The yoked arm is degenerate as drafted.** Training runs in offline rounds, so the active graft trains on a fixed
+   recorded text; a yoked graft on the same text in the same steps differs only by seed. Not built. A yoked arm that
+   means something needs a different contrast (for example, a graft trained without the actions in its context).
+2. **The z-scores and the reply space are fitted on round 0's play, not on the calibration pool.** The calibration
+   pool (1000–1099) is Stage 1's worlds played by the script; babbling plays Stage 2's worlds with the model. Round 0
+   (the base model, no tokens) matches what the channel carries. The draft said the calibration pool.
+3. **A looping episode sends X_c to 2 × 10¹⁴ bits** (smoke run: the grafted 0.6B typing "look" every turn; identical
+   chunks collapse the past's variance to the floor). The instrument is unchanged; the channel cuts the body vector's
+   z-scores at ±10, in tokens and targets (agent's choice).
+4. **An empty action cannot be read.** The grafted player samples again, up to 10 times (counted in the record); then
+   the episode is cut at its last full turn, as an engine failure is. The code never writes an action.
+5. **One rendering for training and play:** every assistant turn is the header, the two sense tokens, an empty think
+   block, then the action. The base player of round 0 and the held-out pool saw Qwen's own template; every arm reads
+   the held-out text in this one rendering.
+6. **Not built yet (all reported only):** the swap within an episode, quest completion played live, the phantom-limb
+   and rubber-hand diagnostics.
+
+**The rehearsal** (running from 2026-11-08 11:12, `runs/babble-06-rehearsal/`): Qwen3-0.6B on the 4060, mirror seeds,
+three rounds of 40 and 40 held-out, its own floor (`runs/echo-floor-0.6b-first/floor.json`, D measured as a draft).
+It decides nothing; it reports each ratio's interval, from which the owner fixes bars 1–3.
+
+**The rehearsal's result (2026-11-08, 11:12–16:22; deciding nothing; the entry `score` in
+`runs/babble-06-rehearsal/record.jsonl`).** 34 held-out episodes, 101 training episodes (rounds of 34, 32 and 35
+after the engine cap's skips). Ratios with 90% intervals, against the proposed values (not fixed):
+
+| | Ratio | 90% interval | Proposed |
+|---|---|---|---|
+| Bar 1, live over the lower of zeroed and tokens alone | 0.795 | [0.729, 0.862] | at most 0.90 |
+| Bar 2, swapped over live | 1.297 | [1.172, 1.444] | at least 1.10 |
+| Bar 3, forward model over the linear history predictor | **1.394** | [1.271, 1.598] | at most 0.90 |
+
+Reported: live over zeroed 0.727, over tokens alone 0.795, over persistence 0.564; the forward model over the base
+probe 0.752; the base probe over the linear predictor 1.854. The intervals' half-widths are about 0.07 (bar 1), 0.14
+(bar 2) and 0.16 (bar 3) at 34 episodes; at the 8B's 100 they would be about 0.6 times that.
+
+*The agent's reading, for the owner:* on the 0.6B, the tokens are used and read (bars 1 and 2 on the right side of
+their proposed values, with room), and the forward model loses to the linear history predictor by 39%. The linear
+predictor reads the reply's own space directly (the action's and the last ten chunks' states), and TextWorld's
+replies repeat, so it is a strong baseline; the forward model reads the grafted model's last hidden state through a
+head trained for three passes. Bar 3's value should be fixed from the spread, not moved toward this point estimate.
+
+**The player during the rehearsal (reported):** round 0's base 0.6B used 28 distinct actions (17% "look"); the grafted
+player of round 1 used 4 (86% "look"); round 2's used 73, with 3 episodes cut after ten empty actions. The cause of
+round 1's collapse is not known; a check before the 8B: grafted play with the tokens zeroed.
+
+**Fixed by the owner, 2026-11-08, after the rehearsal:** bars 1–3 as proposed (bar 1 at most 0.90 and bar 3 at most
+0.90, each with its interval's upper bound below 1; bar 2 at least 1.10, its lower bound above 1). The findings
+accepted: z-scores and the reply space fitted on round 0's play; the body vector clipped at ±10 z; empty actions
+resampled up to 10 times, then the episode cut. Deferred: the yoked arm stays a slot (it needs a new contrast); the
+reported diagnostics are built after the gate runs, their measures fixed first. Next: the collapse check, then the 8B
+as fixed; a fail of bar 3 is a result (boundary stays v0, the tickle test does not run).
+
+**The collapse check (form fixed 2026-11-08, before its code; reported, deciding nothing).** Why the grafted 0.6B of
+round 1 typed "look" 86% of the time. The graft that played round 1 (`live-r0`) plays the same 10 fresh mirror seeds
+(910120–910129, Stage 2's worlds) in three arms: **live** (its own tokens, as round 1), **zeroed** (the graft, zeros
+at the sense places), **base** (no graft, no sense places, in the same one rendering). Per arm: distinct actions,
+the share of "look", the share of the most common action, episodes cut for empty actions. An arm has collapsed if its
+most common action is over half its actions. *The reading:* live collapsed and zeroed not: the tokens; both collapsed
+and base not: the graft's weights; all three: the rendering; none: round 1's collapse is not reproduced.
+
+**Result (2026-11-08, `runs/babble-06-rehearsal/collapse/`; the entry `collapse_check` in the run's record): the
+graft's weights.** 10 episodes and 1,000 actions per arm, none cut:
+
+| Arm | Distinct actions | Most common | Its share | "look" |
+|---|---|---|---|---|
+| live | 4 | look | 0.90 | 0.90 |
+| zeroed | 6 | look | 0.89 | 0.89 |
+| base (no graft, same rendering) | 13 | inventory | 0.37 | 0.28 |
+
+The tokens do not cause it (zeroed collapses as live does), nor the rendering (the base model in it plays as round 0's
+base did). Training on round 0 moved the LoRA so that the player says "look"; round 0's own text was 17% "look".
+*The agent's reading, unconfirmed:* the self-prediction and forward-model losses, at weight 1 each against language
+modelling's 0.1, push the shared LoRA more than the action loss holds it. Round 2's player recovered (73 distinct).
+
+**The fix, and its re-run (owner, 2026-11-08, option 2; form fixed before the run).** The language-modelling weight
+goes from 0.1 to 1, so the action loss weighs as much as each prediction loss; nothing else changes, and the 8B runs
+with it. The 0.6B re-run (`runs/babble-06-lm1/`) reuses the first rehearsal's round 0 and held-out play as recorded
+(the same worlds and the same base player; its record starts as a copy, marked so), then trains and plays rounds 1–2
+on the same mirror seeds, scores, and runs the collapse check on its own `live-r0`. **Pass:** neither grafted round's
+player collapses (its most common action at most half its actions), and the collapse check's live arm does not
+collapse. On a fail, the separate-LoRA fix is the next proposal. The ratios are reported against the fixed bars,
+deciding nothing.
 
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
