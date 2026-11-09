@@ -135,17 +135,21 @@ def runs_of(e: dict, ok: list[int], n: int) -> list[list[int]]:
     return [ok[a:a + n] for a in range(len(ok) - n + 1) if pos[ok[a + n - 1]] - pos[ok[a]] == n - 1]
 
 
-def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
+def match(eps: dict, labs: dict, events: list[dict], taken: dict, within: int | None = None) -> dict:
     """Reading 1's pairs (amendment 2): each closure window with one pre-progress window, cut to its last n turns, in
     the same episode, nearest the closure window's middle turn, never reused (`taken`: seed -> ascents used); where the
-    episode has none, the nearest world by seed in the pool (amendment 3: every world shares the pool's generator)."""
+    episode has none, the nearest world by seed in the pool (amendment 3: every world shares the pool's generator).
+    `within` (Fault Garage's form, owner 2026-11-08): a control's window must end within that many turns of the
+    event window's end, so the pair is matched on position; None, TextWorld's form, has no such limit."""
 
-    def control_in(seed, n, centre):
+    def control_in(seed, n, centre, end):
         best = None
         for a, rows in pre_progress(eps[seed], labs[seed]):
             if a in taken[seed] or len(rows) < n:
                 continue
             run = rows[-n:]
+            if within is not None and abs(run[-1] - end) > within:
+                continue
             d = abs(run[n // 2] - centre)
             if best is None or d < best[0]:
                 best = (d, a, run)
@@ -154,11 +158,11 @@ def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
     kept, none, cross = [], [], []
     for ev in events:
         n, seed = len(ev["rows"]), ev["seed"]
-        best, where = control_in(seed, n, ev["rows"][n // 2]), seed
+        best, where = control_in(seed, n, ev["rows"][n // 2], ev["rows"][-1]), seed
         if best is None:
             same = sorted((s for s in eps if s != seed), key=lambda s: abs(s - seed))   # amendment 3: the pool
             for s in same:
-                best = control_in(s, n, ev["rows"][n // 2])
+                best = control_in(s, n, ev["rows"][n // 2], ev["rows"][-1])
                 if best is not None:
                     where = s
                     cross.append(f"{seed}/{ev['kind']}@{ev['at']} from {s}")
@@ -171,17 +175,18 @@ def match(eps: dict, labs: dict, events: list[dict], taken: dict) -> dict:
     return {"events": kept, "no control": none, "cross-episode controls": cross}
 
 
-def events_at(eps: dict, k: int, which: str = "ascents") -> dict:
+def events_at(eps: dict, k: int, which: str = "ascents", label_fn=None, within: int | None = None) -> dict:
     """Closure windows paired with pre-progress windows (reading 1), and the post-ascent windows (reading 2; `which`
-    picks the ascents or, reported only, the broad ascents)."""
-    labs = {s: labels(e, k) for s, e in eps.items()}
+    picks the ascents or, reported only, the broad ascents). `label_fn` (default: TextWorld's `labels`) and `within`
+    (see `match`) let another engine's form use the same windows and readings."""
+    labs = {s: (label_fn or labels)(e, k) for s, e in eps.items()}
     clo, asc, dropped = [], [], []
     for s in sorted(eps):
         w, d = windows(eps[s], labs[s], which)
         clo += [x for x in w if x["kind"] == "closure"]
         asc += [x for x in w if x["kind"] == "ascent"]
         dropped += d
-    m = match(eps, labs, clo, {s: set() for s in eps})
+    m = match(eps, labs, clo, {s: set() for s in eps}, within)
     return {"closures": m["events"], "pre-stall": clo, "ascents": asc, "no control": m["no control"],
             "cross-episode controls": m["cross-episode controls"], "dropped (fewer than 3 turns)": dropped,
             "labels": labs}
@@ -264,7 +269,8 @@ def decide(r1: dict, r2: dict) -> dict:
     return {"passed": bool(p1 and p2), "1 closures": bool(p1), "2 ascents": bool(p2)}
 
 
-def placebo(eps: dict, w: dict, spaces: list[int], text: int, draws: int = PLACEBO_DRAWS) -> dict:
+def placebo(eps: dict, w: dict, spaces: list[int], text: int, draws: int = PLACEBO_DRAWS,
+            within: int | None = None) -> dict:
     """For each event, a pretend window as long at a random run of its episode outside every closure, read by the same
     rules: pretend closures paired with pre-progress windows, pretend ascents against the real pre-stall windows. The
     AUCs show what the pairing and the windows' placing give with no event in them."""
@@ -278,7 +284,7 @@ def placebo(eps: dict, w: dict, spaces: list[int], text: int, draws: int = PLACE
             if runs:
                 run = runs[rng.integers(len(runs))]
                 fake[ev["kind"]].append({"kind": ev["kind"], "seed": ev["seed"], "at": run[0], "rows": run})
-        m = match(eps, labs, fake["closure"], {s: set() for s in eps})["events"]
+        m = match(eps, labs, fake["closure"], {s: set() for s in eps}, within)["events"]
         out["n closures"].append(len(m))
         out["n ascents"].append(len(fake["ascent"]))
         if m:
@@ -295,13 +301,16 @@ def placebo(eps: dict, w: dict, spaces: list[int], text: int, draws: int = PLACE
     return summary
 
 
-def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, draws: int = DRAWS) -> dict:
+def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, draws: int = DRAWS,
+          label_fn=None, within: int | None = None, variants: bool = True) -> dict:
     """Step 0's habitat form (amendment 2) at the frozen k; reported at k/2 and 2k (rounded up), with the scoring's
-    checks. Reading 1: pre-progress X over pre-stall X, paired. Reading 2: post-ascent X over pre-stall X."""
+    checks. Reading 1: pre-progress X over pre-stall X, paired. Reading 2: post-ascent X over pre-stall X.
+    `label_fn` and `within` as in `events_at`; `variants` False skips what the form has no reading for (broad
+    ascents, X at other windows)."""
     spaces, text = list(range(n_layers)), n_layers
 
     def at(kk):
-        w = events_at(eps, kk)
+        w = events_at(eps, kk, label_fn=label_fn, within=within)
         r1 = reading(eps, w["closures"], spaces, text, True, draws=draws)
         r2 = unpaired(eps, w["ascents"], w["pre-stall"], spaces, text, draws=draws)
         return w, r1, r2
@@ -317,7 +326,7 @@ def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, 
                                "decision": decide(a1, a2)}
     same = [e for e in clo if e["control_seed"] == e["seed"]]
     rep["same-episode pairs only (reading 1)"] = reading(eps, same, spaces, text, True, draws=draws)
-    rep["placebo windows"] = placebo(eps, w, spaces, text, placebo_draws)
+    rep["placebo windows"] = placebo(eps, w, spaces, text, placebo_draws, within)
 
     def med(wins, field):
         vals = [np.nanmean([stat(eps, x["seed"], x["rows"], sp, field) for sp in spaces]) for x in wins]
@@ -330,9 +339,10 @@ def score(eps: dict, k: int, n_layers: int, placebo_draws: int = PLACEBO_DRAWS, 
     stall = [{"seed": e["seed"], "rows": [t for t in e["stall"] if t in eps[e["seed"]]["spaces"][0]["X"]]}
              for e in clo]
     rep["X during the stall (median; flat by construction, not evidence)"] = med([x for x in stall if x["rows"]], "X")
-    wb = events_at(eps, k, which="broad")
-    rep["broad ascents"] = unpaired(eps, wb["ascents"], wb["pre-stall"], spaces, text, draws=draws)
-    for v in VARIANTS:
+    if variants:
+        wb = events_at(eps, k, which="broad")
+        rep["broad ascents"] = unpaired(eps, wb["ascents"], wb["pre-stall"], spaces, text, draws=draws)
+    for v in VARIANTS if variants else ():
         f = f"X_w{v}"
         rep[f"X with W = {v}"] = {
             "closures": float(np.mean([_auc(eps, clo, sp, True, f) for sp in spaces])) if clo else float("nan"),
