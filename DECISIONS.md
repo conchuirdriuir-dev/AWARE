@@ -2,6 +2,13 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-09: **Area's noise reading finds the sink by its norm** (owner): the habitat's "first" rule left the
+  four "Find" paraphrases' sink in the mean and made the ratio meaningless; fixed before any re-read. Stage A then
+  passed: 0.979 against 0.90 (PR #64). Stage B waits for Fault Garage's wording as data.
+- 2026-11-09: **Area is shape's new form** (owner, proposals/area-sense.md, PR #65): the largest singular value of
+  the Lévy-area matrix of the world's replies over a window, in the episode's R = 8 basis. Its test is a loop against
+  a dither of the same four commands, replies reworded each visit, apart from boundary (Step −1C's bars), in Fault
+  Garage after wording as data. First a toy power check, AUC ≥ 0.90, noise from the 8B's paraphrase spread.
 - 2026-11-09: **A family of worlds, with Fault Garage as the first** (owner, all five recommendations of
   proposals/world-family.md, PR #63): one contract for worlds; a new world only on a component's need; the transfer
   rule written into PLAN; babbling's world chosen by the 8B's measured reach (its bar drafted for the owner); 
