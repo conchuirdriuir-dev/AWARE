@@ -1,5 +1,8 @@
 # Proposal: the habitat's engine, after TextWorld
 
+**Taken up by [world-family.md](world-family.md)** (owner, 2026-11-09): option B is widened into a family of worlds,
+with Fault Garage as the first; this proposal's requirements are its contract's base.
+
 For the owner. Nothing here is decided until accepted. Drafted by the agent, 2026-11-05, after Step −1C's 0.6B
 rehearsal was killed for lack of memory inside TextWorld's quest tracking (Step −1C amendment 2, PR #36), and after the
 owner said they want finer control over the habitat's content. PLAN calls the habitat "TextWorld first"; this asks

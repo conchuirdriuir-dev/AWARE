@@ -9,6 +9,10 @@ Dated, one line each, newest first. The owner decides; an agent proposes.
   the Lévy-area matrix of the world's replies over a window, in the episode's R = 8 basis. Its test is a loop against
   a dither of the same four commands, replies reworded each visit, apart from boundary (Step −1C's bars), in Fault
   Garage after wording as data. First a toy power check, AUC ≥ 0.90, noise from the 8B's paraphrase spread.
+- 2026-11-09: **A family of worlds, with Fault Garage as the first** (owner, all five recommendations of
+  proposals/world-family.md, PR #63): one contract for worlds; a new world only on a component's need; the transfer
+  rule written into PLAN; babbling's world chosen by the 8B's measured reach (its bar drafted for the owner); 
+  habitat-engine.md marked as taken up; Fault Garage's wording gap into its build order.
 - 2026-11-08: **Step 2's language-modelling weight goes from 0.1 to 1** (owner, option 2, PR #61): the collapse check
   traced the grafted player's collapse to the graft's weights. A 0.6B re-run on the same seeds confirms the player
   stays varied before the 8B.
