@@ -1,5 +1,10 @@
 # Proposal: shape as position (a new form)
 
+**Not adopted as shape (owner, 2026-11-09, DECISIONS.md).** By the trajectory mathematics a path's signature,
+its shape, does not see where the path sits, so position is what shape discards; shape's new form is area
+([area-sense.md](area-sense.md)). Section 3's pairing test is kept as a candidate for Lift's re-skin slot, to be
+decided there; section 6's report is optional and decides nothing.
+
 *Drafted by the agent 2026-11-09 at the owner's request, for the owner to fix. Nothing here is built or run. Every
 choice marked (agent) is the agent's proposal; the bars follow Step −1C's convention and are for the owner to fix
 before any code. The idea came from a conversation with another session (the owner's report of it, 2026-11-09);
