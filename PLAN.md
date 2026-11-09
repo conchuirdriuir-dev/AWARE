@@ -1579,6 +1579,37 @@ player collapses (its most common action at most half its actions), and the coll
 collapse. On a fail, the separate-LoRA fix is the next proposal. The ratios are reported against the fixed bars,
 deciding nothing.
 
+**The re-run's result (2026-11-08, 18:12–22:37, `runs/babble-06-lm1/`): it fails.** Round 1's player collapsed
+(84% "look", 6 distinct actions over 3,199); the collapse check's live arm collapsed (80% "look"), zeroed too (90%),
+base not (37% "inventory"). Round 2's player did not (43% repeats of its previous action, median longest run 9 turns,
+mostly movement, with a few garbled actions). The ratios, reported against the fixed bars: bar 1 0.749 [0.677, 0.810],
+bar 2 1.527 [1.276, 1.871], bar 3 1.362 [1.255, 1.531]; the forward model over the base probe 0.749.
+
+**The agent's correction: the criterion measured the wrong thing.** The base 0.6B already loops: in round 0 it
+repeats its previous action on 74% of turns, and its median longest run of one action is 94 of 100 turns. The pooled
+"most common action" measured which loop the episodes fall into, not whether play is stuck. The engine's own label
+measures that, the share of turns reaching a state not seen earlier in the episode:
+
+| Player | Worlds | New-state share |
+|---|---|---|
+| Qwen3-0.6B, base | Stage 1 (Step −1 rehearsals) | 1.6–1.9% |
+| Qwen3-0.6B, base (round 0) and grafted (rounds 1–2) | Stage 2 (babbling) | 1.1–1.5% |
+| Qwen3-0.6B, collapse seeds: base / live graft / zeroed graft | Stage 2 | 1.1% / 0.4–0.6% / 0.4% |
+| Qwen3-1.7B | Stage 2 | 2.3–3.3% |
+| Qwen3-4B | Stage 2 | 4.1–5.4% |
+| Qwen3-8B | Stage 1 (Step −1 and Step 0 candidates) | 9.9–17.2% |
+| The script | Stage 1, Step −1C | 26–29% |
+
+*The agent's reading, for the owner:* closure, not repetition, is the constant: the 0.6B finds something new about once
+in 70 turns in any world, base or grafted. The graft changes the loop's surface (round 1 sharper single-action loops,
+consistent with training on temperature-0.7 samples and then sampling at 0.7 again; round 2 movement and oscillation)
+and roughly halves an already tiny new-state share on the collapse seeds. Babbling's data from this player is almost
+all closure, which is also where a "same as recently" linear predictor is near optimal (bar 3). The 0.6B is a poor
+proxy for babbling's dynamics: the 8B reaches new states 7–10 times as often in Stage 1's worlds. Its share in Stage 2's
+worlds is not on this machine (Stage 2 ran on a rented GPU); Stage 2's screen failed on endless stalls, which suggests it
+is low. A criterion that measures stuckness: the grafted player's new-state share against the base player's on the
+same seeds.
+
 ### Babbling (v0.2 Step 2): training memory on 24 GB
 
 *Worked by the agent 2026-11-04 for spec v0.2's open question "training memory"; awaiting the owner. Measured, not
