@@ -108,6 +108,22 @@ stage B is built, `toy_area.py` gains a check at this size (owner, Q3):
   the window is not lengthened to suit the result. Reported: the boundary analogue's AUC (expected near 0.5), the
   Frobenius form, and rho on the interleaved path (expected to be swamped by alternation).
 
+**Result (2026-11-09, PR #64, `material/area_stage_a.json`): pass.** The noise reading first used the habitat's
+"first" sink rule; the four paraphrases beginning "Find" put the sink on their second token and made the ratio
+meaningless (layer 24: between-set distance 0). The owner fixed the norm rule before any re-read number was seen
+(`runs/area-noise-8b-first` kept). Under it, within / between is 0.508 (0.48–0.62 by layer).
+
+| AUC loop over dither [90%] | Toy, mean ratio | Toy, largest layer's ratio | The 8B's paraphrase states (reported) |
+|---|---|---|---|
+| Area, sigma_max (the sense) | **0.979** [0.955, 0.996] | 0.964 [0.929, 0.992] | 1.000 |
+| Area, Frobenius | 0.976 [0.949, 0.995] | — | 1.000 |
+| Boundary's analogue | 0.473 [0.367, 0.579] | 0.471 | 0.527 |
+| Area on the interleaved path | 0.609 [0.509, 0.715] | — | — |
+
+As expected: boundary near chance, alternation swamping the interleaved path. The real-state variant's 1.000 is
+likely because the paraphrase noise in 4,096 dimensions lies mostly outside the episode's 8 directions, so the
+isotropic toy is the harder case; it decides nothing. Stage B waits for Fault Garage's wording as data.
+
 ## 5. Risks
 
 - **Too few samples.** Held by stage A, with the noise from the 8B's own paraphrases.
