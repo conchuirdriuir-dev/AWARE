@@ -39,7 +39,7 @@ from substrate.record import Record, read
 K = 2                         # sense tokens
 RANK, ALPHA = 16, 32.0
 SPACE = 64                    # the reply space's dimensions (owner, 2026-11-08)
-LM_WEIGHT = 0.1               # (owner, 2026-11-08)
+LM_WEIGHT = 1.0               # (owner, 2026-11-08: 0.1, raised to 1 after the collapse check)
 LR = 1e-4
 MAX_LEN = 8192                # tokens per training window
 ROUNDS, PER_ROUND = 3, 200    # (owner, 2026-11-08)
