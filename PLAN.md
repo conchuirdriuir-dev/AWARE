@@ -24,7 +24,7 @@ Research track (parked) · Translations · The record: state and direction befor
 
 ## Current state and direction
 
-*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-08.
+*Keep this section current: a session that changes the state or the direction updates it. Last updated 2026-11-09.
 The state and direction before 2026-11-04 are kept verbatim under "The record: state and direction before 2026-11-04",
 near the end.*
 
@@ -73,7 +73,7 @@ code) counts as scheduled:
 | Capacity | Step | Kind | State |
 |---|---|---|---|
 | Lift (trajectory to code-space) | Re-skin invariance, before or beside Stage 1 | instrument | Lift v1 built (MASC; codes held-out text 5–19% shorter than Lift v0, 0.6B); its re-skin test still a slot |
-| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Parked** (owner, 2026-11-07): failed on the 8B (0.575); by source 0.610 and in Lift v1 0.573 in development; returns only as a new form |
+| Shape (code length) | Step −1C, on- vs off-structure rooms | instrument | **Parked** (owner, 2026-11-07): failed on the 8B (0.575); by source 0.610 and in Lift v1 0.573 in development; returns only as a new form. A new form drafted (2026-11-09, for the owner): shape as position in code-space, with its own test, Step −1P ([proposals/shape-as-position.md](proposals/shape-as-position.md)) |
 | Rate, world part | Step 0's predictive test: a second engine or babbling (amendment 7) | instrument | Calibrated (X_c, 2026-11-08); its predictive test placed on Fault Garage (owner, 2026-11-08; proposals/fault-garage-rate.md), not yet built; TextWorld's Stage 2 rests |
 | Rate, world part, calibration | Stage 1, contingent vs blind script | instrument | **Passed with X_c** (2026-11-08, the 8B): AUC 0.781 [0.742, 0.818], can't-go check 0.825 [0.768, 0.879] on 78 worlds; rate enters the sense tokens, calibrated, its predictive validity untested. X (v1) failed (2026-11-07: 0.486) |
 | Rate, self part (the self/world split) | Babbling (Step 2) | instrument | Slot; no longer blocked by the calibration (X_c passed) |
