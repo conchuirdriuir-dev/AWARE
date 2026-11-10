@@ -90,7 +90,7 @@ code) counts as scheduled:
 | Sense tokens, never words | Step 2, babbling gate | channel | Registered, not written |
 | Babble: forward model | Step 2; active vs yoked passive | channel | Gate registered; yoked arm a slot |
 | Act: acting on the senses | Step 3, Felt vs Tell and Felt-shuffled | functional | Registered, not written |
-| Act: goal code as setpoint | Step 3, perturbation test | functional | Slot |
+| Act: goal code as setpoint | Step 3, perturbation test | functional | Slot. Its form decided (owner, 2026-11-09; DECISIONS): a held goal code with an error sense, a pattern over both streams selected from the library; a second loop rewrites it, both variables held in bounds, then report. Nothing built |
 | Dream: replay and write the graft | Dream vs replay-only | functional | Slot |
 | Dream: morning check and rollback | Rollback of a degraded graft | safeguard | Slot |
 | Dream: library of codes | Held-out worlds' code length | instrument | Slot |
