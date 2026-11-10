@@ -2,6 +2,12 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-09: **Area's stage B, as built** (agent, before any reading; body/area_fg.py, Fault Garage PR #15): the
+  burn is 10 turns of random-player tests (owner: greedy diagnoses after ~2 tests there). Sink rule "norm" (new
+  material, no record to rebuild); boundary is Step -1's news on the same states, the window's mean, in units of D
+  (the paraphrase spread under the same reader; the 8B's echo-floor file was measured under "first"). The read side
+  takes the window from the plant's fixed structure and each reply's command from its turn's self chunk; only
+  scoring reads the kind. Rehearsal on the 0.6B over the mirrors 905000-905199; the 8B in bf16 decides on 5000-5199.
 - 2026-11-09: **Shape as position is not shape's new form** (owner, on the agent's reading of the trajectory
   mathematics): a path's signature, its shape, is blind to where the path sits, so position is what shape discards;
   area stays shape's new form. proposals/shape-as-position.md is not adopted as shape; its pairing test (one engine
