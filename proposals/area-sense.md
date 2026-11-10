@@ -271,3 +271,12 @@ decides nothing; recorded before the 8B reads).** `body/area_fg.py --form b2`. A
 episodes 0.821; area given boundary 0.940; the Frobenius form 0.932; the interleaved path, now in its window's basis,
 0.586; area by layer 0.91–0.95, flat; the noise ratio 0.72. No setting, bar or pool changes; the 8B in bf16 reads
 `runs/area-b2-8b` (seeds 5080–5199) next.
+
+**The second read's deciding result (2026-11-10, the 8B in bf16, revision b968826d, `runs/area-b2-8b`, seeds
+5080–5199, 60 of each kind, none skipped; read from the clean checkout c371660, scored as fixed): passes both bars.**
+Bar 1: area with the window's basis tells loop from dither at 0.918 [0.868, 0.963] against 0.80 with a lower bound
+above 0.70. Bar 2: area minus boundary +0.370 [0.268, 0.476], above 0; boundary 0.548 [0.458, 0.634]. Reported: the
+as-run basis on the same episodes 0.804; area given boundary 0.908; the Frobenius form 0.895; the interleaved path
+0.622; area by layer 0.90–0.93, flat from layer 24 to 35; the noise ratio 0.72 (0.70–0.78 by layer), as in the first
+read. So area, in its window's own basis, is a certified sense of order in Fault Garage. By the transfer rule
+(world-family.md) the claim holds for this world, which was built for it, until a world not built for it is read.

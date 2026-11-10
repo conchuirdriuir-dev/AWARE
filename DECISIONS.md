@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-10: **Area passes stage B on the 8B in its window's basis** (agent, the second read as fixed; seeds
+  5080–5199, 60 of each kind): loop over dither 0.918 [0.868, 0.963] (bar 1) and +0.370 [0.268, 0.476] over boundary
+  (bar 2). Certified in Fault Garage only (the transfer rule); where it goes next is the owner's.
 - 2026-11-10: **Stage A2 failed; its gate is lifted** (owner): the toy missed for its own reasons (contents drawn
   flatter than real, isotropic noise; area-sense.md section 7), and matching it to the real states would fit it to
   the data. The second read on 5080–5199 goes ahead with stage B's bars and decides.
