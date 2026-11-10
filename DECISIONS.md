@@ -2,6 +2,10 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-10: **Area's new form: the basis of its own window** (owner, the agent's recommendations on
+  proposals/area-sense.md section 7, Q6–Q9): the R = 8 basis is fitted on the window's world replies only; stage B is
+  read again on seeds 5080–5199 (up to 60 of each kind; 0.6B rehearsal on 905080–905199 first) with its bars
+  unchanged; stage A2, a toy that can fail as stage B did, runs first and gates the read.
 - 2026-11-09: **Area's stage B fails bar 1 on the 8B** (agent, the reading as fixed; no decision yet): loop over
   dither 0.759 [0.666, 0.848] against 0.80 with a lower bound above 0.70; bar 2 holds (+0.308 [0.172, 0.446] over
   boundary). Nothing re-run or re-scored; what follows (park area, as shape was, or a new form) is the owner's.

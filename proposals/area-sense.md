@@ -220,3 +220,29 @@ second read is its test.
 - **Q8.** The bars as drafted, the same as stage B's?
 - **Q9.** Stage A's toy: add unequal contents and a basis that can lose them, so the power check can fail for this
   reason, before the second read or after?
+
+**The owner's answers (2026-11-10: "I'll take your recommendations", the agent's in chat).**
+
+- **Q6.** Yes: the basis is fitted on the window's world replies only, R = 8. The interleaved path, reported, takes
+  the window's own basis likewise (its chunks in the window).
+- **Q7.** Seeds 5080–5199, registered for stage B and never played: every usable seed, up to 60 of each kind. A
+  rehearsal on the 0.6B on their mirrors 905080–905199 first, which decides nothing.
+- **Q8.** Stage B's bars unchanged: AUC loop over dither at least 0.80 with its 90% lower bound above 0.70; the 90%
+  interval of (area − boundary) above zero; 2,000 draws resampling episodes.
+- **Q9.** Before the second read: stage A2, below.
+
+### Stage A2: a toy that can fail the way stage B did (fixed 2026-11-10, before its code)
+
+The toy of section 4 with what it lacked: more dimensions than the basis keeps, four contents of unequal spread, and
+burn replies more spread than the contents.
+
+- **World:** d = 64. The four contents are drawn in 3 directions with variance shares 0.76, 0.17 and 0.08 (stage B's
+  medians), turned into the 64 dimensions at random, and scaled to median distance 1. Eleven replies before the
+  window (the opening and the burn) are drawn at random directions with 1.5 times the contents' RMS spread. Every
+  reply adds isotropic noise of expected norm 0.73 (stage B's measured ratio on the 8B). Loop and dither as section
+  4; 40 episodes of each kind; 2,000 draws; seed 51000.
+- **Bar (gates the second read):** the sense with the window's basis, R = 8, AUC loop over dither at least 0.90.
+- **Check of the toy itself (gates too):** the as-run basis (every reply up to the window's end) must read at least
+  0.05 lower than the window's basis. If it does not, the toy still cannot see this failure, and the owner is told
+  before the second read.
+- Reported: both bases at R = 4, 12, 16; boundary's analogue.
