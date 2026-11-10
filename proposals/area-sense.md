@@ -158,3 +158,65 @@ isotropic toy is the harder case; it decides nothing. Stage B waits for Fault Ga
 - **Q3.** Stage A first? *Yes, bar AUC ≥ 0.90, noise from the 8B's paraphrase spread, no drift.*
 - **Q4.** Stage B in Fault Garage? *After wording as data; plant and bars as drafted, fixed before any reading.*
 - **Q5.** The command path's area and the lead–lag cross area? *Later forms.*
+
+## 7. After stage B: what cost area its signal, and a new form for the owner (2026-11-10)
+
+**Report only, by the agent. Stage B's deciding result stands as fixed: nothing here re-scores it.** The readings below
+are on the 80 episodes already read (seeds 5000–5079; `runs/area-b-8b/states`, the states the sense received), and
+their list was fixed before the states were opened. `python -m proposals.area_stage_b_diag`; numbers in
+`material/area_stage_b_diag.json`, computed from the states' packed copy, which reproduces the deciding result exactly.
+
+| Basis the window's replies are projected into | AUC loop over dither [90%] | By layer (24–35) |
+|---|---|---|
+| As run: every world reply up to the window's end, R = 8 | 0.759 [0.666, 0.848] | 0.67–0.82 |
+| The window's replies only, R = 8 | **0.949** [0.902, 0.985] | 0.94–0.97 |
+| The four contents' means, R = 3 (a ceiling: it uses the commands) | 0.996 [0.988, 1.000] | 0.99–1.00 |
+| As run, R = 4 / 12 / 16 | 0.683 / 0.887 / 0.943 | |
+| Window only, R = 4 / 12 / 16 | 0.777 / 0.951 / 0.951 | |
+
+**What cost the signal: the basis, not the noise and not the layers.**
+
+- *Not the noise's size.* The toy at the measured ratio (0.73) expects 0.93, and at the worst layer's (0.78) 0.92.
+  The window-only reading gives 0.95: the toy was right about the noise.
+- *The burn takes the basis.* The basis is fitted on 35 world replies, 11 of them before the window (the opening
+  and the burn), and those are 1.5 times as spread as the plant's four contents. As run, the 8 directions hold 75%
+  of the window's variance; fitted on the window, 89%.
+- *What is pushed out is the circling.* The four contents' variance is unequal over its three directions: 76%, 17%
+  and 8%. As run, the basis keeps all of the first, 85% of the second (21% at the 10th percentile) and 23% of the
+  third. Fitted on the window it keeps 100%, 100% and 97%. A loop needs at least two of them.
+- *The rise with depth was a symptom.* With the window's basis every layer reads 0.94–0.97. Deeper layers looked
+  better only because the burn took less of the basis there.
+- *Why stage A missed it.* The toy has 8 dimensions and keeps 8, so its projection loses nothing, and its four
+  contents are equally spaced. Giving it more dimensions, or burn replies up to 6 times as spread, does not
+  reproduce the failure (0.96 or above): the unequal contents are what matter.
+
+**The same failure as shape's, one level along.** A basis fitted on everything so far is set by how varied the past
+was, which is position. It would also get worse as an episode grows. Area needs the basis of its own window.
+
+**Is the window's basis fair?** The basis is a principal-direction fit, which ignores order, and a loop and a dither
+hold the same four contents six times each. So the basis has the same distribution in both kinds and cannot favour
+one. It is causal in the same sense as before: nothing after the window's end.
+
+**A new form, for the owner.** Chosen after this pool was seen, so it needs a reading of its own.
+
+- *The sense:* as section 2, with one change: the R = 8 basis is fitted on the window's world replies only.
+- *The test:* stage B again, as section 3, on episodes not yet played or read, with its bars fixed before the read.
+- *Bars (agent):* the same two: AUC loop over dither at least 0.80 with a lower bound above 0.70; area minus
+  boundary's interval above zero.
+- *The agent's prediction, written before any such read:* about 0.95, clear of boundary.
+- *Not proposed:* more directions on the old basis (16 reaches 0.943, but it treats the symptom), or a choice of
+  layers.
+
+**Risks.** The form was picked on the deciding pool, which is why it is read on fresh seeds and why one form is
+named and not several. In live play the window is not given by a plant: a rolling window of the last 24 world replies
+is the natural reading, and is untested. Twenty-four points in 8 directions is still a small sample; stage B's
+second read is its test.
+
+**Questions for the owner.**
+
+- **Q6.** The new form: the basis on the window's replies only?
+- **Q7.** Its seeds. Stage B registered 5000–5199 and played 5000–5079; 5080–5199 have no episodes. Use them
+  (60 of each kind if none is skipped), or register a new range in Fault Garage?
+- **Q8.** The bars as drafted, the same as stage B's?
+- **Q9.** Stage A's toy: add unequal contents and a basis that can lose them, so the power check can fail for this
+  reason, before the second read or after?
