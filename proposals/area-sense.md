@@ -89,6 +89,21 @@ the reader's commit and the model revision.
 deciding reading on the 8B in bf16. Reported, deciding nothing: area given boundary; rho on the interleaved path;
 the Frobenius form; rho by layer.
 
+**Rehearsal (2026-11-09, the 0.6B on the mirrors 905000-905199; decides nothing, recorded before the 8B reads).**
+Built as DECISIONS records it (the burn: random-player tests, owner). Area's AUC 0.788 [0.696, 0.869], just under
+bar 1's 0.80; area minus boundary +0.366 [0.216, 0.508], clear of zero; boundary 0.422; area given boundary 0.786;
+the interleaved path 0.589; the Frobenius form 0.780; area by layer 0.73-0.84, rising with depth. The within/between
+ratio on Fault Garage's phrasings is 0.63 (0.62-0.65 by layer), above stage A's 0.508 from the paraphrase sets. No
+setting, bar or pool changes; the 8B in bf16 reads `runs/area-b-8b` (seeds 5000-5199) next.
+
+**Deciding result (2026-11-09, the 8B in bf16, revision b968826, seeds 5000-5199; 40 loop and 40 dither, none
+skipped): fails bar 1.** Area's AUC 0.759 [0.666, 0.848], below 0.80 and its lower bound below 0.70; bar 2 holds,
+area minus boundary +0.308 [0.172, 0.446], boundary 0.451. Reported, deciding nothing: area given boundary 0.764; the
+interleaved path 0.609; the Frobenius form 0.745; area by layer 0.67-0.82, rising with depth to 0.819 at layer 34;
+boundary 0.45-0.47 at every layer. The within/between ratio on Fault Garage's phrasings is 0.73 (0.71-0.78 by layer),
+higher than the 0.6B's 0.63 and stage A's 0.508: the rewording noise this test met is larger than the toy's power
+check assumed. Stage B fails as fixed; nothing is re-run or re-scored. What follows is the owner's to decide.
+
 **What a pass means:** area reads the order of the world's replies, apart from their novelty, in a world built for
 it. By the transfer rule, generality needs a world not built for it (TextWorld) with its own bars. Whether a loop
 sense helps babbling is a functional question, asked separately.
