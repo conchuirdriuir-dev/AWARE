@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-09: **Area's stage B fails bar 1 on the 8B** (agent, the reading as fixed; no decision yet): loop over
+  dither 0.759 [0.666, 0.848] against 0.80 with a lower bound above 0.70; bar 2 holds (+0.308 [0.172, 0.446] over
+  boundary). Nothing re-run or re-scored; what follows (park area, as shape was, or a new form) is the owner's.
 - 2026-11-09: **Area's stage B, as built** (agent, before any reading; body/area_fg.py, Fault Garage PR #15): the
   burn is 10 turns of random-player tests (owner: greedy diagnoses after ~2 tests there). Sink rule "norm" (new
   material, no record to rebuild); boundary is Step -1's news on the same states, the window's mean, in units of D
