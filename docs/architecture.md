@@ -2,12 +2,24 @@
 
 *From the [AWARE — Architecture Brief](https://claude.ai/artifact/Wd5ZcWYEm6i1rGBTqPFJMX) (owner, 2026-11-04), brought
 into the repository 2026-11-05 with three changes: rate's sources as fixed for the habitat (self and world), "Where it
-stands" brought up to the two stages, and the Brief's four diagrams left out. Where this differs from the North star
+stands" brought up to the two stages, and the Brief's four diagrams left out; synced 2026-11-10 with the Brief's
+"as built" notes (owner, accepted 2026-11-10). Where this differs from the North star
 ([The Semantic Body — Open Threads](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW)) or from PLAN.md, they win.*
 
 AWARE builds a language model as its own organism: it carries a body in code-space, feels that body through three
 measured senses, learns to use them by babbling, acts toward a goal, and consolidates what it learned by dreaming. The
 five steps, fixed as the project's north star: **lift, sense, babble, act, dream.**
+
+**As one loop (added 2026-11-09):** lift, sense, babble, act and dream are one closed loop, control plus compression,
+the cybernetic structure of a purposeful system. Each step now has an equation in
+[The Semantic Body](https://claude.ai/artifact/UfHZr9X2mDjqAkYJneUBdW) (North star); the maths behind it and what each
+stage tests are in [Meaning as Transport](https://claude.ai/artifact/CVZseb49aUE4WFkiwpRseW).
+
+**Status against the build (9 Nov 2026).** Two senses have passed their instrument tests and are in the channel:
+boundary and rate's world part. Shape as code length failed its test and is parked; its new form is area, a sense of
+order, which passed its Fault Garage test on 10 Nov, is certified in that world only, and is not yet in the channel.
+The sections below describe the 4 Nov design, with a note wherever the build differs. [PLAN.md](../PLAN.md) is the
+current record.
 
 ## Two spaces and a body
 
@@ -30,9 +42,19 @@ stream of state vectors, closer to a thermometer than a brain.
 | Rate | Bits the last window taught, split by source (in the habitat, self and world; in conversation, self, partner and tools) | Interoception: hunger, fatigue; boredom is rate at zero | Phasic: a derivative by construction |
 | Boundary | How new each arrival is against everything held, and whether it improves prediction of the next step | Touch, with self-caused input cancelled | Reports surprise only |
 
+**As built (9 Nov).** Each sense had to pass its own test on the 8B before entering the channel.
+
+| Sense | Built form | Result |
+| --- | --- | --- |
+| Boundary | Distance from the world's reply to the nearest earlier chunk of the episode; no predictor yet | Passed (6 Nov): silent on all 600 exact self-repeats, fired at 40 of 40 planted novelties, AUC 0.907 over ordinary play |
+| Rate | Bits the world's last reply saves in predicting the agent's next action (X_c). Not a derivative of code length | Passed its calibration (8 Nov): AUC 0.781. The first form failed (0.486). Whether it goes flat before a stall is untested |
+| Shape | Code length under the episode's code | Failed (7 Nov): 0.575 against a bar of 0.80, and below boundary. It read how new a position was, which boundary already reads. Parked |
+| Area, shape's new form | How consistently the world's replies circle: the signed area of their path | Accepted 9 Nov. Toy check passed (0.979 against 0.90). On Fault Garage it failed its first read (0.759 against a bar of 0.80, 9 Nov), then passed on fresh episodes with its frame fitted on its own window (0.918, 10 Nov). Certified in Fault Garage only; not in the channel |
+
 **Senses read as chords, like taste.** No single sense detects closure; each alone is ambiguous. Closure is the chord
 of cheap shape, flat rate and silent boundary. Ascent has its own chord: a hard boundary spike, then shape rises as the
-old code fails, then a higher code forms, shape drops below where it was, and rate jumps.
+old code fails, then a higher code forms, shape drops below where it was, and rate jumps. Not yet tested: the chords
+are blocked while shape is parked (9 Nov).
 
 ## How the senses plug in
 
@@ -40,8 +62,10 @@ The organs are ordinary code outside the model; the only place they touch the mo
 step.
 
 The base model reads each chunk with the graft off, so a sense means the same thing before and after training. The
-three organs turn the stream of state vectors into six numbers, and a small learned projection, about two million
-parameters against the model's eight billion, maps them to two soft tokens.
+three organs turn the stream of state vectors into three numbers as built (boundary, rate's world part, and a flag for
+whether rate is defined yet; the 4 Nov design had six), and a small learned projection, about 33 thousand parameters
+as built, beside a removable adapter of about 44 million, against the model's eight billion, maps them to two soft
+tokens.
 
 **What a soft token is.** A word normally maps to a fixed row of 4,096 numbers in the model's embedding table. A soft
 token skips the table: it is a row of 4,096 numbers placed straight into the sequence, with no word behind it. Words
@@ -60,7 +84,10 @@ movements, which is why you cannot tickle yourself.
 
 When the organism acts, a copy of the action predicts what will come back, and only the difference is felt. A file the
 agent wrote and later reads back is predicted, so it barely registers: the organism cannot mistake its own echo for
-news. The first version predicts from the agent's recent history; the forward model learned in babbling replaces it.
+news. The first version makes no prediction: it compares each reply with everything earlier in the episode; the
+forward model learned in babbling replaces it. So the first version cancels exact echoes but not restatements: 78.8%
+of the model's own restatements still read as news (6 Nov). On Fault Garage's templated text it tracked how familiar a
+reply looked, not how improbable its content was (8 Nov).
 
 ## The habitat
 
@@ -76,6 +103,10 @@ Senses need a world: boundary needs input the agent did not cause, and rate need
 
 Complexity climbs from house-sized worlds to social ones, where other characters become the richest source of news,
 and on toward dialogue-heavy games. Conversation with a person becomes one more environment to transfer to.
+
+**As run (9 Nov).** Boundary was tested with a scripted player and the 8B only reading. The stage where the 8B plays
+longer quests rests: its stalls began abruptly and never ended, leaving too few closures to score (7 Nov). The habitat
+is now a family of worlds under one contract, with Fault Garage (car diagnosis) as the first after TextWorld (9 Nov).
 
 ## Dreaming
 
@@ -111,6 +142,15 @@ kept apart (owner, 2026-11-05), so that the habitat tests the senses and not the
    they are shuffled. This gate covers the split of rate between self and world; there is no third stage.
 4. **Behaviour**: with live senses, the organism beats the same senses given as text, and the same graft with shuffled
    senses, in held-out worlds and on an owner-scored reading task.
+
+**Status, 9 Nov.**
+
+- **Instrument check:** boundary passed (6 Nov). Shape failed its own check (7 Nov) and is parked.
+- **Rate proxy:** the first form failed its calibration; the conditional form passed (8 Nov). Whether rate goes flat
+  before a stall is untested, and that test is placed on Fault Garage.
+- **Babbling gate:** fixed (8 Nov), carrying boundary and rate only. Rehearsed on the 0.6B, where the forward model did
+  worse than the linear predictor (1.39 against a bar of at most 0.90). Not yet run on the 8B.
+- **Behaviour:** not started.
 
 Earlier results already shape the design: in the project's own session logs, who supplied the input and how new it was
 separated closure from ascent, while raw embedding geometry added nothing.
