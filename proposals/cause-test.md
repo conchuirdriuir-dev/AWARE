@@ -71,13 +71,28 @@ content, in a phrasing new to the episode, in both kinds.
 
 - **Caused again:** the script unplugs M once more, then scans. The code is back, and the action explains it.
 - **Not caused:** the script leaves M plugged and turns the harness wiggle on; M has a fault that shows only over
-  bumps, so the code is back with no unplugging. Then it scans.
+  bumps, so the code is back with no unplugging. Then it scans. *Not buildable in Fault Garage as it stands* (checked
+  at `a4af8c4`, below).
 
 Efference copy says: quiet when caused again, news when not. v0 should not part them: in both kinds the scored reply
 repeats a content the episode has already shown.
 
 *The agent's note:* the two kinds of a contrast must differ in one command, because the cause is the command. What is
 held the same is the scored reply's content, the scan that elicits it, the turn, and the wording stream.
+
+*What "not caused" has to mean.* v1 is the forward model's residual, so it is quiet for anything the context predicts,
+whoever caused it. A code that returns after `clear` because a steady fault is still there is not caused by the agent,
+and is also no surprise. So each not-caused kind must be unpredictable from the episode so far. In contrast A the
+seeds are kept only where the oracle's surprise at the scored scan is at least 1 bit (agent). In contrast B it is why
+the return has to come from an intermittent fault.
+
+*Contrast B and the catalogue (checked 2026-11-09 on 300 layouts).* Only connections can be intermittent
+(`circuit.CONNECTIONS`); a dead module cannot. No bumps-only supply or ground wire takes its module off the bus (0 of
+2,372 cases give the codes that unplugging gives: 3 ohms sets a low-voltage code at most), and a bumps-only open bus
+link adds the isolated module's own lost-communication codes, so the scan's content differs. Contrast B therefore
+needs one addition to Fault Garage, a module fault that shows only over bumps (for example the module's own
+connector, open over bumps). That is a change to the fault catalogue: the owner's decision there, with its
+DECISIONS line and tests. Until then contrast A stands alone, and bar 2 is a slot.
 
 **Pass, all three (agent):**
 
@@ -134,8 +149,9 @@ This also gives bar 3's v0 side in advance, on rehearsal seeds, never on the dec
   chose it. The own-action form (the grafted player's live play, self-caused scans against others) is reported with
   Step 2's live play.
 - **Keys supply.** v1 is fixed before the pool is read; no readout is fitted to the self-caused flag.
-- **The catalogue.** Contrast B needs a module fault that shows only over bumps. If the fault catalogue does not
-  draw one, adding it is a versioned decision in Fault Garage, made there before the seeds are registered.
+- **The catalogue.** Contrast B needs a module fault that shows only over bumps, and the catalogue has none
+  (section 3). Adding one changes the oracle's hypothesis space and every prior, so earlier pools must still rebuild
+  byte for byte: it belongs behind a setting that is off by default, as wording was.
 
 ## 6. What it does not test
 
@@ -156,3 +172,5 @@ that v1 holds in a world not built for it (the transfer rule).
   in Fault Garage after a second babbling there?
 - **Q6.** Control 4 (self-caused against spontaneous novelty, reported in the tickle test): kept as it is, or
   replaced by this?
+- **Q7.** Contrast B: add an intermittent module fault to Fault Garage's catalogue (off by default), or run
+  contrast A alone and leave the return as a slot?
