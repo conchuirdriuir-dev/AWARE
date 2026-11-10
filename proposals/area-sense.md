@@ -264,3 +264,10 @@ Replanting the real replies as new loops and dithers reads 0.935 with the window
 
 **The owner (2026-11-10): A2 is recorded as failed, for these reasons, and its gate is lifted.** The second read on
 5080–5199 keeps its bars and is the deciding test. A toy matched to the real geometry would be fitted to the data.
+
+**The second read's rehearsal (2026-11-10, the 0.6B on the mirrors 905080–905199, 60 of each kind, none skipped;
+decides nothing; recorded before the 8B reads).** `body/area_fg.py --form b2`. Area with the window's basis 0.940
+[0.902, 0.972]; area minus boundary +0.514 [0.415, 0.609]; boundary 0.426. Reported: the as-run basis on the same
+episodes 0.821; area given boundary 0.940; the Frobenius form 0.932; the interleaved path, now in its window's basis,
+0.586; area by layer 0.91–0.95, flat; the noise ratio 0.72. No setting, bar or pool changes; the 8B in bf16 reads
+`runs/area-b2-8b` (seeds 5080–5199) next.
