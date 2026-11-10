@@ -7,6 +7,7 @@ The reader reads every chunk; scoring alone reads the kind.
     python -m body.area_fg read --model Qwen/Qwen3-0.6B --run runs/area-b-0.6b       # the rehearsal (mirrors)
     python -m body.area_fg read --model Qwen/Qwen3-8B --dtype bfloat16 --run runs/area-b-8b
     python -m body.area_fg score --run runs/area-b-8b
+    python -m body.area_fg read --form b2 ... --run runs/area-b2-8b   # the second read (section 7), seeds 5080-5199
 
 **The sense** (body/area.py): rho on the window's world replies, R = 8, the basis fitted on the episode's world
 chunks up to the window's end, mean over the read layers (the last third). **Boundary** is Step -1's news
@@ -37,6 +38,12 @@ from substrate.record import Record, read
 BURN, WINDOW, CONTENTS, ROUNDS = 10, 24, 4, 6                  # Fault Garage's area_plant, fixed before play
 POOL, MIRROR = (5000, 5199), (905000, 905199)                  # its registry
 BARS = {"auc": 0.80, "lower": 0.70, "per_kind": 40, "draws": 2000}
+# The forms read. "b": stage B as fixed (the basis on every world reply up to the window's end; 40 of each kind from
+# 5000). "b2": the second read (owner, 2026-11-10, area-sense.md section 7): the basis on the window's world replies
+# only, every usable seed of 5080-5199 (up to 60 of each kind; none read before), the same bars.
+FORMS = {"b": {"pool": POOL, "mirror": MIRROR, "per_kind": 40, "key": "areab", "out": "area_b.json"},
+         "b2": {"pool": (5080, 5199), "mirror": (905080, 905199), "per_kind": 60, "key": "areab2",
+                "out": "area_b2.json"}}
 
 
 # --- the reading: chunks only ------------------------------------------------------------------------------------------
@@ -59,17 +66,24 @@ def window_of(chunks: list[dict]) -> dict:
     return out
 
 
-def senses(S: np.ndarray, chunks: list[dict], unit: np.ndarray) -> dict:
-    """Everything scoring needs from one episode's states (chunks x layers x width), per layer."""
+def senses(S: np.ndarray, chunks: list[dict], unit: np.ndarray, form: str = "b") -> dict:
+    """Everything scoring needs from one episode's states (chunks x layers x width), per layer. Under form "b2" the
+    basis is the window's own (its world replies; the interleaved path's, its chunks), and the as-run reading is kept
+    beside it as rho_asrun, reported."""
     w = window_of(chunks)
     N = news(S, [c["slot"] for c in chunks], unit)
     groups = np.array(w["commands"])
     out = {k: np.full(S.shape[1], np.nan) for k in ("rho", "rho_frob", "rho_inter", "boundary", "within", "between",
                                                      "ratio")}
+    if form == "b2":
+        out["rho_asrun"] = np.full(S.shape[1], np.nan)
+    fit_w, fit_i = (w["world"], w["all"]) if form == "b2" else (w["fit_world"], w["fit_all"])
     for j in range(S.shape[1]):
         X = S[:, j].astype(np.float64)
-        out["rho"][j], out["rho_frob"][j] = window_rho(X[w["world"]], X[w["fit_world"]], R)
-        out["rho_inter"][j] = window_rho(X[w["all"]], X[w["fit_all"]], R)[0]
+        out["rho"][j], out["rho_frob"][j] = window_rho(X[w["world"]], X[fit_w], R)
+        out["rho_inter"][j] = window_rho(X[w["all"]], X[fit_i], R)[0]
+        if form == "b2":
+            out["rho_asrun"][j] = window_rho(X[w["world"]], X[w["fit_world"]], R)[0]
         out["boundary"][j] = float(np.nanmean(N[w["world"], j]))
         sp = spread(X[w["world"]], groups)
         out["within"][j], out["between"][j], out["ratio"][j] = sp["within"], sp["between"], sp["ratio"]
@@ -86,6 +100,7 @@ def cmd_read(a) -> None:
     if machine["commit"] is None or machine["uncommitted_changes"]:
         raise SystemExit("read from a clean, committed AWARE checkout: the record must carry AWARE's commit")
     run = Path(a.run)
+    form = FORMS[a.form]
     record = Record(run / "record.jsonl")
     eps = episodes(read(record.path))
     if not eps:
@@ -98,13 +113,14 @@ def cmd_read(a) -> None:
     n = reader.info["layers"]
     layers = list(range(math.ceil(2 * n / 3), n))
     D = d_resumable(reader, load_sets(a.sets), layers, record, False, True)
-    record.append("read", "code", step="area_fg", **reader.info, read_layers=layers, D=[float(x) for x in D], R=R)
+    record.append("read", "code", step="area_fg", form=a.form, **reader.info, read_layers=layers,
+                  D=[float(x) for x in D], R=R)
     for (seed, _), ep in sorted(eps.items()):
         def compute(ep=ep, seed=seed):
             S = reader.states([c["text"] for c in ep["chunks"]], layers)
-            return senses(S, ep["chunks"], np.asarray(D, dtype=np.float64)), {"seed": seed, "layers": layers,
-                                                                              "chunks": len(ep["chunks"])}
-        session_resumable(record, f"areab-{seed}-a{ep['attempts']}", compute)
+            return senses(S, ep["chunks"], np.asarray(D, dtype=np.float64), a.form), {
+                "seed": seed, "layers": layers, "chunks": len(ep["chunks"]), "form": a.form}
+        session_resumable(record, f"{form['key']}-{seed}-a{ep['attempts']}", compute)
     record.append("read_end", "code", step="area_fg", episodes=len(eps), seconds=round(time.time() - started, 1))
 
 
@@ -164,6 +180,9 @@ def score(per: dict, kind: dict, draws: int = BARS["draws"], seed: int = 0) -> d
                                  for j in range(n_layers)],
             "boundary_by_layer_auc": [auc([per[s]["boundary"][j] for s in loop], [per[s]["boundary"][j] for s in dith])
                                       for j in range(n_layers)],
+            **({"rho_asrun_auc": auc([float(np.nanmean(per[s]["rho_asrun"])) for s in loop],
+                                     [float(np.nanmean(per[s]["rho_asrun"])) for s in dith])}
+               if all("rho_asrun" in per[s] for s in seeds) else {}),
             "noise_ratio_mean": float(np.mean([val["ratio"][s] for s in seeds])),
             "noise_ratio_by_layer": [float(np.mean([per[s]["ratio"][j] for s in seeds])) for j in range(n_layers)],
         },
@@ -180,26 +199,33 @@ def cmd_score(a) -> None:
     reads = [e for e in entries if e["kind"] == "read" and e.get("step") == "area_fg"]
     if not reads:
         raise SystemExit("no area_fg reading in this record: run read first")
+    form = FORMS[a.form]
+    if any(r.get("form", "b") != a.form for r in reads):
+        raise SystemExit(f"this record was read under another form than {a.form!r}")
     kind = kinds(eps)
     seeds = sorted(kind)
-    mirror = all(MIRROR[0] <= s <= MIRROR[1] for s in seeds)
-    if not mirror and not all(POOL[0] <= s <= POOL[1] for s in seeds):
-        raise SystemExit("seeds outside area's registered pool and its mirrors")
+    (lo, hi), (mlo, mhi) = form["pool"], form["mirror"]
+    mirror = all(mlo <= s <= mhi for s in seeds)
+    if not mirror and not all(lo <= s <= hi for s in seeds):
+        raise SystemExit(f"seeds outside form {a.form}'s pool {lo}-{hi} and its mirrors")
     counts = {k: sum(v == k for v in kind.values()) for k in ("loop", "dither")}
-    if counts != {"loop": BARS["per_kind"], "dither": BARS["per_kind"]}:
-        raise SystemExit(f"the pool is {counts}, not {BARS['per_kind']} of each kind")
+    if a.form == "b" and counts != {"loop": form["per_kind"], "dither": form["per_kind"]}:
+        raise SystemExit(f"the pool is {counts}, not {form['per_kind']} of each kind")
+    if a.form == "b2" and not all(0 < n <= form["per_kind"] for n in counts.values()):
+        raise SystemExit(f"the pool is {counts}: up to {form['per_kind']} of each kind, and some of each")
     per = {}
     for (seed, _), ep in eps.items():
-        path = run / "checkpoints" / f"areab-{seed}-a{ep['attempts']}.npz"
+        path = run / "checkpoints" / f"{form['key']}-{seed}-a{ep['attempts']}.npz"
         if not path.exists():
             raise SystemExit(f"episode {seed} has no reading: run read first")
         data = np.load(path)
         per[seed] = {k: data[k] for k in data.files}
     out = score(per, kind)
     out.update(rehearsal=mirror, deciding=not mirror and "8B" in reads[-1].get("model", ""),
-               model=reads[-1].get("model"), read_layers=reads[-1].get("read_layers"), bars=BARS)
+               model=reads[-1].get("model"), read_layers=reads[-1].get("read_layers"),
+               bars={**BARS, "per_kind": form["per_kind"]}, form=a.form)
     record.append("score", "code", step="area_fg", **out)
-    (run / "area_b.json").write_text(json.dumps(out, indent=2))
+    (run / form["out"]).write_text(json.dumps(out, indent=2))
     print(json.dumps(out, indent=2))
 
 
@@ -214,8 +240,10 @@ def main(argv=None) -> None:
     r.add_argument("--device", default="auto")
     r.add_argument("--dtype", default="bfloat16")
     r.add_argument("--gpu-memory", type=float)
+    r.add_argument("--form", choices=sorted(FORMS), default="b")
     s = sub.add_parser("score")
     s.add_argument("--run", required=True)
+    s.add_argument("--form", choices=sorted(FORMS), default="b")
     a = p.parse_args(argv)
     {"read": cmd_read, "score": cmd_score}[a.cmd](a)
 

@@ -74,3 +74,36 @@ def test_kinds_refuses_a_misplaced_window():
     eps = {(1, None): {"keys": {t: {"area_kind": "loop", "phase": "window" if t >= 9 else "burn"} for t in range(34)}}}
     with pytest.raises(SystemExit):
         area_fg.kinds(eps)
+
+
+def test_form_b2_fits_the_basis_on_the_window_alone():
+    chunks, S, _ = fake_episode(np.random.default_rng(4), "loop")
+    b, b2 = area_fg.senses(S, chunks, np.ones(2), "b"), area_fg.senses(S, chunks, np.ones(2), "b2")
+    w = area_fg.window_of(chunks)
+    for j in range(2):
+        X = S[:, j]
+        assert np.isclose(b2["rho"][j], area.window_rho(X[w["world"]], X[w["world"]])[0])
+        assert np.isclose(b2["rho_inter"][j], area.window_rho(X[w["all"]], X[w["all"]])[0])
+    assert np.allclose(b2["rho_asrun"], b["rho"]) and "rho_asrun" not in b
+    assert np.allclose(b2["boundary"], b["boundary"]) and np.allclose(b2["ratio"], b["ratio"])
+
+
+def test_form_b2_survives_a_burn_that_crowds_the_basis():
+    """Replies before the window, large and off the contents' plane, take every place in the as-run basis; the
+    window's own basis keeps the loop."""
+    rng = np.random.default_rng(5)
+    per = {"b": {}, "b2": {}}
+    kind = {}
+    for s in range(40):
+        k = "loop" if s % 2 == 0 else "dither"
+        contents = np.zeros((4, 32))
+        contents[:, :3] = rng.normal(size=(4, 3)) * [8, 4, 2]
+        chunks, S, _ = fake_episode(rng, k, width=32, contents=contents)
+        before = [i for i, c in enumerate(chunks) if c["slot"] == "world" and c["turn"] < area_fg.BURN]
+        S[before] = 0
+        S[before, :, 3:3 + len(before)] = np.eye(len(before))[:, None, :] * 40 * rng.choice([-1, 1], len(before))[:, None, None]
+        kind[s] = k
+        for f in per:
+            per[f][s] = area_fg.senses(S, chunks, np.ones(2), f)
+    a = {f: area_fg.score(per[f], kind, draws=100)["bar1_area"]["auc"] for f in per}
+    assert a["b2"] > 0.85 and a["b2"] > a["b"] + 0.25, a

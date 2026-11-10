@@ -220,3 +220,63 @@ second read is its test.
 - **Q8.** The bars as drafted, the same as stage B's?
 - **Q9.** Stage A's toy: add unequal contents and a basis that can lose them, so the power check can fail for this
   reason, before the second read or after?
+
+**The owner's answers (2026-11-10: "I'll take your recommendations", the agent's in chat).**
+
+- **Q6.** Yes: the basis is fitted on the window's world replies only, R = 8. The interleaved path, reported, takes
+  the window's own basis likewise (its chunks in the window).
+- **Q7.** Seeds 5080–5199, registered for stage B and never played: every usable seed, up to 60 of each kind. A
+  rehearsal on the 0.6B on their mirrors 905080–905199 first, which decides nothing.
+- **Q8.** Stage B's bars unchanged: AUC loop over dither at least 0.80 with its 90% lower bound above 0.70; the 90%
+  interval of (area − boundary) above zero; 2,000 draws resampling episodes.
+- **Q9.** Before the second read: stage A2, below.
+
+### Stage A2: a toy that can fail the way stage B did (fixed 2026-11-10, before its code)
+
+The toy of section 4 with what it lacked: more dimensions than the basis keeps, four contents of unequal spread, and
+burn replies more spread than the contents.
+
+- **World:** d = 64. The four contents are drawn in 3 directions with variance shares 0.76, 0.17 and 0.08 (stage B's
+  medians), turned into the 64 dimensions at random, and scaled to median distance 1. Eleven replies before the
+  window (the opening and the burn) are drawn at random directions with 1.5 times the contents' RMS spread. Every
+  reply adds isotropic noise of expected norm 0.73 (stage B's measured ratio on the 8B). Loop and dither as section
+  4; 40 episodes of each kind; 2,000 draws; seed 51000.
+- **Bar (gates the second read):** the sense with the window's basis, R = 8, AUC loop over dither at least 0.90.
+- **Check of the toy itself (gates too):** the as-run basis (every reply up to the window's end) must read at least
+  0.05 lower than the window's basis. If it does not, the toy still cannot see this failure, and the owner is told
+  before the second read.
+- Reported: both bases at R = 4, 12, 16; boundary's analogue.
+
+**Stage A2's result (2026-11-10; `python -m proposals.toy_area --stage-a2`, `material/area_stage_a2.json`): fails
+both.** The window's basis reads 0.846 [0.768, 0.919], below the bar's 0.90; the as-run basis reads 0.807, only 0.039
+lower, short of the 0.05 the toy needed to show it can see stage B's failure. At R = 4, 12 and 16 the two bases read
+0.80–0.85; boundary's analogue 0.528. So the toy is more pessimistic than the 8B's own states with the window's basis
+(0.949 in section 7's diagnostic) and still does not reproduce the failure (0.759 against 0.949 there). As fixed, the
+second read waits, and the owner is told. Nothing in the toy's settings is changed.
+
+**Why the toy missed (report on PR #72, 2026-11-10; exploratory, on the 80 episodes already read).** Two faults of
+the toy, not of the sense. (1) Its contents: section 7's 76/17/8 are medians of each episode's own split, and four
+points drawn from those variances are far flatter (third direction's median share 0.008 against 0.082 real; checked
+by the agent). With the real contents and the toy's noise the window's basis reads 0.98. (2) Its noise: real
+rewording noise is low-dimensional (participation ratio about 7) and tied to content, and competes with the faint
+content directions for the basis; isotropic noise in 64 dimensions does not, so the toy barely reproduced the failure.
+Replanting the real replies as new loops and dithers reads 0.935 with the window's basis and 0.829 as run.
+
+**The owner (2026-11-10): A2 is recorded as failed, for these reasons, and its gate is lifted.** The second read on
+5080–5199 keeps its bars and is the deciding test. A toy matched to the real geometry would be fitted to the data.
+
+**The second read's rehearsal (2026-11-10, the 0.6B on the mirrors 905080–905199, 60 of each kind, none skipped;
+decides nothing; recorded before the 8B reads).** `body/area_fg.py --form b2`. Area with the window's basis 0.940
+[0.902, 0.972]; area minus boundary +0.514 [0.415, 0.609]; boundary 0.426. Reported: the as-run basis on the same
+episodes 0.821; area given boundary 0.940; the Frobenius form 0.932; the interleaved path, now in its window's basis,
+0.586; area by layer 0.91–0.95, flat; the noise ratio 0.72. No setting, bar or pool changes; the 8B in bf16 reads
+`runs/area-b2-8b` (seeds 5080–5199) next.
+
+**The second read's deciding result (2026-11-10, the 8B in bf16, revision b968826d, `runs/area-b2-8b`, seeds
+5080–5199, 60 of each kind, none skipped; read from the clean checkout c371660, scored as fixed): passes both bars.**
+Bar 1: area with the window's basis tells loop from dither at 0.918 [0.868, 0.963] against 0.80 with a lower bound
+above 0.70. Bar 2: area minus boundary +0.370 [0.268, 0.476], above 0; boundary 0.548 [0.458, 0.634]. Reported: the
+as-run basis on the same episodes 0.804; area given boundary 0.908; the Frobenius form 0.895; the interleaved path
+0.622; area by layer 0.90–0.93, flat from layer 24 to 35; the noise ratio 0.72 (0.70–0.78 by layer), as in the first
+read. So area, in its window's own basis, is a certified sense of order in Fault Garage. By the transfer rule
+(world-family.md) the claim holds for this world, which was built for it, until a world not built for it is read.
