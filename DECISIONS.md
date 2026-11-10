@@ -2,6 +2,22 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-09: **The conflict rule: all in bounds, then report** (owner, in discussion; The Semantic Body, "who writes
+  the setpoint"): a proposed setpoint is kept only if it restores the variable that left without pushing the other
+  out; when none does within a set number of trials, the organism tells its partner and does not switch by itself.
+  It needs a partner channel in the world. Nothing is built.
+- 2026-11-09: **Who writes the setpoint: both variables held in bounds** (owner, in discussion; the same section): a
+  second, slower loop rewrites the setpoint when an essential variable leaves its bounds. The given quest's progress
+  and the organism's learning signal are both held, neither on top. Which built sense carries the learning signal is
+  open (rate's predictive test). A slot after Act's setpoint; testing a self-set goal needs a world that continues
+  past its quest, argued in a proposal of its own when that step arrives.
+- 2026-11-09: **The goal code's form** (owner, in discussion; The Semantic Body, "where the setpoint lives"): Option A,
+  a held goal code with an error sense. The code is a pattern over both streams, the agent's actions and the world's
+  replies, selected from the organism's own library; the quest text picks a code out and is not lifted into one (a
+  lifted sentence is a position, and its gap is distance to an anchor, which the body ablation found read topic). A
+  goal is not a prediction: the forward model predicts, the goal code is what the loop is to become. The target-reply
+  form stays as a comparison arm. The measure of fit is open, since shape as code length is parked. Act's setpoint
+  stays a slot.
 - 2026-11-09: **Shape as position is not shape's new form** (owner, on the agent's reading of the trajectory
   mathematics): a path's signature, its shape, is blind to where the path sits, so position is what shape discards;
   area stays shape's new form. proposals/shape-as-position.md is not adopted as shape; its pairing test (one engine
