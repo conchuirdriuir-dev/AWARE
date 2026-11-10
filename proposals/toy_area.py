@@ -4,6 +4,8 @@
     python -m proposals.toy_area --quick    # smaller sizes (what the unit test runs)
     python -m proposals.toy_area --stage-a material/area_noise_8b.json [--states runs/area-noise-8b/states.npy]
                                             # area-sense.md's stage A: loop against dither at AWARE's size
+    python -m proposals.toy_area --stage-a2 [--out material/area_stage_a2.json]
+                                            # stage A2 (section 7): a toy that can fail the way stage B did
 
 No language and no model: each check is built so its answer is known in closed form. It checks the math of the
 doc's "One quantity: signed area" section before any reading on text relies on it. Nothing here is a sense or a
@@ -325,6 +327,67 @@ def stage_a(noise_file, states_file=None, quick=False):
     return out
 
 
+# --------------------------------------------------------------------------------------------------------------
+# Stage A2 (area-sense.md section 7, fixed 2026-11-10 before this code): the toy with what stage A lacked, so it
+# can fail the way stage B did. More dimensions than the basis keeps, four contents of unequal spread, and replies
+# before the window more spread than the contents. The bar is on the window's basis; the as-run basis must read
+# lower, or the toy still cannot see the failure.
+# --------------------------------------------------------------------------------------------------------------
+STAGE_A2 = dict(d=64, shares=(0.76, 0.17, 0.08), before=11, before_spread=1.5, ratio=0.73, contents=4, rounds=6,
+                R=8, episodes=40, draws=2000, seed=51000, bar=0.90, gap=0.05)
+
+
+def toy_episode_a2(kind, rng, d, shares, before, before_spread, ratio, contents, rounds, R_list):
+    """One episode; returns rho under the window's basis and the as-run basis for each R, and boundary's analogue."""
+    Q = np.linalg.qr(rng.normal(size=(d, len(shares))))[0]                 # 3 random orthonormal directions in d
+    C = (rng.normal(size=(contents, len(shares))) * np.sqrt(shares)) @ Q.T
+    iu = np.triu_indices(contents, 1)
+    C = C / np.median(np.linalg.norm(C[:, None] - C[None], axis=-1)[iu])
+    c_rms = np.sqrt(((C - C.mean(0)) ** 2).sum(1).mean())
+    B = rng.normal(size=(before, d))
+    B = B - B.mean(0)
+    B = C.mean(0) + B * (before_spread * c_rms / np.sqrt((B ** 2).sum(1).mean()))
+    noise = lambda n: rng.normal(size=(n, d)) * ratio / np.sqrt(d)
+    o = visit_order(kind, rng, contents, rounds)
+    world = np.vstack([B + noise(before), C[o] + noise(len(o))])
+    W = world[before:]
+    out = {"boundary": nearest_mean(world, before)}
+    for R in R_list:
+        for name, fit in (("window", W), ("as_run", world)):
+            mu, V = basis(fit, R)
+            out[f"{name}_R{R}"] = area_rho((W - mu) @ V)[0]
+    return out
+
+
+def stage_a2(quick=False):
+    cfg = dict(STAGE_A2)
+    if quick:
+        cfg.update(episodes=10, draws=200)
+    R_list = (cfg["R"], 4, 12, 16)
+    eps = {"loop": [], "dither": []}
+    for i in range(2 * cfg["episodes"]):
+        kind = "loop" if i % 2 == 0 else "dither"
+        eps[kind].append(toy_episode_a2(kind, np.random.default_rng(cfg["seed"] + i), cfg["d"], cfg["shares"],
+                                        cfg["before"], cfg["before_spread"], cfg["ratio"], cfg["contents"],
+                                        cfg["rounds"], R_list))
+    rng = np.random.default_rng(cfg["seed"] - 1)
+    fields = [f"{n}_R{R}" for R in R_list for n in ("window", "as_run")] + ["boundary"]
+    table = {}
+    for f in fields:
+        pos, neg = [e[f] for e in eps["loop"]], [e[f] for e in eps["dither"]]
+        table[f] = (auc(pos, neg), *auc_interval(pos, neg, rng, cfg["draws"]))
+    win, run_ = table[f"window_R{cfg['R']}"][0], table[f"as_run_R{cfg['R']}"][0]
+    out = {"config": cfg, "table": table, "bar_pass": win >= cfg["bar"], "toy_sees_failure": win - run_ >= cfg["gap"]}
+    out["pass"] = out["bar_pass"] and out["toy_sees_failure"]
+    print("stage A2: AUC loop over dither [90%]")
+    for f, (a, lo, hi) in table.items():
+        print(f"  {f:<14} {a:.3f}  [{lo:.3f}, {hi:.3f}]")
+    print(f"\nBar: window basis, R = {cfg['R']}, >= {cfg['bar']}: {'PASS' if out['bar_pass'] else 'FAIL'} ({win:.3f})")
+    print(f"Toy check: as-run at least {cfg['gap']} lower: {'PASS' if out['toy_sees_failure'] else 'FAIL'} "
+          f"({run_:.3f}, gap {win - run_:+.3f})")
+    return out
+
+
 def run(quick=False):
     rows = check_bag() + check_area() + check_holonomy() + check_flux(quick=quick)
     width = max(len(r[0]) for r in rows)
@@ -337,9 +400,15 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--quick", action="store_true", help="smaller sizes")
     ap.add_argument("--stage-a", metavar="NOISE_JSON", help="area-sense.md's stage A, with the measured noise")
+    ap.add_argument("--stage-a2", action="store_true", help="area-sense.md's stage A2 (section 7)")
     ap.add_argument("--states", help="with --stage-a: the 8B's paraphrase states, for the reported real variant")
     ap.add_argument("--out", help="with --stage-a: write the result here as JSON")
     a = ap.parse_args()
+    if a.stage_a2:
+        out = stage_a2(quick=a.quick)
+        if a.out:
+            open(a.out, "w").write(__import__("json").dumps(out, indent=1))
+        sys.exit(0)
     if a.stage_a:
         out = stage_a(a.stage_a, a.states, quick=a.quick)
         if a.out:

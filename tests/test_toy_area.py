@@ -44,3 +44,9 @@ def test_visit_orders():
     assert (np.bincount(d) == 6).all() and (d[1:] != d[:-1]).all()
     l = T.visit_order("loop", rng, 4, 6)
     assert (l[4:] == l[:-4]).all()
+
+
+def test_stage_a2_runs_and_reports_both_bases():
+    out = T.stage_a2(quick=True)
+    assert {"window_R8", "as_run_R8", "boundary"} <= set(out["table"])
+    assert out["pass"] == (out["bar_pass"] and out["toy_sees_failure"])
