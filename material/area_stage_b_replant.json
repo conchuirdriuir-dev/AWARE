@@ -1,0 +1,33 @@
+{
+ "episodes": 80,
+ "source": "states_packed_1.npz (runs/area-b-8b, seeds 5000-5079)",
+ "repeats": 3,
+ "R": 8,
+ "replanted": {
+  "real replies (real means, real rewording)": {
+   "window": 0.9353645833333334,
+   "as_run": 0.8294791666666667
+  },
+  "real means, real residuals handed out across contents": {
+   "window": 0.9653125,
+   "as_run": 0.9122395833333333
+  },
+  "real means, isotropic noise in 64 dimensions": {
+   "window": 0.9813541666666666,
+   "as_run": 0.9603645833333334
+  },
+  "real means, isotropic noise in 1024 dimensions": {
+   "window": 0.9859895833333333,
+   "as_run": 0.9621354166666668
+  }
+ },
+ "rewording_noise": {
+  "participation_ratio": 6.9082744688436915,
+  "share_in_top_5": 0.7207437626792809,
+  "share_in_content_directions": 0.0737241263062334
+ },
+ "third_content_direction_share": {
+  "real": 0.0820945499843779,
+  "stage_a2_draws": 0.007488592941660608
+ }
+}
