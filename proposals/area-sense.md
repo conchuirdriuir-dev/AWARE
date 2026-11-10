@@ -246,3 +246,10 @@ burn replies more spread than the contents.
   0.05 lower than the window's basis. If it does not, the toy still cannot see this failure, and the owner is told
   before the second read.
 - Reported: both bases at R = 4, 12, 16; boundary's analogue.
+
+**Stage A2's result (2026-11-10; `python -m proposals.toy_area --stage-a2`, `material/area_stage_a2.json`): fails
+both.** The window's basis reads 0.846 [0.768, 0.919], below the bar's 0.90; the as-run basis reads 0.807, only 0.039
+lower, short of the 0.05 the toy needed to show it can see stage B's failure. At R = 4, 12 and 16 the two bases read
+0.80–0.85; boundary's analogue 0.528. So the toy is more pessimistic than the 8B's own states with the window's basis
+(0.949 in section 7's diagnostic) and still does not reproduce the failure (0.759 against 0.949 there). As fixed, the
+second read waits, and the owner is told. Nothing in the toy's settings is changed.
