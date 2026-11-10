@@ -261,6 +261,8 @@ by the agent). With the real contents and the toy's noise the window's basis rea
 rewording noise is low-dimensional (participation ratio about 7) and tied to content, and competes with the faint
 content directions for the basis; isotropic noise in 64 dimensions does not, so the toy barely reproduced the failure.
 Replanting the real replies as new loops and dithers reads 0.935 with the window's basis and 0.829 as run.
+`python -m proposals.area_stage_b_replant` rebuilds these numbers (`material/area_stage_b_replant.json`; the toy's third
+direction comes to 0.007 there).
 
 **The owner (2026-11-10): A2 is recorded as failed, for these reasons, and its gate is lifted.** The second read on
 5080–5199 keeps its bars and is the deciding test. A toy matched to the real geometry would be fitted to the data.
