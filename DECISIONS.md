@@ -2,6 +2,9 @@
 
 Dated, one line each, newest first. The owner decides; an agent proposes.
 
+- 2026-11-10: **Stage A2 failed; its gate is lifted** (owner): the toy missed for its own reasons (contents drawn
+  flatter than real, isotropic noise; area-sense.md section 7), and matching it to the real states would fit it to
+  the data. The second read on 5080–5199 goes ahead with stage B's bars and decides.
 - 2026-11-10: **Area's new form: the basis of its own window** (owner, the agent's recommendations on
   proposals/area-sense.md section 7, Q6–Q9): the R = 8 basis is fitted on the window's world replies only; stage B is
   read again on seeds 5080–5199 (up to 60 of each kind; 0.6B rehearsal on 905080–905199 first) with its bars

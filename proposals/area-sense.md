@@ -253,3 +253,14 @@ lower, short of the 0.05 the toy needed to show it can see stage B's failure. At
 0.80–0.85; boundary's analogue 0.528. So the toy is more pessimistic than the 8B's own states with the window's basis
 (0.949 in section 7's diagnostic) and still does not reproduce the failure (0.759 against 0.949 there). As fixed, the
 second read waits, and the owner is told. Nothing in the toy's settings is changed.
+
+**Why the toy missed (report on PR #72, 2026-11-10; exploratory, on the 80 episodes already read).** Two faults of
+the toy, not of the sense. (1) Its contents: section 7's 76/17/8 are medians of each episode's own split, and four
+points drawn from those variances are far flatter (third direction's median share 0.008 against 0.082 real; checked
+by the agent). With the real contents and the toy's noise the window's basis reads 0.98. (2) Its noise: real
+rewording noise is low-dimensional (participation ratio about 7) and tied to content, and competes with the faint
+content directions for the basis; isotropic noise in 64 dimensions does not, so the toy barely reproduced the failure.
+Replanting the real replies as new loops and dithers reads 0.935 with the window's basis and 0.829 as run.
+
+**The owner (2026-11-10): A2 is recorded as failed, for these reasons, and its gate is lifted.** The second read on
+5080–5199 keeps its bars and is the deciding test. A toy matched to the real geometry would be fitted to the data.
